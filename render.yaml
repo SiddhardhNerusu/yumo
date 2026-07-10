@@ -1,0 +1,20 @@
+# Render blueprint for the Usual server (in-memory store, seeds from the
+# committed catalogue — no Postgres needed for the first dogfood).
+#
+# ⚠️ NODE_ENV is intentionally NOT "production" here so the /api/auth/dev login
+# works for the first private dogfood. Apple/Google token verification is still
+# stubbed (server/src/auth.ts) — implement it (JWKS) and flip NODE_ENV to
+# production before any wider beta.
+services:
+  - type: web
+    name: usual-server
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm run start -w @usual/server
+    healthCheckPath: /api/health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: BUILD_STRING
+        value: render-dogfood-1

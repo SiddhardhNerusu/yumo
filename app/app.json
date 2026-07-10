@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "Usual",
+    "slug": "usual",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "scheme": "usual",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sidnerusu.usual",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.sidnerusu.usual",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FBF8F4",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
