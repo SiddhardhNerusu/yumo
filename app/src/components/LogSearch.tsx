@@ -56,7 +56,7 @@ export function LogSearch({
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingBottom: 10 }}>
           <TextInput
             autoFocus
-            placeholder="Search foods…"
+            placeholder="Search foods or type a barcode…"
             placeholderTextColor={c('textMuted')}
             value={q}
             onChangeText={setQ}

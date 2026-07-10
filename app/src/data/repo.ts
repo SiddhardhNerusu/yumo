@@ -95,8 +95,29 @@ export interface FoodHit {
   per100g: { kcal: number; protein_g: number; carbs_g: number; fat_g: number };
 }
 
-/** Server food search (§5.4); offline falls back to matching the seed foods. */
+/** Server food search (§5.4). A pure-digit query (8–14) is a barcode → OpenFoodFacts;
+ * otherwise text search. Offline falls back to matching the seed foods. */
 export async function searchFoods(q: string): Promise<FoodHit[]> {
+  const trimmed = q.trim();
+  if (/^\d{8,14}$/.test(trimmed)) {
+    try {
+      const { food } = await api.barcode(trimmed);
+      return [
+        {
+          fdcId: food.fdcId,
+          description: food.description,
+          per100g: {
+            kcal: food.per100g['kcal'] ?? 0,
+            protein_g: food.per100g['protein_g'] ?? 0,
+            carbs_g: food.per100g['carbs_g'] ?? 0,
+            fat_g: food.per100g['fat_g'] ?? 0,
+          },
+        },
+      ];
+    } catch {
+      return [];
+    }
+  }
   try {
     const { foods } = await api.foodsSearch(q, 15);
     return foods.map((f) => ({

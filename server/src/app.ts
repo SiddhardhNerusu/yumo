@@ -116,8 +116,31 @@ export function createApp(store: Store, now: () => number = () => Date.now()): E
     const limit = clampInt(req.query['limit'], 20, 1, 50);
     return res.json({ foods: store.searchFoods(q, limit) });
   });
-  app.get('/api/foods/barcode/:ean', (_req, res) => {
-    return res.status(501).json({ error: 'barcode_not_wired', note: 'OpenFoodFacts integration pending' });
+  // OpenFoodFacts (ODbL — attribution shown in-app) for branded/barcode foods.
+  app.get('/api/foods/barcode/:ean', async (req, res) => {
+    const ean = String(req.params.ean).replace(/\D/g, '');
+    if (ean.length < 8 || ean.length > 14) return res.status(400).json({ error: 'bad_ean' });
+    try {
+      const r = await fetch(
+        `https://world.openfoodfacts.org/api/v2/product/${ean}.json?fields=product_name,brands,nutriments`,
+        { headers: { 'user-agent': 'Usual/0.1 (dogfood)' }, signal: AbortSignal.timeout(6000) },
+      );
+      const j = (await r.json()) as { status?: number; product?: { product_name?: string; brands?: string; nutriments?: Record<string, unknown> } };
+      if (j.status !== 1 || !j.product) return res.status(404).json({ error: 'not_found' });
+      const n = j.product.nutriments ?? {};
+      const num = (k: string) => Number(n[k] ?? 0) || 0;
+      const name = [j.product.brands, j.product.product_name].filter(Boolean).join(' — ') || `Barcode ${ean}`;
+      return res.json({
+        food: {
+          fdcId: -Number(ean.slice(-9)), // synthetic negative id (not an FDC id)
+          description: name,
+          per100g: { kcal: num('energy-kcal_100g'), protein_g: num('proteins_100g'), carbs_g: num('carbohydrates_100g'), fat_g: num('fat_100g') },
+          source: 'openfoodfacts',
+        },
+      });
+    } catch {
+      return res.status(502).json({ error: 'off_unavailable' });
+    }
   });
 
   // ── recipes ─────────────────────────────────────────────────────────────────

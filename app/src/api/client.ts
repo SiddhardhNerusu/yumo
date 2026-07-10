@@ -59,6 +59,10 @@ export const api = {
     req<{ foods: Array<{ fdcId: number; description: string; per100g: Record<string, number> }> }>(
       `/api/foods/search?q=${encodeURIComponent(q)}&limit=${limit}`,
     ),
+  barcode: (ean: string) =>
+    req<{ food: { fdcId: number; description: string; per100g: Record<string, number>; source: string } }>(
+      `/api/foods/barcode/${encodeURIComponent(ean)}`,
+    ),
   syncEvents: (blob: string, count: number) =>
     req<{ ok: boolean; id: string }>('/api/sync/events', {
       method: 'POST',
