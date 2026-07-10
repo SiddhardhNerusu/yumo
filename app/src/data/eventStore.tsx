@@ -1,8 +1,19 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { inferSlot, type BrainEvent } from '@usual/brain';
 import type { MealSlot } from '@usual/shared';
 import { FOODS, buildSeedHistory } from './seed';
 import { api } from '../api/client';
+
+const STORAGE_KEY = 'usual.eventlog.v1';
 
 interface EventStore {
   events: BrainEvent[];
@@ -13,13 +24,35 @@ const Ctx = createContext<EventStore | null>(null);
 let idc = 0;
 
 /**
- * The live event log (§3.2). Seeded with history, then live logs append on top.
- * Each log fires an opaque sync to the server (real encryption is a later
- * concern). In-memory for now; AsyncStorage/SQLite persistence is a follow-up.
+ * The live event log (§3.2). The demo history is regenerated each launch; the
+ * user's real logs are persisted (AsyncStorage → localStorage on web) so they
+ * survive a reload, and each log fires an opaque sync to the server. Real blob
+ * encryption + SQLite are follow-ups (§8.2).
  */
 export function EventStoreProvider({ children }: { children: ReactNode }) {
   const [initNow] = useState(() => Date.now());
-  const [events, setEvents] = useState<BrainEvent[]>(() => buildSeedHistory(initNow));
+  const seed = useMemo(() => buildSeedHistory(initNow), [initNow]);
+  const [userLogs, setUserLogs] = useState<BrainEvent[]>([]);
+
+  useEffect(() => {
+    let alive = true;
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((v) => {
+        if (!alive || !v) return;
+        try {
+          const parsed = JSON.parse(v);
+          if (Array.isArray(parsed)) setUserLogs(parsed as BrainEvent[]);
+        } catch {
+          // ignore corrupt cache
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const events = useMemo(() => [...seed, ...userLogs], [seed, userLogs]);
 
   const logFood = useCallback(
     (foodId: string, opts: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string } = {}) => {
@@ -37,7 +70,11 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
         kcal: opts.kcal ?? meta?.kcal,
         ...(name ? { meta: { name } } : {}),
       };
-      setEvents((prev) => [...prev, ev]);
+      setUserLogs((prev) => {
+        const next = [...prev, ev];
+        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+        return next;
+      });
       api.syncEvents(JSON.stringify(ev), 1).catch(() => {}); // fire-and-forget; offline-safe
     },
     [],
