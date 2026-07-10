@@ -13,10 +13,12 @@
   "dependencies": {
     "@expo/metro-runtime": "~57.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@types/d3-force": "^3.0.10",
     "@yumo/brain": "*",
     "@yumo/menu": "*",
     "@yumo/shared": "*",
     "@yumo/tokens": "*",
+    "d3-force": "^3.0.0",
     "expo": "~57.0.4",
     "expo-status-bar": "~57.0.0",
     "react": "19.2.3",

@@ -13,6 +13,8 @@ import type { UserProfile, VariationDial } from '@yumo/menu';
 import { useTheme } from '../theme';
 import { Screen, PrimaryButton, Choice, NumberField, ProgressDots } from '../ui/primitives';
 import { Bubbles } from './Bubbles';
+import { BubbleCloud } from './BubbleCloud';
+import { FOOD_PARENTS } from '../data/food-graph';
 import { BUBBLE_FOODS, CUISINES, ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { track } from '../analytics';
 
@@ -269,22 +271,22 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
 
       case 'needs':
         return (
-          <Screen title="Can’t live without…" subtitle="Pick up to 3 — we’ll work these into most days." footer={footer}>
-            <Bubbles options={foodOptions} selected={s.needs} onToggle={(v) => toggle('needs', v)} max={3} />
+          <Screen title="Can’t live without…" subtitle="Tap a food to see more like it. Pick up to 3." footer={footer}>
+            <BubbleCloud parents={FOOD_PARENTS} selected={s.needs} onToggle={(v) => toggle('needs', v)} max={3} />
           </Screen>
         );
 
       case 'likes':
         return (
-          <Screen title="Foods you like" subtitle="We’ll lean towards these." footer={footer}>
-            <Bubbles options={foodOptions} selected={s.likes} onToggle={(v) => toggle('likes', v)} max={12} />
+          <Screen title="Foods you like" subtitle="Tap to explore — we’ll lean towards these." footer={footer}>
+            <BubbleCloud parents={FOOD_PARENTS} selected={s.likes} onToggle={(v) => toggle('likes', v)} max={12} />
           </Screen>
         );
 
       case 'hates':
         return (
-          <Screen title="Never suggest…" subtitle="We’ll keep these off your plate entirely." footer={footer}>
-            <Bubbles options={foodOptions} selected={s.hates} onToggle={(v) => toggle('hates', v)} />
+          <Screen title="Never suggest…" subtitle="Tap to expand — we’ll keep these off your plate." footer={footer}>
+            <BubbleCloud parents={FOOD_PARENTS} selected={s.hates} onToggle={(v) => toggle('hates', v)} />
           </Screen>
         );
 

@@ -4,6 +4,14 @@
  * In production these edges come from the server food graph (§4.1 food_edges);
  * this curated seed stands in for v1 so the interaction is real now.
  */
+/** Curated top-level foods shown as the initial floating bubbles (each has a
+ * RELATED entry below that fans out on tap). Kept to ~16 so the cloud isn't
+ * crowded on a phone. */
+export const FOOD_PARENTS: string[] = [
+  'Chicken', 'Rice', 'Eggs', 'Oats', 'Greek yogurt', 'Salmon', 'Beef', 'Pasta',
+  'Potato', 'Bread', 'Cheese', 'Chickpeas', 'Tofu', 'Avocado', 'Curry', 'Banana',
+];
+
 export const RELATED: Record<string, string[]> = {
   Chicken: ['Chicken curry', 'Roast chicken', 'Chicken salad', 'Grilled chicken'],
   Rice: ['Fried rice', 'Rice bowl', 'Biryani', 'Egg fried rice'],
