@@ -1,9 +1,9 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useTheme } from '../theme';
 import { WeightChart } from '../components/WeightChart';
 import { WEIGHTS, LOGGED_LAST_7, DAY_LABELS, STREAK } from '../data/progress-seed';
 
-export function Progress() {
+export function Progress({ onReset }: { onReset?: () => void }) {
   const { c, radius } = useTheme();
   const current = WEIGHTS[WEIGHTS.length - 1];
   const start = WEIGHTS[0];
@@ -74,6 +74,12 @@ export function Progress() {
             Down {Math.abs(change).toFixed(1)} kg over three weeks, steady as you like. Keep going.
           </Text>
         </View>
+
+        {onReset ? (
+          <Pressable onPress={onReset} style={{ alignItems: 'center', paddingVertical: 14, marginTop: 4 }}>
+            <Text style={{ color: c('textMuted'), fontSize: 13 }}>Start over — clear profile &amp; logs</Text>
+          </Pressable>
+        ) : null}
       </ScrollView>
     </View>
   );

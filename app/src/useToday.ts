@@ -19,9 +19,11 @@ export interface Tile {
 }
 export interface TimelineItem {
   id: string;
+  foodId: string | null;
   name: string;
   slot: string;
   kcal: number;
+  portionG: number | null;
   minutesOfDay: number;
 }
 export interface TodayState {
@@ -77,9 +79,11 @@ function compute(events: BrainEvent[], now: number, budget: number): TodayState 
       const metaName = typeof e.meta?.['name'] === 'string' ? (e.meta['name'] as string) : null;
       return {
         id: e.id,
+        foodId: e.foodId ?? null,
         name: metaName ?? (e.foodId ? foodName(e.foodId) : 'meal'),
         slot: e.slot ?? '',
         kcal: e.kcal ?? 0,
+        portionG: e.portionG ?? null,
         minutesOfDay: localParts(e.ts, 0).minutesOfDay,
       };
     })

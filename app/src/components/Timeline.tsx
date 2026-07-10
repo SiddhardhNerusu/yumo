@@ -7,9 +7,11 @@ const fmt = (m: number) =>
 
 export function Timeline({
   items,
+  onEdit,
   onDelete,
 }: {
   items: TimelineItem[];
+  onEdit?: (item: TimelineItem) => void;
   onDelete?: (id: string) => void;
 }) {
   const { c, radius } = useTheme();
@@ -26,12 +28,12 @@ export function Timeline({
             key={it.id}
             style={{ flexDirection: 'row', alignItems: 'center', padding: 14, borderTopWidth: i ? 1 : 0, borderTopColor: c('border') }}
           >
-            <View style={{ flex: 1 }}>
+            <Pressable style={{ flex: 1 }} onPress={() => onEdit?.(it)}>
               <Text style={{ color: c('textPrimary'), fontSize: 15, fontWeight: '600' }}>{it.name}</Text>
               <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 2 }}>
                 {it.slot} · {fmt(it.minutesOfDay)}
               </Text>
-            </View>
+            </Pressable>
             <Text style={{ color: c('textSecondary'), fontSize: 14, marginRight: onDelete ? 12 : 0 }}>{it.kcal} kcal</Text>
             {onDelete ? (
               <Pressable

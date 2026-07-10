@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import type { MealSlot } from '@usual/shared';
 import { useTheme } from '../theme';
-import { useToday } from '../useToday';
+import { useToday, type TimelineItem } from '../useToday';
 import { useEventStore } from '../data/eventStore';
 import { FOODS } from '../data/seed';
 import { BudgetRing } from '../components/BudgetRing';
@@ -10,6 +10,7 @@ import { UsualCard } from '../components/UsualCard';
 import { Timeline } from '../components/Timeline';
 import { CoachLine } from '../components/CoachLine';
 import { LogSearch, SEARCH_PORTION_G } from '../components/LogSearch';
+import { TimelineEditSheet } from '../components/TimelineEditSheet';
 
 const cap = (s: string) => (s ? s[0]!.toUpperCase() + s.slice(1) : s);
 
@@ -18,6 +19,7 @@ export function Today({ budget }: { budget?: number }) {
   const { events, logFood, deleteLog } = useEventStore();
   const [now] = useState(() => Date.now());
   const [showSearch, setShowSearch] = useState(false);
+  const [editItem, setEditItem] = useState<TimelineItem | null>(null);
   const state = useToday(events, now, budget);
 
   return (
@@ -51,7 +53,7 @@ export function Today({ budget }: { budget?: number }) {
           <Text style={{ color: c('textSecondary'), fontWeight: '600', fontSize: 15 }}>＋ Log a food</Text>
         </Pressable>
 
-        <Timeline items={state.timeline} onDelete={deleteLog} />
+        <Timeline items={state.timeline} onEdit={setEditItem} onDelete={deleteLog} />
       </ScrollView>
 
       <LogSearch
@@ -69,6 +71,26 @@ export function Today({ budget }: { budget?: number }) {
         onQuickAdd={(kcal) => {
           logFood('quick', { slot: state.slot as MealSlot, kcal, name: `Quick add · ~${kcal} kcal` });
           setShowSearch(false);
+        }}
+      />
+
+      <TimelineEditSheet
+        item={editItem}
+        onClose={() => setEditItem(null)}
+        onApply={({ scale, slot }) => {
+          if (!editItem) return;
+          deleteLog(editItem.id);
+          logFood(editItem.foodId ?? 'quick', {
+            slot: slot as MealSlot,
+            portionG: editItem.portionG != null ? Math.round(editItem.portionG * scale) : undefined,
+            kcal: Math.round(editItem.kcal * scale),
+            name: editItem.name,
+          });
+          setEditItem(null);
+        }}
+        onDelete={() => {
+          if (editItem) deleteLog(editItem.id);
+          setEditItem(null);
         }}
       />
     </View>
