@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { useTheme } from '../theme';
 import { useEntitlement } from '../data/entitlement';
 import { PrimaryButton } from '../ui/primitives';
+import { track } from '../analytics';
 
 const PREMIUM = [
   'Full 7-day menu + weekly refresh',
@@ -18,6 +19,10 @@ export function Paywall({ onClose }: { onClose: () => void }) {
   const { c, radius } = useTheme();
   const { isPremium, startTrial, cancel } = useEntitlement();
   const [plan, setPlan] = useState<Plan>('annual');
+
+  useEffect(() => {
+    track('paywall_viewed');
+  }, []);
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
@@ -74,6 +79,7 @@ export function Paywall({ onClose }: { onClose: () => void }) {
               <PrimaryButton
                 label="Start 7-day free trial"
                 onPress={() => {
+                  track('paywall_converted', { plan });
                   startTrial();
                   onClose();
                 }}

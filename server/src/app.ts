@@ -3,6 +3,7 @@ import express, { type Express, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { ALLERGENS, MEAL_SLOTS, type Allergen, type MealSlot } from '@usual/shared';
 import { generateWeekMenu, mixItUp, type UserProfile } from '@usual/menu';
+import { median } from '@usual/brain';
 import type { Store, StoredProfile } from './db/store';
 import { signSession, verifyExternalIdentity } from './auth';
 import { requireAuth, type AuthedRequest } from './middleware';
@@ -175,6 +176,40 @@ export function createApp(store: Store, now: () => number = () => Date.now()): E
     const userId = (req as AuthedRequest).userId as string;
     const since = clampInt(req.query['since'], 0, 0, Number.MAX_SAFE_INTEGER);
     return res.json({ events: store.eventsSince(userId, since) });
+  });
+
+  // ── analytics (privacy-clean — NO food content, §10) ────────────────────────
+  const analytics: Array<{ event: string; props: Record<string, unknown>; ts: number }> = [];
+  const ANALYTICS_CAP = 5000;
+  const ALLOWED_PROPS = new Set(['source', 'taps', 'ms', 'plan', 'granted', 'step', 'count', 'tier', 'reason']);
+  const sanitize = (p: Record<string, unknown>): Record<string, unknown> => {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(p)) if (ALLOWED_PROPS.has(k)) out[k] = v;
+    return out;
+  };
+  const analyticsEvent = z.object({
+    event: z.string().min(1).max(64),
+    props: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
+    ts: z.number().optional(),
+  });
+  app.post('/api/analytics', (req, res) => {
+    const parsed = z.object({ events: z.array(analyticsEvent).max(100) }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'bad_request' });
+    for (const e of parsed.data.events) {
+      analytics.push({ event: e.event, props: sanitize(e.props ?? {}), ts: e.ts ?? now() });
+    }
+    if (analytics.length > ANALYTICS_CAP) analytics.splice(0, analytics.length - ANALYTICS_CAP);
+    return res.json({ ok: true, received: parsed.data.events.length });
+  });
+  app.get('/api/analytics/summary', (_req, res) => {
+    const byEvent: Record<string, number> = {};
+    const taps: number[] = [];
+    for (const e of analytics) {
+      byEvent[e.event] = (byEvent[e.event] ?? 0) + 1;
+      const t = e.props['taps'];
+      if (e.event === 'log_completed' && typeof t === 'number') taps.push(t);
+    }
+    return res.json({ total: analytics.length, byEvent, medianTapsPerLog: median(taps) });
   });
 
   return app;

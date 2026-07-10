@@ -12,12 +12,13 @@ import { inferSlot, type BrainEvent } from '@usual/brain';
 import type { MealSlot } from '@usual/shared';
 import { FOODS, buildSeedHistory } from './seed';
 import { api } from '../api/client';
+import { track } from '../analytics';
 
 const STORAGE_KEY = 'usual.eventlog.v1';
 
 interface EventStore {
   events: BrainEvent[];
-  logFood: (foodId: string, opts?: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string }) => void;
+  logFood: (foodId: string, opts?: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string; source?: string; taps?: number }) => void;
   deleteLog: (targetEventId: string) => void;
   skipMeal: (slot: MealSlot) => void;
 }
@@ -57,7 +58,7 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
   const events = useMemo(() => [...seed, ...userLogs], [seed, userLogs]);
 
   const logFood = useCallback(
-    (foodId: string, opts: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string } = {}) => {
+    (foodId: string, opts: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string; source?: string; taps?: number } = {}) => {
       const now = Date.now();
       const meta = FOODS[foodId];
       const name = opts.name ?? meta?.name;
@@ -78,6 +79,7 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
         return next;
       });
       api.syncEvents(JSON.stringify(ev), 1).catch(() => {}); // fire-and-forget; offline-safe
+      track('log_completed', { source: opts.source ?? 'unknown', taps: opts.taps ?? 1 });
     },
     [],
   );

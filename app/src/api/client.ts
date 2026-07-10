@@ -37,6 +37,8 @@ export interface Bubble {
 export const api = {
   health: () => req<{ status: string; build: string }>('/api/health'),
   getConfig: () => req<{ version: string; coach?: Record<string, string | string[]> }>('/api/config'),
+  postAnalytics: (events: Array<{ event: string; props?: Record<string, string | number | boolean>; ts?: number }>) =>
+    req<{ ok: boolean; received: number }>('/api/analytics', { method: 'POST', body: JSON.stringify({ events }) }),
   devLogin: (providerId: string) =>
     req<DevLoginResp>('/api/auth/dev', { method: 'POST', body: JSON.stringify({ providerId }) }),
   patchProfile: (profile: Record<string, unknown>) =>

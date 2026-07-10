@@ -5,6 +5,7 @@ import type { MealSlot } from '@usual/shared';
 import { useTheme } from '../theme';
 import { getMenu, getMixup, getRecipeSteps, type Source } from '../data/repo';
 import { RecipeSheet } from '../components/RecipeSheet';
+import { track } from '../analytics';
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -54,6 +55,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
   const openMix = (key: string, recipe: MenuRecipe, slot: MealSlot) => {
     const opening = mixOpen !== key;
     setMixOpen(opening ? key : null);
+    if (opening) track('mixup_opened');
     if (opening && !alts[key]) getMixup(recipe, slot, profile).then((a) => setAlts((p) => ({ ...p, [key]: a })));
   };
   const openRecipe = (recipe: MenuRecipe) =>
@@ -121,7 +123,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
                         {these.map((alt) => (
                           <Pressable
                             key={alt.id}
-                            onPress={() => { setOverrides((o) => ({ ...o, [key]: alt })); setMixOpen(null); }}
+                            onPress={() => { track('mixup_picked'); setOverrides((o) => ({ ...o, [key]: alt })); setMixOpen(null); }}
                             style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: c('surfaceSunken'), padding: 12, borderRadius: radius.md }}
                           >
                             <Text style={{ color: c('textPrimary'), fontSize: 14, fontWeight: '600' }}>{alt.name}</Text>

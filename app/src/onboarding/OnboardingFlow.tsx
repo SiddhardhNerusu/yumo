@@ -15,6 +15,7 @@ import { Screen, PrimaryButton, Choice, NumberField, ProgressDots } from '../ui/
 import { Bubbles } from './Bubbles';
 import { BUBBLE_FOODS, CUISINES, ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { getBubbles } from '../data/repo';
+import { track } from '../analytics';
 
 interface OnbState {
   goal: Goal;
@@ -138,6 +139,7 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
       variation: s.variation,
       cuisineLean: Object.fromEntries(s.cuisines.map((x) => [x, 1.5])),
     };
+    track('onboard_completed');
     onDone(profile, s.goal);
   };
 

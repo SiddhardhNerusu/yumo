@@ -70,7 +70,7 @@ export function Today({ budget }: { budget?: number }) {
           <View style={{ gap: 10 }}>
             <UsualCard
               state={state}
-              onLog={(id) => logFood(id, { slot: state.slot as MealSlot, portionG: state.usual?.portionG, kcal: FOODS[id]?.kcal })}
+              onLog={(id) => logFood(id, { slot: state.slot as MealSlot, portionG: state.usual?.portionG, kcal: FOODS[id]?.kcal, source: id === state.usual?.foodId ? 'usual' : 'tile', taps: 1 })}
             />
             <Pressable onPress={() => skipMeal(state.slot as MealSlot)} style={{ alignItems: 'center', paddingVertical: 6 }}>
               <Text style={{ color: c('textMuted'), fontSize: 13 }}>Skip this meal</Text>
@@ -97,16 +97,18 @@ export function Today({ budget }: { budget?: number }) {
             portionG: SEARCH_PORTION_G,
             kcal: Math.round((hit.per100g.kcal * SEARCH_PORTION_G) / 100),
             name: hit.description,
+            source: 'search',
+            taps: 2,
           });
           setShowSearch(false);
         }}
         onQuickAdd={(kcal) => {
-          logFood('quick', { slot: state.slot as MealSlot, kcal, name: `Quick add · ~${kcal} kcal` });
+          logFood('quick', { slot: state.slot as MealSlot, kcal, name: `Quick add · ~${kcal} kcal`, source: 'quickadd', taps: 2 });
           setShowSearch(false);
         }}
         recents={recents}
         onLogRecent={(r) => {
-          logFood(r.foodId, { slot: state.slot as MealSlot, kcal: r.kcal, name: r.name });
+          logFood(r.foodId, { slot: state.slot as MealSlot, kcal: r.kcal, name: r.name, source: 'recent', taps: 1 });
           setShowSearch(false);
         }}
       />
@@ -122,6 +124,8 @@ export function Today({ budget }: { budget?: number }) {
             portionG: editItem.portionG != null ? Math.round(editItem.portionG * scale) : undefined,
             kcal: Math.round(editItem.kcal * scale),
             name: editItem.name,
+            source: 'edit',
+            taps: 2,
           });
           setEditItem(null);
         }}
