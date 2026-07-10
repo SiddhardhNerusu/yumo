@@ -14,7 +14,6 @@ import { useTheme } from '../theme';
 import { Screen, PrimaryButton, Choice, NumberField, ProgressDots } from '../ui/primitives';
 import { Bubbles } from './Bubbles';
 import { BUBBLE_FOODS, CUISINES, ALLERGEN_LABELS } from '../data/onboarding-seed';
-import { getBubbles } from '../data/repo';
 import { track } from '../analytics';
 
 interface OnbState {
@@ -96,17 +95,10 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
   const [s, setS] = useState<OnbState>(DEFAULT);
   const [index, setIndex] = useState(0);
   const [showMath, setShowMath] = useState(false);
-  const [foodOptions, setFoodOptions] = useState<string[]>(BUBBLE_FOODS);
-
-  useEffect(() => {
-    let alive = true;
-    getBubbles().then((o) => {
-      if (alive) setFoodOptions(o);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
+  // Onboarding bubbles use the curated local list — clean whole-food names,
+  // shown instantly. (The server bubble endpoint currently tokenizes ingredient
+  // names into fragments like "Oil"/"Breast"; not used here until it's fixed.)
+  const foodOptions = BUBBLE_FOODS;
 
   const patch = (p: Partial<OnbState>) => setS((prev) => ({ ...prev, ...p }));
   const toggle = (key: 'needs' | 'likes' | 'hates' | 'cuisines', value: string) =>

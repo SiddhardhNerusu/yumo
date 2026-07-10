@@ -28,7 +28,7 @@ export function Paywall({ onClose }: { onClose: () => void }) {
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: c('bg') }}>
         <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 64, paddingBottom: 40 }}>
-          <Text style={{ color: c('accent'), fontSize: 13, fontWeight: '700', letterSpacing: 0.5, textTransform: 'uppercase' }}>Usual Premium</Text>
+          <Text style={{ color: c('accent'), fontSize: 13, fontWeight: '700', letterSpacing: 0.5, textTransform: 'uppercase' }}>Yumo Premium</Text>
           <Text style={{ color: c('textPrimary'), fontSize: 28, fontWeight: '800', letterSpacing: -0.5, marginTop: 6 }}>
             Your menu, your way.
           </Text>
