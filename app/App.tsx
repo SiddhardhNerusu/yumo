@@ -9,6 +9,7 @@ import { OnboardingFlow } from './src/onboarding/OnboardingFlow';
 import { AppShell } from './src/AppShell';
 import { EventStoreProvider } from './src/data/eventStore';
 import { EntitlementProvider } from './src/data/entitlement';
+import { ErrorBoundary } from './src/ErrorBoundary';
 import { bootstrapSession } from './src/data/repo';
 
 const PROFILE_KEY = 'usual.profile.v1';
@@ -72,17 +73,19 @@ export default function App() {
   };
 
   return (
-    <>
-      {loading ? (
-        <Splash />
-      ) : profile ? (
-        <EventStoreProvider>
-          <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
-        </EventStoreProvider>
-      ) : (
-        <OnboardingFlow onDone={handleDone} />
-      )}
-      <StatusBar style="auto" />
-    </>
+    <ErrorBoundary>
+      <EntitlementProvider>
+        {loading ? (
+          <Splash />
+        ) : profile ? (
+          <EventStoreProvider>
+            <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+          </EventStoreProvider>
+        ) : (
+          <OnboardingFlow onDone={handleDone} />
+        )}
+        <StatusBar style="auto" />
+      </EntitlementProvider>
+    </ErrorBoundary>
   );
 }
