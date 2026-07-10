@@ -13,7 +13,7 @@ services:
     # --include=dev so tsx (a devDependency the server runs on) is installed
     # even when Render omits dev deps in production builds.
     buildCommand: npm ci --include=dev
-    startCommand: npm run start -w @usual/server
+    startCommand: npm run start -w @yumo/server
     healthCheckPath: /api/health
     envVars:
       # NODE_ENV intentionally left UNSET so /api/auth/dev works for the dogfood.

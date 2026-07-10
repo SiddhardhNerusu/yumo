@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
-import { ALLERGENS, type Allergen } from '@usual/shared';
-import type { UserProfile, VariationDial } from '@usual/menu';
+import { ALLERGENS, type Allergen } from '@yumo/shared';
+import type { UserProfile, VariationDial } from '@yumo/menu';
 import { useTheme } from '../theme';
 import { ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { PrimaryButton, Chip, NumberField } from '../ui/primitives';

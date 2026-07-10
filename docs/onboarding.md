@@ -4,7 +4,7 @@
 critical stretch (research: days 1–3 decide everything). Produces a
 `UserProfile` that feeds the menu engine and seeds the Brain.
 
-## The budget math (`@usual/shared/budget.ts`, 6 tests)
+## The budget math (`@yumo/shared/budget.ts`, 6 tests)
 
 Deterministic, server-usable, ED-safe:
 - `mifflinStJeorBMR` + `tdee` (activity ×1.2 / 1.375 / 1.55 / 1.725);
@@ -36,7 +36,7 @@ Choice, Chip, NumberField, ProgressDots), all token-driven + light/dark aware.
 
 ## Verified
 
-- `@usual/shared` budget: 6 unit tests.
+- `@yumo/shared` budget: 6 unit tests.
 - App typecheck clean; web bundle clean (249 modules).
 - Number-reveal math confirmed against `dailyBudget` for the default profile.
 

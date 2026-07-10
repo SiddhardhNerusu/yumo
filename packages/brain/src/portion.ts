@@ -1,4 +1,4 @@
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 import type { BrainEvent } from './events';
 import { logEvents } from './events';
 import { median } from './time';

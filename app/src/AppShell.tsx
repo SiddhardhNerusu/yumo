@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { UserProfile } from '@usual/menu';
+import type { UserProfile } from '@yumo/menu';
 import { useTheme } from './theme';
 import { useEntitlement } from './data/entitlement';
 import { Today } from './screens/Today';

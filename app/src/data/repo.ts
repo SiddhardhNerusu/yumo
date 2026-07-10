@@ -5,8 +5,8 @@ import {
   type UserProfile,
   type WeekMenuPlan,
   type MenuRecipe,
-} from '@usual/menu';
-import type { MealSlot } from '@usual/shared';
+} from '@yumo/menu';
+import type { MealSlot } from '@yumo/shared';
 import { POOL, POOL_STEPS } from './menu-seed';
 import { BUBBLE_FOODS } from './onboarding-seed';
 import { FOODS } from './seed';

@@ -1,4 +1,4 @@
-import type { MealSlot, EnergyMacros, Allergen } from '@usual/shared';
+import type { MealSlot, EnergyMacros, Allergen } from '@yumo/shared';
 
 export type Effort = '5min' | '15min' | '30min+';
 

@@ -1,5 +1,5 @@
-import type { EnergyMacros, NutrientProfilePer100g } from '@usual/shared';
-import { zeroEnergyMacros } from '@usual/shared';
+import type { EnergyMacros, NutrientProfilePer100g } from '@yumo/shared';
+import { zeroEnergyMacros } from '@yumo/shared';
 import type { FdcFood } from './fdc/store';
 import type { Resolution } from './fdc/resolve';
 import type { RecipeDraft } from './schema';

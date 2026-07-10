@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
-import type { Allergen } from '@usual/shared';
-import { ALLERGENS } from '@usual/shared';
+import type { Allergen } from '@yumo/shared';
+import { ALLERGENS } from '@yumo/shared';
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

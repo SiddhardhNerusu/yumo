@@ -8,8 +8,8 @@ import {
   type ReactNode,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { inferSlot, type BrainEvent } from '@usual/brain';
-import type { MealSlot } from '@usual/shared';
+import { inferSlot, type BrainEvent } from '@yumo/brain';
+import type { MealSlot } from '@yumo/shared';
 import { FOODS, buildSeedHistory } from './seed';
 import { api } from '../api/client';
 import { track } from '../analytics';

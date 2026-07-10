@@ -11,7 +11,7 @@ channel.
 - **Apple Developer Program** membership ($99/yr) — required for TestFlight.
 - An **Expo account** (free) — `npx eas-cli login`.
 - The default app icon (`app/assets/icon.png`) works for a dogfood; swap for
-  real branding before a wider beta. Bundle id is `com.sidnerusu.usual` in
+  real branding before a wider beta. Bundle id is `com.sidnerusu.yumo` in
   `app.json` — change it to your own reverse-domain if you prefer (it just has
   to be unique in your Apple account).
 

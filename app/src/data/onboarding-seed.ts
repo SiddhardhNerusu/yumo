@@ -1,4 +1,4 @@
-import type { Allergen } from '@usual/shared';
+import type { Allergen } from '@yumo/shared';
 
 /**
  * DEMO SEED for the onboarding pickers — replaced by GET /api/onboarding/bubbles

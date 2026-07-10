@@ -1,4 +1,4 @@
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 import type { BrainEvent, EventKind } from '../src/events';
 
 export const DAY = 86_400_000;

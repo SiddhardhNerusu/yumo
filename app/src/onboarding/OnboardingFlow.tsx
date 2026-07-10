@@ -8,8 +8,8 @@ import {
   type Sex,
   type Allergen,
   ALLERGENS,
-} from '@usual/shared';
-import type { UserProfile, VariationDial } from '@usual/menu';
+} from '@yumo/shared';
+import type { UserProfile, VariationDial } from '@yumo/menu';
 import { useTheme } from '../theme';
 import { Screen, PrimaryButton, Choice, NumberField, ProgressDots } from '../ui/primitives';
 import { Bubbles } from './Bubbles';

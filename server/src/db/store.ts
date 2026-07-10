@@ -1,5 +1,5 @@
-import { rankFoods, indexById, type FdcStore, type FdcFood } from '@usual/catalogue-pipeline';
-import type { MenuRecipe, WeekMenuPlan, UserProfile } from '@usual/menu';
+import { rankFoods, indexById, type FdcStore, type FdcFood } from '@yumo/catalogue-pipeline';
+import type { MenuRecipe, WeekMenuPlan, UserProfile } from '@yumo/menu';
 import { loadCatalogue, type RecipeDetail } from '../catalogue';
 
 export type Tier = 'free' | 'premium';

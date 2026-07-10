@@ -1,7 +1,7 @@
 # Server (§8) — API backbone
 
 **Status: BUILT & verified** (boots as a real process; 14 supertest API tests).
-`@usual/server` — Node/Express, in the monorepo so it imports the engines
+`@yumo/server` — Node/Express, in the monorepo so it imports the engines
 directly. Run it: `npm run server:dev` (defaults to `:8080`).
 
 ## What it exposes (§8.1)
@@ -17,7 +17,7 @@ directly. Run it: `npm run server:dev` (defaults to `:8080`).
 | `GET /api/foods/search` | — | ranked FDC search |
 | `GET /api/foods/barcode/:ean` | — | 501 stub (OpenFoodFacts pending) |
 | `GET /api/recipes/:id` | — | recipe detail + steps |
-| `POST /api/menu/generate` | JWT | wires `@usual/menu`; **entitlement-gated** (free = 3-day/1 need, premium = 7-day/all needs) |
+| `POST /api/menu/generate` | JWT | wires `@yumo/menu`; **entitlement-gated** (free = 3-day/1 need, premium = 7-day/all needs) |
 | `GET /api/menu/current` | JWT | last generated menu |
 | `POST /api/menu/mixup` | JWT | wires `mixItUp` |
 | `POST/GET /api/sync/events` | JWT | opaque encrypted blob per batch; **server never parses** (§8.2) |

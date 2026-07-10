@@ -1,4 +1,4 @@
-import type { WeekMenuPlan, MenuRecipe } from '@usual/menu';
+import type { WeekMenuPlan, MenuRecipe } from '@yumo/menu';
 
 /**
  * Server API client. Base URL is compile-time via EXPO_PUBLIC_API_BASE (Expo

@@ -1,11 +1,11 @@
-import { DEFAULT_CONFIG as BRAIN_CONFIG } from '@usual/brain';
+import { DEFAULT_CONFIG as BRAIN_CONFIG } from '@yumo/brain';
 import {
   PROTEIN_FLOOR_PER_KG,
   DAY_BUDGET_TOLERANCE,
   NOVELTY_WEIGHT,
   MAX_HARD_DINNERS_PER_WEEK,
   MIXUP,
-} from '@usual/menu';
+} from '@yumo/menu';
 
 export const BUILD = process.env['BUILD_STRING'] ?? 'dev-2026-07-10-server-scaffold';
 export const JWT_SECRET = process.env['JWT_SECRET'] ?? 'dev-insecure-secret-change-me';

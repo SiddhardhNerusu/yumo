@@ -1,4 +1,4 @@
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 import type { MenuRecipe, UserProfile, Effort } from './types';
 import { isAllowed } from './filter';
 import { softScore } from './scoring';

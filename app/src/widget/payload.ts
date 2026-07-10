@@ -5,7 +5,7 @@ import {
   inferSlot,
   DEFAULT_CONFIG,
   type BrainEvent,
-} from '@usual/brain';
+} from '@yumo/brain';
 import { FOODS, CANDIDATES, SEED_MENU, PORTION_FALLBACK } from '../data/seed';
 
 /**

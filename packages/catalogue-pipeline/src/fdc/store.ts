@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import type { NutrientProfilePer100g } from '@usual/shared';
+import type { NutrientProfilePer100g } from '@yumo/shared';
 
 /** One normalized food row derived from USDA FoodData Central. */
 export interface FdcFood {

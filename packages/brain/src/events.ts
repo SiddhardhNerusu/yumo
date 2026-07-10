@@ -1,4 +1,4 @@
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 
 /**
  * Append-only event log (§3.2). This is the single source of truth the Brain

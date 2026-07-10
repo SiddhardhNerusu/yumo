@@ -1,5 +1,5 @@
 {
-  "name": "usual-monorepo",
+  "name": "yumo-monorepo",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,11 +16,11 @@
     "typecheck": "tsc -p packages/tokens && tsc -p packages/shared && tsc -p packages/brain && tsc -p packages/menu && tsc -p packages/catalogue-pipeline && tsc -p server",
     "test": "vitest run",
     "test:watch": "vitest",
-    "fetch:fdc": "npm run fetch:fdc -w @usual/catalogue-pipeline",
-    "spike": "npm run spike -w @usual/catalogue-pipeline",
-    "brain:demo": "npm run demo -w @usual/brain",
-    "menu:demo": "npm run demo -w @usual/menu",
-    "server:dev": "npm run dev -w @usual/server"
+    "fetch:fdc": "npm run fetch:fdc -w @yumo/catalogue-pipeline",
+    "spike": "npm run spike -w @yumo/catalogue-pipeline",
+    "brain:demo": "npm run demo -w @yumo/brain",
+    "menu:demo": "npm run demo -w @yumo/menu",
+    "server:dev": "npm run dev -w @yumo/server"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

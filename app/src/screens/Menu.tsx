@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
-import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@usual/menu';
-import type { MealSlot } from '@usual/shared';
+import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@yumo/menu';
+import type { MealSlot } from '@yumo/shared';
 import { useTheme } from '../theme';
 import { getMenu, getMixup, getRecipeSteps, type Source } from '../data/repo';
 import { RecipeSheet } from '../components/RecipeSheet';

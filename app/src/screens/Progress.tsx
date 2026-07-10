@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import type { UserProfile } from '@usual/menu';
+import type { UserProfile } from '@yumo/menu';
 import { useTheme } from '../theme';
 import { WeightChart } from '../components/WeightChart';
 import { Settings } from '../components/Settings';

@@ -1,5 +1,5 @@
-import type { Allergen, EnergyMacros } from '@usual/shared';
-import { roundEnergyMacros } from '@usual/shared';
+import type { Allergen, EnergyMacros } from '@yumo/shared';
+import { roundEnergyMacros } from '@yumo/shared';
 import type { FdcFood, FdcStore } from './fdc/store';
 import { resolveIngredient, type Resolution } from './fdc/resolve';
 import { validateRecipeDraft } from './schema';

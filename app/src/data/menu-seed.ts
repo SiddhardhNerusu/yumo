@@ -1,6 +1,6 @@
-import type { Allergen } from '@usual/shared';
-import type { MenuRecipe, Effort } from '@usual/menu';
-import type { MealSlot } from '@usual/shared';
+import type { Allergen } from '@yumo/shared';
+import type { MenuRecipe, Effort } from '@yumo/menu';
+import type { MealSlot } from '@yumo/shared';
 
 /**
  * DEMO SEED recipe pool for the Menu screen — replaced by the server's

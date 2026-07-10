@@ -1,5 +1,5 @@
-import type { MealSlot } from '@usual/shared';
-import { SLOT_ENVELOPE } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
+import { SLOT_ENVELOPE } from '@yumo/shared';
 
 export interface OutlierResult {
   flagged: boolean;

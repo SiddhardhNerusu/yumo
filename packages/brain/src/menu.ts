@@ -1,4 +1,4 @@
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 
 /** One planned meal in this week's menu (§4.3). Keyed by local day-of-week so a
  * single week template repeats; portionG seeds portion learning on day 0. */

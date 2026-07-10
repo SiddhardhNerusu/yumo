@@ -1,7 +1,7 @@
 import { useColorScheme } from 'react-native';
-import { tokens, color as tokenColor, type Theme, type ColorName } from '@usual/tokens';
+import { tokens, color as tokenColor, type Theme, type ColorName } from '@yumo/tokens';
 
-/** Bridges @usual/tokens into RN, following the device light/dark scheme. */
+/** Bridges @yumo/tokens into RN, following the device light/dark scheme. */
 export function useTheme() {
   const scheme = useColorScheme();
   const theme: Theme = scheme === 'dark' ? 'dark' : 'light';

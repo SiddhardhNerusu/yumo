@@ -8,7 +8,7 @@ import {
   DEFAULT_CONFIG,
   type PredictInput,
   type BrainEvent,
-} from '@usual/brain';
+} from '@yumo/brain';
 import { FOODS, CANDIDATES, SEED_MENU, PORTION_FALLBACK } from './data/seed';
 import { coach } from './coach/pack';
 

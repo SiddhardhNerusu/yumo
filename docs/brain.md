@@ -1,6 +1,6 @@
 # The Brain (§3) — prediction engine
 
-**Status: BUILT & verified.** `@usual/brain` — pure TypeScript, zero UI imports,
+**Status: BUILT & verified.** `@yumo/brain` — pure TypeScript, zero UI imports,
 fully deterministic and replay-testable. This is moat #1: the per-user habit
 model that turns "log your food" into "the usual? — one tap."
 

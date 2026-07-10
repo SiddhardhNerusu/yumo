@@ -13,8 +13,8 @@ import {
   loadAllergenKeywords,
   runRecipe,
   type PipelineConfig,
-} from '@usual/catalogue-pipeline';
-import type { MealSlot } from '@usual/shared';
+} from '@yumo/catalogue-pipeline';
+import type { MealSlot } from '@yumo/shared';
 import { generateWeekMenu, mixItUp, type MenuRecipe, type UserProfile, type Effort } from '../src/index';
 
 const menuDir = dirname(dirname(fileURLToPath(import.meta.url)));

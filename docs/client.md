@@ -1,8 +1,8 @@
 # Client (React Native / Expo)
 
 **Stack LOCKED: React Native + Expo** (Sid, 2026-07-10). Decisive factor: the
-whole engine layer is TypeScript, so the app imports `@usual/brain`,
-`@usual/menu`, `@usual/shared`, `@usual/tokens` **straight from source** — no
+whole engine layer is TypeScript, so the app imports `@yumo/brain`,
+`@yumo/menu`, `@yumo/shared`, `@yumo/tokens` **straight from source** — no
 build step, no Dart port. Metro bundles them cleanly (verified: 244 modules, 0
 resolution errors).
 
@@ -31,14 +31,14 @@ data (offline-first; replaced by the server/sync layer later):
 
 ## Design system bridge
 
-`src/theme.ts` bridges `@usual/tokens` into RN and follows the device
+`src/theme.ts` bridges `@yumo/tokens` into RN and follows the device
 light/dark scheme (`useColorScheme`). No ad-hoc colors — every surface/text
 pulls from the token set.
 
 ## Monorepo wiring (the setup that makes TS reuse work)
 
 - `app/` is an npm workspace; `metro.config.js` sets `watchFolders` to the repo
-  root + `nodeModulesPaths` to app + root, so Metro resolves the `@usual/*`
+  root + `nodeModulesPaths` to app + root, so Metro resolves the `@yumo/*`
   symlinks and transpiles their TS source.
 - Repo-wide change: internal imports are now **extensionless** (`./x`, not
   `./x.ts`) so any consumer's `tsc` (the app included) type-checks the engine
@@ -58,7 +58,7 @@ pulls from the token set.
 - **Onboarding** (§2) — `src/onboarding/` (see `docs/onboarding.md`).
 - **Today** (§6.1) — `src/screens/Today.tsx`.
 - **Menu** (§6.2) — `src/screens/Menu.tsx`: day selector, generated week from the
-  onboarding profile via `@usual/menu`, per-meal "Mix it up" (inline swap) and a
+  onboarding profile via `@yumo/menu`, per-meal "Mix it up" (inline swap) and a
   tap-to-reveal "Recipe" steps sheet (`components/RecipeSheet.tsx`, §14.2).
 - **Progress** (§6.3) — placeholder tab.
 - **Tab shell** — `src/AppShell.tsx` (Today / Menu / Progress).

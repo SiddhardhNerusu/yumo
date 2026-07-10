@@ -1,4 +1,4 @@
-import { tokens } from '@usual/tokens';
+import { tokens } from '@yumo/tokens';
 import type { RecipeResult } from './pipeline';
 
 export interface ReviewEntry {

@@ -1,5 +1,5 @@
-import { inferSlot, type BrainEvent, type WeekMenu } from '@usual/brain';
-import type { MealSlot } from '@usual/shared';
+import { inferSlot, type BrainEvent, type WeekMenu } from '@yumo/brain';
+import type { MealSlot } from '@yumo/shared';
 
 /**
  * DEMO SEED — a plausible local history so the app has something real to render

@@ -7,5 +7,5 @@ const app = createApp(store);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`@usual/server ${BUILD} listening on :${PORT}`);
+  console.log(`@yumo/server ${BUILD} listening on :${PORT}`);
 });

@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import express, { type Express, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { ALLERGENS, MEAL_SLOTS, type Allergen, type MealSlot } from '@usual/shared';
-import { generateWeekMenu, mixItUp, type UserProfile } from '@usual/menu';
-import { median } from '@usual/brain';
+import { ALLERGENS, MEAL_SLOTS, type Allergen, type MealSlot } from '@yumo/shared';
+import { generateWeekMenu, mixItUp, type UserProfile } from '@yumo/menu';
+import { median } from '@yumo/brain';
 import type { Store, StoredProfile } from './db/store';
 import { signSession, verifyExternalIdentity } from './auth';
 import { requireAuth, type AuthedRequest } from './middleware';

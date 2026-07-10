@@ -9,9 +9,9 @@ import {
   runRecipe,
   type FdcStore,
   type PipelineConfig,
-} from '@usual/catalogue-pipeline';
-import type { MealSlot } from '@usual/shared';
-import type { MenuRecipe, Effort } from '@usual/menu';
+} from '@yumo/catalogue-pipeline';
+import type { MealSlot } from '@yumo/shared';
+import type { MenuRecipe, Effort } from '@yumo/menu';
 
 export interface RecipeDetail extends MenuRecipe {
   steps: string[];

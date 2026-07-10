@@ -1,4 +1,4 @@
-import type { MealSlot, Allergen } from '@usual/shared';
+import type { MealSlot, Allergen } from '@yumo/shared';
 import type { MenuRecipe, Effort, UserProfile } from '../src/types';
 
 function r(

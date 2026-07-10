@@ -25,7 +25,7 @@ The native layer only has to (a) read this JSON and render it, and (b) write a
 ## 1. Lock-screen widget (the hero, §3.7)
 
 **Architecture — shared App Group:**
-- Add an **App Group** (`group.com.sidnerusu.usual`) to the app + the widget
+- Add an **App Group** (`group.com.sidnerusu.yumo`) to the app + the widget
   extension. It's the shared container both read/write.
 - **App → widget:** on every foreground and after every log, the RN app calls
   `widgetPayload(...)`, writes the JSON to the App Group container, then triggers
@@ -61,7 +61,7 @@ broadcast the RN headless task drains. Same contract.
   onboarding meal times.
 - `LOG_NOW` → background handler logs the event (no app open) + posts the
   confirmation. `SOMETHING_ELSE` → deep-link to the Quick-Log tiles.
-- The **budget state machine already exists** (`@usual/brain` `canNudge`,
+- The **budget state machine already exists** (`@yumo/brain` `canNudge`,
   `nextNudge`) — the native layer only schedules what it returns.
 
 ## 3. HealthKit / Health Connect read (§2.1, §3.3)

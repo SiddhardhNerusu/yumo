@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
-import type { MealSlot } from '@usual/shared';
-import { logEvents } from '@usual/brain';
+import type { MealSlot } from '@yumo/shared';
+import { logEvents } from '@yumo/brain';
 import { useTheme } from '../theme';
 import { useToday, type TimelineItem } from '../useToday';
 import { useEventStore } from '../data/eventStore';

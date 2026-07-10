@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 import { useTheme } from '../theme';
 import type { TimelineItem } from '../useToday';
 

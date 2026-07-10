@@ -1,5 +1,5 @@
 {
-  "name": "@usual/menu",
+  "name": "@yumo/menu",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,9 +11,9 @@
     "demo": "tsx scripts/demo.ts"
   },
   "dependencies": {
-    "@usual/shared": "*"
+    "@yumo/shared": "*"
   },
   "devDependencies": {
-    "@usual/catalogue-pipeline": "*"
+    "@yumo/catalogue-pipeline": "*"
   }
 }

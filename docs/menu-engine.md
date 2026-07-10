@@ -1,6 +1,6 @@
 # Menu engine (§4.3) + Mix it up (§4.4)
 
-**Status: BUILT & verified.** `@usual/menu` — pure TS, deterministic. This is
+**Status: BUILT & verified.** `@yumo/menu` — pure TS, deterministic. This is
 the seam of moat #2: it turns the catalogue into a personalised, constraint-
 satisfying 7-day menu, and it feeds the Brain's `menuPrior`.
 

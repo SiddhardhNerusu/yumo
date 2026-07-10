@@ -19,9 +19,9 @@ Two moats (see `calorie_app_master_plan.md`):
 
 ```
 packages/
-  tokens/              @usual/tokens   — stack-agnostic design tokens (JSON SoT + TS accessor)
-  shared/              @usual/shared   — cross-cutting types (nutrition, ids, allergens)
-  catalogue-pipeline/  @usual/catalogue-pipeline — offline recipe authoring/validation
+  tokens/              @yumo/tokens   — stack-agnostic design tokens (JSON SoT + TS accessor)
+  shared/              @yumo/shared   — cross-cutting types (nutrition, ids, allergens)
+  catalogue-pipeline/  @yumo/catalogue-pipeline — offline recipe authoring/validation
                        pipeline (§4.5). Deterministic FDC macro computation.
 ```
 

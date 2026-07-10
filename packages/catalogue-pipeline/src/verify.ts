@@ -1,5 +1,5 @@
-import type { EnergyMacros } from '@usual/shared';
-import { atwaterKcal } from '@usual/shared';
+import type { EnergyMacros } from '@yumo/shared';
+import { atwaterKcal } from '@yumo/shared';
 
 export interface Verification {
   /** Energy summed from FDC per-food energy values. */

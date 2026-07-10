@@ -1,4 +1,4 @@
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 import type { MenuRecipe, UserProfile } from './types';
 import { containsToken } from './filter';
 import { SOFT_WEIGHTS, NOVELTY_WEIGHT } from './config';

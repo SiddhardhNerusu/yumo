@@ -1,4 +1,4 @@
-import type { MealSlot } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
 import type { BrainEvent } from './events';
 import { scoreCandidates, type ScoreInput, type ScoreBreakdown, type ScoreContext } from './scoring';
 import { tierForScore, actionForTier, type ConfidenceTier, type LadderAction } from './confidence';

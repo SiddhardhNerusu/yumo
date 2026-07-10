@@ -1,5 +1,5 @@
 {
-  "name": "@usual/catalogue-pipeline",
+  "name": "@yumo/catalogue-pipeline",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "spike": "tsx scripts/run-spike.ts"
   },
   "dependencies": {
-    "@usual/shared": "*",
+    "@yumo/shared": "*",
     "zod": "^3.24.1"
   }
 }

@@ -1,5 +1,5 @@
-import type { MealSlot } from '@usual/shared';
-import { SLOT_ENVELOPE, MEAL_SLOTS } from '@usual/shared';
+import type { MealSlot } from '@yumo/shared';
+import { SLOT_ENVELOPE, MEAL_SLOTS } from '@yumo/shared';
 import type { MenuRecipe, UserProfile, WeekMenuPlan, MenuDay, MenuSlotPick } from './types';
 import { isAllowed, containsToken } from './filter';
 import { softScore } from './scoring';
