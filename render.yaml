@@ -20,4 +20,4 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: BUILD_STRING
-        value: render-dogfood-1
+        value: render-yumo-1
