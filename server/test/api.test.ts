@@ -75,9 +75,9 @@ describe('catalogue', () => {
     expect(res.body.foods.length).toBeGreaterThan(0);
     expect(res.body.foods[0].per100g.kcal).toBeGreaterThan(0);
   });
-  it('stubs barcode lookup with 501', async () => {
-    const res = await request(app).get('/api/foods/barcode/5000000000000');
-    expect(res.status).toBe(501);
+  it('rejects a malformed barcode EAN without hitting the network', async () => {
+    const res = await request(app).get('/api/foods/barcode/123');
+    expect(res.status).toBe(400);
   });
   it('404s an unknown recipe', async () => {
     const res = await request(app).get('/api/recipes/does-not-exist');
