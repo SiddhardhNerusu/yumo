@@ -19,6 +19,7 @@ interface EventStore {
   events: BrainEvent[];
   logFood: (foodId: string, opts?: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string }) => void;
   deleteLog: (targetEventId: string) => void;
+  skipMeal: (slot: MealSlot) => void;
 }
 
 const Ctx = createContext<EventStore | null>(null);
@@ -93,7 +94,20 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  return <Ctx.Provider value={{ events, logFood, deleteLog }}>{children}</Ctx.Provider>;
+  // Skip / fasting (§5.8): a streak-safe "meal off". Not a log kind, so it never
+  // touches the ring; it just marks the slot handled and quiets the Brain there.
+  const skipMeal = useCallback((slot: MealSlot) => {
+    const now = Date.now();
+    const ev: BrainEvent = { id: `skip-${idc++}-${now}`, ts: now, tzOffsetMin: 0, kind: 'skip_meal', slot };
+    setUserLogs((prev) => {
+      const next = [...prev, ev];
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+    api.syncEvents(JSON.stringify(ev), 1).catch(() => {});
+  }, []);
+
+  return <Ctx.Provider value={{ events, logFood, deleteLog, skipMeal }}>{children}</Ctx.Provider>;
 }
 
 export function useEventStore(): EventStore {

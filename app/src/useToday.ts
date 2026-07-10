@@ -37,6 +37,10 @@ export interface TodayState {
   coach: string;
   /** name of what's already logged in the current slot today (null if open). */
   slotLogged: string | null;
+  /** current slot marked "meal off" today (and not logged). */
+  slotSkipped: boolean;
+  /** id of the skip event, so it can be undone. */
+  slotSkipId: string | null;
 }
 
 const foodName = (id: string) => FOODS[id]?.name ?? id;
@@ -93,7 +97,20 @@ function compute(events: BrainEvent[], now: number, budget: number): TodayState 
   const last = slotLogs[slotLogs.length - 1];
   const slotLogged = last?.foodId ? foodName(last.foodId) : null;
 
-  return { slot, budget, eaten, remaining, usual, tiles, timeline, coach: coachLine(eaten, remaining), slotLogged };
+  // Skip / fasting: a skip_meal for the current slot today, not soft-deleted.
+  const deleted = new Set(
+    events
+      .filter((e) => e.kind === 'delete')
+      .map((e) => e.meta?.['targetId'])
+      .filter((x): x is string => typeof x === 'string'),
+  );
+  const skips = events.filter(
+    (e) => e.kind === 'skip_meal' && e.slot === slot && !deleted.has(e.id) && localParts(e.ts, 0).epochDay === todayEpochDay,
+  );
+  const slotSkipId = skips.length ? (skips[skips.length - 1]?.id ?? null) : null;
+  const slotSkipped = slotSkipId !== null && slotLogged === null;
+
+  return { slot, budget, eaten, remaining, usual, tiles, timeline, coach: coachLine(eaten, remaining), slotLogged, slotSkipped, slotSkipId };
 }
 
 function coachLine(eaten: number, remaining: number): string {

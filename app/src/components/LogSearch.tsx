@@ -7,16 +7,26 @@ import { searchFoods, type FoodHit } from '../data/repo';
 export const SEARCH_PORTION_G = 150;
 const QUICK_ADD = [250, 500, 700];
 
+export interface RecentFood {
+  foodId: string;
+  name: string;
+  kcal: number;
+}
+
 export function LogSearch({
   visible,
   onClose,
   onLog,
   onQuickAdd,
+  recents = [],
+  onLogRecent,
 }: {
   visible: boolean;
   onClose: () => void;
   onLog: (hit: FoodHit) => void;
   onQuickAdd: (kcal: number) => void;
+  recents?: RecentFood[];
+  onLogRecent?: (r: RecentFood) => void;
 }) {
   const { c, radius } = useTheme();
   const [q, setQ] = useState('');
@@ -69,6 +79,23 @@ export function LogSearch({
             </Pressable>
           ))}
         </View>
+
+        {q.trim().length < 2 && recents.length > 0 ? (
+          <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
+            <Text style={{ color: c('textMuted'), fontSize: 13, marginBottom: 8 }}>Recent</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {recents.map((r) => (
+                <Pressable
+                  key={r.foodId}
+                  onPress={() => onLogRecent?.(r)}
+                  style={{ borderWidth: 1, borderColor: c('border'), borderRadius: 999, paddingVertical: 8, paddingHorizontal: 13, backgroundColor: c('surface') }}
+                >
+                  <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{r.name} · {r.kcal}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
 
         {loading ? <ActivityIndicator color={c('accent')} style={{ marginTop: 20 }} /> : null}
 
