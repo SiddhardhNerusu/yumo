@@ -18,6 +18,7 @@ export interface Tile {
   portionG: number;
 }
 export interface TimelineItem {
+  id: string;
   name: string;
   slot: string;
   kcal: number;
@@ -75,6 +76,7 @@ function compute(events: BrainEvent[], now: number, budget: number): TodayState 
     .map((e) => {
       const metaName = typeof e.meta?.['name'] === 'string' ? (e.meta['name'] as string) : null;
       return {
+        id: e.id,
         name: metaName ?? (e.foodId ? foodName(e.foodId) : 'meal'),
         slot: e.slot ?? '',
         kcal: e.kcal ?? 0,

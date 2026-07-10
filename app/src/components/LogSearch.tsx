@@ -5,15 +5,18 @@ import { searchFoods, type FoodHit } from '../data/repo';
 
 /** Default portion for a searched food, grams. */
 export const SEARCH_PORTION_G = 150;
+const QUICK_ADD = [250, 500, 700];
 
 export function LogSearch({
   visible,
   onClose,
   onLog,
+  onQuickAdd,
 }: {
   visible: boolean;
   onClose: () => void;
   onLog: (hit: FoodHit) => void;
+  onQuickAdd: (kcal: number) => void;
 }) {
   const { c, radius } = useTheme();
   const [q, setQ] = useState('');
@@ -40,7 +43,7 @@ export function LogSearch({
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: c('bg'), paddingTop: 60 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingBottom: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingBottom: 10 }}>
           <TextInput
             autoFocus
             placeholder="Search foods…"
@@ -52,6 +55,19 @@ export function LogSearch({
           <Pressable onPress={onClose}>
             <Text style={{ color: c('textSecondary'), fontWeight: '600', fontSize: 15 }}>Done</Text>
           </Pressable>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingBottom: 8 }}>
+          <Text style={{ color: c('textMuted'), fontSize: 13 }}>Quick add</Text>
+          {QUICK_ADD.map((k) => (
+            <Pressable
+              key={k}
+              onPress={() => onQuickAdd(k)}
+              style={{ borderWidth: 1, borderColor: c('border'), borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13, backgroundColor: c('surface') }}
+            >
+              <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>~{k} kcal</Text>
+            </Pressable>
+          ))}
         </View>
 
         {loading ? <ActivityIndicator color={c('accent')} style={{ marginTop: 20 }} /> : null}

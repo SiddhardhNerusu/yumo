@@ -18,6 +18,7 @@ const STORAGE_KEY = 'usual.eventlog.v1';
 interface EventStore {
   events: BrainEvent[];
   logFood: (foodId: string, opts?: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string }) => void;
+  deleteLog: (targetEventId: string) => void;
 }
 
 const Ctx = createContext<EventStore | null>(null);
@@ -80,7 +81,19 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  return <Ctx.Provider value={{ events, logFood }}>{children}</Ctx.Provider>;
+  // Soft-delete (§3.2): a delete event referencing the original id. The Brain's
+  // logEvents() excludes it, so the ring/timeline/predictions all recompute.
+  const deleteLog = useCallback((targetEventId: string) => {
+    const now = Date.now();
+    const ev: BrainEvent = { id: `del-${idc++}-${now}`, ts: now, tzOffsetMin: 0, kind: 'delete', meta: { targetId: targetEventId } };
+    setUserLogs((prev) => {
+      const next = [...prev, ev];
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  return <Ctx.Provider value={{ events, logFood, deleteLog }}>{children}</Ctx.Provider>;
 }
 
 export function useEventStore(): EventStore {

@@ -15,7 +15,7 @@ const cap = (s: string) => (s ? s[0]!.toUpperCase() + s.slice(1) : s);
 
 export function Today({ budget }: { budget?: number }) {
   const { c, radius } = useTheme();
-  const { events, logFood } = useEventStore();
+  const { events, logFood, deleteLog } = useEventStore();
   const [now] = useState(() => Date.now());
   const [showSearch, setShowSearch] = useState(false);
   const state = useToday(events, now, budget);
@@ -51,7 +51,7 @@ export function Today({ budget }: { budget?: number }) {
           <Text style={{ color: c('textSecondary'), fontWeight: '600', fontSize: 15 }}>＋ Log a food</Text>
         </Pressable>
 
-        <Timeline items={state.timeline} />
+        <Timeline items={state.timeline} onDelete={deleteLog} />
       </ScrollView>
 
       <LogSearch
@@ -64,6 +64,10 @@ export function Today({ budget }: { budget?: number }) {
             kcal: Math.round((hit.per100g.kcal * SEARCH_PORTION_G) / 100),
             name: hit.description,
           });
+          setShowSearch(false);
+        }}
+        onQuickAdd={(kcal) => {
+          logFood('quick', { slot: state.slot as MealSlot, kcal, name: `Quick add · ~${kcal} kcal` });
           setShowSearch(false);
         }}
       />
