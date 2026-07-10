@@ -20,6 +20,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
   const [mixOpen, setMixOpen] = useState<string | null>(null);
   const [alts, setAlts] = useState<Record<string, MenuRecipe[]>>({});
   const [sheet, setSheet] = useState<{ name: string; steps: string[] } | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -33,6 +34,23 @@ export function Menu({ profile }: { profile: UserProfile }) {
       alive = false;
     };
   }, [profile]);
+
+  // The interactive half of the weekly Sunday ritual (§4.3): regenerate next
+  // week's plan. (The Sunday-18:00 notification that prompts it is native.)
+  const planNextWeek = () => {
+    setRegenerating(true);
+    track('menu_regenerated');
+    getMenu(profile, `week-${Date.now()}`)
+      .then((r) => {
+        setPlan(r.plan);
+        setSource(r.source);
+        setDayIdx(0);
+        setMixOpen(null);
+        setOverrides({});
+        setAlts({});
+      })
+      .finally(() => setRegenerating(false));
+  };
 
   if (!plan) {
     return (
@@ -64,9 +82,14 @@ export function Menu({ profile }: { profile: UserProfile }) {
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
       <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 32 }}>
-        <Text style={{ color: c('textPrimary'), fontSize: 30, fontWeight: '800', letterSpacing: -0.5 }}>Menu</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ color: c('textPrimary'), fontSize: 30, fontWeight: '800', letterSpacing: -0.5 }}>Menu</Text>
+          <Pressable onPress={planNextWeek} disabled={regenerating} style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c('border') }}>
+            <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{regenerating ? '…' : '↻ New week'}</Text>
+          </Pressable>
+        </View>
         <Text style={{ color: c('textMuted'), fontSize: 12, marginBottom: 12 }}>
-          {source === 'server' ? 'from your catalogue' : 'offline preview'}
+          This week · {source === 'server' ? 'from your catalogue' : 'offline preview'}
         </Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>

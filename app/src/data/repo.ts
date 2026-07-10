@@ -62,12 +62,15 @@ export async function getBubbles(): Promise<string[]> {
   }
 }
 
-export async function getMenu(profile: UserProfile): Promise<{ plan: WeekMenuPlan; source: Source }> {
+export async function getMenu(
+  profile: UserProfile,
+  seed?: string,
+): Promise<{ plan: WeekMenuPlan; source: Source }> {
   try {
-    const { plan } = await api.generateMenu();
+    const { plan } = await api.generateMenu(seed);
     return { plan, source: 'server' };
   } catch {
-    return { plan: generateWeekMenu(POOL, profile, { seed: 'app-week', days: 7 }), source: 'local' };
+    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7 }), source: 'local' };
   }
 }
 

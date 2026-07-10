@@ -44,10 +44,10 @@ export const api = {
   patchProfile: (profile: Record<string, unknown>) =>
     req<unknown>('/api/profile', { method: 'PATCH', body: JSON.stringify(profile) }),
   bubbles: (limit = 40) => req<{ bubbles: Bubble[] }>(`/api/onboarding/bubbles?limit=${limit}`),
-  generateMenu: () =>
+  generateMenu: (seed?: string) =>
     req<{ plan: WeekMenuPlan; tier: string; days: number }>('/api/menu/generate', {
       method: 'POST',
-      body: '{}',
+      body: JSON.stringify(seed ? { seed } : {}),
     }),
   mixup: (recipeId: string, slot: string) =>
     req<{ alternatives: MenuRecipe[] }>('/api/menu/mixup', {
