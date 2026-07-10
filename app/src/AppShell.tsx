@@ -10,7 +10,15 @@ type Tab = 'today' | 'menu' | 'progress';
 const TABS: Tab[] = ['today', 'menu', 'progress'];
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 
-export function AppShell({ profile, onReset }: { profile: UserProfile; onReset: () => void }) {
+export function AppShell({
+  profile,
+  onReset,
+  onUpdateProfile,
+}: {
+  profile: UserProfile;
+  onReset: () => void;
+  onUpdateProfile: (p: UserProfile) => void;
+}) {
   const { c } = useTheme();
   const [tab, setTab] = useState<Tab>('today');
 
@@ -19,7 +27,7 @@ export function AppShell({ profile, onReset }: { profile: UserProfile; onReset: 
       <View style={{ flex: 1 }}>
         {tab === 'today' ? <Today budget={profile.budgetKcal} /> : null}
         {tab === 'menu' ? <Menu profile={profile} /> : null}
-        {tab === 'progress' ? <Progress onReset={onReset} /> : null}
+        {tab === 'progress' ? <Progress profile={profile} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
       </View>
       <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: c('border'), backgroundColor: c('surface'), paddingBottom: 26, paddingTop: 8 }}>
         {TABS.map((t) => (

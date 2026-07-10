@@ -24,6 +24,7 @@ function Splash() {
 
 export default function App() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [goal, setGoal] = useState<Goal>('maintain');
   const [loading, setLoading] = useState(true);
 
   // Restore a saved profile on launch, and re-establish the server session.
@@ -35,6 +36,7 @@ export default function App() {
           try {
             const saved = JSON.parse(v) as { profile: UserProfile; goal: Goal };
             setProfile(saved.profile);
+            setGoal(saved.goal);
             void bootstrapSession(saved.profile, saved.goal).catch(() => {});
           } catch {
             // ignore corrupt profile
@@ -50,7 +52,14 @@ export default function App() {
     };
   }, []);
 
-  const handleDone = async (p: UserProfile, goal: Goal) => {
+  const handleDone = async (p: UserProfile, g: Goal) => {
+    setGoal(g);
+    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile: p, goal: g })).catch(() => {});
+    await bootstrapSession(p, g);
+    setProfile(p);
+  };
+
+  const handleUpdateProfile = async (p: UserProfile) => {
     await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile: p, goal })).catch(() => {});
     await bootstrapSession(p, goal);
     setProfile(p);
@@ -67,7 +76,7 @@ export default function App() {
         <Splash />
       ) : profile ? (
         <EventStoreProvider>
-          <AppShell profile={profile} onReset={handleReset} />
+          <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
         </EventStoreProvider>
       ) : (
         <OnboardingFlow onDone={handleDone} />

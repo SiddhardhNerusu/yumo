@@ -1,10 +1,22 @@
+import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
+import type { UserProfile } from '@usual/menu';
 import { useTheme } from '../theme';
 import { WeightChart } from '../components/WeightChart';
+import { Settings } from '../components/Settings';
 import { WEIGHTS, LOGGED_LAST_7, DAY_LABELS, STREAK } from '../data/progress-seed';
 
-export function Progress({ onReset }: { onReset?: () => void }) {
+export function Progress({
+  profile,
+  onReset,
+  onUpdateProfile,
+}: {
+  profile: UserProfile;
+  onReset: () => void;
+  onUpdateProfile: (p: UserProfile) => void;
+}) {
   const { c, radius } = useTheme();
+  const [showSettings, setShowSettings] = useState(false);
   const current = WEIGHTS[WEIGHTS.length - 1];
   const start = WEIGHTS[0];
   const change = current - start; // negative = loss
@@ -28,7 +40,12 @@ export function Progress({ onReset }: { onReset?: () => void }) {
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
       <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 32, gap: 14 }}>
-        <Text style={{ color: c('textPrimary'), fontSize: 30, fontWeight: '800', letterSpacing: -0.5 }}>Progress</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ color: c('textPrimary'), fontSize: 30, fontWeight: '800', letterSpacing: -0.5 }}>Progress</Text>
+          <Pressable onPress={() => setShowSettings(true)} style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c('border') }}>
+            <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>Settings</Text>
+          </Pressable>
+        </View>
 
         <View style={[card, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
           <View>
@@ -75,12 +92,10 @@ export function Progress({ onReset }: { onReset?: () => void }) {
           </Text>
         </View>
 
-        {onReset ? (
-          <Pressable onPress={onReset} style={{ alignItems: 'center', paddingVertical: 14, marginTop: 4 }}>
-            <Text style={{ color: c('textMuted'), fontSize: 13 }}>Start over — clear profile &amp; logs</Text>
-          </Pressable>
-        ) : null}
       </ScrollView>
+      {showSettings ? (
+        <Settings profile={profile} onClose={() => setShowSettings(false)} onSave={onUpdateProfile} onReset={onReset} />
+      ) : null}
     </View>
   );
 }
