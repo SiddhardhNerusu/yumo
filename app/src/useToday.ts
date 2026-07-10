@@ -10,6 +10,7 @@ import {
   type BrainEvent,
 } from '@usual/brain';
 import { FOODS, CANDIDATES, SEED_MENU, PORTION_FALLBACK } from './data/seed';
+import { coach } from './coach/pack';
 
 export interface Tile {
   foodId: string;
@@ -114,7 +115,7 @@ function compute(events: BrainEvent[], now: number, budget: number): TodayState 
 }
 
 function coachLine(eaten: number, remaining: number): string {
-  if (eaten === 0) return `Fresh day — ${remaining.toLocaleString()} kcal to work with.`;
-  if (remaining <= 0) return `Big day today — tomorrow's a fresh one.`;
-  return `Nicely on track — ${remaining.toLocaleString()} kcal left.`;
+  if (eaten === 0) return coach('todayFresh', { remaining: remaining.toLocaleString() });
+  if (remaining <= 0) return coach('todayOver');
+  return coach('todayOnTrack', { remaining: remaining.toLocaleString() });
 }

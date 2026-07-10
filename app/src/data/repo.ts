@@ -10,6 +10,7 @@ import type { MealSlot } from '@usual/shared';
 import { POOL, POOL_STEPS } from './menu-seed';
 import { BUBBLE_FOODS } from './onboarding-seed';
 import { FOODS } from './seed';
+import { setCoachPack } from '../coach/pack';
 
 /**
  * Data layer: server-first, with an offline fallback to the local seed so the
@@ -38,6 +39,12 @@ export async function bootstrapSession(profile: UserProfile, goal: string): Prom
       variation: profile.variation,
       cuisineLean: profile.cuisineLean,
     });
+    try {
+      const cfg = await api.getConfig();
+      setCoachPack(cfg.coach);
+    } catch {
+      // keep the default coach pack
+    }
     return 'server';
   } catch {
     setToken(null);

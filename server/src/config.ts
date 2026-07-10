@@ -12,8 +12,22 @@ export const JWT_SECRET = process.env['JWT_SECRET'] ?? 'dev-insecure-secret-chan
 export const IS_PROD = process.env['NODE_ENV'] === 'production';
 export const PORT = Number(process.env['PORT'] ?? 8080);
 
+/** Coach voice template pack (§7.3) — served & versioned centrally so copy is
+ * A/B-tunable without an app release. Warm, brief, never punitive. */
+export const COACH_PACK: Record<string, string | string[]> = {
+  todayFresh: 'Fresh start — {remaining} kcal to play with today.',
+  todayOnTrack: ['Nicely on track — {remaining} kcal left.', 'Looking good — {remaining} kcal to go.'],
+  todayOver: "Big day — tomorrow's a clean slate.",
+  mealReveal: "Your menu's ready — {needs} most days, never {hates}, ~{budget} kcal a day.",
+  mealRevealPlain: "Your menu's ready — ~{budget} kcal a day, built around what you like.",
+  learned: 'Got it — {note} 👍',
+  mealOff: "All good — your streak's safe.",
+  loggedConfirm: "Nice — that's in your day.",
+  weeklyRecap: 'Down {delta} kg over three weeks — steady wins.',
+};
+
 /** Remote config served to clients (§8.1 GET /api/config): Brain weights/caps +
- * menu tunables + build string. All engine defaults, centrally tunable. */
+ * menu tunables + coach voice + build string. All engine defaults, centrally tunable. */
 export function remoteConfig() {
   return {
     version: BUILD,
@@ -25,5 +39,6 @@ export function remoteConfig() {
       maxHardDinnersPerWeek: MAX_HARD_DINNERS_PER_WEEK,
       mixup: MIXUP,
     },
+    coach: COACH_PACK,
   };
 }
