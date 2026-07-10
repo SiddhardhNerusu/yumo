@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProfile } from '@usual/menu';
 import { useTheme } from './theme';
+import { useEntitlement } from './data/entitlement';
 import { Today } from './screens/Today';
 import { Menu } from './screens/Menu';
 import { Progress } from './screens/Progress';
+import { Paywall } from './components/Paywall';
 
 type Tab = 'today' | 'menu' | 'progress';
 const TABS: Tab[] = ['today', 'menu', 'progress'];
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
+
+const PAYWALL_SEEN_KEY = 'usual.paywallSeen.v1';
 
 export function AppShell({
   profile,
@@ -20,7 +25,26 @@ export function AppShell({
   onUpdateProfile: (p: UserProfile) => void;
 }) {
   const { c } = useTheme();
+  const { isPremium } = useEntitlement();
   const [tab, setTab] = useState<Tab>('today');
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Soft, skippable paywall once, just after onboarding (§11 "after menu reveal").
+  useEffect(() => {
+    let alive = true;
+    AsyncStorage.getItem(PAYWALL_SEEN_KEY)
+      .then((v) => {
+        if (alive && !v && !isPremium) {
+          setShowPaywall(true);
+          AsyncStorage.setItem(PAYWALL_SEEN_KEY, '1').catch(() => {});
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+    // once on mount
+  }, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
@@ -36,6 +60,7 @@ export function AppShell({
           </Pressable>
         ))}
       </View>
+      {showPaywall ? <Paywall onClose={() => setShowPaywall(false)} /> : null}
     </View>
   );
 }

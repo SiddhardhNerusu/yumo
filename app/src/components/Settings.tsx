@@ -5,6 +5,8 @@ import type { UserProfile, VariationDial } from '@usual/menu';
 import { useTheme } from '../theme';
 import { ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { PrimaryButton, Chip, NumberField } from '../ui/primitives';
+import { useEntitlement } from '../data/entitlement';
+import { Paywall } from './Paywall';
 
 const VARIATIONS: { v: VariationDial; label: string }[] = [
   { v: 'habit', label: 'Habit' },
@@ -24,6 +26,8 @@ export function Settings({
   onReset: () => void;
 }) {
   const { c, radius } = useTheme();
+  const { isPremium } = useEntitlement();
+  const [showPaywall, setShowPaywall] = useState(false);
   const [budget, setBudget] = useState<number>(profile.budgetKcal);
   const [variation, setVariation] = useState<VariationDial>(profile.variation);
   const [allergies, setAllergies] = useState<Allergen[]>(profile.allergies);
@@ -47,6 +51,14 @@ export function Settings({
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 4 }}>
+          <Pressable onPress={() => setShowPaywall(true)} style={{ backgroundColor: c('accentSubtle'), borderRadius: radius.lg, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <View>
+              <Text style={{ color: c('accentSubtleText'), fontSize: 16, fontWeight: '700' }}>{isPremium ? 'Premium ✨' : 'Go Premium ✨'}</Text>
+              <Text style={{ color: c('accentSubtleText'), fontSize: 13, marginTop: 2 }}>{isPremium ? 'Active — thanks!' : 'Full menu + coach insights'}</Text>
+            </View>
+            <Text style={{ color: c('accentSubtleText'), fontSize: 20 }}>›</Text>
+          </Pressable>
+
           <Text style={kicker}>Daily budget</Text>
           <NumberField label="Target" value={budget} onChange={setBudget} suffix="kcal" />
 
@@ -72,6 +84,7 @@ export function Settings({
             <Text style={{ color: c('danger'), fontSize: 14, fontWeight: '600' }}>Start over — clear profile &amp; logs</Text>
           </Pressable>
         </ScrollView>
+        {showPaywall ? <Paywall onClose={() => setShowPaywall(false)} /> : null}
       </View>
     </Modal>
   );

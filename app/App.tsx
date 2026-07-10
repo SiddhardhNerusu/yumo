@@ -8,6 +8,7 @@ import { useTheme } from './src/theme';
 import { OnboardingFlow } from './src/onboarding/OnboardingFlow';
 import { AppShell } from './src/AppShell';
 import { EventStoreProvider } from './src/data/eventStore';
+import { EntitlementProvider } from './src/data/entitlement';
 import { bootstrapSession } from './src/data/repo';
 
 const PROFILE_KEY = 'usual.profile.v1';
@@ -66,7 +67,7 @@ export default function App() {
   };
 
   const handleReset = async () => {
-    await AsyncStorage.multiRemove([PROFILE_KEY, EVENTLOG_KEY]).catch(() => {});
+    await AsyncStorage.multiRemove([PROFILE_KEY, EVENTLOG_KEY, 'usual.paywallSeen.v1', 'usual.entitlement.v1']).catch(() => {});
     setProfile(null);
   };
 
