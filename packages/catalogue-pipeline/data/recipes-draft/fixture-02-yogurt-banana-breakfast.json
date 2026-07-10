@@ -1,0 +1,21 @@
+{
+  "id": "fixture-yogurt-banana-breakfast",
+  "name": "Greek yogurt & banana bowl",
+  "cuisine": "British-everyday",
+  "slotAffinity": ["breakfast"],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": ["no-cook", "high-protein"],
+  "steps": [
+    "Spoon the Greek yogurt into a bowl.",
+    "Slice the banana over the top.",
+    "Scatter with rolled oats, add a spoonful of peanut butter, and drizzle with honey."
+  ],
+  "ingredients": [
+    { "name": "greek yogurt, plain", "qty_g": 200, "fdcId": 170903 },
+    { "name": "banana, raw", "qty_g": 120, "fdcId": 173944 },
+    { "name": "rolled oats", "qty_g": 40, "fdcId": 2346396 },
+    { "name": "peanut butter", "qty_g": 15, "fdcId": 169869 },
+    { "name": "honey", "qty_g": 15, "fdcId": 169640 }
+  ]
+}

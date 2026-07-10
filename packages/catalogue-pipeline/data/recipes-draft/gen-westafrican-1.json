@@ -1,0 +1,63 @@
+{
+  "id": "gen-westafrican-1",
+  "name": "Jollof Rice with Chicken",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 4,
+  "methodTags": [
+    "simmer",
+    "one-pot",
+    "stovetop"
+  ],
+  "steps": [
+    "Blend the tomatoes, red bell pepper, half the onion, and chilli into a smooth base.",
+    "Fry the remaining sliced onion in the vegetable oil, then stir in the tomato paste and cook until it darkens.",
+    "Pour in the blended base and simmer until thickened and the raw smell has cooked off.",
+    "Add the chicken pieces and simmer until fully cooked through, with no pink remaining and juices running clear.",
+    "Stir in the rice, cover, and cook on low heat until the rice is tender and has absorbed the sauce."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 640,
+      "prep": "parboiled"
+    },
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 400,
+      "prep": "cut into pieces"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 300,
+      "prep": "blended"
+    },
+    {
+      "name": "red bell pepper, raw",
+      "qty_g": 150,
+      "prep": "blended"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 120,
+      "prep": "sliced"
+    },
+    {
+      "name": "tomato paste",
+      "qty_g": 60
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 45
+    },
+    {
+      "name": "chilli pepper, raw",
+      "qty_g": 10,
+      "prep": "optional"
+    }
+  ]
+}

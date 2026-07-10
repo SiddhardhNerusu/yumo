@@ -1,0 +1,44 @@
+{
+  "id": "gen-westafrican-2",
+  "name": "Akara (Black-Eyed Pea Fritters)",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 4,
+  "methodTags": [
+    "deep-fry",
+    "blend"
+  ],
+  "steps": [
+    "Soak the dried black-eyed peas, then rub off and rinse away the skins.",
+    "Blend the peeled beans with the onion and chilli into a thick batter, adding a little water.",
+    "Whisk the batter vigorously to aerate it so the fritters fry up light.",
+    "Heat the vegetable oil in a deep pan until shimmering.",
+    "Drop spoonfuls of batter into the hot oil and fry until golden brown and cooked through.",
+    "Drain on paper towels and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "black-eyed peas, cooked",
+      "qty_g": 320,
+      "prep": "soaked and peeled, blended"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 60
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 45,
+      "prep": "absorbed in frying"
+    },
+    {
+      "name": "chilli pepper, raw",
+      "qty_g": 10,
+      "prep": "optional"
+    }
+  ]
+}

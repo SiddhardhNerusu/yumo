@@ -1,0 +1,60 @@
+{
+  "id": "gen-mexican-3",
+  "name": "Chicken Burrito Bowl",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "pan-fried",
+    "bowl"
+  ],
+  "steps": [
+    "Season the chicken breast with salt, cumin, and a squeeze of lime.",
+    "Heat the olive oil in a pan and cook the chicken over medium heat until cooked through with no pink inside, about 6 to 7 minutes per side.",
+    "Slice the cooked chicken into strips.",
+    "Warm the rice, black beans, and corn.",
+    "Build the bowl with rice as the base, then top with chicken, beans, corn, diced tomato, and sliced avocado.",
+    "Finish with a squeeze of lime over the top."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150,
+      "prep": "sliced"
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "corn, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 50,
+      "prep": "diced"
+    },
+    {
+      "name": "avocado, raw",
+      "qty_g": 50,
+      "prep": "sliced"
+    },
+    {
+      "name": "lime juice, raw",
+      "qty_g": 10
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

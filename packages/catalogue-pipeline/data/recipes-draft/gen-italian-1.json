@@ -1,0 +1,45 @@
+{
+  "id": "gen-italian-1",
+  "name": "Caprese Salad",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 2,
+  "methodTags": [
+    "no-cook",
+    "assemble"
+  ],
+  "steps": [
+    "Slice the tomatoes and fresh mozzarella into thick rounds.",
+    "Arrange the slices alternating on a plate with basil leaves tucked between.",
+    "Drizzle over the olive oil and balsamic vinegar.",
+    "Season with a little salt and pepper and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "tomato, raw",
+      "qty_g": 200,
+      "prep": "sliced"
+    },
+    {
+      "name": "mozzarella cheese",
+      "qty_g": 150,
+      "prep": "sliced"
+    },
+    {
+      "name": "basil, raw",
+      "qty_g": 5
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 15
+    },
+    {
+      "name": "balsamic vinegar",
+      "qty_g": 10
+    }
+  ]
+}

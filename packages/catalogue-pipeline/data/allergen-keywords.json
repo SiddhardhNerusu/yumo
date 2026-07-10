@@ -1,0 +1,17 @@
+{
+  "$description": "Keyword → UK-14 allergen map for automated allergen extraction (§4.5 step 3). Conservative and additive: a hit flags the allergen; absence is NOT a guarantee (composite foods still get the '⚠️ always check labels' treatment downstream). Versioned safety data, not catalogue content.",
+  "milk": ["milk", "cheese", "cheddar", "mozzarella", "parmesan", "feta", "butter", "cream", "yogurt", "yoghurt", "whey", "ghee", "paneer", "custard"],
+  "eggs": ["egg", "eggs", "mayonnaise", "mayo", "aioli"],
+  "fish": ["fish", "salmon", "tuna", "cod", "haddock", "anchovy", "sardine", "mackerel", "tilapia", "pollock"],
+  "crustaceans": ["prawn", "shrimp", "crab", "lobster", "langoustine", "crayfish"],
+  "molluscs": ["mussel", "clam", "oyster", "squid", "octopus", "scallop", "snail", "cockle", "whelk"],
+  "peanuts": ["peanut", "groundnut", "satay"],
+  "tree_nuts": ["almond", "cashew", "walnut", "pecan", "hazelnut", "pistachio", "macadamia", "brazil nut", "pine nut"],
+  "gluten": ["wheat", "flour", "bread", "breadcrumb", "pasta", "noodle", "barley", "rye", "oat", "oats", "oatmeal", "couscous", "bulgur", "semolina", "spaghetti", "naan", "chapati", "roti", "tortilla", "soy sauce", "seitan"],
+  "soy": ["soy", "soya", "tofu", "edamame", "tempeh", "miso"],
+  "sesame": ["sesame", "tahini"],
+  "mustard": ["mustard"],
+  "celery": ["celery", "celeriac"],
+  "lupin": ["lupin"],
+  "sulphites": ["sulphite", "sulfite"]
+}

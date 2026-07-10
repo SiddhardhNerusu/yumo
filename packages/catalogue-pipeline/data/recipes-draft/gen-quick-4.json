@@ -1,0 +1,46 @@
+{
+  "id": "gen-quick-4",
+  "name": "Hummus Chickpea Veggie Plate",
+  "cuisine": "Quick 5-minute / no-cook easy",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "assemble"
+  ],
+  "steps": [
+    "Spoon the hummus into the middle of a plate.",
+    "Scatter the chickpeas over the hummus.",
+    "Arrange the carrot and cucumber sticks around the edge.",
+    "Serve the pita alongside for scooping."
+  ],
+  "ingredients": [
+    {
+      "name": "hummus",
+      "qty_g": 100
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 100,
+      "prep": "drained"
+    },
+    {
+      "name": "carrot, raw",
+      "qty_g": 80,
+      "prep": "cut into sticks"
+    },
+    {
+      "name": "cucumber, raw",
+      "qty_g": 80,
+      "prep": "cut into sticks"
+    },
+    {
+      "name": "whole wheat pita bread",
+      "qty_g": 60
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "gen-italian-4",
+  "name": "Chicken Parmigiana",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 2,
+  "methodTags": [
+    "fry",
+    "bake"
+  ],
+  "steps": [
+    "Dip the chicken breasts in the beaten egg, then coat in the breadcrumbs mixed with parmesan.",
+    "Fry the breaded chicken in the olive oil over medium heat until golden and cooked through to 74C internal.",
+    "Spoon the tomato sauce over the chicken and top with the mozzarella.",
+    "Bake at 200C until the cheese melts and the chicken is piping hot.",
+    "Serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 300
+    },
+    {
+      "name": "tomato sauce",
+      "qty_g": 200
+    },
+    {
+      "name": "mozzarella cheese",
+      "qty_g": 100,
+      "prep": "sliced"
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 20,
+      "prep": "grated"
+    },
+    {
+      "name": "breadcrumbs",
+      "qty_g": 40
+    },
+    {
+      "name": "egg, whole, cooked",
+      "qty_g": 50,
+      "prep": "beaten"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 20
+    }
+  ]
+}

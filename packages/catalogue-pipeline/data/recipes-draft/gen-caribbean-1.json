@@ -1,0 +1,57 @@
+{
+  "id": "gen-caribbean-1",
+  "name": "Jerk Chicken with Rice and Peas",
+  "cuisine": "Jamaican / Caribbean",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 4,
+  "methodTags": [
+    "grill",
+    "simmer",
+    "stovetop"
+  ],
+  "steps": [
+    "Season the chicken thighs with allspice, thyme, and chopped spring onion.",
+    "Grill or fry the chicken over medium-high heat until browned and cooked through to 74C internal.",
+    "Meanwhile, simmer the kidney beans with the coconut milk and onion in a pot for about 10 minutes.",
+    "Stir the cooked rice into the coconut-bean mixture and warm through.",
+    "Serve the jerk chicken over the rice and peas."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 600,
+      "prep": "bone-out, seasoned and grilled"
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 600
+    },
+    {
+      "name": "kidney beans, cooked",
+      "qty_g": 200,
+      "prep": "drained"
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 150
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 80,
+      "prep": "chopped"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 20
+    },
+    {
+      "name": "spring onion, raw",
+      "qty_g": 30,
+      "prep": "sliced"
+    }
+  ]
+}

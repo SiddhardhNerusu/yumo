@@ -1,0 +1,21 @@
+{
+  "id": "fixture-chicken-rice-bowl",
+  "name": "Chicken & rice bowl",
+  "cuisine": "British-everyday",
+  "slotAffinity": ["lunch", "dinner"],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": ["one-pan", "high-protein"],
+  "steps": [
+    "Season the chicken breast and cook through in a hot pan until no longer pink, about 6 minutes per side.",
+    "Steam or boil the broccoli for 4 minutes until just tender.",
+    "Warm the cooked rice and pile into a bowl.",
+    "Slice the chicken over the top, add the broccoli, and drizzle with olive oil."
+  ],
+  "ingredients": [
+    { "name": "chicken breast, cooked", "qty_g": 150, "fdcId": 171477 },
+    { "name": "white rice, cooked", "qty_g": 180, "fdcId": 168878 },
+    { "name": "broccoli, cooked", "qty_g": 100, "fdcId": 168510 },
+    { "name": "olive oil", "qty_g": 10, "fdcId": 171413 }
+  ]
+}

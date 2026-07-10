@@ -1,0 +1,56 @@
+{
+  "id": "gen-chinese-2",
+  "name": "Egg Fried Rice",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 2,
+  "methodTags": [
+    "stir-fry",
+    "wok",
+    "one-pan"
+  ],
+  "steps": [
+    "Heat the vegetable oil in a wok or large pan over high heat.",
+    "Pour in the beaten eggs and scramble until fully set and no longer runny.",
+    "Add the carrot and peas and stir-fry for two minutes.",
+    "Add the cooked rice, break up any clumps, and stir-fry until piping hot.",
+    "Pour in the soy sauce, add the spring onion, and toss for another minute before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 400
+    },
+    {
+      "name": "egg, whole, cooked",
+      "qty_g": 100,
+      "prep": "beaten then scrambled"
+    },
+    {
+      "name": "peas, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot, raw",
+      "qty_g": 50,
+      "prep": "finely diced"
+    },
+    {
+      "name": "spring onion, raw",
+      "qty_g": 20,
+      "prep": "sliced"
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 16
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 14
+    }
+  ]
+}

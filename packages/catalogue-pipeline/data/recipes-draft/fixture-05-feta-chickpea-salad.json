@@ -1,0 +1,21 @@
+{
+  "id": "fixture-feta-chickpea-salad",
+  "name": "Feta & chickpea salad",
+  "cuisine": "Greek",
+  "slotAffinity": ["lunch"],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": ["no-cook", "vegetarian"],
+  "steps": [
+    "Drain and rinse the chickpeas.",
+    "Chop the cucumber and tomato.",
+    "Toss everything together, crumble over the feta, and dress with olive oil."
+  ],
+  "ingredients": [
+    { "name": "chickpeas, cooked", "qty_g": 150, "fdcId": 173757 },
+    { "name": "cucumber, raw", "qty_g": 80, "fdcId": 168409 },
+    { "name": "feta cheese", "qty_g": 40, "fdcId": 173420 },
+    { "name": "tomato, raw", "qty_g": 80, "fdcId": 170096 },
+    { "name": "olive oil", "qty_g": 10, "fdcId": 171413 }
+  ]
+}

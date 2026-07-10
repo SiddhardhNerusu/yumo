@@ -1,0 +1,43 @@
+{
+  "id": "gen-british-1",
+  "name": "Beans on Toast",
+  "cuisine": "British / everyday",
+  "slotAffinity": [
+    "breakfast",
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "toasted",
+    "stovetop",
+    "no-cook-meat"
+  ],
+  "steps": [
+    "Toast the bread until golden.",
+    "Warm the baked beans in a small pan over medium heat until bubbling.",
+    "Spread butter over the hot toast.",
+    "Pour the beans over the toast and scatter the grated cheddar on top."
+  ],
+  "ingredients": [
+    {
+      "name": "baked beans",
+      "qty_g": 200
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60,
+      "prep": "2 slices, toasted"
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 20,
+      "prep": "grated"
+    }
+  ]
+}

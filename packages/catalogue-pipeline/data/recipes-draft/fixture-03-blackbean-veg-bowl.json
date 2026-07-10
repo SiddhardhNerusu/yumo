@@ -1,0 +1,22 @@
+{
+  "id": "fixture-blackbean-veg-bowl",
+  "name": "Black bean & rice bowl",
+  "cuisine": "Mexican",
+  "slotAffinity": ["lunch"],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": ["vegetarian", "batch"],
+  "steps": [
+    "Warm the rice and black beans together in a pan.",
+    "Stir the spinach through for the last minute until wilted.",
+    "Tip into a bowl, add the tomato, crumble over the feta, and drizzle with olive oil."
+  ],
+  "ingredients": [
+    { "name": "black beans, cooked", "qty_g": 150, "fdcId": 175237 },
+    { "name": "white rice, cooked", "qty_g": 150, "fdcId": 168878 },
+    { "name": "spinach, raw", "qty_g": 40, "fdcId": 168462 },
+    { "name": "tomato, raw", "qty_g": 80, "fdcId": 170096 },
+    { "name": "feta cheese", "qty_g": 30, "fdcId": 173420 },
+    { "name": "olive oil", "qty_g": 8, "fdcId": 171413 }
+  ]
+}

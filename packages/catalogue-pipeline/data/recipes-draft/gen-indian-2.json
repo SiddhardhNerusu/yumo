@@ -1,0 +1,48 @@
+{
+  "id": "gen-indian-2",
+  "name": "Chana Masala",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 3,
+  "methodTags": [
+    "simmered",
+    "vegetarian",
+    "high-fibre"
+  ],
+  "steps": [
+    "Heat the oil and sauté the chopped onion until golden.",
+    "Add the garlic, then the blended tomato and spices, cooking until the oil separates.",
+    "Stir in the cooked chickpeas with a splash of water.",
+    "Simmer for 10 to 15 minutes until the sauce thickens.",
+    "Mash a few chickpeas to thicken further and finish with fresh coriander."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 400
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 120,
+      "prep": "chopped"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 150,
+      "prep": "blended"
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 20
+    },
+    {
+      "name": "garlic, raw",
+      "qty_g": 6,
+      "prep": "minced"
+    }
+  ]
+}

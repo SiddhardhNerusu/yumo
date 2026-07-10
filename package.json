@@ -1,0 +1,31 @@
+{
+  "name": "usual-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Prediction-first calorie tracker — monorepo (server-side + shared packages; client app added once stack is locked in Phase 0).",
+  "workspaces": [
+    "packages/*",
+    "server",
+    "app"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc -p packages/tokens && tsc -p packages/shared && tsc -p packages/brain && tsc -p packages/menu && tsc -p packages/catalogue-pipeline && tsc -p server",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "fetch:fdc": "npm run fetch:fdc -w @usual/catalogue-pipeline",
+    "spike": "npm run spike -w @usual/catalogue-pipeline",
+    "brain:demo": "npm run demo -w @usual/brain",
+    "menu:demo": "npm run demo -w @usual/menu",
+    "server:dev": "npm run dev -w @usual/server"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

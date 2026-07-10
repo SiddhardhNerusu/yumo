@@ -1,0 +1,56 @@
+{
+  "id": "gen-mexican-4",
+  "name": "Ground Beef Tacos",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 2,
+  "methodTags": [
+    "pan-fried",
+    "assembled"
+  ],
+  "steps": [
+    "Heat the olive oil in a pan and soften the diced onion.",
+    "Add the ground beef and cook, breaking it up, until browned and cooked through with no pink remaining.",
+    "Season the beef with cumin, chilli, and salt and simmer for a few minutes.",
+    "Warm the corn tortillas in a dry pan until pliable.",
+    "Fill each tortilla with the beef, then top with diced tomato, shredded lettuce, and cheese."
+  ],
+  "ingredients": [
+    {
+      "name": "beef, ground, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "corn tortilla",
+      "qty_g": 120,
+      "prep": "warmed"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 40,
+      "prep": "diced"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 60,
+      "prep": "diced"
+    },
+    {
+      "name": "lettuce, raw",
+      "qty_g": 40,
+      "prep": "shredded"
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 40,
+      "prep": "grated"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

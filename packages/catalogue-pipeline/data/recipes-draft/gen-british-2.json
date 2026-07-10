@@ -1,0 +1,40 @@
+{
+  "id": "gen-british-2",
+  "name": "Scrambled Eggs on Toast",
+  "cuisine": "British / everyday",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 2,
+  "methodTags": [
+    "fried",
+    "toasted"
+  ],
+  "steps": [
+    "Whisk the eggs with the milk and a pinch of salt.",
+    "Melt the butter in a non-stick pan over low-medium heat.",
+    "Pour in the eggs and stir gently until fully set and no longer runny.",
+    "Toast the bread and pile the scrambled eggs on top to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg, whole, cooked",
+      "qty_g": 200,
+      "prep": "about 4 eggs"
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 120,
+      "prep": "4 slices, toasted"
+    },
+    {
+      "name": "butter",
+      "qty_g": 20
+    },
+    {
+      "name": "milk",
+      "qty_g": 30
+    }
+  ]
+}

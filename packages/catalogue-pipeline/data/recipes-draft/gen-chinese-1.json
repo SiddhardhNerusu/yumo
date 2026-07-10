@@ -1,0 +1,45 @@
+{
+  "id": "gen-chinese-1",
+  "name": "Chinese Smashed Cucumber Salad",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 2,
+  "methodTags": [
+    "no-cook",
+    "cold-dish"
+  ],
+  "steps": [
+    "Smash the cucumber with the flat of a knife and tear it into bite-size pieces.",
+    "Toss the cucumber with a pinch of salt and let it sit for 10 minutes, then drain off the water.",
+    "Whisk together the soy sauce, rice vinegar, sesame oil, and minced garlic.",
+    "Pour the dressing over the cucumber and toss well to coat before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "cucumber, raw",
+      "qty_g": 320,
+      "prep": "smashed and torn"
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "rice vinegar",
+      "qty_g": 10
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 6
+    },
+    {
+      "name": "garlic, raw",
+      "qty_g": 5,
+      "prep": "minced"
+    }
+  ]
+}

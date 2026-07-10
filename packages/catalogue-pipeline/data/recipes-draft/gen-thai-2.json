@@ -1,0 +1,58 @@
+{
+  "id": "gen-thai-2",
+  "name": "Tom Yum Goong (Thai Hot and Sour Prawn Soup)",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 2,
+  "methodTags": [
+    "soup",
+    "simmer",
+    "one-pot"
+  ],
+  "steps": [
+    "Bring water to a simmer with the bruised lemongrass to make a fragrant broth.",
+    "Add the mushrooms and tomato and simmer for a few minutes until softened.",
+    "Add the raw prawns and simmer until they turn pink and are cooked through.",
+    "Stir in the coconut milk and fish sauce and warm through without boiling hard.",
+    "Finish with a squeeze of lime juice off the heat.",
+    "Ladle the soup into bowls and serve with steamed white rice."
+  ],
+  "ingredients": [
+    {
+      "name": "prawns, cooked",
+      "qty_g": 220,
+      "prep": "peeled"
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 300
+    },
+    {
+      "name": "mushrooms, raw",
+      "qty_g": 100,
+      "prep": "sliced"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 100,
+      "prep": "wedges"
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 120
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "lemongrass, raw",
+      "qty_g": 10,
+      "prep": "bruised"
+    }
+  ]
+}

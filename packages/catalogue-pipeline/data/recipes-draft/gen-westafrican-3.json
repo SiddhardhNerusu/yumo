@@ -1,0 +1,40 @@
+{
+  "id": "gen-westafrican-3",
+  "name": "Garri Soakings with Peanuts and Milk",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "assemble"
+  ],
+  "steps": [
+    "Place the garri (cassava flour) in a bowl.",
+    "Pour in cold water and let the garri swell for a minute.",
+    "Stir in the sugar and evaporated milk.",
+    "Top with roasted peanuts and eat straight away."
+  ],
+  "ingredients": [
+    {
+      "name": "cassava flour",
+      "qty_g": 60,
+      "prep": "dry garri, soaked in water"
+    },
+    {
+      "name": "evaporated milk",
+      "qty_g": 40
+    },
+    {
+      "name": "peanuts, roasted",
+      "qty_g": 30
+    },
+    {
+      "name": "sugar",
+      "qty_g": 12
+    }
+  ]
+}

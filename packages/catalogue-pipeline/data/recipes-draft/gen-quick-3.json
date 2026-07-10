@@ -1,0 +1,40 @@
+{
+  "id": "gen-quick-3",
+  "name": "Cottage Cheese Cucumber Toast",
+  "cuisine": "Quick 5-minute / no-cook easy",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "assemble"
+  ],
+  "steps": [
+    "Spread the cottage cheese evenly over the bread.",
+    "Lay the cucumber slices on top.",
+    "Drizzle with olive oil and a pinch of black pepper.",
+    "Cut in half and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 150
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "cucumber, raw",
+      "qty_g": 60,
+      "prep": "sliced"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

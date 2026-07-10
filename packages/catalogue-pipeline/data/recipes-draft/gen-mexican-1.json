@@ -1,0 +1,45 @@
+{
+  "id": "gen-mexican-1",
+  "name": "Guacamole with Tortilla Chips",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 2,
+  "methodTags": [
+    "no-cook",
+    "raw"
+  ],
+  "steps": [
+    "Halve the avocados, scoop the flesh into a bowl, and mash roughly with a fork.",
+    "Finely dice the onion and tomato and stir them through the avocado.",
+    "Squeeze in the lime juice and season with salt to taste.",
+    "Serve straight away with the tortilla chips for dipping."
+  ],
+  "ingredients": [
+    {
+      "name": "avocado, raw",
+      "qty_g": 200,
+      "prep": "mashed"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 30,
+      "prep": "finely diced"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 60,
+      "prep": "diced"
+    },
+    {
+      "name": "lime juice, raw",
+      "qty_g": 15
+    },
+    {
+      "name": "tortilla chips",
+      "qty_g": 50
+    }
+  ]
+}

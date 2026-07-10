@@ -1,0 +1,58 @@
+{
+  "id": "gen-thai-1",
+  "name": "Thai Basil Chicken (Pad Krapow Gai)",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 2,
+  "methodTags": [
+    "stir-fry",
+    "wok",
+    "one-pan"
+  ],
+  "steps": [
+    "Cook the jasmine rice and keep it warm.",
+    "Heat the oil in a wok over high heat and fry the garlic until fragrant.",
+    "Add the ground chicken and stir-fry until fully cooked through and no longer pink.",
+    "Stir in the fish sauce, then fold through the Thai basil until just wilted.",
+    "In a separate pan, fry the eggs until the whites are set.",
+    "Spoon the basil chicken over the rice and top each plate with a fried egg."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken, ground, cooked",
+      "qty_g": 300,
+      "prep": "stir-fried"
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 300
+    },
+    {
+      "name": "egg, whole, cooked",
+      "qty_g": 100,
+      "prep": "fried"
+    },
+    {
+      "name": "basil, raw",
+      "qty_g": 15,
+      "prep": "Thai basil leaves"
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 14
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic, raw",
+      "qty_g": 6,
+      "prep": "minced"
+    }
+  ]
+}

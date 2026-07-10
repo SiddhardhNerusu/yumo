@@ -1,0 +1,46 @@
+{
+  "id": "gen-indian-3",
+  "name": "Home-Style Chicken Curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 4,
+  "methodTags": [
+    "simmered",
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil and fry the chopped onion until deep golden.",
+    "Add the tomato, yogurt and spices, cooking into a thick masala.",
+    "Add the raw chicken pieces and stir to coat.",
+    "Pour in water, cover, and simmer for 20 to 25 minutes until the chicken is cooked through and no longer pink inside.",
+    "Uncover and reduce the sauce, then finish with fresh coriander."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 500,
+      "prep": "cut into pieces"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 150,
+      "prep": "chopped"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 150,
+      "prep": "chopped"
+    },
+    {
+      "name": "greek yogurt, plain",
+      "qty_g": 80
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 30
+    }
+  ]
+}

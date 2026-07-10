@@ -1,0 +1,46 @@
+{
+  "id": "gen-thai-3",
+  "name": "Thai Peanut Chicken Snack Plate",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "assembly"
+  ],
+  "steps": [
+    "Whisk the peanut butter, coconut milk, and a squeeze of lime into a smooth satay-style sauce.",
+    "Slice the cooked chicken breast and cut the cucumber and carrot into sticks.",
+    "Toss the sliced chicken with the peanut sauce until coated.",
+    "Arrange on a plate and serve with the cucumber and carrot for dipping."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120,
+      "prep": "sliced"
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 30
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 30
+    },
+    {
+      "name": "cucumber, raw",
+      "qty_g": 100,
+      "prep": "sticks"
+    },
+    {
+      "name": "carrot, raw",
+      "qty_g": 50,
+      "prep": "sticks"
+    }
+  ]
+}

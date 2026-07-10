@@ -1,0 +1,24 @@
+{
+  "id": "fixture-beef-pasta",
+  "name": "Beef & tomato pasta",
+  "cuisine": "Italian",
+  "slotAffinity": ["dinner"],
+  "effort": "30min+",
+  "servings": 2,
+  "methodTags": ["batch", "family"],
+  "steps": [
+    "Fry the onion in olive oil until soft.",
+    "Add the ground beef and cook until browned through.",
+    "Stir in the chopped tomato and simmer for 15 minutes.",
+    "Cook the pasta, drain, and toss it through the sauce.",
+    "Serve topped with grated cheddar."
+  ],
+  "ingredients": [
+    { "name": "ground beef, cooked", "qty_g": 250, "fdcId": 172161 },
+    { "name": "pasta, cooked", "qty_g": 300, "fdcId": 169728 },
+    { "name": "tomato, raw", "qty_g": 200, "fdcId": 170096 },
+    { "name": "onion, raw", "qty_g": 80, "fdcId": 170000 },
+    { "name": "olive oil", "qty_g": 12, "fdcId": 171413 },
+    { "name": "cheddar cheese", "qty_g": 40, "fdcId": 170899 }
+  ]
+}

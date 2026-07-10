@@ -1,0 +1,64 @@
+{
+  "id": "gen-chinese-3",
+  "name": "Chicken and Broccoli Stir-Fry with Rice",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 3,
+  "methodTags": [
+    "stir-fry",
+    "wok"
+  ],
+  "steps": [
+    "Slice the chicken breast into thin strips and toss with the cornstarch.",
+    "Heat the vegetable oil in a wok over high heat and stir-fry the chicken until browned and cooked through with no pink inside.",
+    "Add the garlic and ginger and stir for thirty seconds until fragrant.",
+    "Add the broccoli with a splash of water, cover, and steam for three minutes until just tender.",
+    "Pour in the soy sauce and sesame oil, toss everything to coat, and serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 360,
+      "prep": "sliced into strips"
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 300,
+      "prep": "cut into florets"
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 450
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 30
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 14
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    },
+    {
+      "name": "cornstarch",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic, raw",
+      "qty_g": 8,
+      "prep": "minced"
+    },
+    {
+      "name": "ginger, raw",
+      "qty_g": 5,
+      "prep": "grated"
+    }
+  ]
+}

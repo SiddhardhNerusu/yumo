@@ -1,0 +1,45 @@
+{
+  "id": "gen-quick-1",
+  "name": "Peanut Butter Banana Yogurt Bowl",
+  "cuisine": "Quick 5-minute / no-cook easy",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "assemble"
+  ],
+  "steps": [
+    "Spoon the greek yogurt into a bowl.",
+    "Slice the banana and lay it over the yogurt.",
+    "Drizzle the peanut butter and honey on top.",
+    "Scatter the almonds over and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt, plain",
+      "qty_g": 200
+    },
+    {
+      "name": "banana, raw",
+      "qty_g": 120,
+      "prep": "sliced"
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 32
+    },
+    {
+      "name": "honey",
+      "qty_g": 15
+    },
+    {
+      "name": "almonds, raw",
+      "qty_g": 15,
+      "prep": "chopped"
+    }
+  ]
+}

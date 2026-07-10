@@ -1,0 +1,50 @@
+{
+  "id": "gen-quick-2",
+  "name": "Tuna and White Bean Salad",
+  "cuisine": "Quick 5-minute / no-cook easy",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "assemble"
+  ],
+  "steps": [
+    "Drain the tuna and white beans and tip them into a bowl.",
+    "Add the chopped tomato and red onion.",
+    "Drizzle with olive oil and a squeeze of lemon juice.",
+    "Toss gently and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "tuna, canned in water, drained",
+      "qty_g": 120
+    },
+    {
+      "name": "white beans, cooked",
+      "qty_g": 150,
+      "prep": "drained"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 80,
+      "prep": "chopped"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 20,
+      "prep": "finely chopped"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "gen-british-3",
+  "name": "Jacket Potato with Cheese and Beans",
+  "cuisine": "British / everyday",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 2,
+  "methodTags": [
+    "baked",
+    "stovetop"
+  ],
+  "steps": [
+    "Prick the potatoes all over and bake at 200C for about an hour until soft inside.",
+    "Warm the baked beans in a small pan until bubbling.",
+    "Split each baked potato open and add the butter.",
+    "Spoon the beans over the potatoes and top with grated cheddar."
+  ],
+  "ingredients": [
+    {
+      "name": "potato, baked",
+      "qty_g": 400,
+      "prep": "2 large potatoes"
+    },
+    {
+      "name": "baked beans",
+      "qty_g": 300
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 60,
+      "prep": "grated"
+    },
+    {
+      "name": "butter",
+      "qty_g": 20
+    }
+  ]
+}

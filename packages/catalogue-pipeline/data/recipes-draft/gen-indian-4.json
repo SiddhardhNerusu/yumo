@@ -1,0 +1,32 @@
+{
+  "id": "gen-indian-4",
+  "name": "Cucumber Raita",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 2,
+  "methodTags": [
+    "no-cook",
+    "vegetarian"
+  ],
+  "steps": [
+    "Whisk the yogurt until smooth.",
+    "Grate or finely chop the cucumber and squeeze out excess water.",
+    "Stir the cucumber into the yogurt with a pinch of salt and roasted cumin.",
+    "Chill briefly and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "yogurt, plain",
+      "qty_g": 200
+    },
+    {
+      "name": "cucumber, raw",
+      "qty_g": 120,
+      "prep": "grated"
+    }
+  ]
+}

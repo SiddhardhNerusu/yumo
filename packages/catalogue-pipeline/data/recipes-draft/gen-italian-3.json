@@ -1,0 +1,52 @@
+{
+  "id": "gen-italian-3",
+  "name": "Spinach and Tomato Frittata",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 4,
+  "methodTags": [
+    "saute",
+    "bake",
+    "one-pan"
+  ],
+  "steps": [
+    "Whisk the eggs with a pinch of salt in a bowl.",
+    "Soften the onion, spinach, and tomato in the olive oil in an oven-safe pan.",
+    "Pour the whisked eggs over the vegetables and scatter the parmesan on top.",
+    "Cook on low until the edges set, then bake at 190C until the centre is fully set and no longer runny.",
+    "Cool briefly, slice into wedges, and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg, whole, cooked",
+      "qty_g": 300
+    },
+    {
+      "name": "spinach, raw",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 100,
+      "prep": "diced"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 60,
+      "prep": "diced"
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 30,
+      "prep": "grated"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 15
+    }
+  ]
+}

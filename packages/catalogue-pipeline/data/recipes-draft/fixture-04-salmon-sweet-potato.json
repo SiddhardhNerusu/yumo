@@ -1,0 +1,21 @@
+{
+  "id": "fixture-salmon-sweet-potato",
+  "name": "Baked salmon & sweet potato",
+  "cuisine": "British-everyday",
+  "slotAffinity": ["dinner"],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": ["one-tray", "high-protein", "omega-3"],
+  "steps": [
+    "Heat the oven to 200°C.",
+    "Bake the sweet potato until soft, about 40 minutes.",
+    "Add the salmon to the tray for the final 15 minutes until it flakes.",
+    "Steam the broccoli and serve alongside with a drizzle of olive oil."
+  ],
+  "ingredients": [
+    { "name": "salmon, cooked", "qty_g": 140, "fdcId": 173723 },
+    { "name": "sweet potato, baked", "qty_g": 200, "fdcId": 169307 },
+    { "name": "broccoli, cooked", "qty_g": 120, "fdcId": 168510 },
+    { "name": "olive oil", "qty_g": 8, "fdcId": 171413 }
+  ]
+}

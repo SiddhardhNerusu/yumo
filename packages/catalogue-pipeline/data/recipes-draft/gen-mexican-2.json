@@ -1,0 +1,51 @@
+{
+  "id": "gen-mexican-2",
+  "name": "Huevos Rancheros",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "fried",
+    "one-pan"
+  ],
+  "steps": [
+    "Warm the corn tortillas in a dry pan until soft and lightly toasted, then set aside.",
+    "Heat the black beans in a small pan and lightly mash them.",
+    "Fry the eggs in the olive oil until the whites are fully set.",
+    "Layer the beans over each tortilla and top each with a fried egg.",
+    "Spoon over the salsa, scatter with cheese, and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "egg, whole, cooked",
+      "qty_g": 100,
+      "prep": "fried"
+    },
+    {
+      "name": "corn tortilla",
+      "qty_g": 60,
+      "prep": "warmed"
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 120,
+      "prep": "lightly mashed"
+    },
+    {
+      "name": "salsa",
+      "qty_g": 80
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30,
+      "prep": "grated"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

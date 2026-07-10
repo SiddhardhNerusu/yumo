@@ -1,0 +1,49 @@
+{
+  "id": "gen-indian-1",
+  "name": "Moong Dal Chilla",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 2,
+  "methodTags": [
+    "pan-fried",
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Soak split mung beans, then blend with a little water into a smooth pourable batter.",
+    "Stir chopped onion, tomato, spinach, salt and cumin into the batter.",
+    "Heat a little oil in a non-stick pan over medium heat.",
+    "Pour a ladle of batter and spread into a thin round.",
+    "Cook until the underside is golden, then flip and cook the other side through.",
+    "Serve hot, folded in half."
+  ],
+  "ingredients": [
+    {
+      "name": "mung beans, cooked",
+      "qty_g": 160,
+      "prep": "soaked and blended into batter"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 40,
+      "prep": "finely chopped"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 40,
+      "prep": "finely chopped"
+    },
+    {
+      "name": "spinach, raw",
+      "qty_g": 20,
+      "prep": "finely chopped"
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

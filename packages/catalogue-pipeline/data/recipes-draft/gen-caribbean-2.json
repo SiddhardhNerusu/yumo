@@ -1,0 +1,49 @@
+{
+  "id": "gen-caribbean-2",
+  "name": "Saltfish and Callaloo",
+  "cuisine": "Jamaican / Caribbean",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 2,
+  "methodTags": [
+    "boil",
+    "saute",
+    "stovetop"
+  ],
+  "steps": [
+    "Boil the salted cod for a few minutes, then drain and flake it.",
+    "Heat the olive oil and soften the onion and tomato in a pan.",
+    "Add the spinach and cook until wilted.",
+    "Fold in the flaked cod and warm through.",
+    "Serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "cod, cooked",
+      "qty_g": 150,
+      "prep": "salted, boiled and flaked"
+    },
+    {
+      "name": "spinach, raw",
+      "qty_g": 200,
+      "prep": "roughly chopped"
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 60,
+      "prep": "sliced"
+    },
+    {
+      "name": "tomato, raw",
+      "qty_g": 100,
+      "prep": "diced"
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 15
+    }
+  ]
+}

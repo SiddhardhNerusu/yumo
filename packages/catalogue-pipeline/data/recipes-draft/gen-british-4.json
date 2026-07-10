@@ -1,0 +1,47 @@
+{
+  "id": "gen-british-4",
+  "name": "Bangers and Mash with Onion Gravy",
+  "cuisine": "British / everyday",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 4,
+  "methodTags": [
+    "fried",
+    "boiled",
+    "mashed"
+  ],
+  "steps": [
+    "Fry the sausages over medium heat for 15-20 minutes, turning, until browned and cooked through with no pink inside.",
+    "Boil the peeled potatoes in salted water until tender, about 15 minutes.",
+    "Drain the potatoes and mash with the butter and milk until smooth.",
+    "Soften the sliced onion in the sausage pan until deep golden to make a simple onion gravy.",
+    "Serve the sausages over the mash with the onions spooned on top."
+  ],
+  "ingredients": [
+    {
+      "name": "pork sausage, cooked",
+      "qty_g": 400,
+      "prep": "8 sausages"
+    },
+    {
+      "name": "potato, boiled",
+      "qty_g": 600,
+      "prep": "peeled"
+    },
+    {
+      "name": "butter",
+      "qty_g": 40
+    },
+    {
+      "name": "milk",
+      "qty_g": 60
+    },
+    {
+      "name": "onion, raw",
+      "qty_g": 150,
+      "prep": "sliced"
+    }
+  ]
+}

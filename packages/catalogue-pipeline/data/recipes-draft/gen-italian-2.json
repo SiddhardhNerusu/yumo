@@ -1,0 +1,47 @@
+{
+  "id": "gen-italian-2",
+  "name": "Spaghetti Aglio e Olio",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 2,
+  "methodTags": [
+    "boil",
+    "saute",
+    "one-pan"
+  ],
+  "steps": [
+    "Boil the spaghetti in well-salted water until al dente, then drain.",
+    "Gently warm the olive oil with thinly sliced garlic until just golden.",
+    "Toss the drained pasta through the garlic oil to coat.",
+    "Stir in the chopped parsley and grated parmesan and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "spaghetti, cooked",
+      "qty_g": 300
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 30
+    },
+    {
+      "name": "garlic, raw",
+      "qty_g": 10,
+      "prep": "thinly sliced"
+    },
+    {
+      "name": "parsley, raw",
+      "qty_g": 5,
+      "prep": "chopped"
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 20,
+      "prep": "grated"
+    }
+  ]
+}

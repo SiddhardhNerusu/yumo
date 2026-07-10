@@ -1,0 +1,39 @@
+{
+  "id": "gen-caribbean-3",
+  "name": "Jamaican Peanut Punch",
+  "cuisine": "Jamaican / Caribbean",
+  "slotAffinity": [
+    "snack",
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "blend",
+    "no-cook"
+  ],
+  "steps": [
+    "Add the milk, peanut butter, banana, and oats to a blender.",
+    "Blend until smooth and creamy.",
+    "Pour over ice and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "whole milk",
+      "qty_g": 300
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 40
+    },
+    {
+      "name": "banana, raw",
+      "qty_g": 100,
+      "prep": "peeled"
+    },
+    {
+      "name": "rolled oats, dry",
+      "qty_g": 20
+    }
+  ]
+}

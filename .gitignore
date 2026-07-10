@@ -1,0 +1,19 @@
+node_modules/
+.claude/
+.expo/
+dist/
+build/
+coverage/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# FDC raw bulk datasets (~217MB). Regenerate with `npm run fetch:fdc`.
+# The normalized store in data/fdc-cache/ IS committed (small, reproducible).
+packages/catalogue-pipeline/data/fdc-raw/
+
+# Regenerated each `npm run spike` run — snapshot artifacts, not source.
+packages/catalogue-pipeline/data/spike-results.json
+packages/catalogue-pipeline/data/review.html
