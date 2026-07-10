@@ -101,6 +101,20 @@ function scoreFood(queryTokens: string[], querySet: Set<string>, food: FdcFood):
   return Math.max(0, Math.min(1, score));
 }
 
+/** Top-N foods for a free-text query, using the same category-head scoring as
+ * resolution — so food search ranks the pure food above composites. */
+export function rankFoods(query: string, store: FdcStore, limit: number): ResolverCandidate[] {
+  const queryTokens = tokenize(query);
+  const querySet = new Set(queryTokens);
+  const scored: ResolverCandidate[] = [];
+  for (const food of store.foods) {
+    const score = scoreFood(queryTokens, querySet, food);
+    if (score > 0) scored.push({ fdcId: food.fdcId, description: food.description, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit);
+}
+
 export function resolveIngredient(
   query: string,
   pinnedFdcId: number | undefined,

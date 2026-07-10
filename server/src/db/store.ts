@@ -1,4 +1,4 @@
-import { tokenize, type FdcStore } from '@usual/catalogue-pipeline';
+import { rankFoods, indexById, type FdcStore, type FdcFood } from '@usual/catalogue-pipeline';
 import type { MenuRecipe, WeekMenuPlan, UserProfile } from '@usual/menu';
 import { loadCatalogue, type RecipeDetail } from '../catalogue';
 
@@ -80,6 +80,7 @@ export class MemoryStore implements Store {
   private seq = 0;
 
   private readonly foods: FdcStore;
+  private readonly byId: Map<number, FdcFood>;
   private readonly pool: MenuRecipe[];
   private readonly details: Map<string, RecipeDetail>;
   private readonly bubbleList: Bubble[];
@@ -87,6 +88,7 @@ export class MemoryStore implements Store {
   constructor(now: number) {
     const cat = loadCatalogue();
     this.foods = cat.foods;
+    this.byId = indexById(cat.foods);
     this.pool = cat.pool;
     this.details = cat.details;
     this.bubbleList = computeBubbles(cat.details);
@@ -142,22 +144,12 @@ export class MemoryStore implements Store {
   }
 
   searchFoods(q: string, limit: number): FoodHit[] {
-    const qTokens = tokenize(q);
-    if (qTokens.length === 0) return [];
-    const qSet = new Set(qTokens);
-    const scored: Array<{ hit: FoodHit; score: number }> = [];
-    for (const food of this.foods.foods) {
-      const dTokens = tokenize(food.description);
-      if (dTokens.length === 0) continue;
-      let matched = 0;
-      for (const t of dTokens) if (qSet.has(t)) matched++;
-      if (matched === 0) continue;
-      const coverage = matched / qTokens.length;
-      const density = matched / dTokens.length;
-      scored.push({ hit: { fdcId: food.fdcId, description: food.description, per100g: food.per100g }, score: coverage + 0.3 * density });
+    const hits: FoodHit[] = [];
+    for (const cand of rankFoods(q, this.foods, limit)) {
+      const food = this.byId.get(cand.fdcId);
+      if (food) hits.push({ fdcId: food.fdcId, description: food.description, per100g: food.per100g });
     }
-    scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, limit).map((s) => s.hit);
+    return hits;
   }
 
   bubbles(limit: number): Bubble[] {

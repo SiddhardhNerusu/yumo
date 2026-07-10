@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, View, Text } from 'react-native';
+import { ScrollView, View, Text, Pressable } from 'react-native';
 import type { MealSlot } from '@usual/shared';
 import { useTheme } from '../theme';
 import { useToday } from '../useToday';
@@ -9,6 +9,7 @@ import { BudgetRing } from '../components/BudgetRing';
 import { UsualCard } from '../components/UsualCard';
 import { Timeline } from '../components/Timeline';
 import { CoachLine } from '../components/CoachLine';
+import { LogSearch, SEARCH_PORTION_G } from '../components/LogSearch';
 
 const cap = (s: string) => (s ? s[0]!.toUpperCase() + s.slice(1) : s);
 
@@ -16,6 +17,7 @@ export function Today({ budget }: { budget?: number }) {
   const { c, radius } = useTheme();
   const { events, logFood } = useEventStore();
   const [now] = useState(() => Date.now());
+  const [showSearch, setShowSearch] = useState(false);
   const state = useToday(events, now, budget);
 
   return (
@@ -42,8 +44,29 @@ export function Today({ budget }: { budget?: number }) {
           />
         )}
 
+        <Pressable
+          onPress={() => setShowSearch(true)}
+          style={{ borderWidth: 1, borderColor: c('border'), borderRadius: radius.md, paddingVertical: 14, alignItems: 'center' }}
+        >
+          <Text style={{ color: c('textSecondary'), fontWeight: '600', fontSize: 15 }}>＋ Log a food</Text>
+        </Pressable>
+
         <Timeline items={state.timeline} />
       </ScrollView>
+
+      <LogSearch
+        visible={showSearch}
+        onClose={() => setShowSearch(false)}
+        onLog={(hit) => {
+          logFood(`fdc:${hit.fdcId}`, {
+            slot: state.slot as MealSlot,
+            portionG: SEARCH_PORTION_G,
+            kcal: Math.round((hit.per100g.kcal * SEARCH_PORTION_G) / 100),
+            name: hit.description,
+          });
+          setShowSearch(false);
+        }}
+      />
     </View>
   );
 }

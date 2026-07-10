@@ -4,6 +4,7 @@ export { buildStore, saveStore, loadStore, indexById } from './fdc/store';
 export { importFromRaw } from './fdc/importFdc';
 export {
   resolveIngredient,
+  rankFoods,
   tokenize,
   type Resolution,
   type ResolverCandidate,

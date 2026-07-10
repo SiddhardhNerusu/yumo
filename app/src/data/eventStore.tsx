@@ -6,7 +6,7 @@ import { api } from '../api/client';
 
 interface EventStore {
   events: BrainEvent[];
-  logFood: (foodId: string, opts?: { slot?: MealSlot; portionG?: number; kcal?: number }) => void;
+  logFood: (foodId: string, opts?: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string }) => void;
 }
 
 const Ctx = createContext<EventStore | null>(null);
@@ -22,9 +22,10 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<BrainEvent[]>(() => buildSeedHistory(initNow));
 
   const logFood = useCallback(
-    (foodId: string, opts: { slot?: MealSlot; portionG?: number; kcal?: number } = {}) => {
+    (foodId: string, opts: { slot?: MealSlot; portionG?: number; kcal?: number; name?: string } = {}) => {
       const now = Date.now();
       const meta = FOODS[foodId];
+      const name = opts.name ?? meta?.name;
       const ev: BrainEvent = {
         id: `log-${idc++}-${now}`,
         ts: now,
@@ -34,6 +35,7 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
         slot: opts.slot ?? inferSlot(now, 0),
         portionG: opts.portionG ?? meta?.portionG,
         kcal: opts.kcal ?? meta?.kcal,
+        ...(name ? { meta: { name } } : {}),
       };
       setEvents((prev) => [...prev, ev]);
       api.syncEvents(JSON.stringify(ev), 1).catch(() => {}); // fire-and-forget; offline-safe

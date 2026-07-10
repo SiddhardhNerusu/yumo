@@ -9,6 +9,7 @@ import {
 import type { MealSlot } from '@usual/shared';
 import { POOL, POOL_STEPS } from './menu-seed';
 import { BUBBLE_FOODS } from './onboarding-seed';
+import { FOODS } from './seed';
 
 /**
  * Data layer: server-first, with an offline fallback to the local seed so the
@@ -78,5 +79,37 @@ export async function getRecipeSteps(recipe: MenuRecipe): Promise<string[]> {
     return steps ?? [];
   } catch {
     return POOL_STEPS.get(recipe.id) ?? [];
+  }
+}
+
+export interface FoodHit {
+  fdcId: number;
+  description: string;
+  per100g: { kcal: number; protein_g: number; carbs_g: number; fat_g: number };
+}
+
+/** Server food search (§5.4); offline falls back to matching the seed foods. */
+export async function searchFoods(q: string): Promise<FoodHit[]> {
+  try {
+    const { foods } = await api.foodsSearch(q, 15);
+    return foods.map((f) => ({
+      fdcId: f.fdcId,
+      description: f.description,
+      per100g: {
+        kcal: f.per100g['kcal'] ?? 0,
+        protein_g: f.per100g['protein_g'] ?? 0,
+        carbs_g: f.per100g['carbs_g'] ?? 0,
+        fat_g: f.per100g['fat_g'] ?? 0,
+      },
+    }));
+  } catch {
+    const ql = q.toLowerCase();
+    return Object.entries(FOODS)
+      .filter(([, m]) => m.name.toLowerCase().includes(ql))
+      .map(([, m], i) => ({
+        fdcId: -1 - i,
+        description: m.name,
+        per100g: { kcal: Math.round((m.kcal / m.portionG) * 100), protein_g: 0, carbs_g: 0, fat_g: 0 },
+      }));
   }
 }

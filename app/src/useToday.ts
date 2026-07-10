@@ -72,7 +72,15 @@ function compute(events: BrainEvent[], now: number, budget: number): TodayState 
   const remaining = Math.max(0, budget - eaten);
 
   const timeline: TimelineItem[] = todaysLogs
-    .map((e) => ({ name: e.foodId ? foodName(e.foodId) : 'meal', slot: e.slot ?? '', kcal: e.kcal ?? 0, minutesOfDay: localParts(e.ts, 0).minutesOfDay }))
+    .map((e) => {
+      const metaName = typeof e.meta?.['name'] === 'string' ? (e.meta['name'] as string) : null;
+      return {
+        name: metaName ?? (e.foodId ? foodName(e.foodId) : 'meal'),
+        slot: e.slot ?? '',
+        kcal: e.kcal ?? 0,
+        minutesOfDay: localParts(e.ts, 0).minutesOfDay,
+      };
+    })
     .sort((a, b) => a.minutesOfDay - b.minutesOfDay);
 
   const slotLogs = todaysLogs.filter((e) => e.slot === slot && e.foodId);
