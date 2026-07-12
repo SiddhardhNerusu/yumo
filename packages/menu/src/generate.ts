@@ -23,6 +23,8 @@ export interface GenerateOptions {
   /** stable seed → identical menu (per-user + week). */
   seed?: string;
   days?: number;
+  /** recipe ids to up-weight — the user's swap/pick history (§4.3.3). */
+  boostIds?: string[];
 }
 
 function buildPick(slot: MealSlot, recipe: MenuRecipe, budgetKcal: number, reasons: string[]): MenuSlotPick {
@@ -64,6 +66,7 @@ export function generateWeekMenu(
 ): WeekMenuPlan {
   const rand = mulberry32(hashSeed(opts.seed ?? 'week-0'));
   const numDays = opts.days ?? 7;
+  const boostIds = new Set(opts.boostIds ?? []);
   const warnings: string[] = [];
 
   const allowed = pool.filter((r) => isAllowed(r, profile));
@@ -107,7 +110,7 @@ export function generateWeekMenu(
       const scored = cands.map((r) => {
         const slot = r.slotAffinity.find((s) => open.has(s)) as MealSlot;
         const target = profile.budgetKcal * SLOT_ENVELOPE[slot];
-        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: 0.5 });
+        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: 0.5, boostIds });
         return { r, slot, score: s.score, reasons: [`your must-have: ${need}`, ...s.reasons] };
       });
       const pick = weightedPick(scored, scored.map((x) => x.score), rand);
@@ -133,7 +136,7 @@ export function generateWeekMenu(
         }
       }
       const scored = cands.map((r) => {
-        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: deficit });
+        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: deficit, boostIds });
         return { r, score: s.score, reasons: s.reasons };
       });
       const pick = weightedPick(scored, scored.map((x) => x.score), rand);

@@ -17,6 +17,14 @@ export const CUISINES = [
   'West African', 'Mediterranean', 'Japanese',
 ];
 
+/** §2.1 pantry staples multi-select (menu prefers pantry-compatible). Editable
+ * later via Settings ("I did a shop"). Seed list — free-add handled in-UI. */
+export const PANTRY_STAPLES = [
+  'Eggs', 'Rice', 'Pasta', 'Bread', 'Onions', 'Garlic', 'Tinned tomatoes',
+  'Olive oil', 'Chicken', 'Cheese', 'Milk', 'Butter', 'Potatoes', 'Frozen veg',
+  'Beans', 'Oats', 'Yogurt', 'Peanut butter',
+];
+
 export const ALLERGEN_LABELS: Record<Allergen, string> = {
   celery: 'Celery',
   gluten: 'Gluten',

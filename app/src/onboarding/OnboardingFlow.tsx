@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Share } from 'react-native';
 import {
   dailyBudget,
   ACTIVITY_LABEL,
@@ -15,11 +15,18 @@ import { Screen, PrimaryButton, Choice, NumberField, ProgressDots } from '../ui/
 import { Bubbles } from './Bubbles';
 import { BubbleCloud } from './BubbleCloud';
 import { FOOD_PARENTS } from '../data/food-graph';
-import { BUBBLE_FOODS, CUISINES, ALLERGEN_LABELS } from '../data/onboarding-seed';
+import { BUBBLE_FOODS, CUISINES, PANTRY_STAPLES, ALLERGEN_LABELS } from '../data/onboarding-seed';
+import { getCuisines } from '../data/repo';
+import { coach } from '../coach/pack';
 import { track } from '../analytics';
+
+/** §2.1 cuisine lean weights (heavy / light) — cycled by tapping a cuisine chip. */
+const LEAN_HEAVY = 1.5;
+const LEAN_LIGHT = 0.5;
 
 interface OnbState {
   goal: Goal;
+  formerlyFit: boolean;
   weightKg: number;
   heightCm: number;
   age: number;
@@ -30,14 +37,16 @@ interface OnbState {
   likes: string[];
   hates: string[];
   allergies: Allergen[];
+  pantry: string[];
   variation: VariationDial;
-  cuisines: string[];
+  cuisineLean: Record<string, number>;
   notifOptIn: boolean;
   healthOptIn: boolean;
 }
 
 const DEFAULT: OnbState = {
   goal: 'lose',
+  formerlyFit: false,
   weightKg: 75,
   heightCm: 175,
   age: 30,
@@ -48,8 +57,9 @@ const DEFAULT: OnbState = {
   likes: [],
   hates: [],
   allergies: [],
+  pantry: [],
   variation: 'balanced',
-  cuisines: [],
+  cuisineLean: {},
   notifOptIn: true,
   healthOptIn: true,
 };
@@ -85,6 +95,7 @@ function stepsFor(goal: Goal): string[] {
     'likes',
     'hates',
     'allergies',
+    'pantry',
     'variation',
     'cuisine',
     'menu',
@@ -102,15 +113,40 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
   // names into fragments like "Oil"/"Breast"; not used here until it's fixed.)
   const foodOptions = BUBBLE_FOODS;
 
+  // §4.2 / decision 5: cuisine chips are data-driven from the live catalogue.
+  const [cuisineOptions, setCuisineOptions] = useState<string[]>(CUISINES);
+  useEffect(() => {
+    let alive = true;
+    getCuisines().then((cs) => alive && cs.length && setCuisineOptions(cs));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const patch = (p: Partial<OnbState>) => setS((prev) => ({ ...prev, ...p }));
-  const toggle = (key: 'needs' | 'likes' | 'hates' | 'cuisines', value: string) =>
+  const toggle = (key: 'needs' | 'likes' | 'hates' | 'pantry', value: string) =>
     setS((prev) => {
       const list = prev[key];
       return { ...prev, [key]: list.includes(value) ? list.filter((x) => x !== value) : [...list, value] };
     });
+  // Cuisine chip cycles: off → heavy → light → off (§2.1 light/heavy each).
+  const cycleCuisine = (name: string) =>
+    setS((prev) => {
+      const cur = prev.cuisineLean[name];
+      const next = { ...prev.cuisineLean };
+      if (cur === undefined) next[name] = LEAN_HEAVY;
+      else if (cur === LEAN_HEAVY) next[name] = LEAN_LIGHT;
+      else delete next[name];
+      return { ...prev, cuisineLean: next };
+    });
 
   const steps = stepsFor(s.goal);
   const key = steps[index];
+
+  // §10 per-step funnel events (onboard_step_*).
+  useEffect(() => {
+    if (key) track(`onboard_step_${key}`);
+  }, [key]);
   const budget = dailyBudget({
     weightKg: s.weightKg,
     heightCm: s.heightCm,
@@ -129,9 +165,9 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
       hates: s.hates.map((x) => x.toLowerCase()),
       needs: s.needs.map((x) => x.toLowerCase()),
       likes: s.likes.map((x) => x.toLowerCase()),
-      pantry: [],
+      pantry: s.pantry.map((x) => x.toLowerCase()),
       variation: s.variation,
-      cuisineLean: Object.fromEntries(s.cuisines.map((x) => [x, 1.5])),
+      cuisineLean: s.cuisineLean,
     };
     track('onboard_completed');
     onDone(profile, s.goal);
@@ -186,6 +222,13 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
             {GOALS.map((g) => (
               <Choice key={g.goal} label={g.label} sublabel={g.sub} selected={s.goal === g.goal} onPress={() => patch({ goal: g.goal })} />
             ))}
+            <View style={{ height: 8 }} />
+            <Choice
+              label="I used to be in shape"
+              sublabel="We’ll pitch the coaching to someone getting back to it."
+              selected={s.formerlyFit}
+              onPress={() => patch({ formerlyFit: !s.formerlyFit })}
+            />
           </Screen>
         );
 
@@ -237,9 +280,19 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
               <Text style={{ color: c('accent'), fontSize: 64, fontWeight: '800', letterSpacing: -1 }}>{budget.target.toLocaleString()}</Text>
               <Text style={{ color: c('textSecondary'), fontSize: 15 }}>kcal per day</Text>
             </View>
-            <Pressable onPress={() => setShowMath((m) => !m)}>
-              <Text style={{ color: c('accent'), fontWeight: '600', textAlign: 'center' }}>{showMath ? 'Hide the maths' : 'How did we get this?'}</Text>
-            </Pressable>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 20 }}>
+              <Pressable onPress={() => setShowMath((m) => !m)}>
+                <Text style={{ color: c('accent'), fontWeight: '600', textAlign: 'center' }}>{showMath ? 'Hide the maths' : 'How did we get this?'}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  track('number_reveal_shared');
+                  Share.share({ message: `My daily target is ${budget.target.toLocaleString()} kcal — worked out by Yumo.` }).catch(() => {});
+                }}
+              >
+                <Text style={{ color: c('accent'), fontWeight: '600', textAlign: 'center' }}>Share</Text>
+              </Pressable>
+            </View>
             {showMath ? (
               <View style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: radius.lg, padding: 16, gap: 8 }}>
                 {[
@@ -292,7 +345,7 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
 
       case 'allergies':
         return (
-          <Screen title="Any allergies?" subtitle="We never suggest these — and flag them on anything composite. Always check labels." footer={footer}>
+          <Screen title="Any allergies?" subtitle="We never suggest these and flag them on anything composite — but always check labels: we help, we don’t guarantee." footer={footer}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {ALLERGENS.map((a) => {
                 const sel = s.allergies.includes(a);
@@ -310,6 +363,13 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
           </Screen>
         );
 
+      case 'pantry':
+        return (
+          <Screen title="What’s usually in?" subtitle="We’ll lean on what you’ve already got. Change it any time (“I did a shop”)." footer={footer}>
+            <Bubbles options={PANTRY_STAPLES} selected={s.pantry} onToggle={(v) => toggle('pantry', v)} />
+          </Screen>
+        );
+
       case 'variation':
         return (
           <Screen title="How much variety?" footer={footer}>
@@ -321,24 +381,52 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
 
       case 'cuisine':
         return (
-          <Screen title="Any cuisines you lean towards?" subtitle="Optional — we’ll weight your menu this way." footer={footer}>
-            <Bubbles options={CUISINES} selected={s.cuisines} onToggle={(v) => toggle('cuisines', v)} />
-          </Screen>
-        );
-
-      case 'menu':
-        return (
-          <Screen title="Your menu’s ready" footer={footer}>
-            <View style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: radius.lg, padding: 18, gap: 10 }}>
-              <Text style={{ color: c('textPrimary'), fontSize: 16, lineHeight: 24 }}>
-                {s.needs.length ? `${s.needs.join(', ')} worked in most days. ` : ''}
-                {s.hates.length ? `No ${s.hates.join(', ')}, ever. ` : ''}
-                {`Around ${budget.target.toLocaleString()} kcal a day.`}
-              </Text>
-              {s.cuisines.length ? <Text style={{ color: c('textSecondary'), fontSize: 14 }}>Leaning {s.cuisines.join(', ')}.</Text> : null}
+          <Screen title="Any cuisines you lean towards?" subtitle="Optional — tap once for more, twice for less." footer={footer}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {cuisineOptions.map((name) => {
+                const lean = s.cuisineLean[name];
+                const on = lean !== undefined;
+                const heavy = lean === LEAN_HEAVY;
+                return (
+                  <Pressable
+                    key={name}
+                    onPress={() => cycleCuisine(name)}
+                    style={{
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 999,
+                      backgroundColor: on ? c('accent') : c('surface'),
+                      borderWidth: 1,
+                      borderColor: on ? c('accent') : c('border'),
+                    }}
+                  >
+                    <Text style={{ color: on ? c('accentText') : c('textPrimary'), fontWeight: '600', fontSize: 14 }}>
+                      {name}{on ? (heavy ? ' · more' : ' · less') : ''}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
           </Screen>
         );
+
+      case 'menu': {
+        const needsList = s.needs.join(', ');
+        const hatesList = s.hates.join(', ');
+        const reveal =
+          s.needs.length || s.hates.length
+            ? coach('mealReveal', { needs: needsList || 'your favourites', hates: hatesList || 'the stuff you hate', budget: budget.target.toLocaleString() })
+            : coach('mealRevealPlain', { budget: budget.target.toLocaleString() });
+        const leaning = Object.keys(s.cuisineLean);
+        return (
+          <Screen title="Your menu’s ready" footer={footer}>
+            <View style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: radius.lg, padding: 18, gap: 10 }}>
+              <Text style={{ color: c('textPrimary'), fontSize: 16, lineHeight: 24 }}>{reveal}</Text>
+              {leaning.length ? <Text style={{ color: c('textSecondary'), fontSize: 14 }}>Leaning {leaning.join(', ')}.</Text> : null}
+            </View>
+          </Screen>
+        );
+      }
 
       case 'asks':
       default:

@@ -68,3 +68,25 @@ export const POOL: MenuSeedRecipe[] = [
 ];
 
 export const POOL_STEPS: Map<string, string[]> = new Map(POOL.map((x) => [x.id, x.steps]));
+
+/**
+ * Precise ingredient quantities (§4.2 "exact quantities in g/ml + household
+ * measure") so people know *how much* — replaced by the server catalogue's
+ * FDC-computed recipe_ingredients online. Display strings, one per line.
+ */
+export const POOL_INGREDIENTS: Map<string, string[]> = new Map([
+  ['oats_yogurt', ['Rolled oats — 50g', 'Greek yogurt — 150g', 'Banana — 1 medium', 'Milk — 30ml (a splash)']],
+  ['eggs_toast', ['Eggs — 3 medium', 'Wholemeal bread — 2 slices', 'Butter — 5g', 'Salt — a pinch']],
+  ['porridge', ['Rolled oats — 50g', 'Milk — 250ml', 'Mixed berries — 80g']],
+  ['chicken_rice', ['Chicken breast — 150g', 'Cooked rice — 180g', 'Olive oil — 5ml', 'Salt & pepper — to taste']],
+  ['tuna_salad', ['Tuna in spring water — 1 tin (drained, 110g)', 'Mixed salad leaves — 80g', 'Light dressing — 15ml']],
+  ['black_bean_bowl', ['Black beans — 150g (½ tin)', 'Cooked rice — 150g', 'Salsa — 40g', 'Avocado — ½', 'Lime — a squeeze']],
+  ['salmon_veg', ['Salmon fillet — 150g', 'Broccoli — 120g', 'Olive oil — 5ml']],
+  ['beef_pasta', ['Lean beef mince — 125g', 'Dried pasta — 80g', 'Chopped tomatoes — 200g', 'Onion — ½']],
+  ['tofu_stirfry', ['Firm tofu — 150g', 'Mixed stir-fry veg — 150g', 'Cooked rice — 150g', 'Soy sauce — 15ml']],
+  ['chicken_curry', ['Chicken thigh — 150g', 'Onion — 1', 'Chopped tomatoes — 200g', 'Curry spices — 2 tsp', 'Cooked rice — 150g']],
+  ['veg_chili', ['Mixed beans — 200g', 'Chopped tomatoes — 200g', 'Onion — 1', 'Pepper — 1', 'Chilli spices — 2 tsp']],
+  ['greek_yogurt', ['Greek yogurt — 200g']],
+  ['apple_pb', ['Apple — 1 medium', 'Peanut butter — 20g (1 tbsp)']],
+  ['hummus_carrots', ['Hummus — 60g', 'Carrots — 2 (cut into sticks)']],
+]);

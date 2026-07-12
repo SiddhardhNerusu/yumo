@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import Svg, { Circle, Rect } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProfile } from '@yumo/menu';
 import { useTheme } from './theme';
@@ -14,6 +15,33 @@ const TABS: Tab[] = ['today', 'menu', 'progress'];
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 
 const PAYWALL_SEEN_KEY = 'usual.paywallSeen.v1';
+
+function TabIcon({ name, color }: { name: Tab; color: string }) {
+  if (name === 'today') {
+    return (
+      <Svg width={22} height={22} viewBox="0 0 24 24">
+        <Circle cx={12} cy={12} r={7.5} stroke={color} strokeWidth={2} fill="none" />
+        <Circle cx={12} cy={12} r={2.5} fill={color} />
+      </Svg>
+    );
+  }
+  if (name === 'menu') {
+    return (
+      <Svg width={22} height={22} viewBox="0 0 24 24">
+        <Rect x={4} y={7} width={16} height={2.6} rx={1.3} fill={color} />
+        <Rect x={4} y={11.7} width={16} height={2.6} rx={1.3} fill={color} />
+        <Rect x={4} y={16.4} width={10} height={2.6} rx={1.3} fill={color} />
+      </Svg>
+    );
+  }
+  return (
+    <Svg width={22} height={22} viewBox="0 0 24 24">
+      <Rect x={4.5} y={12.5} width={3.2} height={7.5} rx={1.6} fill={color} />
+      <Rect x={10.4} y={8.5} width={3.2} height={11.5} rx={1.6} fill={color} />
+      <Rect x={16.3} y={5} width={3.2} height={15} rx={1.6} fill={color} />
+    </Svg>
+  );
+}
 
 export function AppShell({
   profile,
@@ -49,16 +77,21 @@ export function AppShell({
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
       <View style={{ flex: 1 }}>
-        {tab === 'today' ? <Today budget={profile.budgetKcal} /> : null}
+        {tab === 'today' ? <Today budget={profile.budgetKcal} tokens={[...profile.needs, ...profile.likes]} /> : null}
         {tab === 'menu' ? <Menu profile={profile} /> : null}
         {tab === 'progress' ? <Progress profile={profile} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
       </View>
-      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: c('border'), backgroundColor: c('surface'), paddingBottom: 26, paddingTop: 8 }}>
-        {TABS.map((t) => (
-          <Pressable key={t} onPress={() => setTab(t)} style={{ flex: 1, alignItems: 'center', paddingVertical: 6 }}>
-            <Text style={{ color: tab === t ? c('accent') : c('textMuted'), fontSize: 13, fontWeight: tab === t ? '700' : '500' }}>{cap(t)}</Text>
-          </Pressable>
-        ))}
+      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: c('border'), backgroundColor: c('bg'), paddingBottom: 26, paddingTop: 8 }}>
+        {TABS.map((t) => {
+          const active = tab === t;
+          const col = active ? c('accent') : c('textMuted');
+          return (
+            <Pressable key={t} onPress={() => setTab(t)} style={{ flex: 1, alignItems: 'center', paddingVertical: 6, gap: 4 }}>
+              <TabIcon name={t} color={col} />
+              <Text style={{ color: col, fontSize: 11, fontWeight: active ? '700' : '600' }}>{cap(t)}</Text>
+            </Pressable>
+          );
+        })}
       </View>
       {showPaywall ? <Paywall onClose={() => setShowPaywall(false)} /> : null}
     </View>

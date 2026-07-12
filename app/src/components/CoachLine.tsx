@@ -1,11 +1,13 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '../theme';
+import { Serif } from './kit';
 
+/** §5 coach line — computed, italic serif, centered. Never decorative. */
 export function CoachLine({ text }: { text: string }) {
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
   return (
-    <View style={{ backgroundColor: c('accentSubtle'), borderRadius: radius.md, paddingVertical: 12, paddingHorizontal: 16 }}>
-      <Text style={{ color: c('accentSubtleText'), fontSize: 14 }}>{text}</Text>
+    <View style={{ paddingHorizontal: 12 }}>
+      <Serif italic size={16} color={c('textSecondary')} style={{ textAlign: 'center', lineHeight: 23 }}>{text}</Serif>
     </View>
   );
 }

@@ -12,11 +12,13 @@ const normalTextPairs: Array<[string, string]> = [
   ['textPrimary', 'bg'],
   ['textPrimary', 'surface'],
   ['textPrimary', 'surfaceSunken'],
+  ['textPrimary', 'sheet'],
   ['textSecondary', 'bg'],
   ['textSecondary', 'surface'],
+  ['textLogged', 'surface'], // logged sub-list rows
   ['textMuted', 'bg'],
+  ['textMuted', 'surface'],
   ['accentText', 'accent'], // button labels — must clear normal-text AA
-  ['accentSubtleText', 'accentSubtle'], // chips/tags
 ];
 
 // Colored accent used as an icon / large label on the app surfaces, plus

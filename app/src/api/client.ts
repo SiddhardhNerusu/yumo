@@ -36,7 +36,7 @@ export interface Bubble {
 
 export const api = {
   health: () => req<{ status: string; build: string }>('/api/health'),
-  getConfig: () => req<{ version: string; coach?: Record<string, string | string[]> }>('/api/config'),
+  getConfig: () => req<{ version: string; coach?: Record<string, string | string[]>; brain?: unknown }>('/api/config'),
   postAnalytics: (events: Array<{ event: string; props?: Record<string, string | number | boolean>; ts?: number }>) =>
     req<{ ok: boolean; received: number }>('/api/analytics', { method: 'POST', body: JSON.stringify({ events }) }),
   devLogin: (providerId: string) =>
@@ -44,17 +44,19 @@ export const api = {
   patchProfile: (profile: Record<string, unknown>) =>
     req<unknown>('/api/profile', { method: 'PATCH', body: JSON.stringify(profile) }),
   bubbles: (limit = 40) => req<{ bubbles: Bubble[] }>(`/api/onboarding/bubbles?limit=${limit}`),
-  generateMenu: (seed?: string) =>
+  cuisines: () => req<{ cuisines: Array<{ name: string; count: number }> }>('/api/onboarding/cuisines'),
+  generateMenu: (seed?: string, boostIds?: string[]) =>
     req<{ plan: WeekMenuPlan; tier: string; days: number }>('/api/menu/generate', {
       method: 'POST',
-      body: JSON.stringify(seed ? { seed } : {}),
+      body: JSON.stringify({ ...(seed ? { seed } : {}), ...(boostIds?.length ? { boostIds } : {}) }),
     }),
-  mixup: (recipeId: string, slot: string) =>
+  mixup: (recipeId: string, slot: string, boostIds?: string[]) =>
     req<{ alternatives: MenuRecipe[] }>('/api/menu/mixup', {
       method: 'POST',
-      body: JSON.stringify({ recipeId, slot }),
+      body: JSON.stringify({ recipeId, slot, ...(boostIds?.length ? { boostIds } : {}) }),
     }),
-  recipe: (id: string) => req<{ id: string; name: string; steps: string[] }>(`/api/recipes/${id}`),
+  recipe: (id: string) =>
+    req<{ id: string; name: string; steps: string[]; ingredients?: Array<{ name: string; qty_g: number }> }>(`/api/recipes/${id}`),
   foodsSearch: (q: string, limit = 20) =>
     req<{ foods: Array<{ fdcId: number; description: string; per100g: Record<string, number> }> }>(
       `/api/foods/search?q=${encodeURIComponent(q)}&limit=${limit}`,

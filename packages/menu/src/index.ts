@@ -19,5 +19,5 @@ export {
 export { isAllowed, containsToken, containsAnyToken } from './filter';
 export { softScore, type ScoreContext, type SoftScore } from './scoring';
 export { generateWeekMenu, type GenerateOptions } from './generate';
-export { mixItUp } from './mixup';
+export { mixItUp, type MixupOptions } from './mixup';
 export { mulberry32, hashSeed, weightedPick } from './rng';

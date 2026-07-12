@@ -1,56 +1,98 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
 import { useTheme } from '../theme';
-import { getMenu, getMixup, getRecipeSteps, type Source } from '../data/repo';
+import { getMenu, getMixup, getRecipeDetail, type Source, type RecipeIngredientLine } from '../data/repo';
+import { useEventStore } from '../data/eventStore';
+import { useKitchen } from '../data/kitchenStore';
+import { menuBoostIds, mixReason } from '../data/menuPrefs';
+import { cookability, type CookTier } from '../data/cookability';
+import { expiringItems, recipesUsingExpiring } from '../data/expiring';
+import { POOL } from '../data/menu-seed';
 import { RecipeSheet } from '../components/RecipeSheet';
+import { MixSheet, type MixOption } from '../components/MixSheet';
+import { Kitchen } from './Kitchen';
+import { Serif, Kicker, Card, MixButton, OutlineButton, PrimaryButton, ACCENT_BORDER } from '../components/kit';
 import { track } from '../analytics';
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
+const num = { fontVariant: ['tabular-nums' as const] };
+
+type Cur = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number };
 
 export function Menu({ profile }: { profile: UserProfile }) {
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
+  const { events, logFood, recordMixupPick } = useEventStore();
+  const kitchen = useKitchen();
+  const have = useMemo(() => kitchen.availableTokens(), [kitchen.items]); // eslint-disable-line react-hooks/exhaustive-deps
+  // §8/§9 boost recipes that use expiring items (waste-saver); empty mode also boosts all cook-now.
+  const expiring = useMemo(() => expiringItems(kitchen.items, Date.now()), [kitchen.items]);
+  const expiringLabels = useMemo(() => expiring.map((i) => i.label), [expiring]);
+  const expiringKey = expiringLabels.join('|');
+  const kitchenBoost = (on: boolean): string[] => {
+    // §8 expiring boost is ALWAYS on (waste-saver, not toggle-gated); the toggle/empty
+    // mode only adds the extra cook-now weighting on top (§7 / §9).
+    const ids = new Set(recipesUsingExpiring(POOL, expiring));
+    if (on || kitchen.emptyMode) for (const r of POOL) if (cookability(r, have).tier === 'now') ids.add(r.id);
+    return [...ids];
+  };
   const [plan, setPlan] = useState<WeekMenuPlan | null>(null);
-  const [source, setSource] = useState<Source>('local');
+  const [, setSource] = useState<Source>('local');
   const [dayIdx, setDayIdx] = useState(0);
   const [overrides, setOverrides] = useState<Record<string, MenuRecipe>>({});
-  const [mixOpen, setMixOpen] = useState<string | null>(null);
-  const [alts, setAlts] = useState<Record<string, MenuRecipe[]>>({});
-  const [sheet, setSheet] = useState<{ name: string; steps: string[] } | null>(null);
+  const [logged, setLogged] = useState<Record<string, boolean>>({});
+  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[] } | null>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const [showKitchen, setShowKitchen] = useState(false);
+  const [fromKitchen, setFromKitchen] = useState(false);
+
+  const toggleKitchen = () => {
+    const next = !fromKitchen;
+    setFromKitchen(next);
+    const p = next ? { ...profile, pantry: [...have] } : profile;
+    getMenu(p, undefined, [...boostIds, ...kitchenBoost(next)]).then((r) => { setPlan(r.plan); setSource(r.source); });
+  };
+
+  const [mix, setMix] = useState<{ key: string; slot: MealSlot; recipe: MenuRecipe } | null>(null);
+  const [mixOptions, setMixOptions] = useState<MixOption[]>([]);
+  const [mixLoading, setMixLoading] = useState(false);
+
+  const boostIds = useMemo(() => menuBoostIds(events), [events]);
 
   useEffect(() => {
     let alive = true;
-    getMenu(profile).then((r) => {
-      if (alive) {
-        setPlan(r.plan);
-        setSource(r.source);
-      }
+    getMenu(profile, undefined, [...boostIds, ...kitchenBoost(fromKitchen)]).then((r) => {
+      if (!alive) return;
+      setPlan(r.plan);
+      setSource(r.source);
+      const todayDow = new Date().getDay();
+      const idx = r.plan.days.findIndex((d) => d.dayOfWeek === todayDow);
+      setDayIdx(idx >= 0 ? idx : 0);
     });
     return () => {
       alive = false;
     };
-  }, [profile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile, kitchen.emptyMode, expiringKey]);
 
-  // The interactive half of the weekly Sunday ritual (§4.3): regenerate next
-  // week's plan. (The Sunday-18:00 notification that prompts it is native.)
   const planNextWeek = () => {
     setRegenerating(true);
     track('menu_regenerated');
-    getMenu(profile, `week-${Date.now()}`)
+    getMenu(profile, `week-${Date.now()}`, [...boostIds, ...kitchenBoost(fromKitchen)])
       .then((r) => {
         setPlan(r.plan);
         setSource(r.source);
         setDayIdx(0);
-        setMixOpen(null);
         setOverrides({});
-        setAlts({});
+        setLogged({});
       })
       .finally(() => setRegenerating(false));
   };
+
+  const planRecipeIds = useMemo(() => (plan ? plan.days.flatMap((d) => d.picks.map((p) => p.recipe.id)) : []), [plan]);
 
   if (!plan) {
     return (
@@ -61,108 +103,179 @@ export function Menu({ profile }: { profile: UserProfile }) {
   }
 
   const day = plan.days[dayIdx]!;
-  const currentFor = (slot: MealSlot): { recipe: MenuRecipe; kcal: number } | null => {
+  const macrosFor = (recipe: MenuRecipe, kcal: number) => {
+    const f = recipe.perServing.kcal > 0 ? kcal / recipe.perServing.kcal : 1;
+    return {
+      protein: Math.round(recipe.perServing.protein_g * f),
+      carbs: Math.round((recipe.perServing.carbs_g ?? 0) * f),
+      fat: Math.round((recipe.perServing.fat_g ?? 0) * f),
+    };
+  };
+  const currentFor = (slot: MealSlot): Cur | null => {
     const key = `${dayIdx}:${slot}`;
     const ov = overrides[key];
-    if (ov) return { recipe: ov, kcal: Math.round(ov.perServing.kcal) };
+    if (ov) {
+      const kcal = Math.round(ov.perServing.kcal);
+      return { recipe: ov, kcal, ...macrosFor(ov, kcal) };
+    }
     const pick = day.picks.find((p) => p.slot === slot);
-    return pick ? { recipe: pick.recipe, kcal: Math.round(pick.kcal) } : null;
+    if (!pick) return null;
+    const kcal = Math.round(pick.kcal);
+    return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal) };
   };
   const dayTotal = SLOTS.reduce((sum, s) => sum + (currentFor(s)?.kcal ?? 0), 0);
+  const loggedCount = SLOTS.filter((s) => logged[`${dayIdx}:${s}`]).length;
 
   const openMix = (key: string, recipe: MenuRecipe, slot: MealSlot) => {
-    const opening = mixOpen !== key;
-    setMixOpen(opening ? key : null);
-    if (opening) track('mixup_opened');
-    if (opening && !alts[key]) getMixup(recipe, slot, profile).then((a) => setAlts((p) => ({ ...p, [key]: a })));
+    setMix({ key, slot, recipe });
+    setMixOptions([]);
+    setMixLoading(true);
+    track('mixup_opened');
+    getMixup(recipe, slot, profile, { boostIds: [...boostIds, ...kitchenBoost(fromKitchen)], recentlyUsed: planRecipeIds })
+      .then((alts) => setMixOptions(alts.map((r) => ({ recipe: r, reason: mixReason(r, profile, expiringLabels) }))))
+      .finally(() => setMixLoading(false));
   };
-  const openRecipe = (recipe: MenuRecipe) =>
-    getRecipeSteps(recipe).then((steps) => setSheet({ name: recipe.name, steps }));
+  const pickMix = (alt: MenuRecipe) => {
+    if (!mix) return;
+    recordMixupPick(alt.id, mix.recipe.id, mix.slot);
+    setOverrides((o) => ({ ...o, [mix.key]: alt }));
+    setMix(null);
+  };
+
+  const logMeal = (slot: MealSlot, cur: Cur) => {
+    const key = `${dayIdx}:${slot}`;
+    logFood(cur.recipe.id, { slot, kcal: cur.kcal, proteinG: cur.protein, carbsG: cur.carbs, fatG: cur.fat, name: cur.recipe.name, source: 'menu', taps: 1 });
+    kitchen.decrementForRecipe(cur.recipe); // §6 auto-decrement the pantry
+    track('menu_accepted', { recipeId: cur.recipe.id, slot });
+    setLogged((l) => ({ ...l, [key]: true }));
+  };
+  const openRecipe = (cur: Cur) =>
+    getRecipeDetail(cur.recipe).then((d) => setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients }));
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 32 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ color: c('textPrimary'), fontSize: 30, fontWeight: '800', letterSpacing: -0.5 }}>Menu</Text>
-          <Pressable onPress={planNextWeek} disabled={regenerating} style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c('border') }}>
-            <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{regenerating ? '…' : '↻ New week'}</Text>
-          </Pressable>
-        </View>
-        <Text style={{ color: c('textMuted'), fontSize: 12, marginBottom: 12 }}>
-          This week · {source === 'server' ? 'from your catalogue' : 'offline preview'}
-        </Text>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
-          {plan.days.map((d, i) => (
-            <Pressable
-              key={i}
-              onPress={() => { setDayIdx(i); setMixOpen(null); }}
-              style={{ width: 46, height: 60, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: i === dayIdx ? c('accent') : c('surface'), borderWidth: 1, borderColor: i === dayIdx ? c('accent') : c('border') }}
-            >
-              <Text style={{ color: i === dayIdx ? c('accentText') : c('textMuted'), fontSize: 11, fontWeight: '600' }}>{DOW[d.dayOfWeek]}</Text>
-              <Text style={{ color: i === dayIdx ? c('accentText') : c('textPrimary'), fontSize: 17, fontWeight: '700', marginTop: 2 }}>{i + 1}</Text>
+      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40 }}>
+        {/* header */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View>
+            <Kicker>This week</Kicker>
+            <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Menu</Serif>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 6, alignItems: 'center' }}>
+            <Pressable onPress={() => setShowKitchen(true)} style={{ paddingVertical: 9, paddingHorizontal: 15, borderRadius: 999, backgroundColor: c('accentFaint'), borderWidth: 1, borderColor: c('border') }}>
+              <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '700' }}>Kitchen</Text>
             </Pressable>
-          ))}
-        </ScrollView>
+            <Pressable onPress={planNextWeek} disabled={regenerating} accessibilityRole="button" accessibilityLabel="New week" style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border'), alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: c('textSecondary'), fontSize: 16, fontWeight: '600' }}>{regenerating ? '…' : '↻'}</Text>
+            </Pressable>
+          </View>
+        </View>
 
-        <Text style={{ color: c('textSecondary'), fontSize: 13, marginTop: 14, marginBottom: 10 }}>
-          {dayTotal.toLocaleString()} kcal planned
-        </Text>
+        {/* day strip */}
+        <View style={{ flexDirection: 'row', gap: 4, marginTop: 18 }}>
+          {plan.days.map((d, i) => {
+            const on = i === dayIdx;
+            return (
+              <Pressable key={i} onPress={() => { setDayIdx(i); setMix(null); }} style={{ flex: 1, borderRadius: 14, paddingVertical: 8, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
+                <Text style={{ color: on ? c('accentText') : c('textMuted'), fontSize: 11, fontWeight: '600', opacity: on ? 0.7 : 1 }}>{DOW[d.dayOfWeek]}</Text>
+                <Text style={[{ color: on ? c('accentText') : c('textPrimary'), fontSize: 16, fontWeight: '700', marginTop: 2 }, num]}>{i + 1}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-        <View style={{ gap: 12 }}>
+        {/* summary */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 18, marginBottom: 12 }}>
+          <Text>
+            <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{dayTotal.toLocaleString()}</Text>
+            <Text style={{ color: c('textMuted'), fontSize: 13 }}> kcal planned</Text>
+          </Text>
+          {loggedCount > 0 ? <Text style={{ color: c('success'), fontSize: 13, fontWeight: '600' }}>{loggedCount} logged ✓</Text> : null}
+        </View>
+
+        {/* from-your-kitchen toggle */}
+        <Pressable onPress={toggleKitchen} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: fromKitchen ? c('accentFaint') : c('chipSurface'), borderRadius: 999, paddingVertical: 10, paddingHorizontal: 16, borderWidth: 1, borderColor: fromKitchen ? ACCENT_BORDER : c('border'), marginBottom: 12 }}>
+          <Text style={{ color: fromKitchen ? c('accentSoft') : c('textSecondary'), fontSize: 14, fontWeight: '600' }}>From your kitchen</Text>
+          <View style={{ width: 42, height: 24, borderRadius: 999, backgroundColor: fromKitchen ? c('accent') : c('surfaceSunken'), padding: 3, alignItems: fromKitchen ? 'flex-end' : 'flex-start' }}>
+            <View style={{ width: 18, height: 18, borderRadius: 999, backgroundColor: fromKitchen ? c('accentText') : c('textMuted') }} />
+          </View>
+        </Pressable>
+
+        {/* meal cards */}
+        <View style={{ gap: 10 }}>
           {SLOTS.map((slot) => {
             const cur = currentFor(slot);
             if (!cur) return null;
             const key = `${dayIdx}:${slot}`;
-            const showing = mixOpen === key;
-            const these = alts[key];
+            const isLogged = !!logged[key];
+            const cook = fromKitchen ? cookability(cur.recipe, have) : null;
+            const macros: Array<[string, number]> = [['protein', cur.protein], ['carbs', cur.carbs], ['fat', cur.fat]];
             return (
-              <View key={slot} style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: radius.lg, padding: 16 }}>
-                <Text style={{ color: c('textMuted'), fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{cap(slot)}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: 4 }}>
-                  <Text style={{ color: c('textPrimary'), fontSize: 17, fontWeight: '700', flex: 1 }}>{cur.recipe.name}</Text>
-                  <Text style={{ color: c('textSecondary'), fontSize: 14, marginLeft: 8 }}>{cur.kcal} kcal</Text>
-                </View>
-                <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 2 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
-
-                <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-                  <Pressable onPress={() => openMix(key, cur.recipe, slot)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: radius.md, backgroundColor: c('accentSubtle') }}>
-                    <Text style={{ color: c('accentSubtleText'), fontWeight: '600', fontSize: 13 }}>{showing ? 'Close' : 'Mix it up'}</Text>
-                  </Pressable>
-                  <Pressable onPress={() => openRecipe(cur.recipe)} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: radius.md, borderWidth: 1, borderColor: c('border') }}>
-                    <Text style={{ color: c('textSecondary'), fontWeight: '600', fontSize: 13 }}>Recipe</Text>
-                  </Pressable>
-                </View>
-
-                {showing ? (
-                  <View style={{ marginTop: 12, gap: 6 }}>
-                    {these === undefined ? (
-                      <ActivityIndicator color={c('accent')} />
-                    ) : these.length === 0 ? (
-                      <Text style={{ color: c('textMuted'), fontSize: 13 }}>No close alternative right now.</Text>
-                    ) : (
-                      <>
-                        <Text style={{ color: c('textMuted'), fontSize: 12 }}>Swap for:</Text>
-                        {these.map((alt) => (
-                          <Pressable
-                            key={alt.id}
-                            onPress={() => { track('mixup_picked'); setOverrides((o) => ({ ...o, [key]: alt })); setMixOpen(null); }}
-                            style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: c('surfaceSunken'), padding: 12, borderRadius: radius.md }}
-                          >
-                            <Text style={{ color: c('textPrimary'), fontSize: 14, fontWeight: '600' }}>{alt.name}</Text>
-                            <Text style={{ color: c('textMuted'), fontSize: 13 }}>{Math.round(alt.perServing.kcal)} kcal</Text>
-                          </Pressable>
-                        ))}
-                      </>
-                    )}
+              <Card key={slot} logged={isLogged}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>{cap(slot)}</Text>
+                    {cook ? <TierBadge tier={cook.tier} missing={cook.missing} /> : null}
                   </View>
-                ) : null}
-              </View>
+                  <Text style={{ color: c('textMuted'), fontSize: 12 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6 }}>
+                  <Serif size={23} color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{cur.recipe.name}</Serif>
+                  <Text style={{ marginLeft: 10 }}>
+                    <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{cur.kcal.toLocaleString()}</Text>
+                    <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
+                  {macros.map(([label, v]) => (
+                    <Text key={label}>
+                      <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{v}g</Text>
+                      <Text style={{ color: c('textMuted'), fontSize: 13 }}> {label}</Text>
+                    </Text>
+                  ))}
+                </View>
+
+                <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, alignItems: 'center' }}>
+                  {isLogged ? (
+                    <View style={{ flex: 1, backgroundColor: c('successFaint'), borderRadius: 999, paddingVertical: 11, alignItems: 'center' }}>
+                      <Text style={{ color: c('success'), fontWeight: '700', fontSize: 14 }}>✓ Logged</Text>
+                    </View>
+                  ) : (
+                    <PrimaryButton label="Log it" flex onPress={() => logMeal(slot, cur)} />
+                  )}
+                  <MixButton onPress={() => openMix(key, cur.recipe, slot)} />
+                  <OutlineButton label="Recipe" onPress={() => openRecipe(cur)} />
+                </View>
+              </Card>
             );
           })}
         </View>
       </ScrollView>
+
+      <MixSheet
+        visible={mix !== null}
+        currentName={mix?.recipe.name ?? ''}
+        options={mixOptions}
+        loading={mixLoading}
+        onPick={pickMix}
+        onClose={() => setMix(null)}
+      />
       <RecipeSheet recipe={sheet} onClose={() => setSheet(null)} />
+      {showKitchen ? <Kitchen profile={profile} onClose={() => setShowKitchen(false)} /> : null}
+    </View>
+  );
+}
+
+function TierBadge({ tier, missing }: { tier: CookTier; missing: string[] }) {
+  const { c } = useTheme();
+  const map = {
+    now: { bg: c('successFaint'), fg: c('success'), label: '✓ all in' },
+    oneShort: { bg: c('accentFaint'), fg: c('accentSoft'), label: `grab ${missing.slice(0, 1).join('')}` },
+    shop: { bg: c('chipSurface'), fg: c('textMuted'), label: `${missing.length} to buy` },
+  }[tier];
+  return (
+    <View style={{ backgroundColor: map.bg, borderRadius: 999, paddingVertical: 2, paddingHorizontal: 8 }}>
+      <Text style={{ color: map.fg, fontSize: 10, fontWeight: '700' }}>{map.label}</Text>
     </View>
   );
 }

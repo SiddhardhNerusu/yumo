@@ -39,7 +39,12 @@ export interface BrainEvent {
   meta?: Record<string, unknown>;
 }
 
-/** Kinds that represent a food actually being logged/eaten. */
+/**
+ * Kinds that represent a food actually being logged/eaten (they hit the ring).
+ * NOTE: `mixup_pick` and `menu_swap` are deliberately NOT here — they edit the
+ * plan and are preference signals for future menu generation (§4.3.3), not food
+ * consumed. `menu_accept` IS here: accepting a planned meal logs it (§4.3.4).
+ */
 export const LOG_KINDS: ReadonlySet<EventKind> = new Set<EventKind>([
   'log',
   'nudge_accept',
@@ -48,7 +53,6 @@ export const LOG_KINDS: ReadonlySet<EventKind> = new Set<EventKind>([
   'barcode_log',
   'photo_log',
   'menu_accept',
-  'mixup_pick',
 ]);
 
 export function isLogKind(kind: EventKind): boolean {

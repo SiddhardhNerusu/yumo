@@ -6,8 +6,8 @@ import { generateWeekMenu, mixItUp, type UserProfile } from '@yumo/menu';
 import { median } from '@yumo/brain';
 import type { Store, StoredProfile } from './db/store';
 import { signSession, verifyExternalIdentity } from './auth';
-import { requireAuth, type AuthedRequest } from './middleware';
-import { BUILD, IS_PROD, remoteConfig } from './config';
+import { requireAuth, requirePremium, type AuthedRequest } from './middleware';
+import { BUILD, IS_PROD, MIXUP_UNLIMITED, CUISINE_MIN_RECIPES, remoteConfig } from './config';
 
 const allergenSchema = z.enum(ALLERGENS as unknown as [string, ...string[]]);
 const slotSchema = z.enum(MEAL_SLOTS as unknown as [string, ...string[]]);
@@ -107,7 +107,19 @@ export function createApp(store: Store, now: () => number = () => Date.now()): E
   // ── onboarding bubbles ─────────────────────────────────────────────────────
   app.get('/api/onboarding/bubbles', (req, res) => {
     const limit = clampInt(req.query['limit'], 200, 1, 500);
-    return res.json({ bubbles: store.bubbles(limit) });
+    // §8.1 round (needs|likes|hates) + locale are part of the contract; v1 serves
+    // one catalogue-ranked list for every round and echoes the params back.
+    const roundParsed = z.enum(['needs', 'likes', 'hates']).safeParse(req.query['round']);
+    const round = roundParsed.success ? roundParsed.data : undefined;
+    const locale = typeof req.query['locale'] === 'string' ? req.query['locale'] : undefined;
+    return res.json({ round, locale, bubbles: store.bubbles(limit) });
+  });
+
+  // §4.2 / decision 5: cuisines are DATA-DRIVEN — only cuisines with ≥ the
+  // min-live-recipe threshold surface, so the picker never shows an empty one.
+  app.get('/api/onboarding/cuisines', (req, res) => {
+    const min = clampInt(req.query['min'], CUISINE_MIN_RECIPES, 1, 1000);
+    return res.json({ cuisines: store.cuisines(min) });
   });
 
   // ── foods ──────────────────────────────────────────────────────────────────
@@ -161,8 +173,11 @@ export function createApp(store: Store, now: () => number = () => Date.now()): E
     const needs = premium ? profile.needs : profile.needs.slice(0, 1); // free = 1 need honored
     const genProfile: UserProfile = { ...profile, needs };
     const seed = typeof req.body?.seed === 'string' ? req.body.seed : `${userId}:${Math.floor(now() / WEEK_MS)}`;
+    const boostIds = Array.isArray(req.body?.boostIds)
+      ? (req.body.boostIds as unknown[]).filter((x): x is string => typeof x === 'string')
+      : undefined;
 
-    const plan = generateWeekMenu(store.recipePool(), genProfile, { seed, days });
+    const plan = generateWeekMenu(store.recipePool(), genProfile, { seed, days, boostIds });
     store.saveMenu({ userId, plan, seed, createdAtMs: now() });
     return res.json({ plan, tier: premium ? 'premium' : 'free', days });
   });
@@ -174,17 +189,52 @@ export function createApp(store: Store, now: () => number = () => Date.now()): E
     return res.json(menu);
   });
 
-  app.post('/api/menu/mixup', requireAuth, (req, res) => {
+  // §11 premium-only surface (weekly coach insights / trends). Free users get a
+  // 402 via requirePremium — the Goyo entitlement pattern (§8.3).
+  app.get('/api/insights', requireAuth, requirePremium(store), (req, res) => {
+    const userId = (req as AuthedRequest).userId as string;
+    const menu = store.getCurrentMenu(userId);
+    return res.json({
+      insights: {
+        menuPlanned: !!menu,
+        plannedDays: menu ? menu.plan.days.length : 0,
+        note: 'weekly_insight',
+      },
+    });
+  });
+
+  // Shared: ranked same-slot alternatives for a recipe (used by mixup + swap).
+  const serveAlternatives = (req: Request, res: Response) => {
     const userId = (req as AuthedRequest).userId as string;
     const profile = store.getProfile(userId);
     if (!profile) return res.status(400).json({ error: 'profile_required' });
-    const parsed = z.object({ recipeId: z.string(), slot: slotSchema }).safeParse(req.body);
+    const parsed = z
+      .object({ recipeId: z.string(), slot: slotSchema, boostIds: z.array(z.string()).optional() })
+      .safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'bad_request' });
     const recipe = store.getRecipe(parsed.data.recipeId);
     if (!recipe) return res.status(404).json({ error: 'recipe_not_found' });
-    const alternatives = mixItUp(recipe, parsed.data.slot as MealSlot, store.recipePool(), profile);
+    // this week's stored plan → novelty penalty on already-planned alternatives.
+    const current = store.getCurrentMenu(userId);
+    const recentlyUsed = current ? current.plan.days.flatMap((d) => d.picks.map((p) => p.recipe.id)) : [];
+    const alternatives = mixItUp(recipe, parsed.data.slot as MealSlot, store.recipePool(), profile, {
+      boostIds: parsed.data.boostIds,
+      recentlyUsed,
+    });
     return res.json({ alternatives });
+  };
+
+  app.post('/api/menu/mixup', requireAuth, (req, res) => {
+    const userId = (req as AuthedRequest).userId as string;
+    // §4.4 gating is a config flip (default unlimited during beta, decision 4).
+    if (!MIXUP_UNLIMITED && store.getTier(userId) !== 'premium') {
+      return res.status(402).json({ error: 'premium_required', feature: 'mixup' });
+    }
+    return serveAlternatives(req, res);
   });
+
+  // §8.1 POST /api/menu/swap — swap a single slot; returns ranked alternatives.
+  app.post('/api/menu/swap', requireAuth, serveAlternatives);
 
   // ── event sync (opaque blob; server never parses in v1) ─────────────────────
   app.post('/api/sync/events', requireAuth, (req, res) => {

@@ -1,40 +1,61 @@
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useTheme } from '../theme';
+import { Sheet, Serif, Kicker, PrimaryButton } from './kit';
+import type { RecipeIngredientLine } from '../data/repo';
 
-/** Tap-to-reveal recipe steps (§14.2 — never inline on the menu). */
+/** Tap-to-reveal recipe (§4/§14.2 — never inline): exact ingredient quantities
+ * then the ≤6 numbered steps. */
 export function RecipeSheet({
   recipe,
   onClose,
 }: {
-  recipe: { name: string; steps: string[] } | null;
+  recipe: { name: string; kcal?: number; steps: string[]; ingredients: RecipeIngredientLine[] } | null;
   onClose: () => void;
 }) {
   const { c } = useTheme();
   return (
-    <Modal visible={recipe !== null} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <View style={{ backgroundColor: c('surface'), borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: '80%' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <Text style={{ color: c('textPrimary'), fontSize: 20, fontWeight: '700' }}>{recipe?.name ?? ''}</Text>
-            <Pressable onPress={onClose}>
-              <Text style={{ color: c('textMuted'), fontSize: 15 }}>Close</Text>
-            </Pressable>
-          </View>
-          <Text style={{ color: c('textMuted'), fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
-            How to make it
-          </Text>
-          <ScrollView>
-            {(recipe?.steps ?? []).map((step, i) => (
-              <View key={i} style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
-                <View style={{ width: 26, height: 26, borderRadius: 999, backgroundColor: c('accentSubtle'), alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: c('accentSubtleText'), fontWeight: '700', fontSize: 13 }}>{i + 1}</Text>
-                </View>
-                <Text style={{ color: c('textPrimary'), fontSize: 15, flex: 1, lineHeight: 22 }}>{step}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+    <Sheet visible={recipe !== null} onClose={onClose}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18 }}>
+        <Serif size={24} weight="medium" color={c('textPrimary')} style={{ flex: 1 }}>{recipe?.name ?? ''}</Serif>
+        {recipe?.kcal != null ? (
+          <Text style={{ color: c('textSecondary'), fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{recipe.kcal.toLocaleString()} kcal</Text>
+        ) : null}
       </View>
-    </Modal>
+
+      <ScrollView>
+        {recipe?.ingredients?.length ? (
+          <View style={{ marginBottom: 22 }}>
+            <Kicker>You'll need</Kicker>
+            <View style={{ marginTop: 10 }}>
+              {recipe.ingredients.map((ing, i) => (
+                <View
+                  key={i}
+                  style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider') }}
+                >
+                  <Text style={{ color: c('textPrimary'), fontSize: 15, flex: 1 }}>{ing.name}</Text>
+                  {ing.qty ? <Text style={{ color: c('textSecondary'), fontSize: 14, marginLeft: 12, fontVariant: ['tabular-nums'] }}>{ing.qty}</Text> : null}
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        <Kicker>How to make it</Kicker>
+        <View style={{ marginTop: 12, gap: 16 }}>
+          {(recipe?.steps ?? []).map((step, i) => (
+            <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
+              <View style={{ width: 24, height: 24, borderRadius: 999, backgroundColor: c('accentFaint'), alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: c('accentSoft'), fontWeight: '700', fontSize: 12 }}>{i + 1}</Text>
+              </View>
+              <Text style={{ color: c('textPrimary'), fontSize: 15, flex: 1, lineHeight: 22.5 }}>{step}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+
+      <View style={{ marginTop: 16 }}>
+        <PrimaryButton label="Done" onPress={onClose} flex />
+      </View>
+    </Sheet>
   );
 }

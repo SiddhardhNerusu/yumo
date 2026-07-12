@@ -26,6 +26,7 @@ export const SOFT_WEIGHTS = {
   pantry: 0.3,
   closeness: 0.7, // how near the recipe's natural kcal is to the slot target
   protein: 0.25,
+  preference: 0.6, // §4.3.3 re-weight toward recipes the user swapped/picked before
 };
 
 /** §4.4 Mix it up. */

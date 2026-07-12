@@ -35,4 +35,14 @@ describe('mix it up (isocaloric swap)', () => {
     // original is 5min (tier 0) → max tier 1 (15min); no 30min+ in snacks anyway
     expect(alts.every((r) => r.effort !== '30min+')).toBe(true);
   });
+
+  it('ranks a previously-picked alternative first via the preference boost (§4.4)', () => {
+    const salmon = byId('salmon_veg');
+    const base = mixItUp(salmon, 'dinner', POOL, baseProfile);
+    expect(base.length).toBeGreaterThanOrEqual(2);
+    // pick a non-first alternative and boost it → it should rise to the top.
+    const target = base[base.length - 1]!.id;
+    const boosted = mixItUp(salmon, 'dinner', POOL, baseProfile, { boostIds: [target] });
+    expect(boosted[0]!.id).toBe(target);
+  });
 });

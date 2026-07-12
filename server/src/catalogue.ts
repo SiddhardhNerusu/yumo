@@ -13,8 +13,15 @@ import {
 import type { MealSlot } from '@yumo/shared';
 import type { MenuRecipe, Effort } from '@yumo/menu';
 
+export interface RecipeIngredient {
+  name: string;
+  qty_g: number;
+}
+
 export interface RecipeDetail extends MenuRecipe {
   steps: string[];
+  /** §4.2 exact quantities so the user knows how much of each. */
+  ingredients: RecipeIngredient[];
   status: string; // ready | needs_review
 }
 
@@ -32,7 +39,7 @@ interface RawDraft {
   slotAffinity?: MealSlot[];
   effort?: Effort;
   steps?: string[];
-  ingredients?: Array<{ name: string }>;
+  ingredients?: Array<{ name: string; qty_g?: number }>;
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -67,6 +74,7 @@ export function loadCatalogue(): Catalogue {
       allergens: res.allergens,
       foodTokens: (raw.ingredients ?? []).map((i) => String(i.name).toLowerCase()),
       steps: raw.steps ?? [],
+      ingredients: (raw.ingredients ?? []).map((i) => ({ name: String(i.name), qty_g: Math.round(Number(i.qty_g ?? 0)) })),
       status: res.status,
     };
     details.set(recipe.id, recipe);

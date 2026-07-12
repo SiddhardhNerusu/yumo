@@ -56,6 +56,7 @@ export { learnedPortion, portionChips, type PortionOptions, type PortionChips } 
 export {
   canNudge,
   slotIsQuiet,
+  slotSkippedToday,
   foodSuppressed,
   nudgeOutcomesToday,
   NUDGE_OUTCOME_KINDS,

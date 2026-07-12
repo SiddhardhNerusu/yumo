@@ -30,6 +30,12 @@ export interface Bubble {
   weight: number;
 }
 
+/** §4.2 / decision 5: a cuisine surfaced from live catalogue counts. */
+export interface Cuisine {
+  name: string;
+  count: number;
+}
+
 export interface StoredMenu {
   userId: string;
   plan: WeekMenuPlan;
@@ -62,6 +68,7 @@ export interface Store {
   getRecipe(id: string): RecipeDetail | undefined;
   searchFoods(q: string, limit: number): FoodHit[];
   bubbles(limit: number): Bubble[];
+  cuisines(minCount: number): Cuisine[];
   // menu
   saveMenu(menu: StoredMenu): void;
   getCurrentMenu(userId: string): StoredMenu | undefined;
@@ -84,6 +91,7 @@ export class MemoryStore implements Store {
   private readonly pool: MenuRecipe[];
   private readonly details: Map<string, RecipeDetail>;
   private readonly bubbleList: Bubble[];
+  private readonly cuisineList: Cuisine[];
 
   constructor(now: number) {
     const cat = loadCatalogue();
@@ -92,6 +100,7 @@ export class MemoryStore implements Store {
     this.pool = cat.pool;
     this.details = cat.details;
     this.bubbleList = computeBubbles(cat.details);
+    this.cuisineList = computeCuisines(cat.pool);
     void now;
   }
 
@@ -156,6 +165,10 @@ export class MemoryStore implements Store {
     return this.bubbleList.slice(0, limit);
   }
 
+  cuisines(minCount: number): Cuisine[] {
+    return this.cuisineList.filter((c) => c.count >= minCount);
+  }
+
   saveMenu(menu: StoredMenu): void {
     this.menus.set(menu.userId, menu);
   }
@@ -192,4 +205,18 @@ function computeBubbles(details: Map<string, RecipeDetail>): Bubble[] {
   return [...counts.entries()]
     .map(([token, weight]) => ({ token, weight }))
     .sort((a, b) => b.weight - a.weight);
+}
+
+/** §4.2 / decision 5: cuisines ranked by how many live recipes carry them —
+ * the client filters by a min-count threshold so no empty cuisine ever shows. */
+function computeCuisines(pool: MenuRecipe[]): Cuisine[] {
+  const counts = new Map<string, number>();
+  for (const r of pool) {
+    const name = (r.cuisine ?? '').trim();
+    if (!name || name.toLowerCase() === 'unknown') continue;
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }

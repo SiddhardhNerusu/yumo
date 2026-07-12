@@ -69,6 +69,26 @@ describe('catalogue', () => {
     expect(res.body.bubbles.length).toBeGreaterThan(0);
     expect(res.body.bubbles[0]).toHaveProperty('token');
   });
+  it('serves data-driven cuisines from live recipe counts (decision 5)', async () => {
+    const res = await request(app).get('/api/onboarding/cuisines');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.cuisines)).toBe(true);
+    for (const cx of res.body.cuisines) {
+      expect(cx).toHaveProperty('name');
+      expect(cx.count).toBeGreaterThanOrEqual(3); // never an empty/hallucinated cuisine
+      expect(cx.name.toLowerCase()).not.toBe('unknown');
+    }
+    // a high threshold surfaces no cuisine rather than inventing one.
+    const strict = await request(app).get('/api/onboarding/cuisines?min=9999');
+    expect(strict.body.cuisines.length).toBe(0);
+  });
+  it('bubbles echoes the round + locale params (§8.1)', async () => {
+    const res = await request(app).get('/api/onboarding/bubbles?round=likes&locale=en-GB&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.round).toBe('likes');
+    expect(res.body.locale).toBe('en-GB');
+    expect(res.body.bubbles.length).toBeGreaterThan(0);
+  });
   it('searches foods', async () => {
     const res = await request(app).get('/api/foods/search?q=chicken%20breast&limit=5');
     expect(res.status).toBe(200);
@@ -125,6 +145,32 @@ describe('menu (entitlement-gated)', () => {
     const res = await request(app).post('/api/menu/generate').set('authorization', bearer()).send({});
     expect(res.body.tier).toBe('premium');
     expect(res.body.plan.days).toHaveLength(7);
+  });
+});
+
+describe('menu swap + premium insights', () => {
+  it('POST /api/menu/swap returns ranked alternatives (§8.1)', async () => {
+    const gen = await request(app).post('/api/menu/generate').set('authorization', bearer()).send({});
+    const picks = gen.body.plan.days[0].picks as Array<{ slot: string; recipe: { id: string } }>;
+    const dinner = picks.find((p) => p.slot === 'dinner') ?? picks[0]!;
+    const res = await request(app)
+      .post('/api/menu/swap')
+      .set('authorization', bearer())
+      .send({ recipeId: dinner.recipe.id, slot: dinner.slot });
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.alternatives)).toBe(true);
+  });
+
+  it('gates /api/insights via requirePremium: 402 free, 200 premium (§8.3)', async () => {
+    store.setTier(userId, 'free');
+    const free = await request(app).get('/api/insights').set('authorization', bearer());
+    expect(free.status).toBe(402);
+    expect(free.body.error).toBe('premium_required');
+
+    store.setTier(userId, 'premium');
+    const prem = await request(app).get('/api/insights').set('authorization', bearer());
+    expect(prem.status).toBe(200);
+    expect(prem.body.insights).toBeDefined();
   });
 });
 

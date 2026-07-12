@@ -73,6 +73,31 @@ export function foodSuppressed(
   return declines >= config.nudge.foodSuppressAfterDeclines;
 }
 
+/** True if the user marked this slot "meal off" today (§5.8) and hasn't undone
+ * it — the Brain then goes quiet for the slot (no nudge, no widget suggestion). */
+export function slotSkippedToday(
+  events: BrainEvent[],
+  slot: MealSlot,
+  now: number,
+  tzOffsetMin: number,
+): boolean {
+  const today = localParts(now, tzOffsetMin).epochDay;
+  const deleted = new Set<string>();
+  for (const e of events) {
+    if (e.kind === 'delete') {
+      const t = e.meta?.['targetId'];
+      if (typeof t === 'string') deleted.add(t);
+    }
+  }
+  return events.some(
+    (e) =>
+      e.kind === 'skip_meal' &&
+      e.slot === slot &&
+      !deleted.has(e.id) &&
+      localParts(e.ts, e.tzOffsetMin).epochDay === today,
+  );
+}
+
 /** The hard gate: may we fire a proactive nudge for (foodId, slot) right now? */
 export function canNudge(
   events: BrainEvent[],
@@ -93,6 +118,7 @@ export function canNudge(
   if (foodSuppressed(events, foodId, slot, now, config)) {
     reasons.push('food suppressed after repeated declines');
   }
+  if (slotSkippedToday(events, slot, now, tzOffsetMin)) reasons.push('slot marked meal off today');
 
   return { allowed: reasons.length === 0, reasons };
 }

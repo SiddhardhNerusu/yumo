@@ -33,6 +33,9 @@
         "projectId": "bc005fe8-e979-4f32-935d-e21b719c7ab3"
       }
     },
-    "owner": "siddu69420"
+    "owner": "siddu69420",
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

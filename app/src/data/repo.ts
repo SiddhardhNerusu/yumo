@@ -7,10 +7,11 @@ import {
   type MenuRecipe,
 } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
-import { POOL, POOL_STEPS } from './menu-seed';
-import { BUBBLE_FOODS } from './onboarding-seed';
+import { POOL, POOL_STEPS, POOL_INGREDIENTS } from './menu-seed';
+import { BUBBLE_FOODS, CUISINES } from './onboarding-seed';
 import { FOODS } from './seed';
 import { setCoachPack } from '../coach/pack';
+import { setBrainConfig } from './brainConfig';
 
 /**
  * Data layer: server-first, with an offline fallback to the local seed so the
@@ -42,8 +43,9 @@ export async function bootstrapSession(profile: UserProfile, goal: string): Prom
     try {
       const cfg = await api.getConfig();
       setCoachPack(cfg.coach);
+      setBrainConfig(cfg.brain); // §3.3 server-tunable weights/caps/thresholds
     } catch {
-      // keep the default coach pack
+      // keep the default coach pack + brain config
     }
     return 'server';
   } catch {
@@ -62,33 +64,68 @@ export async function getBubbles(): Promise<string[]> {
   }
 }
 
+/** §4.2 / decision 5: cuisine options from live catalogue counts, never a
+ * hardcoded list. Falls back to the local seed only if the server is down. */
+export async function getCuisines(): Promise<string[]> {
+  try {
+    const { cuisines } = await api.cuisines();
+    const names = cuisines.map((x) => x.name).filter(Boolean);
+    return names.length ? names : CUISINES;
+  } catch {
+    return CUISINES;
+  }
+}
+
 export async function getMenu(
   profile: UserProfile,
   seed?: string,
+  boostIds?: string[],
 ): Promise<{ plan: WeekMenuPlan; source: Source }> {
   try {
-    const { plan } = await api.generateMenu(seed);
+    const { plan } = await api.generateMenu(seed, boostIds);
     return { plan, source: 'server' };
   } catch {
-    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7 }), source: 'local' };
+    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7, boostIds }), source: 'local' };
   }
 }
 
-export async function getMixup(recipe: MenuRecipe, slot: MealSlot, profile: UserProfile): Promise<MenuRecipe[]> {
+export async function getMixup(
+  recipe: MenuRecipe,
+  slot: MealSlot,
+  profile: UserProfile,
+  opts: { boostIds?: string[]; recentlyUsed?: string[] } = {},
+): Promise<MenuRecipe[]> {
   try {
-    const { alternatives } = await api.mixup(recipe.id, slot);
+    const { alternatives } = await api.mixup(recipe.id, slot, opts.boostIds);
     return alternatives;
   } catch {
-    return mixItUp(recipe, slot, POOL, profile);
+    return mixItUp(recipe, slot, POOL, profile, opts);
   }
 }
 
-export async function getRecipeSteps(recipe: MenuRecipe): Promise<string[]> {
+export interface RecipeIngredientLine {
+  name: string;
+  qty: string;
+}
+export interface RecipeDetail {
+  steps: string[];
+  /** ingredients split name/quantity for the two-column recipe layout (§4.2). */
+  ingredients: RecipeIngredientLine[];
+}
+
+/** Split an offline "Rolled oats — 50g" seed line into { name, qty }. */
+function splitIngredient(line: string): RecipeIngredientLine {
+  const idx = line.indexOf(' — ');
+  return idx >= 0 ? { name: line.slice(0, idx), qty: line.slice(idx + 3) } : { name: line, qty: '' };
+}
+
+export async function getRecipeDetail(recipe: MenuRecipe): Promise<RecipeDetail> {
   try {
-    const { steps } = await api.recipe(recipe.id);
-    return steps ?? [];
+    const r = await api.recipe(recipe.id);
+    const ingredients = (r.ingredients ?? []).map((i) => ({ name: titleCase(i.name), qty: i.qty_g > 0 ? `${i.qty_g}g` : '' }));
+    return { steps: r.steps ?? [], ingredients };
   } catch {
-    return POOL_STEPS.get(recipe.id) ?? [];
+    return { steps: POOL_STEPS.get(recipe.id) ?? [], ingredients: (POOL_INGREDIENTS.get(recipe.id) ?? []).map(splitIngredient) };
   }
 }
 

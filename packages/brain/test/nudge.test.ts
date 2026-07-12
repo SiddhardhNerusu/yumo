@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { canNudge, slotIsQuiet, foodSuppressed } from '../src/nudge';
+import { canNudge, slotIsQuiet, slotSkippedToday, foodSuppressed } from '../src/nudge';
 import { DEFAULT_CONFIG } from '../src/config';
-import { NOW, accept, decline, resetIds } from './_fixtures';
+import { NOW, accept, decline, resetIds, ev, tsAt } from './_fixtures';
 
 beforeEach(resetIds);
 const cfg = DEFAULT_CONFIG;
@@ -47,5 +47,25 @@ describe('nudge budget', () => {
     expect(slotIsQuiet(events, 'lunch', NOW, cfg)).toBe(false);
     const d = canNudge(events, 'salad', 'lunch', NOW, 0, cfg);
     expect(d.reasons.some((r) => r.includes('suppressed'))).toBe(true);
+  });
+
+  it('goes quiet for a slot the user marked "meal off" today (§5.8)', () => {
+    const skip = ev({ kind: 'skip_meal', slot: 'lunch', ts: tsAt(0, 11) });
+    expect(slotSkippedToday([skip], 'lunch', NOW, 0)).toBe(true);
+    const d = canNudge([skip], 'chicken_rice', 'lunch', NOW, 0, cfg);
+    expect(d.allowed).toBe(false);
+    expect(d.reasons.some((r) => r.includes('meal off'))).toBe(true);
+  });
+
+  it('un-quiets the slot once the skip is undone (soft-deleted)', () => {
+    const skip = ev({ kind: 'skip_meal', slot: 'lunch', ts: tsAt(0, 11) });
+    const undo = ev({ kind: 'delete', ts: tsAt(0, 11), meta: { targetId: skip.id } });
+    expect(slotSkippedToday([skip, undo], 'lunch', NOW, 0)).toBe(false);
+    expect(canNudge([skip, undo], 'chicken_rice', 'lunch', NOW, 0, cfg).allowed).toBe(true);
+  });
+
+  it('does not carry a skip over to the next day', () => {
+    const skip = ev({ kind: 'skip_meal', slot: 'lunch', ts: tsAt(1, 11) });
+    expect(slotSkippedToday([skip], 'lunch', NOW, 0)).toBe(false);
   });
 });

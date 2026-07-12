@@ -2,12 +2,19 @@ import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  useFonts,
+  Newsreader_400Regular,
+  Newsreader_500Medium,
+  Newsreader_400Regular_Italic,
+} from '@expo-google-fonts/newsreader';
 import type { UserProfile } from '@yumo/menu';
 import type { Goal } from '@yumo/shared';
 import { useTheme } from './src/theme';
 import { OnboardingFlow } from './src/onboarding/OnboardingFlow';
 import { AppShell } from './src/AppShell';
 import { EventStoreProvider } from './src/data/eventStore';
+import { KitchenProvider } from './src/data/kitchenStore';
 import { EntitlementProvider } from './src/data/entitlement';
 import { ErrorBoundary } from './src/ErrorBoundary';
 import { bootstrapSession } from './src/data/repo';
@@ -28,6 +35,11 @@ export default function App() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [goal, setGoal] = useState<Goal>('maintain');
   const [loading, setLoading] = useState(true);
+  const [fontsLoaded] = useFonts({
+    Newsreader_400Regular,
+    Newsreader_500Medium,
+    Newsreader_400Regular_Italic,
+  });
 
   // Restore a saved profile on launch, and re-establish the server session.
   useEffect(() => {
@@ -75,11 +87,13 @@ export default function App() {
   return (
     <ErrorBoundary>
       <EntitlementProvider>
-        {loading ? (
+        {loading || !fontsLoaded ? (
           <Splash />
         ) : profile ? (
           <EventStoreProvider>
-            <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+            <KitchenProvider seedTokens={profile.pantry}>
+              <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+            </KitchenProvider>
           </EventStoreProvider>
         ) : (
           <OnboardingFlow onDone={handleDone} />

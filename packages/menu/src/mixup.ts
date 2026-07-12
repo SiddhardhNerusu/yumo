@@ -6,17 +6,27 @@ import { MIXUP } from './config';
 
 const EFFORT_ORDER: Record<Effort, number> = { '5min': 0, '15min': 1, '30min+': 2 };
 
+export interface MixupOptions {
+  /** recipe ids the user swapped/picked before → up-weight (Brain preference, §4.4). */
+  boostIds?: string[];
+  /** recipe ids already on this week's plan → novelty penalty per variation dial. */
+  recentlyUsed?: string[];
+}
+
 /**
  * "Mix it up" isocaloric swap (§4.4): 3–4 alternatives for the same slot,
  * within kcal ±10% and protein ±15%, allergy/hate-filtered, effort ≤ original+1
- * tier. Ranked by soft preference (cuisine lean → likes → closeness).
+ * tier. Ranked cuisine-lean → likes → Brain preference → novelty per dial.
  */
 export function mixItUp(
   original: MenuRecipe,
   slot: MealSlot,
   pool: MenuRecipe[],
   profile: UserProfile,
+  opts: MixupOptions = {},
 ): MenuRecipe[] {
+  const boostIds = new Set(opts.boostIds ?? []);
+  const recentlyUsed = new Set(opts.recentlyUsed ?? []);
   const kcal = original.perServing.kcal;
   const protein = original.perServing.protein_g;
   const maxEffort = EFFORT_ORDER[original.effort] + MIXUP.effortMaxStepUp;
@@ -37,8 +47,9 @@ export function mixItUp(
       r,
       score: softScore(r, slot, profile, {
         slotTargetKcal: kcal,
-        recentlyUsed: new Set<string>(),
+        recentlyUsed,
         proteinPaceDeficit: 0,
+        boostIds,
       }).score,
     }))
     .sort((a, b) => b.score - a.score)

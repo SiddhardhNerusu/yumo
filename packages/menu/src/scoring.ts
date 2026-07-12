@@ -9,6 +9,8 @@ export interface ScoreContext {
   recentlyUsed: Set<string>;
   /** 0..1, how far behind the protein floor the day currently is. */
   proteinPaceDeficit: number;
+  /** recipe ids the user has swapped/picked before → up-weight (§4.3.3). */
+  boostIds?: Set<string>;
 }
 
 export interface SoftScore {
@@ -42,6 +44,12 @@ export function softScore(
   const lean = profile.cuisineLean?.[recipe.cuisine] ?? 1;
   score *= lean;
   if (lean > 1) reasons.push(`${recipe.cuisine}`);
+
+  // learned preference: recipes the user has swapped/picked before (§4.3.3)
+  if (ctx.boostIds?.has(recipe.id)) {
+    score += SOFT_WEIGHTS.preference;
+    reasons.push('you picked this before');
+  }
 
   // closeness of natural serving to the slot target → less portion stretching
   const closeness = 1 - Math.min(1, Math.abs(recipe.perServing.kcal - ctx.slotTargetKcal) / ctx.slotTargetKcal);

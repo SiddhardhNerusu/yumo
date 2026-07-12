@@ -24,13 +24,13 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
     const { error } = this.state;
     if (error) {
       return (
-        <View style={{ flex: 1, backgroundColor: '#131110', padding: 24, paddingTop: 80 }}>
+        <View style={{ flex: 1, backgroundColor: '#17130F', padding: 24, paddingTop: 80 }}>
           <Text style={{ color: '#FF6A3D', fontSize: 22, fontWeight: '800' }}>Something broke</Text>
-          <Text style={{ color: '#C9BEAF', fontSize: 14, marginTop: 8 }}>
+          <Text style={{ color: '#C7BBAA', fontSize: 14, marginTop: 8 }}>
             This screen hit an error — screenshot this and it gets fixed:
           </Text>
           <ScrollView style={{ marginTop: 16, maxHeight: 420 }}>
-            <Text selectable style={{ color: '#F8F4ED', fontSize: 12 }}>
+            <Text selectable style={{ color: '#F7F2EA', fontSize: 12 }}>
               {error.message}
               {'\n\n'}
               {error.stack ?? ''}
