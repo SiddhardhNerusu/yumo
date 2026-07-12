@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -22,11 +22,15 @@ import { bootstrapSession } from './src/data/repo';
 const PROFILE_KEY = 'usual.profile.v1';
 const EVENTLOG_KEY = 'usual.eventlog.v1';
 
-function Splash() {
+function Splash({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { c } = useTheme();
   return (
     <View style={{ flex: 1, backgroundColor: c('bg'), alignItems: 'center', justifyContent: 'center' }}>
-      <ActivityIndicator color={c('accent')} />
+      {fontsLoaded ? (
+        <Text style={{ fontFamily: 'Newsreader_500Medium', fontSize: 44, color: c('textPrimary'), letterSpacing: -0.5 }}>Yumo</Text>
+      ) : (
+        <ActivityIndicator color={c('accent')} />
+      )}
     </View>
   );
 }
@@ -88,7 +92,7 @@ export default function App() {
     <ErrorBoundary>
       <EntitlementProvider>
         {loading || !fontsLoaded ? (
-          <Splash />
+          <Splash fontsLoaded={fontsLoaded} />
         ) : profile ? (
           <EventStoreProvider>
             <KitchenProvider seedTokens={profile.pantry}>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
 import { useTheme } from '../theme';
@@ -13,7 +13,7 @@ import { POOL } from '../data/menu-seed';
 import { RecipeSheet } from '../components/RecipeSheet';
 import { MixSheet, type MixOption } from '../components/MixSheet';
 import { Kitchen } from './Kitchen';
-import { Serif, Kicker, Card, MixButton, OutlineButton, PrimaryButton, ACCENT_BORDER } from '../components/kit';
+import { Serif, Kicker, Card, MixButton, OutlineButton, PrimaryButton, Skeleton, ACCENT_BORDER } from '../components/kit';
 import { track } from '../analytics';
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -96,8 +96,20 @@ export function Menu({ profile }: { profile: UserProfile }) {
 
   if (!plan) {
     return (
-      <View style={{ flex: 1, backgroundColor: c('bg'), alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color={c('accent')} />
+      <View style={{ flex: 1, backgroundColor: c('bg') }}>
+        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64 }}>
+          <Kicker>This week</Kicker>
+          <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2, marginBottom: 20 }}>Menu</Serif>
+          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 22 }}>
+            {Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} height={54} radius={14} style={{ flex: 1 }} />)}
+          </View>
+          <Skeleton width="45%" height={16} style={{ marginBottom: 18 }} />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <View key={i} style={{ marginBottom: 12 }}>
+              <Skeleton height={132} radius={20} />
+            </View>
+          ))}
+        </ScrollView>
       </View>
     );
   }

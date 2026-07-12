@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, Pressable, Animated } from 'react-native';
 import Svg, { Circle, Rect } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProfile } from '@yumo/menu';
 import { useTheme } from './theme';
+import { HAIRLINE_TOP } from './components/kit';
 import { useEntitlement } from './data/entitlement';
 import { Today } from './screens/Today';
 import { Menu } from './screens/Menu';
@@ -56,6 +57,9 @@ export function AppShell({
   const { isPremium } = useEntitlement();
   const [tab, setTab] = useState<Tab>('today');
   const [showPaywall, setShowPaywall] = useState(false);
+  // crossfade the screen on tab change so tabs dissolve rather than hard-cut
+  const screenOp = useRef(new Animated.Value(1)).current;
+  useEffect(() => { screenOp.setValue(0.4); Animated.timing(screenOp, { toValue: 1, duration: 180, useNativeDriver: true }).start(); }, [tab, screenOp]);
 
   // Soft, skippable paywall once, just after onboarding (§11 "after menu reveal").
   useEffect(() => {
@@ -76,17 +80,17 @@ export function AppShell({
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
-      <View style={{ flex: 1 }}>
+      <Animated.View style={{ flex: 1, opacity: screenOp }}>
         {tab === 'today' ? <Today budget={profile.budgetKcal} tokens={[...profile.needs, ...profile.likes]} /> : null}
         {tab === 'menu' ? <Menu profile={profile} /> : null}
         {tab === 'progress' ? <Progress profile={profile} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
-      </View>
-      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: c('border'), backgroundColor: c('bg'), paddingBottom: 26, paddingTop: 8 }}>
+      </Animated.View>
+      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: HAIRLINE_TOP, backgroundColor: c('surface'), paddingBottom: 26, paddingTop: 8, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: -8 }, elevation: 12 }}>
         {TABS.map((t) => {
           const active = tab === t;
           const col = active ? c('accent') : c('textMuted');
           return (
-            <Pressable key={t} onPress={() => setTab(t)} style={{ flex: 1, alignItems: 'center', paddingVertical: 6, gap: 4 }}>
+            <Pressable key={t} onPress={() => setTab(t)} style={({ pressed }) => ({ flex: 1, alignItems: 'center', paddingVertical: 6, gap: 4, transform: [{ scale: pressed ? 0.92 : 1 }] })}>
               <TabIcon name={t} color={col} />
               <Text style={{ color: col, fontSize: 11, fontWeight: active ? '700' : '600' }}>{cap(t)}</Text>
             </Pressable>
