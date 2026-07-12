@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { View, Text, Pressable, Animated, Easing, useWindowDimensions } from 'react-native';
-import Svg, { Defs, LinearGradient, RadialGradient, Stop, Rect, Path, ClipPath, G, Filter, FeTurbulence, FeColorMatrix } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, RadialGradient, Stop, Rect, Path, ClipPath, G } from 'react-native-svg';
 import { useTheme } from '../../theme';
 import { Serif } from '../kit';
 import { freshnessOf, type KitchenItem, type Zone, type Freshness } from '../../data/kitchen-model';
@@ -17,7 +17,6 @@ const UNITS: Record<Zone, Rectangle> = {
   freezer: { x: 196, y: 271, w: 146, h: 118 },
   counter: { x: 0, y: 190, w: 170, h: 246 },
 };
-const CAM: Record<Zone, Rectangle> = { ...UNITS, counter: { x: 2, y: 190, w: 164, h: 218 } };
 const DOOR_ZONES: Zone[] = ['cupboard', 'fridge', 'freezer'];
 const ALL_ZONES: Zone[] = ['cupboard', 'fridge', 'freezer', 'counter'];
 
@@ -58,14 +57,12 @@ export function tileColor(token: string): string {
 const FRESH_COL: Record<Freshness, string> = { fresh: '#5FC48C', soon: '#EDA33B', today: '#FF7A5C', gone: '#FF7A5C' };
 const hashOf = (id: string) => (id.charCodeAt(0) || 0) + (id.charCodeAt(1) || 0);
 
-// ── camera transform for a focus target (RN centre-origin compensated) ────────
-function camFor(zone: Zone | null): { tx: number; ty: number; s: number } {
-  if (!zone) return { tx: 0, ty: 0, s: 1 };
-  const u = CAM[zone];
-  const s = Math.min(316 / u.w, DW / u.h, 2.35);
-  const cx = u.x + u.w / 2;
-  const cy = u.y + u.h / 2;
-  return { tx: s * (175 - cx), ty: -18 + s * (218 - cy), s };
+// ── camera transform for a focus target ───────────────────────────────────────
+// Zoom REMOVED: scaling the SVG scene up (transform: scale) rasterises the layer
+// on iOS → the whole focused view goes blurry. Focus now opens the unit's doors +
+// dims the rest in place at native resolution; the crisp item list carries detail.
+function camFor(_zone: Zone | null): { tx: number; ty: number; s: number } {
+  return { tx: 0, ty: 0, s: 1 };
 }
 
 // ── appliance / cabinet faces ─────────────────────────────────────────────────
@@ -90,8 +87,8 @@ function FaceWood({ w, h, radius }: { w: number; h: number; radius: number }) {
   const gid = useRef(`wd${gidc++}`).current;
   // near-vertical grain: stripes run DOWN the door (97°/94° gradient axis), repeating across X.
   const grain = [];
-  for (let i = 0; i < Math.ceil(w / 8) + 1; i++) grain.push(<Rect key={`d${i}`} x={i * 8} y={-6} width={2} height={h + 12} fill="rgba(0,0,0,0.16)" transform={`rotate(7 ${i * 8} ${h / 2})`} />);
-  for (let i = 0; i < Math.ceil(w / 13) + 1; i++) grain.push(<Rect key={`l${i}`} x={i * 13 + 4} y={-6} width={1} height={h + 12} fill="rgba(255,200,140,0.05)" transform={`rotate(4 ${i * 13} ${h / 2})`} />);
+  for (let i = 0; i < Math.ceil(w / 8) + 1; i++) grain.push(<Rect key={`d${i}`} x={i * 8} y={-6} width={2} height={h + 12} fill="#000000" fillOpacity={0.16} transform={`rotate(7 ${i * 8} ${h / 2})`} />);
+  for (let i = 0; i < Math.ceil(w / 13) + 1; i++) grain.push(<Rect key={`l${i}`} x={i * 13 + 4} y={-6} width={1} height={h + 12} fill="#FFC88C" fillOpacity={0.05} transform={`rotate(4 ${i * 13} ${h / 2})`} />);
   return (
     <Svg width={w} height={h} style={{ position: 'absolute', top: 0, left: 0 }}>
       <Defs>
@@ -155,9 +152,9 @@ function SoftGlow({ w, h }: { w: number; h: number }) {
     <Svg width={w} height={h}>
       <Defs>
         <RadialGradient id={gid} cx="0.5" cy="0.5" rx="0.5" ry="0.5">
-          <Stop offset="0" stopColor="rgba(237,163,59,0.5)" />
-          <Stop offset="0.5" stopColor="rgba(237,163,59,0.3)" />
-          <Stop offset="1" stopColor="rgba(237,163,59,0)" />
+          <Stop offset="0" stopColor="#EDA33B" stopOpacity={0.5} />
+          <Stop offset="0.5" stopColor="#EDA33B" stopOpacity={0.3} />
+          <Stop offset="1" stopColor="#EDA33B" stopOpacity={0} />
         </RadialGradient>
       </Defs>
       <Rect x={0} y={0} width={w} height={h} rx={h / 2} fill={`url(#${gid})`} />
@@ -278,9 +275,9 @@ function Interior({ zone, items, now, labelV, openV, isOpen, recentlyAdded, toss
       <Svg width={innerW} height={innerH} style={{ position: 'absolute', top: 0, left: 0 }}>
         <Defs>
           <LinearGradient id={`${iid}b`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={bg1} /><Stop offset="1" stopColor={bg2} /></LinearGradient>
-          <LinearGradient id={`${iid}t`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="rgba(0,0,0,0.55)" /><Stop offset="1" stopColor="rgba(0,0,0,0)" /></LinearGradient>
-          <LinearGradient id={`${iid}l`} x1="0" y1="0" x2="1" y2="0"><Stop offset="0" stopColor="rgba(0,0,0,0.3)" /><Stop offset="1" stopColor="rgba(0,0,0,0)" /></LinearGradient>
-          <LinearGradient id={`${iid}r`} x1="1" y1="0" x2="0" y2="0"><Stop offset="0" stopColor="rgba(0,0,0,0.3)" /><Stop offset="1" stopColor="rgba(0,0,0,0)" /></LinearGradient>
+          <LinearGradient id={`${iid}t`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#000000" stopOpacity={0.55} /><Stop offset="1" stopColor="#000000" stopOpacity={0} /></LinearGradient>
+          <LinearGradient id={`${iid}l`} x1="0" y1="0" x2="1" y2="0"><Stop offset="0" stopColor="#000000" stopOpacity={0.3} /><Stop offset="1" stopColor="#000000" stopOpacity={0} /></LinearGradient>
+          <LinearGradient id={`${iid}r`} x1="1" y1="0" x2="0" y2="0"><Stop offset="0" stopColor="#000000" stopOpacity={0.3} /><Stop offset="1" stopColor="#000000" stopOpacity={0} /></LinearGradient>
         </Defs>
         <Rect x={0} y={0} width={innerW} height={innerH} fill={`url(#${iid}b)`} />
         <Rect x={0} y={0} width={innerW} height={18} fill={`url(#${iid}t)`} />
@@ -316,7 +313,7 @@ function Interior({ zone, items, now, labelV, openV, isOpen, recentlyAdded, toss
       {/* door-shadow sweep — 1 when closed → 0 when open */}
       <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, width: innerW, height: innerH, opacity: openV.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
         <Svg width={innerW} height={innerH}>
-          <Defs><LinearGradient id={`${iid}s`} x1="0" y1="0" x2="1" y2="0.17"><Stop offset="0" stopColor="rgba(0,0,0,0.5)" /><Stop offset="0.55" stopColor="rgba(0,0,0,0)" /></LinearGradient></Defs>
+          <Defs><LinearGradient id={`${iid}s`} x1="0" y1="0" x2="1" y2="0.17"><Stop offset="0" stopColor="#000000" stopOpacity={0.5} /><Stop offset="0.55" stopColor="#000000" stopOpacity={0} /></LinearGradient></Defs>
           <Rect x={0} y={0} width={innerW} height={innerH} fill={`url(#${iid}s)`} />
         </Svg>
       </Animated.View>
@@ -543,7 +540,7 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
           <Svg width={DW} height={FLOOR_Y} style={{ position: 'absolute', top: 0, left: 0 }}>
             <Defs>
               <LinearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#262019" /><Stop offset="1" stopColor="#211A13" /></LinearGradient>
-              <RadialGradient id="toplight" cx="0.5" cy="0.06" rx="0.9" ry="0.7"><Stop offset="0" stopColor="rgba(255,190,120,0.06)" /><Stop offset="0.6" stopColor="rgba(255,190,120,0)" /></RadialGradient>
+              <RadialGradient id="toplight" cx="0.5" cy="0.06" rx="0.9" ry="0.7"><Stop offset="0" stopColor="#FFBE78" stopOpacity={0.06} /><Stop offset="0.6" stopColor="#FFBE78" stopOpacity={0} /></RadialGradient>
             </Defs>
             <Path d={`M0,14 A14,14 0 0 1 14,0 L${DW - 14},0 A14,14 0 0 1 ${DW},14 L${DW},${FLOOR_Y} L0,${FLOOR_Y} Z`} fill="url(#wall)" />
             <Rect x={0} y={0} width={DW} height={FLOOR_Y} fill="url(#toplight)" />
@@ -561,13 +558,6 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
         </Animated.View>
       </View>
 
-      {/* film grain — fixed, not scaled by the camera */}
-      <Svg width={contentW} height={boxH} style={{ position: 'absolute', top: 0, left: 0 }} pointerEvents="none" opacity={0.05}>
-        <Defs>
-          <Filter id="grain"><FeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} stitchTiles="stitch" /><FeColorMatrix type="saturate" values="0" /></Filter>
-        </Defs>
-        <Rect x={0} y={0} width={contentW} height={boxH} filter="url(#grain)" />
-      </Svg>
     </View>
   );
 }
