@@ -152,8 +152,8 @@ function SoftGlow({ w, h }: { w: number; h: number }) {
     <Svg width={w} height={h}>
       <Defs>
         <RadialGradient id={gid} cx="0.5" cy="0.5" rx="0.5" ry="0.5">
-          <Stop offset="0" stopColor="#EDA33B" stopOpacity={0.5} />
-          <Stop offset="0.5" stopColor="#EDA33B" stopOpacity={0.3} />
+          <Stop offset="0" stopColor="#EDA33B" stopOpacity={0.32} />
+          <Stop offset="0.5" stopColor="#EDA33B" stopOpacity={0.16} />
           <Stop offset="1" stopColor="#EDA33B" stopOpacity={0} />
         </RadialGradient>
       </Defs>
@@ -162,7 +162,7 @@ function SoftGlow({ w, h }: { w: number; h: number }) {
   );
 }
 /** Pulsing use-soon glow at a unit's base — renders on TOP of the door, room view only. */
-function UseSoonGlow({ unitW, chromeV, bottom = -2 }: { unitW: number; chromeV: Animated.Value; bottom?: number }) {
+function UseSoonGlow({ unitW, chromeV, bottom = -12 }: { unitW: number; chromeV: Animated.Value; bottom?: number }) {
   const glow = useRef(new Animated.Value(0.35)).current;
   useEffect(() => {
     const loop = Animated.loop(Animated.sequence([
@@ -190,14 +190,13 @@ function Tile({ item, slotCenterX, shelfY, now, labelV, isOpen, justAdded, tossi
   isOpen: boolean; justAdded: boolean; tossing: boolean; index: number; flyIndex: number; onPress: () => void;
 }) {
   const kind = kindOf(item.token);
-  const round = ROUND_KINDS.has(kind);
   const col = tileColor(item.token);
   const fresh = freshnessOf(item, now);
   const low = item.level === 'low';
-  const hs = hashOf(item.id);
-  let w = 24 + (hs % 3) * 4;
-  let h = 26 + (hs % 4) * 4;
-  if (round) { w = h = Math.min(w, h); }
+  // uniform footprint so tiles line up cleanly on the shelf; round kinds differ
+  // only by corner radius (handled in GlyphTile), which now reads as deliberate.
+  const w = 30;
+  const h = 30;
 
   const left = slotCenterX - w / 2;
   const top = shelfY - 11 - h;
@@ -241,8 +240,8 @@ function Tile({ item, slotCenterX, shelfY, now, labelV, isOpen, justAdded, tossi
           <GlyphTile kind={kind} w={w} h={h} color={col} />
         </Pressable>
       </Animated.View>
-      {/* freshness dot — top-right corner, revealed on focus */}
-      <Animated.View pointerEvents="none" style={{ position: 'absolute', left: left + w - 4, top: top - 3, width: 7, height: 7, borderRadius: 4, backgroundColor: FRESH_COL[fresh], borderWidth: 1.5, borderColor: '#100D0A', opacity: labelV }} />
+      {/* freshness dot — top-right corner, revealed on focus (soft, ringless) */}
+      <Animated.View pointerEvents="none" style={{ position: 'absolute', left: left + w - 5, top: top - 4, width: 9, height: 9, borderRadius: 5, backgroundColor: FRESH_COL[fresh], opacity: labelV, shadowColor: '#000', shadowOpacity: 0.55, shadowRadius: 2.5, shadowOffset: { width: 0, height: 1 } }} />
       {/* label — between tile and shelf */}
       <Animated.Text numberOfLines={1} style={{ position: 'absolute', top: shelfY - 10.5, left: slotCenterX - 22.5, width: 45, textAlign: 'center', color: '#D8CDBB', fontSize: 6, fontWeight: '600', opacity: labelV }}>{item.label}</Animated.Text>
     </>
@@ -410,13 +409,13 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
             <Face w={u.w} h={u.h} radius={0} />
             <View style={{ position: 'absolute', top: 24, bottom: 24, right: 8, width: 5, borderRadius: 3, backgroundColor: handleCol }} />
             {/* magnets */}
-            <View style={{ position: 'absolute', top: 8, left: 8, gap: 4 }}>
-              <Pressable onPress={onTonight} hitSlop={6} style={{ transform: [{ rotate: '-2deg' }], backgroundColor: '#F3E9D8', borderRadius: 3, paddingVertical: 3, paddingHorizontal: 5, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(58,48,38,0.25)' }}>
-                <Serif italic size={7} color="#3A2E1E">Tonight you can make…</Serif>
+            <View style={{ position: 'absolute', top: 10, left: 9, gap: 5 }}>
+              <Pressable onPress={onTonight} hitSlop={6} style={{ transform: [{ rotate: '-2deg' }], backgroundColor: '#F3E9D8', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 7, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(58,48,38,0.25)' }}>
+                <Serif italic size={9.5} color="#3A2E1E">Tonight you can make…</Serif>
               </Pressable>
-              <Pressable onPress={onShopping} hitSlop={6} style={{ transform: [{ rotate: '1.5deg' }], backgroundColor: '#E9EFE6', borderRadius: 3, paddingVertical: 3, paddingHorizontal: 5, flexDirection: 'row', alignItems: 'center', gap: 3, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(46,58,42,0.25)' }}>
-                <Text style={{ color: '#2E3A2A', fontSize: 7, fontWeight: '700' }}>Shopping list</Text>
-                {shoppingCount > 0 ? <View style={{ backgroundColor: c('accent'), borderRadius: 999, minWidth: 10, height: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 2 }}><Text style={{ color: c('accentText'), fontSize: 6, fontWeight: '700' }}>{shoppingCount}</Text></View> : null}
+              <Pressable onPress={onShopping} hitSlop={6} style={{ transform: [{ rotate: '1.5deg' }], backgroundColor: '#E9EFE6', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 7, flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(46,58,42,0.25)' }}>
+                <Text style={{ color: '#2E3A2A', fontSize: 9, fontWeight: '700' }}>Shopping list</Text>
+                {shoppingCount > 0 ? <View style={{ backgroundColor: c('accent'), borderRadius: 999, minWidth: 13, height: 13, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Text style={{ color: c('accentText'), fontSize: 8, fontWeight: '700' }}>{shoppingCount}</Text></View> : null}
               </Pressable>
               <StreakMagnet streak={streak} accent={c('accent')} text={c('accentText')} />
             </View>
@@ -429,9 +428,9 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
         {/* tap target (room view) */}
         {focused !== zone ? <Pressable onPress={() => onFocus(zone)} onPressIn={() => dip(zone, true)} onPressOut={() => dip(zone, false)} style={{ position: 'absolute', left: 0, top: 0, width: u.w, height: u.h }} /> : null}
 
-        {/* count badge */}
-        <Animated.View style={{ position: 'absolute', top: -8, right: -8, opacity: chromeV, backgroundColor: c('accent'), borderRadius: 999, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }} pointerEvents="none">
-          <Text style={{ color: c('accentText'), fontSize: 11, fontWeight: '700' }}>{byZone(zone).length}</Text>
+        {/* count badge — subtle dark chip, tucked inside the corner (not a bright pill) */}
+        <Animated.View style={{ position: 'absolute', top: 5, right: 5, opacity: chromeV, backgroundColor: 'rgba(14,11,8,0.7)', borderWidth: 1, borderColor: 'rgba(247,242,234,0.14)', borderRadius: 999, minWidth: 17, height: 17, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }} pointerEvents="none">
+          <Text style={{ color: '#CDBFA9', fontSize: 9.5, fontWeight: '700' }}>{byZone(zone).length}</Text>
         </Animated.View>
       </Animated.View>
     );
@@ -484,17 +483,15 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
         <View style={{ position: 'absolute', left: 78, top: 70, width: 36, height: 32, borderRadius: 4, transform: [{ rotate: '4deg' }], overflow: 'hidden' }}>
           <FaceWood w={36} h={32} radius={4} />
         </View>
-        <View style={{ position: 'absolute', left: 132, top: 72, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={{ width: 10, height: 12, borderRadius: 6, backgroundColor: '#4E9A6B', marginRight: -4 }} />
-            <View style={{ width: 12, height: 15, borderRadius: 7, backgroundColor: '#5FB07D' }} />
-            <View style={{ width: 10, height: 12, borderRadius: 6, backgroundColor: '#4E9A6B', marginLeft: -4 }} />
-          </View>
-          <View style={{ width: 16, height: 12, borderTopLeftRadius: 3, borderTopRightRadius: 3, backgroundColor: '#B4623E', marginTop: -1 }} />
+        <View style={{ position: 'absolute', left: 130, top: 72, alignItems: 'center' }}>
+          <View style={{ width: 18, height: 16, borderRadius: 9, backgroundColor: '#5FB07D' }} />
+          <View style={{ width: 13, height: 12, borderRadius: 3, backgroundColor: '#A85A38', marginTop: -2 }} />
         </View>
 
-        {/* fruit bowl */}
-        <View style={{ position: 'absolute', left: 18, top: 90, width: 44, height: 14, borderBottomLeftRadius: 14, borderBottomRightRadius: 14, backgroundColor: '#B4623E' }} />
+        {/* fruit bowl — dark rim reads as the opening */}
+        <View style={{ position: 'absolute', left: 18, top: 90, width: 44, height: 15, borderBottomLeftRadius: 16, borderBottomRightRadius: 16, backgroundColor: '#A85A38' }}>
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, borderRadius: 2, backgroundColor: 'rgba(0,0,0,0.22)' }} />
+        </View>
 
         {/* live items on the worktop */}
         {fruits.map((it, i) => {
@@ -505,7 +502,7 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
               <Pressable onPress={() => onItemPress(it)} hitSlop={6} style={{ width: r * 2, height: r * 2, borderRadius: r, backgroundColor: tileColor(it.token), opacity: it.level === 'low' ? 0.7 : 1, shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 3, shadowOffset: { width: 0, height: 2 } }}>
                 <View style={{ position: 'absolute', top: r * 0.3, left: r * 0.35, width: r * 0.5, height: r * 0.4, borderRadius: r, backgroundColor: 'rgba(255,255,255,0.28)' }} />
               </Pressable>
-              <Animated.View pointerEvents="none" style={{ position: 'absolute', right: -2, top: -2, width: 7, height: 7, borderRadius: 4, backgroundColor: FRESH_COL[fresh], borderWidth: 1.5, borderColor: '#100D0A', opacity: reveal }} />
+              <Animated.View pointerEvents="none" style={{ position: 'absolute', right: -3, top: -3, width: 9, height: 9, borderRadius: 5, backgroundColor: FRESH_COL[fresh], opacity: reveal, shadowColor: '#000', shadowOpacity: 0.55, shadowRadius: 2.5, shadowOffset: { width: 0, height: 1 } }} />
             </View>
           );
         })}
@@ -514,19 +511,19 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
             <Pressable onPress={() => onItemPress(loaf)} hitSlop={6} style={{ width: 18, height: 18, borderRadius: 6, overflow: 'hidden', opacity: loaf.level === 'low' ? 0.7 : 1 }}>
               <GlyphTile kind="loaf" w={18} h={18} color={tileColor(loaf.token)} />
             </Pressable>
-            <Animated.View pointerEvents="none" style={{ position: 'absolute', right: -3, top: -3, width: 7, height: 7, borderRadius: 4, backgroundColor: FRESH_COL[freshnessOf(loaf, now)], borderWidth: 1.5, borderColor: '#100D0A', opacity: reveal }} />
+            <Animated.View pointerEvents="none" style={{ position: 'absolute', right: -3, top: -3, width: 9, height: 9, borderRadius: 5, backgroundColor: FRESH_COL[freshnessOf(loaf, now)], opacity: reveal, shadowColor: '#000', shadowOpacity: 0.55, shadowRadius: 2.5, shadowOffset: { width: 0, height: 1 } }} />
           </View>
         ) : null}
 
-        {/* §3.5 use-soon glow at the cabinet base */}
-        {hasSoon ? <UseSoonGlow unitW={u.w} chromeV={chromeV} bottom={28} /> : null}
+        {/* §3.5 use-soon glow — pooled low, on the dark cabinet (not a bar) */}
+        {hasSoon ? <UseSoonGlow unitW={u.w} chromeV={chromeV} bottom={16} /> : null}
 
         {/* tap target (room view) — covers the whole counter incl. the jar shelf */}
         {focused !== 'counter' ? <Pressable onPress={() => onFocus('counter')} onPressIn={() => dip('counter', true)} onPressOut={() => dip('counter', false)} style={{ position: 'absolute', left: 0, top: 0, width: u.w, height: 218 }} /> : null}
 
-        {/* count badge */}
-        <Animated.View style={{ position: 'absolute', top: 56, right: 4, opacity: chromeV, backgroundColor: c('accent'), borderRadius: 999, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }} pointerEvents="none">
-          <Text style={{ color: c('accentText'), fontSize: 11, fontWeight: '700' }}>{cItems.length}</Text>
+        {/* count badge — subtle dark chip */}
+        <Animated.View style={{ position: 'absolute', top: 54, right: 4, opacity: chromeV, backgroundColor: 'rgba(14,11,8,0.7)', borderWidth: 1, borderColor: 'rgba(247,242,234,0.14)', borderRadius: 999, minWidth: 17, height: 17, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }} pointerEvents="none">
+          <Text style={{ color: '#CDBFA9', fontSize: 9.5, fontWeight: '700' }}>{cItems.length}</Text>
         </Animated.View>
       </Animated.View>
     );
