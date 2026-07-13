@@ -1,6 +1,7 @@
 import type { Allergen } from '@yumo/shared';
 import type { MenuRecipe, Effort } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
+import { GENERATED_POOL } from './catalogue.generated';
 
 /**
  * DEMO SEED recipe pool for the Menu screen — replaced by the server's
@@ -36,7 +37,7 @@ function r(
   };
 }
 
-export const POOL: MenuSeedRecipe[] = [
+const SEED_POOL: MenuSeedRecipe[] = [
   r('oats_yogurt', 'Oats & yogurt', 'British', ['breakfast'], '5min', 450, 25, ['milk', 'gluten'], ['oats', 'yogurt', 'banana'],
     ['Tip the oats and yogurt into a bowl.', 'Slice the banana over the top.', 'Add a splash of milk and serve.']),
   r('eggs_toast', 'Eggs on toast', 'British', ['breakfast'], '15min', 480, 28, ['eggs', 'gluten'], ['egg', 'bread'],
@@ -65,6 +66,12 @@ export const POOL: MenuSeedRecipe[] = [
     ['Slice the apple.', 'Serve with a spoon of peanut butter.']),
   r('hummus_carrots', 'Hummus & carrots', 'Mediterranean', ['snack'], '5min', 190, 6, ['sesame'], ['chickpea', 'carrot'],
     ['Cut the carrots into sticks.', 'Serve with the hummus.']),
+];
+
+/** The demo pool: hand-authored seeds + the FDC-verified catalogue (§6). */
+export const POOL: MenuSeedRecipe[] = [
+  ...SEED_POOL,
+  ...GENERATED_POOL.filter((g) => !SEED_POOL.some((s) => s.id === g.id)),
 ];
 
 export const POOL_STEPS: Map<string, string[]> = new Map(POOL.map((x) => [x.id, x.steps]));
