@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -59,6 +60,11 @@ interface EventStore {
   /** §4.3.3 mix-it-up plan swap: a preference signal (not eaten) that re-weights
    * future menu generation. chosenId = the alternative picked. */
   recordMixupPick: (chosenId: string, fromId: string, slot: MealSlot) => void;
+  /** §8 one-tap 👍/👎 on a recipe → the hardest learned-preference signal.
+   * Not a log kind (never touches the ring). Re-tapping the same way is a no-op. */
+  thumbRecipe: (recipeId: string, dir: 'up' | 'down') => void;
+  /** latest thumb per recipe id, for the button's active state. */
+  thumbs: Map<string, 'up' | 'down'>;
 }
 
 const Ctx = createContext<EventStore | null>(null);
@@ -181,7 +187,34 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
     track('menu_swapped', { fromId, toId: chosenId, slot });
   }, []);
 
-  return <Ctx.Provider value={{ events, logFood, deleteLog, skipMeal, declineNudge, recordMixupPick }}>{children}</Ctx.Provider>;
+  // §8 latest 👍/👎 per recipe, derived from the log (most recent thumb wins).
+  const thumbs = useMemo(() => {
+    const m = new Map<string, 'up' | 'down'>();
+    for (const e of events) {
+      if (!e.foodId) continue;
+      if (e.kind === 'recipe_thumb_up') m.set(e.foodId, 'up');
+      else if (e.kind === 'recipe_thumb_down') m.set(e.foodId, 'down');
+    }
+    return m;
+  }, [events]);
+  const thumbsRef = useRef(thumbs);
+  thumbsRef.current = thumbs;
+
+  const thumbRecipe = useCallback((recipeId: string, dir: 'up' | 'down') => {
+    if (thumbsRef.current.get(recipeId) === dir) return; // already this way — no duplicate signal
+    const now = Date.now();
+    const ev: BrainEvent = { id: `thumb-${idc++}-${now}`, ts: now, tzOffsetMin: 0, kind: dir === 'up' ? 'recipe_thumb_up' : 'recipe_thumb_down', foodId: recipeId };
+    setUserLogs((prev) => {
+      const next = [...prev, ev];
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+    api.syncEvents(JSON.stringify(ev), 1).catch(() => {});
+    haptics.tap();
+    track('recipe_thumb', { recipeId, dir });
+  }, []);
+
+  return <Ctx.Provider value={{ events, logFood, deleteLog, skipMeal, declineNudge, recordMixupPick, thumbRecipe, thumbs }}>{children}</Ctx.Provider>;
 }
 
 export function useEventStore(): EventStore {

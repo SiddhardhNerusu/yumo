@@ -7,7 +7,7 @@ import { useTheme } from '../theme';
 import { getMenu, getMixup, getRecipeDetail, portionLabel, makePantryFit, type Source, type RecipeIngredientLine } from '../data/repo';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
-import { menuBoostIds, mixReason } from '../data/menuPrefs';
+import { learnedWeights, mixReason } from '../data/menuPrefs';
 import { cookability, type Cookability } from '../data/cookability';
 import { expiringItems, recipesUsingExpiring } from '../data/expiring';
 import { POOL } from '../data/menu-seed';
@@ -26,7 +26,7 @@ type Cur = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; f
 
 export function Menu({ profile }: { profile: UserProfile }) {
   const { c } = useTheme();
-  const { events, logFood, recordMixupPick } = useEventStore();
+  const { events, logFood, recordMixupPick, thumbRecipe, thumbs } = useEventStore();
   const kitchen = useKitchen();
   const have = useMemo(() => kitchen.availableTokens(), [kitchen.items]); // eslint-disable-line react-hooks/exhaustive-deps
   // §7 tokens you're ≤2 short of (near-miss), for the "Just need: X" copy on mix options.
@@ -71,18 +71,18 @@ export function Menu({ profile }: { profile: UserProfile }) {
     const next = !fromKitchen;
     setFromKitchen(next);
     const p = next ? { ...profile, pantry: [...have] } : profile;
-    getMenu(p, undefined, [...boostIds, ...kitchenBoost(next)], next ? makePantryFit(have) : undefined).then((r) => { setPlan(r.plan); setSource(r.source); });
+    getMenu(p, undefined, kitchenBoost(next), next ? makePantryFit(have) : undefined, userWeights).then((r) => { setPlan(r.plan); setSource(r.source); });
   };
 
   const [mix, setMix] = useState<{ key: string; slot: MealSlot; recipe: MenuRecipe } | null>(null);
   const [mixOptions, setMixOptions] = useState<MixOption[]>([]);
   const [mixLoading, setMixLoading] = useState(false);
 
-  const boostIds = useMemo(() => menuBoostIds(events), [events]);
+  const userWeights = useMemo(() => learnedWeights(events, now), [events, now]); // §8 learned taste
 
   useEffect(() => {
     let alive = true;
-    getMenu(profile, undefined, [...boostIds, ...kitchenBoost(fromKitchen)], fromKitchen ? makePantryFit(have) : undefined).then((r) => {
+    getMenu(profile, undefined, kitchenBoost(fromKitchen), fromKitchen ? makePantryFit(have) : undefined, userWeights).then((r) => {
       if (!alive) return;
       setPlan(r.plan);
       setSource(r.source);
@@ -99,7 +99,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
   const planNextWeek = () => {
     setRegenerating(true);
     track('menu_regenerated');
-    getMenu(profile, `week-${Date.now()}`, [...boostIds, ...kitchenBoost(fromKitchen)], fromKitchen ? makePantryFit(have) : undefined)
+    getMenu(profile, `week-${Date.now()}`, kitchenBoost(fromKitchen), fromKitchen ? makePantryFit(have) : undefined, userWeights)
       .then((r) => {
         setPlan(r.plan);
         setSource(r.source);
@@ -160,7 +160,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
     setMixOptions([]);
     setMixLoading(true);
     track('mixup_opened');
-    getMixup(recipe, slot, profile, { boostIds: [...boostIds, ...kitchenBoost(fromKitchen)], recentlyUsed: planRecipeIds, pantryFit: fromKitchen ? makePantryFit(have) : undefined })
+    getMixup(recipe, slot, profile, { boostIds: kitchenBoost(fromKitchen), recentlyUsed: planRecipeIds, pantryFit: fromKitchen ? makePantryFit(have) : undefined, userWeights })
       .then((alts) => setMixOptions(alts.map((r) => ({ recipe: r, reason: mixReason(r, profile, expiringLabels), missing: nearMissTokens(r) }))))
       .finally(() => setMixLoading(false));
   };
@@ -276,6 +276,9 @@ export function Menu({ profile }: { profile: UserProfile }) {
                   <MixButton onPress={() => openMix(key, cur.recipe, slot)} />
                   <OutlineButton label="Recipe" onPress={() => openRecipe(cur)} />
                 </View>
+                {isLogged ? (
+                  <ThumbsRow thumb={thumbs.get(cur.recipe.id)} onThumb={(d) => thumbRecipe(cur.recipe.id, d)} />
+                ) : null}
               </Card>
             );
           })}
@@ -292,6 +295,32 @@ export function Menu({ profile }: { profile: UserProfile }) {
       />
       <RecipeSheet recipe={sheet} onClose={() => setSheet(null)} />
       {showKitchen ? <Kitchen profile={profile} onClose={() => setShowKitchen(false)} /> : null}
+    </View>
+  );
+}
+
+/** §8 one-tap rating on a logged meal → the learning loop's strongest signal. */
+function ThumbsRow({ thumb, onThumb }: { thumb?: 'up' | 'down'; onThumb: (d: 'up' | 'down') => void }) {
+  const { c } = useTheme();
+  const btn = (dir: 'up' | 'down', glyph: string) => {
+    const on = thumb === dir;
+    const tone = dir === 'up' ? c('success') : c('danger');
+    return (
+      <Pressable
+        onPress={() => onThumb(dir)}
+        accessibilityRole="button"
+        accessibilityLabel={dir === 'up' ? 'I liked this' : 'Not for me'}
+        style={{ width: 34, height: 30, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c('surfaceSunken') : c('chipSurface'), borderWidth: 1, borderColor: on ? tone : 'transparent' }}
+      >
+        <Text style={{ fontSize: 14, color: on ? tone : c('textMuted') }}>{glyph}</Text>
+      </Pressable>
+    );
+  };
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
+      <Text style={{ color: c('textMuted'), fontSize: 12, flex: 1 }}>{thumb ? (thumb === 'up' ? 'Glad you liked it' : "We'll show it less") : 'How was it?'}</Text>
+      {btn('up', '👍')}
+      {btn('down', '👎')}
     </View>
   );
 }

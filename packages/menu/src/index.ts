@@ -22,4 +22,12 @@ export { isAllowed, containsToken, containsAnyToken } from './filter';
 export { softScore, type ScoreContext, type SoftScore } from './scoring';
 export { generateWeekMenu, type GenerateOptions } from './generate';
 export { mixItUp, type MixupOptions } from './mixup';
+export {
+  recipeWeights,
+  WEIGHT_MULTIPLIER,
+  WEIGHT_MIN,
+  WEIGHT_MAX,
+  type WeightSignal,
+  type WeightSignalKind,
+} from './weights';
 export { mulberry32, hashSeed, weightedPick } from './rng';

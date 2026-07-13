@@ -35,6 +35,8 @@ export interface GenerateOptions {
   days?: number;
   /** recipe ids to up-weight — the user's swap/pick history (§4.3.3). */
   boostIds?: string[];
+  /** §8 learned per-user recipe weights (recipeWeights output) → re-rank. */
+  userWeights?: Map<string, number>;
   /** §7 live kitchen match → re-rank toward ready/near-miss + annotate each pick. */
   pantryFit?: PantryFit;
 }
@@ -217,7 +219,7 @@ export function generateWeekMenu(
       const scored = cands.map((r) => {
         const slot = r.slotAffinity.find((s) => open.has(s)) as MealSlot;
         const target = profile.budgetKcal * SLOT_ENVELOPE[slot];
-        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: 0.5, boostIds, pantryFit: opts.pantryFit });
+        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: 0.5, boostIds, userWeights: opts.userWeights, pantryFit: opts.pantryFit });
         return { r, slot, score: s.score, reasons: [`your must-have: ${need}`, ...s.reasons] };
       });
       const pick = weightedPick(scored, scored.map((x) => x.score), rand);
@@ -243,7 +245,7 @@ export function generateWeekMenu(
         }
       }
       const scored = cands.map((r) => {
-        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: deficit, boostIds, pantryFit: opts.pantryFit });
+        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: deficit, boostIds, userWeights: opts.userWeights, pantryFit: opts.pantryFit });
         return { r, score: s.score, reasons: s.reasons };
       });
       const pick = weightedPick(scored, scored.map((x) => x.score), rand);

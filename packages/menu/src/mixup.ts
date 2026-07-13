@@ -13,6 +13,8 @@ export interface MixupOptions {
   recentlyUsed?: string[];
   /** §7 live kitchen match → rank alternatives toward ready/near-miss. */
   pantryFit?: PantryFit;
+  /** §8 learned per-user recipe weights → rank alternatives by taste history. */
+  userWeights?: Map<string, number>;
 }
 
 /**
@@ -53,6 +55,7 @@ export function mixItUp(
         proteinPaceDeficit: 0,
         boostIds,
         pantryFit: opts.pantryFit,
+        userWeights: opts.userWeights,
       }).score,
     }))
     .sort((a, b) => b.score - a.score)

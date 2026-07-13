@@ -9,7 +9,7 @@ import { useToday } from '../useToday';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
 import { getMenu, getMixup, getRecipeDetail, portionLabel, type RecipeIngredientLine } from '../data/repo';
-import { menuBoostIds, mixReason } from '../data/menuPrefs';
+import { learnedWeights, mixReason } from '../data/menuPrefs';
 import { expiringItems, expiringUsedBy } from '../data/expiring';
 import { cookability } from '../data/cookability';
 import { POOL } from '../data/menu-seed';
@@ -47,7 +47,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null>(null);
 
   const likes = tokens ?? [];
-  const boostIds = useMemo(() => menuBoostIds(events), [events]);
+  const userWeights = useMemo(() => learnedWeights(events, now), [events, now]); // §8 learned taste
 
   // §8 gentle waste-saver line — one expiring item paired with a cook-now dinner that fits the budget.
   const wasteLine = useMemo(() => {
@@ -75,7 +75,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   useEffect(() => {
     let alive = true;
     const todayDow = new Date().getDay();
-    getMenu(profileFor(budget ?? 2200, likes), undefined, boostIds).then((r) => {
+    getMenu(profileFor(budget ?? 2200, likes), undefined, undefined, undefined, userWeights).then((r) => {
       if (!alive) return;
       setDay(r.plan.days.find((dd) => dd.dayOfWeek === todayDow) ?? r.plan.days[0] ?? null);
     });
@@ -135,7 +135,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
     setMixLoading(true);
     track('mixup_opened');
     const planRecipeIds = day ? day.picks.map((p) => p.recipe.id) : [];
-    getMixup(recipe, slot, profileFor(budget ?? 2200, likes), { boostIds, recentlyUsed: planRecipeIds })
+    getMixup(recipe, slot, profileFor(budget ?? 2200, likes), { recentlyUsed: planRecipeIds, userWeights })
       .then((alts) => setMixOptions(alts.map((r) => ({ recipe: r, reason: mixReason(r, profileFor(budget ?? 2200, likes)) }))))
       .finally(() => setMixLoading(false));
   };

@@ -1,18 +1,40 @@
 import type { BrainEvent } from '@yumo/brain';
-import type { MenuRecipe, UserProfile } from '@yumo/menu';
+import { recipeWeights, type MenuRecipe, type UserProfile, type WeightSignal } from '@yumo/menu';
 import { tokenMatch } from './kitchen-model';
 
 /**
- * §4.3.3 "swaps persist → re-weight future generation". The recipe ids the user
- * has picked via Mix it up (or swapped to) become up-weight signals fed back
- * into generation + mix-up ranking. Read from the event log (client-authoritative).
+ * §8 turn the event log into per-recipe weight signals: accepting+logging a menu
+ * meal or picking a mix-up up-weights it, swapping away down-weights the one you
+ * left, and 👍/👎 move it hardest. `learnedWeights` folds these (with decay) into
+ * the recipeId→weight map the menu scorer consumes — the client-authoritative
+ * learning loop, generalising the old binary boost-id set.
  */
-export function menuBoostIds(events: BrainEvent[]): string[] {
-  const set = new Set<string>();
+export function signalsFromEvents(events: BrainEvent[]): WeightSignal[] {
+  const out: WeightSignal[] = [];
   for (const e of events) {
-    if ((e.kind === 'mixup_pick' || e.kind === 'menu_swap') && e.foodId) set.add(e.foodId);
+    if (!e.foodId) continue;
+    switch (e.kind) {
+      case 'menu_accept':
+        out.push({ recipeId: e.foodId, kind: 'accept_log', ts: e.ts });
+        break;
+      case 'mixup_pick':
+      case 'menu_swap':
+        out.push({ recipeId: e.foodId, kind: 'mixup_pick', ts: e.ts });
+        if (typeof e.meta?.swapFrom === 'string') out.push({ recipeId: e.meta.swapFrom, kind: 'swap_away', ts: e.ts });
+        break;
+      case 'recipe_thumb_up':
+        out.push({ recipeId: e.foodId, kind: 'thumb_up', ts: e.ts });
+        break;
+      case 'recipe_thumb_down':
+        out.push({ recipeId: e.foodId, kind: 'thumb_down', ts: e.ts });
+        break;
+    }
   }
-  return [...set];
+  return out;
+}
+
+export function learnedWeights(events: BrainEvent[], now: number): Map<string, number> {
+  return recipeWeights(signalsFromEvents(events), now);
 }
 
 /** §4.4 mix-it-up reason chip — why this alternative is offered. Derived from the

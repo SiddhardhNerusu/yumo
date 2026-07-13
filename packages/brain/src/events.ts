@@ -15,6 +15,8 @@ export type EventKind =
   | 'menu_accept'
   | 'menu_swap'
   | 'mixup_pick'
+  | 'recipe_thumb_up'
+  | 'recipe_thumb_down'
   | 'portion_edit'
   | 'delete'
   | 'skip_meal'
@@ -41,9 +43,10 @@ export interface BrainEvent {
 
 /**
  * Kinds that represent a food actually being logged/eaten (they hit the ring).
- * NOTE: `mixup_pick` and `menu_swap` are deliberately NOT here — they edit the
- * plan and are preference signals for future menu generation (§4.3.3), not food
- * consumed. `menu_accept` IS here: accepting a planned meal logs it (§4.3.4).
+ * NOTE: `mixup_pick`, `menu_swap` and `recipe_thumb_up|down` are deliberately NOT
+ * here — they edit the plan or rate a recipe and are preference signals for future
+ * generation (§4.3.3 / §8), not food consumed. `menu_accept` IS here: accepting a
+ * planned meal logs it (§4.3.4).
  */
 export const LOG_KINDS: ReadonlySet<EventKind> = new Set<EventKind>([
   'log',

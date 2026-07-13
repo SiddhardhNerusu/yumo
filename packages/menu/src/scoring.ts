@@ -11,6 +11,8 @@ export interface ScoreContext {
   proteinPaceDeficit: number;
   /** recipe ids the user has swapped/picked before → up-weight (§4.3.3). */
   boostIds?: Set<string>;
+  /** §8 learned per-user recipe weights (1.0 = neutral); >1 up-weights, <1 down. */
+  userWeights?: Map<string, number>;
   /** §7 live kitchen match → re-rank toward ready/near-miss recipes. */
   pantryFit?: PantryFit;
 }
@@ -58,6 +60,14 @@ export function softScore(
   if (ctx.boostIds?.has(recipe.id)) {
     score += SOFT_WEIGHTS.preference;
     reasons.push('you picked this before');
+  }
+
+  // §8 continuous learned weight (thumbs / accepts / swap-aways, decayed): >1 lifts, <1 damps.
+  const w = ctx.userWeights?.get(recipe.id);
+  if (w != null && Math.abs(w - 1) > 1e-6) {
+    score = Math.max(0, score + SOFT_WEIGHTS.preference * (w - 1));
+    if (w > 1.15) reasons.push('you like this');
+    else if (w < 0.85) reasons.push('not your thing');
   }
 
   // §7 pantry_fit: prefer what the kitchen can already make (re-rank, never filter)

@@ -94,12 +94,13 @@ export async function getMenu(
   seed?: string,
   boostIds?: string[],
   pantryFit?: PantryFit,
+  userWeights?: Map<string, number>,
 ): Promise<{ plan: WeekMenuPlan; source: Source }> {
   try {
     const { plan } = await api.generateMenu(seed, boostIds);
     return { plan, source: 'server' };
   } catch {
-    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7, boostIds, pantryFit }), source: 'local' };
+    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7, boostIds, pantryFit, userWeights }), source: 'local' };
   }
 }
 
@@ -107,7 +108,7 @@ export async function getMixup(
   recipe: MenuRecipe,
   slot: MealSlot,
   profile: UserProfile,
-  opts: { boostIds?: string[]; recentlyUsed?: string[]; pantryFit?: PantryFit } = {},
+  opts: { boostIds?: string[]; recentlyUsed?: string[]; pantryFit?: PantryFit; userWeights?: Map<string, number> } = {},
 ): Promise<MenuRecipe[]> {
   try {
     const { alternatives } = await api.mixup(recipe.id, slot, opts.boostIds);
