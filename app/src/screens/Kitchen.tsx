@@ -21,6 +21,7 @@ import { ShoppingListSheet } from '../components/kitchen/ShoppingListSheet';
 import { Serif, Kicker, TextLink, OutlineButton, ACCENT_BORDER } from '../components/kit';
 import { freshnessOf, ZONE_LABEL, type KitchenItem, type Zone, type Freshness } from '../data/kitchen-model';
 import { track } from '../analytics';
+import { haptics } from '../haptics';
 
 // §3.6 receipt choreography — what flies onto the shelves when you scan (with prices for §8 money).
 const RECEIPT_ITEMS: Array<{ token: string; label: string; zone: Zone; price: number }> = [
@@ -107,13 +108,15 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
     setScanned(true);
     track('receipt_scanned', { lines: RECEIPT_ITEMS.length, matched: RECEIPT_ITEMS.length });
     RECEIPT_ITEMS.forEach((it) => track('item_added', { source: 'receipt', zone: it.zone }));
+    haptics.impact(); // doors swing open
     setOpenZones(new Set<Zone>(['fridge', 'cupboard']));
-    setTimeout(() => kitchen.restock(RECEIPT_ITEMS), 750);
+    setTimeout(() => { haptics.impact(); kitchen.restock(RECEIPT_ITEMS); }, 750); // items land
     setTimeout(() => setOpenZones(new Set()), 2900);
   };
   // §3.7 toss: sheet closes now, tile plays tossOut, item removed ~500ms later.
   const toss = (id: string) => {
     setSelected(null);
+    haptics.impact();
     setTossingIds((s) => new Set(s).add(id));
     track('item_wasted', {});
     setTimeout(() => {

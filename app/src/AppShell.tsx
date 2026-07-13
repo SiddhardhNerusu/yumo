@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProfile } from '@yumo/menu';
 import { useTheme } from './theme';
 import { HAIRLINE_TOP } from './components/kit';
+import { haptics } from './haptics';
 import { useEntitlement } from './data/entitlement';
 import { Today } from './screens/Today';
 import { Menu } from './screens/Menu';
@@ -90,7 +91,7 @@ export function AppShell({
           const active = tab === t;
           const col = active ? c('accent') : c('textMuted');
           return (
-            <Pressable key={t} onPress={() => setTab(t)} style={({ pressed }) => ({ flex: 1, alignItems: 'center', paddingVertical: 6, gap: 4, transform: [{ scale: pressed ? 0.92 : 1 }] })}>
+            <Pressable key={t} onPress={() => { if (tab !== t) haptics.select(); setTab(t); }} style={({ pressed }) => ({ flex: 1, alignItems: 'center', paddingVertical: 6, gap: 4, transform: [{ scale: pressed ? 0.92 : 1 }] })}>
               <TabIcon name={t} color={col} />
               <Text style={{ color: col, fontSize: 11, fontWeight: active ? '700' : '600' }}>{cap(t)}</Text>
             </Pressable>

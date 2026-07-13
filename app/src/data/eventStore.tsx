@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { haptics } from '../haptics';
 import { inferSlot, type BrainEvent, type EventKind } from '@yumo/brain';
 import type { MealSlot } from '@yumo/shared';
 import { FOODS, buildSeedHistory } from './seed';
@@ -121,6 +122,7 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
         return next;
       });
       api.syncEvents(JSON.stringify(ev), 1).catch(() => {}); // fire-and-forget; offline-safe
+      haptics.success(); // the satisfying "logged" beat
       track('log_completed', { source, slot: ev.slot ?? '', taps: opts.taps ?? 1, ...(opts.tookMs != null ? { ms: Math.round(opts.tookMs) } : {}) });
       if (ev.kind === 'nudge_accept') track('nudge_accepted', { foodId });
     },

@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Modal, View, Text, Pressable, Animated, Easing, type ViewStyle, type TextStyle, type StyleProp } from 'react-native';
 import { useTheme, fonts } from '../theme';
+import { haptics } from '../haptics';
 
 /** Precomputed alpha borders (RN has no color-mix). Dark-first. */
 export const ACCENT_BORDER = 'rgba(255,106,61,0.55)';
@@ -16,7 +17,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
  * The difference between an instant style-swap and this is most of "premium touch". */
 function usePress(to = 0.96) {
   const s = useRef(new Animated.Value(1)).current;
-  const onPressIn = () => Animated.spring(s, { toValue: to, useNativeDriver: true, speed: 50, bounciness: 0 }).start();
+  const onPressIn = () => { haptics.tap(); Animated.spring(s, { toValue: to, useNativeDriver: true, speed: 50, bounciness: 0 }).start(); };
   const onPressOut = () => Animated.spring(s, { toValue: 1, useNativeDriver: true, speed: 38, bounciness: 7 }).start();
   return { scale: s, onPressIn, onPressOut };
 }
