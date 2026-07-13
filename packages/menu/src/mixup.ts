@@ -1,5 +1,5 @@
 import type { MealSlot } from '@yumo/shared';
-import type { MenuRecipe, UserProfile, Effort } from './types';
+import type { MenuRecipe, UserProfile, Effort, PantryFit } from './types';
 import { isAllowed } from './filter';
 import { softScore } from './scoring';
 import { MIXUP } from './config';
@@ -11,6 +11,8 @@ export interface MixupOptions {
   boostIds?: string[];
   /** recipe ids already on this week's plan → novelty penalty per variation dial. */
   recentlyUsed?: string[];
+  /** §7 live kitchen match → rank alternatives toward ready/near-miss. */
+  pantryFit?: PantryFit;
 }
 
 /**
@@ -50,6 +52,7 @@ export function mixItUp(
         recentlyUsed,
         proteinPaceDeficit: 0,
         boostIds,
+        pantryFit: opts.pantryFit,
       }).score,
     }))
     .sort((a, b) => b.score - a.score)

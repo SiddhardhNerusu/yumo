@@ -5,8 +5,10 @@ import {
   type UserProfile,
   type WeekMenuPlan,
   type MenuRecipe,
+  type PantryFit,
 } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
+import { cookability } from './cookability';
 import { POOL, POOL_STEPS, POOL_INGREDIENTS, POOL_INGREDIENTS_MAP, POOL_METHODS_MAP } from './menu-seed';
 import { BUBBLE_FOODS, CUISINES } from './onboarding-seed';
 import { FOODS } from './seed';
@@ -76,16 +78,28 @@ export async function getCuisines(): Promise<string[]> {
   }
 }
 
+/** §7 build a live-kitchen matcher from stock tokens (reuses cookability's staple/
+ * token matching — the engine never re-implements it). Undefined when stock is empty. */
+export function makePantryFit(haveTokens: Set<string>): PantryFit | undefined {
+  if (!haveTokens.size) return undefined;
+  return (recipe) => {
+    const cook = cookability(recipe, haveTokens);
+    const state = cook.tier === 'now' ? 'ready' : cook.tier === 'oneShort' ? 'near_miss' : 'shop';
+    return { state, missing: cook.missing };
+  };
+}
+
 export async function getMenu(
   profile: UserProfile,
   seed?: string,
   boostIds?: string[],
+  pantryFit?: PantryFit,
 ): Promise<{ plan: WeekMenuPlan; source: Source }> {
   try {
     const { plan } = await api.generateMenu(seed, boostIds);
     return { plan, source: 'server' };
   } catch {
-    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7, boostIds }), source: 'local' };
+    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7, boostIds, pantryFit }), source: 'local' };
   }
 }
 
@@ -93,7 +107,7 @@ export async function getMixup(
   recipe: MenuRecipe,
   slot: MealSlot,
   profile: UserProfile,
-  opts: { boostIds?: string[]; recentlyUsed?: string[] } = {},
+  opts: { boostIds?: string[]; recentlyUsed?: string[]; pantryFit?: PantryFit } = {},
 ): Promise<MenuRecipe[]> {
   try {
     const { alternatives } = await api.mixup(recipe.id, slot, opts.boostIds);

@@ -6,6 +6,8 @@ export type {
   MenuSlotPick,
   MenuDay,
   WeekMenuPlan,
+  PantryState,
+  PantryFit,
 } from './types';
 
 export {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateWeekMenu } from '../src/generate';
+import { generateWeekMenu, resolveProteinTargetG } from '../src/generate';
 import { containsAnyToken } from '../src/filter';
 import { CLEAN_PORTION_STEPS, SNACK_SCALE_RANGE } from '../src/config';
 import type { MenuRecipe, UserProfile, VariationDial } from '../src/types';
@@ -95,7 +95,7 @@ describe('§11.2 plan-quality regression net (500 users)', () => {
     for (const day of plan.days) {
       dayCount++;
       if (Math.abs(day.totalKcal - user.budgetKcal) / user.budgetKcal <= 0.05) kcalHit++;
-      if (day.totalProtein_g >= user.proteinTargetG * 0.9) proteinHit++;
+      if (day.totalProtein_g >= resolveProteinTargetG(user) * 0.9) proteinHit++;
       for (const pick of day.picks) {
         if (pick.recipe.allergens.some((a) => user.allergies.includes(a))) allergyViolations++;
         if (containsAnyToken(pick.recipe, user.hates)) hateViolations++;

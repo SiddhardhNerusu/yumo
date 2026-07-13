@@ -1,6 +1,6 @@
 import type { MealSlot } from '@yumo/shared';
 import { SLOT_ENVELOPE, MEAL_SLOTS } from '@yumo/shared';
-import type { MenuRecipe, UserProfile, WeekMenuPlan, MenuDay, MenuSlotPick } from './types';
+import type { MenuRecipe, UserProfile, WeekMenuPlan, MenuDay, MenuSlotPick, PantryFit } from './types';
 import { isAllowed, containsToken } from './filter';
 import { softScore } from './scoring';
 import { mulberry32, hashSeed, weightedPick } from './rng';
@@ -17,8 +17,8 @@ import {
 const SLOTS = MEAL_SLOTS;
 const EFFORT_MIN = PORTION_SCALE_RANGE[0];
 const EFFORT_MAX = PORTION_SCALE_RANGE[1];
-const CLEAN_MIN = CLEAN_PORTION_STEPS[0];
-const CLEAN_MAX = CLEAN_PORTION_STEPS[CLEAN_PORTION_STEPS.length - 1];
+const CLEAN_MIN = CLEAN_PORTION_STEPS[0]!;
+const CLEAN_MAX = CLEAN_PORTION_STEPS[CLEAN_PORTION_STEPS.length - 1]!;
 
 function clamp(x: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, x));
@@ -35,6 +35,8 @@ export interface GenerateOptions {
   days?: number;
   /** recipe ids to up-weight — the user's swap/pick history (§4.3.3). */
   boostIds?: string[];
+  /** §7 live kitchen match → re-rank toward ready/near-miss + annotate each pick. */
+  pantryFit?: PantryFit;
 }
 
 function applyScale(p: MenuSlotPick, scale: number): void {
@@ -129,7 +131,7 @@ function quantizePortions(picks: MenuSlotPick[], budgetKcal: number, proteinTarg
       const idx = CLEAN_PORTION_STEPS.indexOf(p.portionScale);
       const j = over ? idx - 1 : idx + 1;
       if (idx < 0 || j < 0 || j >= CLEAN_PORTION_STEPS.length) continue;
-      const step = CLEAN_PORTION_STEPS[j];
+      const step = CLEAN_PORTION_STEPS[j]!;
       const gap = Math.abs(err + p.recipe.perServing.kcal * (step - p.portionScale));
       if (gap < bestGap) { bestGap = gap; best = { p, step }; }
     }
@@ -150,7 +152,7 @@ function quantizePortions(picks: MenuSlotPick[], budgetKcal: number, proteinTarg
     if (protein >= proteinTargetG) break;
     const idx = CLEAN_PORTION_STEPS.indexOf(p.portionScale);
     if (idx < 0 || idx >= CLEAN_PORTION_STEPS.length - 1) continue;
-    const next = CLEAN_PORTION_STEPS[idx + 1];
+    const next = CLEAN_PORTION_STEPS[idx + 1]!;
     const othersKcal = picks.reduce((s, q) => s + (q === p ? 0 : q.kcal), 0);
     if (othersKcal + p.recipe.perServing.kcal * next > kcalCap) continue;
     applyScale(p, next);
@@ -215,7 +217,7 @@ export function generateWeekMenu(
       const scored = cands.map((r) => {
         const slot = r.slotAffinity.find((s) => open.has(s)) as MealSlot;
         const target = profile.budgetKcal * SLOT_ENVELOPE[slot];
-        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: 0.5, boostIds });
+        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: 0.5, boostIds, pantryFit: opts.pantryFit });
         return { r, slot, score: s.score, reasons: [`your must-have: ${need}`, ...s.reasons] };
       });
       const pick = weightedPick(scored, scored.map((x) => x.score), rand);
@@ -241,7 +243,7 @@ export function generateWeekMenu(
         }
       }
       const scored = cands.map((r) => {
-        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: deficit, boostIds });
+        const s = softScore(r, slot, profile, { slotTargetKcal: target, recentlyUsed, proteinPaceDeficit: deficit, boostIds, pantryFit: opts.pantryFit });
         return { r, score: s.score, reasons: s.reasons };
       });
       const pick = weightedPick(scored, scored.map((x) => x.score), rand);
@@ -251,6 +253,13 @@ export function generateWeekMenu(
     const finalPicks = picks.filter((p): p is MenuSlotPick => p !== null);
     repairDay(finalPicks, profile.budgetKcal, proteinTarget);
     quantizePortions(finalPicks, profile.budgetKcal, proteinTarget); // §5.4 clean portions
+    if (opts.pantryFit) {
+      for (const p of finalPicks) {
+        const { state, missing } = opts.pantryFit(p.recipe); // §7 first-class near-miss
+        p.pantryState = state;
+        p.missing = missing;
+      }
+    }
 
     const totalKcal = finalPicks.reduce((s, p) => s + p.kcal, 0);
     const totalProtein = finalPicks.reduce((s, p) => s + p.protein_g, 0);

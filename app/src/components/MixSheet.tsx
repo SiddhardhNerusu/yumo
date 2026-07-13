@@ -6,6 +6,8 @@ import { Sheet, Serif, OutlineButton } from './kit';
 export interface MixOption {
   recipe: MenuRecipe;
   reason: string;
+  /** §7 tokens you're ≤2 short of, when the alternative is a near-miss. */
+  missing?: string[];
 }
 
 /** §4.4 Mix it up — the swap moment. Isocaloric alternatives with a reason chip
@@ -40,7 +42,7 @@ export function MixSheet({
         <Text style={{ color: c('textMuted'), fontSize: 14, paddingVertical: 20 }}>No close alternative right now.</Text>
       ) : (
         <View style={{ gap: 10 }}>
-          {options.map(({ recipe, reason }) => {
+          {options.map(({ recipe, reason, missing }) => {
             const p = Math.round(recipe.perServing.protein_g);
             const cb = Math.round(recipe.perServing.carbs_g ?? 0);
             const f = Math.round(recipe.perServing.fat_g ?? 0);
@@ -68,6 +70,11 @@ export function MixSheet({
                   </View>
                   <Text style={{ color: c('textMuted'), fontSize: 12, fontVariant: ['tabular-nums'] }}>{p}P · {cb}C · {f}F</Text>
                 </View>
+                {missing?.length ? (
+                  <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 8 }}>
+                    Just need: {missing.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')}
+                  </Text>
+                ) : null}
               </Pressable>
             );
           })}

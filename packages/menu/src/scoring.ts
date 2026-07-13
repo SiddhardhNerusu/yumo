@@ -1,7 +1,7 @@
 import type { MealSlot } from '@yumo/shared';
-import type { MenuRecipe, UserProfile } from './types';
+import type { MenuRecipe, UserProfile, PantryFit } from './types';
 import { containsToken } from './filter';
-import { SOFT_WEIGHTS, NOVELTY_WEIGHT } from './config';
+import { SOFT_WEIGHTS, NOVELTY_WEIGHT, PANTRY_FIT_SCORE } from './config';
 
 export interface ScoreContext {
   slotTargetKcal: number;
@@ -11,6 +11,15 @@ export interface ScoreContext {
   proteinPaceDeficit: number;
   /** recipe ids the user has swapped/picked before → up-weight (§4.3.3). */
   boostIds?: Set<string>;
+  /** §7 live kitchen match → re-rank toward ready/near-miss recipes. */
+  pantryFit?: PantryFit;
+}
+
+/** §5.7 pantry_fit weight by state + missing count (ready 1 · near1 0.6 · near2 0.35 · shop 0). */
+export function pantryFitValue(state: 'ready' | 'near_miss' | 'shop', missingCount: number): number {
+  if (state === 'ready') return PANTRY_FIT_SCORE.ready;
+  if (state === 'shop') return PANTRY_FIT_SCORE.shop;
+  return missingCount <= 1 ? PANTRY_FIT_SCORE.near1 : PANTRY_FIT_SCORE.near2;
 }
 
 export interface SoftScore {
@@ -49,6 +58,14 @@ export function softScore(
   if (ctx.boostIds?.has(recipe.id)) {
     score += SOFT_WEIGHTS.preference;
     reasons.push('you picked this before');
+  }
+
+  // §7 pantry_fit: prefer what the kitchen can already make (re-rank, never filter)
+  if (ctx.pantryFit) {
+    const { state, missing } = ctx.pantryFit(recipe);
+    score += SOFT_WEIGHTS.pantryFit * pantryFitValue(state, missing.length);
+    if (state === 'ready') reasons.push('all in your kitchen');
+    else if (state === 'near_miss') reasons.push(`just need ${missing.slice(0, 2).join(', ')}`);
   }
 
   // closeness of natural serving to the slot target → less portion stretching

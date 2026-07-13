@@ -4,11 +4,11 @@ import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
 import { logEvents, localParts } from '@yumo/brain';
 import { useTheme } from '../theme';
-import { getMenu, getMixup, getRecipeDetail, portionLabel, type Source, type RecipeIngredientLine } from '../data/repo';
+import { getMenu, getMixup, getRecipeDetail, portionLabel, makePantryFit, type Source, type RecipeIngredientLine } from '../data/repo';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
 import { menuBoostIds, mixReason } from '../data/menuPrefs';
-import { cookability, type CookTier } from '../data/cookability';
+import { cookability, type Cookability } from '../data/cookability';
 import { expiringItems, recipesUsingExpiring } from '../data/expiring';
 import { POOL } from '../data/menu-seed';
 import { RecipeSheet } from '../components/RecipeSheet';
@@ -29,6 +29,12 @@ export function Menu({ profile }: { profile: UserProfile }) {
   const { events, logFood, recordMixupPick } = useEventStore();
   const kitchen = useKitchen();
   const have = useMemo(() => kitchen.availableTokens(), [kitchen.items]); // eslint-disable-line react-hooks/exhaustive-deps
+  // §7 tokens you're ≤2 short of (near-miss), for the "Just need: X" copy on mix options.
+  const nearMissTokens = (r: MenuRecipe): string[] | undefined => {
+    if (!have.size) return undefined;
+    const cook = cookability(r, have);
+    return cook.tier === 'oneShort' ? cook.missing.slice(0, 2) : undefined;
+  };
   // §8/§9 boost recipes that use expiring items (waste-saver); empty mode also boosts all cook-now.
   const expiring = useMemo(() => expiringItems(kitchen.items, Date.now()), [kitchen.items]);
   const expiringLabels = useMemo(() => expiring.map((i) => i.label), [expiring]);
@@ -65,7 +71,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
     const next = !fromKitchen;
     setFromKitchen(next);
     const p = next ? { ...profile, pantry: [...have] } : profile;
-    getMenu(p, undefined, [...boostIds, ...kitchenBoost(next)]).then((r) => { setPlan(r.plan); setSource(r.source); });
+    getMenu(p, undefined, [...boostIds, ...kitchenBoost(next)], next ? makePantryFit(have) : undefined).then((r) => { setPlan(r.plan); setSource(r.source); });
   };
 
   const [mix, setMix] = useState<{ key: string; slot: MealSlot; recipe: MenuRecipe } | null>(null);
@@ -76,7 +82,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
 
   useEffect(() => {
     let alive = true;
-    getMenu(profile, undefined, [...boostIds, ...kitchenBoost(fromKitchen)]).then((r) => {
+    getMenu(profile, undefined, [...boostIds, ...kitchenBoost(fromKitchen)], fromKitchen ? makePantryFit(have) : undefined).then((r) => {
       if (!alive) return;
       setPlan(r.plan);
       setSource(r.source);
@@ -93,7 +99,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
   const planNextWeek = () => {
     setRegenerating(true);
     track('menu_regenerated');
-    getMenu(profile, `week-${Date.now()}`, [...boostIds, ...kitchenBoost(fromKitchen)])
+    getMenu(profile, `week-${Date.now()}`, [...boostIds, ...kitchenBoost(fromKitchen)], fromKitchen ? makePantryFit(have) : undefined)
       .then((r) => {
         setPlan(r.plan);
         setSource(r.source);
@@ -154,8 +160,8 @@ export function Menu({ profile }: { profile: UserProfile }) {
     setMixOptions([]);
     setMixLoading(true);
     track('mixup_opened');
-    getMixup(recipe, slot, profile, { boostIds: [...boostIds, ...kitchenBoost(fromKitchen)], recentlyUsed: planRecipeIds })
-      .then((alts) => setMixOptions(alts.map((r) => ({ recipe: r, reason: mixReason(r, profile, expiringLabels) }))))
+    getMixup(recipe, slot, profile, { boostIds: [...boostIds, ...kitchenBoost(fromKitchen)], recentlyUsed: planRecipeIds, pantryFit: fromKitchen ? makePantryFit(have) : undefined })
+      .then((alts) => setMixOptions(alts.map((r) => ({ recipe: r, reason: mixReason(r, profile, expiringLabels), missing: nearMissTokens(r) }))))
       .finally(() => setMixLoading(false));
   };
   const pickMix = (alt: MenuRecipe) => {
@@ -233,15 +239,12 @@ export function Menu({ profile }: { profile: UserProfile }) {
             if (!cur) return null;
             const key = `${dayIdx}:${slot}`;
             const isLogged = isLoggedNow(slot, cur.recipe.id);
-            const cook = fromKitchen ? cookability(cur.recipe, have) : null;
+            const cook = have.size ? cookability(cur.recipe, have) : null; // §7 near-miss is first-class
             const macros: Array<[string, number]> = [['protein', cur.protein], ['carbs', cur.carbs], ['fat', cur.fat]];
             return (
               <Card key={slot} logged={isLogged}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>{cap(slot)}</Text>
-                    {cook ? <TierBadge tier={cook.tier} missing={cook.missing} /> : null}
-                  </View>
+                  <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>{cap(slot)}</Text>
                   <Text style={{ color: c('textMuted'), fontSize: 12 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6 }}>
@@ -259,6 +262,8 @@ export function Menu({ profile }: { profile: UserProfile }) {
                     </Text>
                   ))}
                 </View>
+
+                <PantryLine cook={cook} showReady={fromKitchen} />
 
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, alignItems: 'center' }}>
                   {isLogged ? (
@@ -291,16 +296,19 @@ export function Menu({ profile }: { profile: UserProfile }) {
   );
 }
 
-function TierBadge({ tier, missing }: { tier: CookTier; missing: string[] }) {
+/** §7 near-miss as a first-class line: "Just need: chicken, 1 red pepper" when
+ * you're ≤2 items short, "All in your kitchen" when ready (kitchen mode only). */
+function PantryLine({ cook, showReady }: { cook: Cookability | null; showReady: boolean }) {
   const { c } = useTheme();
-  const map = {
-    now: { bg: c('successFaint'), fg: c('success'), label: '✓ all in' },
-    oneShort: { bg: c('accentFaint'), fg: c('accentSoft'), label: `grab ${missing.slice(0, 1).join('')}` },
-    shop: { bg: c('chipSurface'), fg: c('textMuted'), label: `${missing.length} to buy` },
-  }[tier];
-  return (
-    <View style={{ backgroundColor: map.bg, borderRadius: 999, paddingVertical: 2, paddingHorizontal: 8 }}>
-      <Text style={{ color: map.fg, fontSize: 10, fontWeight: '700' }}>{map.label}</Text>
-    </View>
-  );
+  if (!cook) return null;
+  if (cook.tier === 'oneShort') {
+    const need = cook.missing.slice(0, 2).map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ');
+    return (
+      <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '600', marginTop: 8 }}>Just need: {need}</Text>
+    );
+  }
+  if (cook.tier === 'now' && showReady) {
+    return <Text style={{ color: c('success'), fontSize: 13, fontWeight: '600', marginTop: 8 }}>✓ All in your kitchen</Text>;
+  }
+  return null;
 }

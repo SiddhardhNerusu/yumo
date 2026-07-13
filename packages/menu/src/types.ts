@@ -39,6 +39,13 @@ export interface UserProfile {
   cuisineLean?: Record<string, number>;
 }
 
+/** §7 how much of a pick you can make from what's in the kitchen right now. */
+export type PantryState = 'ready' | 'near_miss' | 'shop';
+
+/** §7 pantry match for a recipe against live kitchen stock. Injected by the app
+ * (which owns the token/staple matching) so the pure engine never re-implements it. */
+export type PantryFit = (recipe: MenuRecipe) => { state: PantryState; missing: string[] };
+
 export interface MenuSlotPick {
   slot: MealSlot;
   recipe: MenuRecipe;
@@ -48,6 +55,9 @@ export interface MenuSlotPick {
   protein_g: number; // scaled
   /** why it was chosen — interpretable. */
   reasons: string[];
+  /** §7 near-miss state vs the kitchen + the tokens you're missing (staples excluded). */
+  pantryState?: PantryState;
+  missing?: string[];
 }
 
 export interface MenuDay {

@@ -52,7 +52,12 @@ export const SOFT_WEIGHTS = {
   closeness: 0.7, // how near the recipe's natural kcal is to the slot target
   protein: 0.25,
   preference: 0.6, // §4.3.3 re-weight toward recipes the user swapped/picked before
+  pantryFit: 1.0, // §5.7 strong re-rank toward what the kitchen can already make
 };
+
+/** §5.7/§7 pantry_fit contribution by state — ready is fully cookable, near-miss
+ * degrades with each missing item, shop adds nothing. Re-rank only, never filter. */
+export const PANTRY_FIT_SCORE = { ready: 1.0, near1: 0.6, near2: 0.35, shop: 0 } as const;
 
 /** §4.4 Mix it up. */
 export const MIXUP = {
