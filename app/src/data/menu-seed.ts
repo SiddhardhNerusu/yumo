@@ -10,6 +10,9 @@ import { GENERATED_POOL } from './catalogue.generated';
  */
 export interface MenuSeedRecipe extends MenuRecipe {
   steps: string[];
+  /** exact ingredient quantities for the recipe sheet (§4.2). Present on the
+   * generated catalogue; hand-authored seeds use POOL_INGREDIENTS instead. */
+  ingredients?: { name: string; qty_g: number }[];
 }
 
 function r(
@@ -75,6 +78,11 @@ export const POOL: MenuSeedRecipe[] = [
 ];
 
 export const POOL_STEPS: Map<string, string[]> = new Map(POOL.map((x) => [x.id, x.steps]));
+
+/** id → structured ingredient quantities (the generated catalogue carries these). */
+export const POOL_INGREDIENTS_MAP: Map<string, { name: string; qty_g: number }[]> = new Map(
+  POOL.filter((x) => x.ingredients && x.ingredients.length).map((x) => [x.id, x.ingredients!]),
+);
 
 /**
  * Precise ingredient quantities (§4.2 "exact quantities in g/ml + household

@@ -7,7 +7,7 @@ import {
   type MenuRecipe,
 } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
-import { POOL, POOL_STEPS, POOL_INGREDIENTS } from './menu-seed';
+import { POOL, POOL_STEPS, POOL_INGREDIENTS, POOL_INGREDIENTS_MAP } from './menu-seed';
 import { BUBBLE_FOODS, CUISINES } from './onboarding-seed';
 import { FOODS } from './seed';
 import { setCoachPack } from '../coach/pack';
@@ -125,7 +125,11 @@ export async function getRecipeDetail(recipe: MenuRecipe): Promise<RecipeDetail>
     const ingredients = (r.ingredients ?? []).map((i) => ({ name: titleCase(i.name), qty: i.qty_g > 0 ? `${i.qty_g}g` : '' }));
     return { steps: r.steps ?? [], ingredients };
   } catch {
-    return { steps: POOL_STEPS.get(recipe.id) ?? [], ingredients: (POOL_INGREDIENTS.get(recipe.id) ?? []).map(splitIngredient) };
+    const structured = POOL_INGREDIENTS_MAP.get(recipe.id);
+    const ingredients = structured
+      ? structured.map((i) => ({ name: titleCase(i.name), qty: i.qty_g > 0 ? `${i.qty_g}g` : '' }))
+      : (POOL_INGREDIENTS.get(recipe.id) ?? []).map(splitIngredient);
+    return { steps: POOL_STEPS.get(recipe.id) ?? [], ingredients };
   }
 }
 
