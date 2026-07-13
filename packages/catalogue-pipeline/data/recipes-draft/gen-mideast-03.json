@@ -1,0 +1,48 @@
+{
+  "id": "gen-mideast-03",
+  "name": "Red lentil soup",
+  "cuisine": "Middle-Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "one-pot",
+    "budget"
+  ],
+  "steps": [
+    "Soften the chopped onion and carrot in the olive oil, ~5 min.",
+    "Stir in the cumin and tinned tomatoes for a minute.",
+    "Add the lentils and a mug of water, then simmer 15 min.",
+    "Blend smooth if you like, season and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "cumin",
+      "qty_g": 2
+    }
+  ]
+}

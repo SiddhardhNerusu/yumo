@@ -1,0 +1,47 @@
+{
+  "id": "gen-mexican-04",
+  "name": "Beef chilli con carne",
+  "cuisine": "Tex-Mex",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pot",
+    "high-protein"
+  ],
+  "steps": [
+    "Brown the minced beef in a pan with the chopped onion.",
+    "Stir in cumin, paprika and chilli powder and cook 1 minute.",
+    "Add the tinned tomatoes and kidney beans and simmer 20 minutes.",
+    "Serve over warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef",
+      "qty_g": 150
+    },
+    {
+      "name": "kidney beans, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "gen-japkor-05",
+  "name": "Crispy tofu rice bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein",
+    "plant-based"
+  ],
+  "steps": [
+    "Press the tofu, cube it and pan-fry in a little sesame oil until golden on all sides.",
+    "Add soy sauce and toss so the tofu glazes.",
+    "Warm the rice and pile it in a bowl.",
+    "Top with the tofu, edamame and a sprinkle of sesame seeds."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 160
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "edamame",
+      "qty_g": 70
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 8
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "sesame seeds",
+      "qty_g": 5
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "gen-thai-04",
+  "name": "Chicken pho bowl",
+  "cuisine": "Vietnamese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "soup",
+    "one-pot",
+    "high-protein"
+  ],
+  "steps": [
+    "Simmer the ginger and onion in a pot of water for 15 minutes to make a quick broth.",
+    "Season the broth with the fish sauce.",
+    "Add the rice noodles and cook until soft, about 3 minutes.",
+    "Ladle into a bowl over the sliced chicken.",
+    "Top with bean sprouts and cilantro."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "rice noodles, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "bean sprouts",
+      "qty_g": 40
+    },
+    {
+      "name": "onion",
+      "qty_g": 20
+    },
+    {
+      "name": "ginger",
+      "qty_g": 5
+    },
+    {
+      "name": "cilantro",
+      "qty_g": 5
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 8
+    }
+  ]
+}

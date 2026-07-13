@@ -1,0 +1,47 @@
+{
+  "id": "gen-mexican-01",
+  "name": "Chicken fajita burrito bowl",
+  "cuisine": "Tex-Mex",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the chicken breast into strips and season with salt, cumin and paprika.",
+    "Fry the chicken in hot oil 5 minutes, add sliced peppers and onion, cook 5 more.",
+    "Warm the rice and pile into a bowl.",
+    "Top with the chicken, peppers and black beans and squeeze lime over."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

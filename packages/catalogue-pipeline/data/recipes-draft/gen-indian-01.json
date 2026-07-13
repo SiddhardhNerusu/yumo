@@ -1,0 +1,44 @@
+{
+  "id": "gen-indian-01",
+  "name": "Chicken tikka bowl",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grilled"
+  ],
+  "steps": [
+    "Mix greek yogurt with garlic, ginger, garam masala, cumin and chilli powder.",
+    "Coat the diced chicken breast and let it sit 15 minutes.",
+    "Grill or pan-sear the chicken until charred and cooked through, about 12 minutes.",
+    "Warm the rice, pile in a bowl and add the chicken.",
+    "Squeeze lemon over and scatter fresh coriander."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 8
+    }
+  ]
+}

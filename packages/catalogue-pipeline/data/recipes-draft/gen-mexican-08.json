@@ -1,0 +1,46 @@
+{
+  "id": "gen-mexican-08",
+  "name": "Breakfast egg and bean scramble",
+  "cuisine": "Tex-Mex",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Whisk the eggs with a pinch of salt.",
+    "Soften a little onion in oil, then pour in the eggs and scramble.",
+    "Stir the black beans and sweetcorn through until warmed.",
+    "Top with cheddar and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 40
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 25
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "gen-carib-03",
+  "name": "Curry chicken with rice",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Toss the chicken thigh with curry powder and brown it in oil.",
+    "Add the onion, potato and a splash of water, then simmer until the potato is soft.",
+    "Warm the rice and spoon the curry chicken over it."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "potato",
+      "qty_g": 100
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

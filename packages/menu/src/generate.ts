@@ -6,6 +6,7 @@ import { softScore } from './scoring';
 import { mulberry32, hashSeed, weightedPick } from './rng';
 import {
   PROTEIN_FLOOR_PER_KG,
+  PROTEIN_SLOT_SPLIT,
   DAY_BUDGET_TOLERANCE,
   MAX_HARD_DINNERS_PER_WEEK,
   PORTION_SCALE_RANGE,
@@ -19,6 +20,11 @@ function clamp(x: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, x));
 }
 
+/** §5.1 the day's protein goal: explicit target, else the 1.6 g/kg floor. */
+export function resolveProteinTargetG(profile: UserProfile): number {
+  return profile.proteinTargetG ?? Math.round(PROTEIN_FLOOR_PER_KG * profile.targetWeightKg);
+}
+
 export interface GenerateOptions {
   /** stable seed → identical menu (per-user + week). */
   seed?: string;
@@ -27,30 +33,50 @@ export interface GenerateOptions {
   boostIds?: string[];
 }
 
-function buildPick(slot: MealSlot, recipe: MenuRecipe, budgetKcal: number, reasons: string[]): MenuSlotPick {
-  const target = budgetKcal * SLOT_ENVELOPE[slot];
-  const portionScale = clamp(target / Math.max(1, recipe.perServing.kcal), EFFORT_MIN, EFFORT_MAX);
-  return {
-    slot,
-    recipe,
-    portionScale,
-    kcal: recipe.perServing.kcal * portionScale,
-    protein_g: recipe.perServing.protein_g * portionScale,
-    reasons,
-  };
+function applyScale(p: MenuSlotPick, scale: number): void {
+  p.portionScale = scale;
+  p.kcal = p.recipe.perServing.kcal * scale;
+  p.protein_g = p.recipe.perServing.protein_g * scale;
 }
 
-/** After per-slot scaling, nudge all portions by one uniform factor so the day
- * total lands within ±5% of budget (§4.3). */
-function repairDayTotal(picks: MenuSlotPick[], budgetKcal: number): void {
+/** §5.5 scale a recipe to a slot: fit the slot's kcal, but pull the portion UP
+ * toward the slot's protein target when the dish is protein-light (closed-form
+ * quadratic min of kcal-gap² + 0.5·protein-shortfall², then clamp). */
+function buildPick(slot: MealSlot, recipe: MenuRecipe, budgetKcal: number, proteinTargetG: number, reasons: string[]): MenuSlotPick {
+  const kcalS = budgetKcal * SLOT_ENVELOPE[slot];
+  const protS = proteinTargetG * PROTEIN_SLOT_SPLIT[slot];
+  const K = Math.max(1, recipe.perServing.kcal);
+  const P = Math.max(0, recipe.perServing.protein_g);
+  const sKcal = kcalS / K;
+  // if kcal-fit already meets the slot protein, don't stretch further; else pull up.
+  const s = P > 0 && sKcal * P < protS ? (K * kcalS + 0.5 * P * protS) / (K * K + 0.5 * P * P) : sKcal;
+  const portionScale = clamp(s, EFFORT_MIN, EFFORT_MAX);
+  const pick: MenuSlotPick = { slot, recipe, portionScale, kcal: 0, protein_g: 0, reasons };
+  applyScale(pick, portionScale);
+  return pick;
+}
+
+/** §5.6 day repair: first a uniform factor to land kcal within ±5%; then, if the
+ * day is short on protein, scale up the most protein-dense meals within bounds,
+ * accepting kcal up to the relaxed +7.5% ceiling. Never breaks scale bounds. */
+function repairDay(picks: MenuSlotPick[], budgetKcal: number, proteinTargetG: number): void {
   const total = picks.reduce((s, p) => s + p.kcal, 0);
   if (total <= 0) return;
   const factor = budgetKcal / total;
-  for (const p of picks) {
-    const scale = clamp(p.portionScale * factor, EFFORT_MIN, EFFORT_MAX);
-    p.portionScale = scale;
-    p.kcal = p.recipe.perServing.kcal * scale;
-    p.protein_g = p.recipe.perServing.protein_g * scale;
+  for (const p of picks) applyScale(p, clamp(p.portionScale * factor, EFFORT_MIN, EFFORT_MAX));
+
+  // protein one-sided: only top up when short (§5.3). Chase it WITHIN the ±5% kcal
+  // budget (the ±7.5% relaxation is a later last-resort step, after a snack swap).
+  let protein = picks.reduce((s, p) => s + p.protein_g, 0);
+  if (protein >= proteinTargetG * 0.98) return;
+  const kcalCap = budgetKcal * (1 + DAY_BUDGET_TOLERANCE);
+  const dense = [...picks].sort((a, b) => b.recipe.perServing.protein_g / Math.max(1, b.recipe.perServing.kcal) - a.recipe.perServing.protein_g / Math.max(1, a.recipe.perServing.kcal));
+  for (const p of dense) {
+    if (protein >= proteinTargetG) break;
+    const othersKcal = picks.reduce((s, q) => s + (q === p ? 0 : q.kcal), 0);
+    const maxByKcal = (kcalCap - othersKcal) / Math.max(1, p.recipe.perServing.kcal);
+    const newScale = clamp(Math.min(EFFORT_MAX, maxByKcal), p.portionScale, EFFORT_MAX);
+    if (newScale > p.portionScale) { applyScale(p, newScale); protein = picks.reduce((s, q) => s + q.protein_g, 0); }
   }
 }
 
@@ -74,7 +100,7 @@ export function generateWeekMenu(
     warnings.push('thin candidate pool after allergy/hate filtering');
   }
 
-  const proteinTarget = PROTEIN_FLOOR_PER_KG * profile.targetWeightKg;
+  const proteinTarget = resolveProteinTargetG(profile);
   let hardDinners = 0;
   const days: MenuDay[] = [];
   const usedEarlier = new Set<string>(); // recipes used on previous days this week
@@ -88,7 +114,7 @@ export function generateWeekMenu(
     const emptySlots = () => SLOTS.filter((_, i) => picks[i] === null);
 
     const place = (slot: MealSlot, recipe: MenuRecipe, reasons: string[]) => {
-      picks[slotIdx(slot)] = buildPick(slot, recipe, profile.budgetKcal, reasons);
+      picks[slotIdx(slot)] = buildPick(slot, recipe, profile.budgetKcal, proteinTarget, reasons);
       usedToday.add(recipe.id);
       if (slot === 'dinner' && recipe.effort === '30min+') hardDinners++;
     };
@@ -144,12 +170,16 @@ export function generateWeekMenu(
     }
 
     const finalPicks = picks.filter((p): p is MenuSlotPick => p !== null);
-    repairDayTotal(finalPicks, profile.budgetKcal);
+    repairDay(finalPicks, profile.budgetKcal, proteinTarget);
 
     const totalKcal = finalPicks.reduce((s, p) => s + p.kcal, 0);
     const totalProtein = finalPicks.reduce((s, p) => s + p.protein_g, 0);
     if (Math.abs(totalKcal - profile.budgetKcal) / profile.budgetKcal > DAY_BUDGET_TOLERANCE) {
       warnings.push(`day ${d + 1} total ${Math.round(totalKcal)} kcal outside ±5% of ${profile.budgetKcal}`);
+    }
+    if (totalProtein < proteinTarget * 0.9) {
+      // couldn't reach protein within the kcal budget → catalogue coverage hole (§12).
+      warnings.push(`day ${d + 1} protein ${Math.round(totalProtein)}g under target ${proteinTarget}g`);
     }
 
     for (const p of finalPicks) usedEarlier.add(p.recipe.id);

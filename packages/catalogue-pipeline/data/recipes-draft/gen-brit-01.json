@@ -1,0 +1,39 @@
+{
+  "id": "gen-brit-01",
+  "name": "Roast chicken with roasties & greens",
+  "cuisine": "British",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "roast",
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oven to 200C and roast the chicken breast until cooked through, about 25 minutes.",
+    "Toss the potato chunks in oil and roast alongside until golden, about 30 minutes.",
+    "Boil or steam the kale for 4 minutes and drain.",
+    "Plate the chicken with the roasties and greens."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "kale, cooked",
+      "qty_g": 70
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

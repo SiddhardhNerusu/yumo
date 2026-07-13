@@ -1,0 +1,46 @@
+{
+  "id": "gen-american-05",
+  "name": "BBQ chicken plate",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grill"
+  ],
+  "steps": [
+    "Grill the chicken breast through, brushing with BBQ sauce in the last few minutes.",
+    "Warm the sweetcorn through in a pan or microwave.",
+    "Toss the shredded cabbage and carrot with a little oil for a quick slaw.",
+    "Plate the chicken with the corn and slaw alongside."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "bbq sauce",
+      "qty_g": 30
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 80
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "gen-carib-06",
+  "name": "Jamaican rice & peas with fried plantain",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "budget"
+  ],
+  "steps": [
+    "Warm the rice and kidney beans with a splash of coconut milk.",
+    "Fry the sliced plantain in oil until golden on both sides.",
+    "Plate the rice and peas and lay the plantain alongside."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "kidney beans, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "plantain",
+      "qty_g": 120
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "gen-indian-08",
+  "name": "Egg bhurji with roti",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "breakfast",
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Fry chopped onion and tomato in oil until soft.",
+    "Add turmeric, cumin and chilli powder and cook one minute.",
+    "Pour in the beaten eggs and scramble until just set.",
+    "Fold through fresh coriander.",
+    "Serve hot with warm roti."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "roti",
+      "qty_g": 80
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

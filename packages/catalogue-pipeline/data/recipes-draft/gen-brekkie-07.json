@@ -1,0 +1,48 @@
+{
+  "id": "gen-brekkie-07",
+  "name": "Chickpea shakshuka",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Soften the onion in the oil for 4 minutes.",
+    "Add the tinned tomatoes and chickpeas, and simmer for 8 minutes.",
+    "Make two wells, crack in the eggs, cover and cook until set.",
+    "Crumble the feta over and serve from the pan."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 200
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 20
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "gen-japkor-03",
+  "name": "Beef bibimbap bowl",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "veg-packed"
+  ],
+  "steps": [
+    "Brown the minced beef in a hot pan with a splash of soy sauce until cooked through.",
+    "Quickly saute the spinach and grated carrot until just softened.",
+    "Warm the rice and arrange it in a bowl.",
+    "Lay the beef and vegetables in sections over the rice.",
+    "Fry the egg and slide it on top, then add a spoon of gochujang."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "spinach",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "gochujang",
+      "qty_g": 20
+    }
+  ]
+}

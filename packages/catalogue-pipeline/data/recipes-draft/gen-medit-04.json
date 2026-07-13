@@ -1,0 +1,39 @@
+{
+  "id": "gen-medit-04",
+  "name": "Greek yogurt breakfast bowl",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Spoon the greek yogurt into a bowl.",
+    "Scatter over the walnuts and blueberries.",
+    "Drizzle honey across the top and eat."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 200
+    },
+    {
+      "name": "walnuts",
+      "qty_g": 20
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 50
+    },
+    {
+      "name": "honey",
+      "qty_g": 15
+    }
+  ]
+}

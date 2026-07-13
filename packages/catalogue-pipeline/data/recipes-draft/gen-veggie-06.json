@@ -1,0 +1,43 @@
+{
+  "id": "gen-veggie-06",
+  "name": "Greek yogurt protein bowl",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein",
+    "breakfast"
+  ],
+  "steps": [
+    "Spoon the greek yogurt into a bowl.",
+    "Slice the banana over the top and scatter on the oats and almonds.",
+    "Drizzle with honey."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 200
+    },
+    {
+      "name": "banana",
+      "qty_g": 100
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 30
+    },
+    {
+      "name": "almonds",
+      "qty_g": 20
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

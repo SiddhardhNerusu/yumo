@@ -36,9 +36,11 @@ export function Settings({
   const { isPremium } = useEntitlement();
   const [showPaywall, setShowPaywall] = useState(false);
   const [budget, setBudget] = useState<number>(profile.budgetKcal);
+  const [proteinTarget, setProteinTarget] = useState<number>(profile.proteinTargetG ?? Math.round(1.6 * profile.targetWeightKg));
   const [variation, setVariation] = useState<VariationDial>(profile.variation);
   const [allergies, setAllergies] = useState<Allergen[]>(profile.allergies);
   const [pantry, setPantry] = useState<string[]>(profile.pantry);
+  const clampProtein = (v: number) => Math.max(40, Math.min(300, v));
 
   const clampBudget = (v: number) => Math.max(1400, Math.min(4000, v)); // ED floor guardrail
   const toggleAllergen = (a: Allergen) => setAllergies((xs) => (xs.includes(a) ? xs.filter((x) => x !== a) : [...xs, a]));
@@ -51,7 +53,7 @@ export function Settings({
   }, [profile.pantry]);
 
   const save = () => {
-    onSave({ ...profile, budgetKcal: clampBudget(Math.round(budget)) || profile.budgetKcal, variation, allergies, pantry });
+    onSave({ ...profile, budgetKcal: clampBudget(Math.round(budget)) || profile.budgetKcal, proteinTargetG: clampProtein(Math.round(proteinTarget)), variation, allergies, pantry });
     onClose();
   };
 
@@ -89,6 +91,20 @@ export function Settings({
             </Text>
             <StepBtn label="＋" onPress={() => setBudget((b) => clampBudget(b + 50))} />
           </View>
+        </View>
+
+        {/* Protein target stepper */}
+        <View style={{ marginTop: 16 }}>
+          <Kicker>Protein target</Kicker>
+          <View style={{ marginTop: 8, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <StepBtn label="−" onPress={() => setProteinTarget((p) => clampProtein(p - 5))} />
+            <Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{Math.round(proteinTarget)}</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 14 }}> g protein</Text>
+            </Text>
+            <StepBtn label="＋" onPress={() => setProteinTarget((p) => clampProtein(p + 5))} />
+          </View>
+          <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>Plans aim to hit this — dinners carry the most.</Text>
         </View>
 
         {/* Variety segmented control */}

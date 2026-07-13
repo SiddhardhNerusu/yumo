@@ -1,0 +1,42 @@
+{
+  "id": "gen-veggie-04",
+  "name": "Lentil & feta salad",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein",
+    "salad"
+  ],
+  "steps": [
+    "Tip the lentils into a bowl.",
+    "Dice the cucumber and tomato and add them in.",
+    "Crumble over the feta, drizzle with olive oil, and toss."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

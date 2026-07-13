@@ -1,0 +1,36 @@
+{
+  "id": "gen-brit-07",
+  "name": "Beans on toast with a poached egg",
+  "cuisine": "British",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "quick",
+    "budget",
+    "meat-free"
+  ],
+  "steps": [
+    "Warm the beans in a small pan.",
+    "Toast the bread.",
+    "Poach the egg in simmering water for 3 minutes.",
+    "Pile the beans on the toast and slide the egg on top."
+  ],
+  "ingredients": [
+    {
+      "name": "baked beans",
+      "qty_g": 200
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    }
+  ]
+}

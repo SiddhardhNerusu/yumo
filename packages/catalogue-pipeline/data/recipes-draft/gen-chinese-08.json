@@ -1,0 +1,52 @@
+{
+  "id": "gen-chinese-08",
+  "name": "Chicken & broccoli in garlic sauce",
+  "cuisine": "Cantonese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "stir-fry",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the chicken thigh into strips.",
+    "Heat the oil in a wok and fry the chicken until golden.",
+    "Add the garlic and ginger and stir for 30 seconds.",
+    "Toss in the broccoli and the soy sauce with a splash of water.",
+    "Simmer 2 minutes until glossy, then serve over the rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "ginger",
+      "qty_g": 5
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

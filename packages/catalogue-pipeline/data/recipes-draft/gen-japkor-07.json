@@ -1,0 +1,40 @@
+{
+  "id": "gen-japkor-07",
+  "name": "Edamame miso breakfast bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "quick",
+    "plant-based"
+  ],
+  "steps": [
+    "Stir the miso paste into a mug of hot water until dissolved.",
+    "Tip the warm edamame into a bowl.",
+    "Pour the miso broth over and add the cubed tofu.",
+    "Scatter spring onion on top and eat warm."
+  ],
+  "ingredients": [
+    {
+      "name": "edamame",
+      "qty_g": 90
+    },
+    {
+      "name": "firm tofu",
+      "qty_g": 80
+    },
+    {
+      "name": "miso paste",
+      "qty_g": 15
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

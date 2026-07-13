@@ -1,0 +1,42 @@
+{
+  "id": "gen-medit-05",
+  "name": "Lemon salmon with white beans",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Pan-cook the salmon in a little olive oil, about 4 min a side.",
+    "Add the white beans and spinach to the pan and warm until the spinach wilts.",
+    "Finish with a squeeze of lemon juice and plate up."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white beans, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "spinach",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "gen-brit-03",
+  "name": "Baked cod with crushed potatoes & peas",
+  "cuisine": "British",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "oven-baked",
+    "high-protein",
+    "low-fat"
+  ],
+  "steps": [
+    "Heat the oven to 190C and bake the cod with a drizzle of oil for 15 minutes.",
+    "Boil the potatoes until soft, then lightly crush with a fork.",
+    "Simmer the peas for 3 minutes and drain.",
+    "Serve the cod over the crushed potatoes with peas alongside."
+  ],
+  "ingredients": [
+    {
+      "name": "cod, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "peas, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

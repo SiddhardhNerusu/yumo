@@ -1,0 +1,47 @@
+{
+  "id": "gen-brit-02",
+  "name": "Cottage pie",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "oven-baked",
+    "high-protein",
+    "comfort"
+  ],
+  "steps": [
+    "Fry the onion, then brown the beef mince in a pan.",
+    "Stir in the carrots and peas with a splash of water and simmer 5 minutes.",
+    "Boil the potato, mash with butter, and spread over the meat in a dish.",
+    "Bake at 200C for 20 minutes until the top is golden."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "carrots, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "peas, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    }
+  ]
+}

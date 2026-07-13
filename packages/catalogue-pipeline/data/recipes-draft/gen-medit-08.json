@@ -1,0 +1,47 @@
+{
+  "id": "gen-medit-08",
+  "name": "Greek village salad",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "vegetarian",
+    "low-calorie"
+  ],
+  "steps": [
+    "Cut the tomato and cucumber into chunks and add the sliced red onion.",
+    "Scatter over the olives and lay a slab of feta on top.",
+    "Dress with olive oil and a pinch of oregano."
+  ],
+  "ingredients": [
+    {
+      "name": "tomato",
+      "qty_g": 120
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 100
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 50
+    },
+    {
+      "name": "olives",
+      "qty_g": 25
+    },
+    {
+      "name": "red onion",
+      "qty_g": 25
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    }
+  ]
+}

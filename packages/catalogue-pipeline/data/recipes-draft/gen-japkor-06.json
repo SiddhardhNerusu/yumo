@@ -1,0 +1,49 @@
+{
+  "id": "gen-japkor-06",
+  "name": "Korean tofu soft stew",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein",
+    "soup"
+  ],
+  "steps": [
+    "Fry a spoon of gochujang in a little sesame oil until fragrant.",
+    "Pour in water and bring to a simmer.",
+    "Slip in spoonfuls of the soft tofu and the sliced courgette.",
+    "Simmer 8 minutes, then crack in the egg and let it poach.",
+    "Serve the stew with a bowl of warm rice on the side."
+  ],
+  "ingredients": [
+    {
+      "name": "silken tofu",
+      "qty_g": 180
+    },
+    {
+      "name": "gochujang",
+      "qty_g": 18
+    },
+    {
+      "name": "courgette",
+      "qty_g": 70
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 6
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "gen-chinese-05",
+  "name": "Cantonese steamed cod with rice",
+  "cuisine": "Cantonese",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "steamed",
+    "high-protein",
+    "low-fat"
+  ],
+  "steps": [
+    "Lay the cod on a plate and scatter over the shredded ginger.",
+    "Steam the fish over simmering water for about 8 minutes.",
+    "Steam the bok choy alongside for the last 3 minutes.",
+    "Pour off the excess liquid, then top with spring onions and soy sauce.",
+    "Heat the sesame oil until smoking and pour it over the fish.",
+    "Serve with the warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "cod, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "ginger",
+      "qty_g": 8
+    },
+    {
+      "name": "spring onions",
+      "qty_g": 20
+    },
+    {
+      "name": "bok choy, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 8
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "gen-brekkie-02",
+  "name": "Greek yogurt berry protein bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Spoon the greek yogurt into a bowl.",
+    "Scatter the blueberries and almonds on top.",
+    "Drizzle with honey and eat."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 200
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 60
+    },
+    {
+      "name": "almonds",
+      "qty_g": 20
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

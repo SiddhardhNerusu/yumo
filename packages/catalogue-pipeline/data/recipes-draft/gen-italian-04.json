@@ -1,0 +1,47 @@
+{
+  "id": "gen-italian-04",
+  "name": "Chickpea & tomato pasta",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-fiber",
+    "vegetarian"
+  ],
+  "steps": [
+    "Warm garlic in olive oil, then add tinned tomatoes and simmer 5 minutes.",
+    "Stir in the chickpeas and a pinch of chilli flakes.",
+    "Toss through the cooked pasta and top with parmesan."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    }
+  ]
+}

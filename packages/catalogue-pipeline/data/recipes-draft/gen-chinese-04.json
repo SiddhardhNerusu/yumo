@@ -1,0 +1,51 @@
+{
+  "id": "gen-chinese-04",
+  "name": "Mapo-style tofu with pork",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "stir-fry",
+    "high-protein"
+  ],
+  "steps": [
+    "Cube the tofu gently and set aside.",
+    "Brown the ground pork in the oil with the garlic.",
+    "Add the soy sauce and a splash of water and bring to a simmer.",
+    "Slide in the tofu and simmer 3 minutes without breaking it up.",
+    "Scatter over the spring onions and serve with the rice."
+  ],
+  "ingredients": [
+    {
+      "name": "tofu",
+      "qty_g": 200
+    },
+    {
+      "name": "ground pork, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "spring onions",
+      "qty_g": 15
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

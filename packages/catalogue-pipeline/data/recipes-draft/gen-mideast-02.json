@@ -1,0 +1,59 @@
+{
+  "id": "gen-mideast-02",
+  "name": "Baked falafel plate",
+  "cuisine": "Middle-Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "baked"
+  ],
+  "steps": [
+    "Mash the chickpeas with the onion, garlic, parsley, cumin and flour into a coarse paste.",
+    "Shape into small patties and brush with the olive oil.",
+    "Bake at 200C for ~20 min, turning once, until golden.",
+    "Serve with warm pita and a spoon of tahini."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "parsley",
+      "qty_g": 15
+    },
+    {
+      "name": "cumin",
+      "qty_g": 2
+    },
+    {
+      "name": "flour",
+      "qty_g": 15
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "pita bread",
+      "qty_g": 60
+    },
+    {
+      "name": "tahini",
+      "qty_g": 20
+    }
+  ]
+}

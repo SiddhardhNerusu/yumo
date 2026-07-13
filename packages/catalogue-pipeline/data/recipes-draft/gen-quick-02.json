@@ -1,0 +1,39 @@
+{
+  "id": "gen-quick-02",
+  "name": "Cottage cheese & tomato toast",
+  "cuisine": "British",
+  "slotAffinity": [
+    "breakfast",
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Toast the bread.",
+    "Spread the cottage cheese thickly over both slices.",
+    "Lay the sliced tomato on top and drizzle with olive oil."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 100
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

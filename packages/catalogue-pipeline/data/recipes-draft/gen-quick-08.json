@@ -1,0 +1,33 @@
+{
+  "id": "gen-quick-08",
+  "name": "Smoked salmon & cream cheese bagel",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Slice and toast the bagel.",
+    "Spread the cream cheese over both halves.",
+    "Drape the smoked salmon on top and close the bagel."
+  ],
+  "ingredients": [
+    {
+      "name": "bagel",
+      "qty_g": 85
+    },
+    {
+      "name": "cream cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "smoked salmon",
+      "qty_g": 60
+    }
+  ]
+}

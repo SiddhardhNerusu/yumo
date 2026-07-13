@@ -1,0 +1,47 @@
+{
+  "id": "gen-japkor-08",
+  "name": "Chicken katsu rice plate",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "crispy"
+  ],
+  "steps": [
+    "Coat the chicken breast in flour, beaten egg and breadcrumbs.",
+    "Shallow-fry in oil until deep golden and cooked through, about 4 minutes a side.",
+    "Slice the katsu into strips.",
+    "Serve over warm rice with shredded cabbage alongside."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "breadcrumbs",
+      "qty_g": 25
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 12
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 60
+    }
+  ]
+}

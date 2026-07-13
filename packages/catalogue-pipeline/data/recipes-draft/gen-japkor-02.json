@@ -1,0 +1,44 @@
+{
+  "id": "gen-japkor-02",
+  "name": "Salmon donburi bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein",
+    "omega-3"
+  ],
+  "steps": [
+    "Season the salmon fillet and pan-fry skin-side down until crisp, about 4 minutes, then flip for 2 more.",
+    "Warm the rice and spread it in a bowl.",
+    "Flake the salmon over the rice.",
+    "Top with sliced avocado, edamame and a drizzle of soy sauce."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "avocado",
+      "qty_g": 50
+    },
+    {
+      "name": "edamame",
+      "qty_g": 60
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    }
+  ]
+}

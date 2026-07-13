@@ -1,0 +1,35 @@
+{
+  "id": "gen-quick-07",
+  "name": "Cottage cheese & pineapple bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack",
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Spoon the cottage cheese into a bowl.",
+    "Add the chopped pineapple.",
+    "Scatter the almonds over the top."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 150
+    },
+    {
+      "name": "pineapple",
+      "qty_g": 80
+    },
+    {
+      "name": "almonds",
+      "qty_g": 15
+    }
+  ]
+}

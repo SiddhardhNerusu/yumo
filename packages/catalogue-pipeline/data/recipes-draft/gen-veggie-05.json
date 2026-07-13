@@ -1,0 +1,43 @@
+{
+  "id": "gen-veggie-05",
+  "name": "Seitan & pepper wrap",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "wrap"
+  ],
+  "steps": [
+    "Slice the seitan, pepper, and onion.",
+    "Fry them together in the olive oil until browned, about 6 minutes.",
+    "Warm the tortilla, pile the filling in, and roll it up."
+  ],
+  "ingredients": [
+    {
+      "name": "seitan",
+      "qty_g": 130
+    },
+    {
+      "name": "red pepper",
+      "qty_g": 70
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

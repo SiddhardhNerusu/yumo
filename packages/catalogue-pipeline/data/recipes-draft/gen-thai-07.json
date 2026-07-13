@@ -1,0 +1,52 @@
+{
+  "id": "gen-thai-07",
+  "name": "Tofu pad thai",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "stir-fry",
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Fry the tofu in the oil until golden on all sides.",
+    "Push it aside and scramble the egg in the pan.",
+    "Add the rice noodles, bean sprouts and soy sauce and toss to combine.",
+    "Scatter over the peanuts and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "rice noodles, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "bean sprouts",
+      "qty_g": 40
+    },
+    {
+      "name": "peanuts",
+      "qty_g": 15
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 10
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "gen-italian-03",
+  "name": "Minestrone with cannellini beans",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pot",
+    "high-fiber"
+  ],
+  "steps": [
+    "Soften diced carrot, celery and onion in olive oil for 5 minutes.",
+    "Add tinned tomatoes and vegetable stock and simmer 10 minutes.",
+    "Stir in the cannellini beans and small pasta, cook until pasta is tender.",
+    "Season and finish with a little grated parmesan."
+  ],
+  "ingredients": [
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "celery",
+      "qty_g": 40
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "white beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "pasta, cooked",
+      "qty_g": 80
+    }
+  ]
+}

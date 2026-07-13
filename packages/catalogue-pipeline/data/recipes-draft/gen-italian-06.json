@@ -1,0 +1,46 @@
+{
+  "id": "gen-italian-06",
+  "name": "Turkey meatballs in tomato sauce",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Mix the ground turkey with breadcrumbs, egg and a pinch of salt.",
+    "Roll into small meatballs and brown in olive oil for 5 minutes.",
+    "Pour in the tinned tomatoes and simmer 15 minutes until cooked through.",
+    "Finish with grated parmesan and torn basil."
+  ],
+  "ingredients": [
+    {
+      "name": "ground turkey",
+      "qty_g": 150
+    },
+    {
+      "name": "breadcrumbs",
+      "qty_g": 20
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    }
+  ]
+}

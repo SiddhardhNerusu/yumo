@@ -1,0 +1,46 @@
+{
+  "id": "gen-italian-05",
+  "name": "Baked cod with tomatoes & olives",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "oven",
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oven to 200C and place the cod fillet in a baking dish.",
+    "Scatter over cherry tomatoes, black olives and a drizzle of olive oil.",
+    "Bake for 18 minutes until the fish flakes easily.",
+    "Finish with chopped parsley and a squeeze of lemon."
+  ],
+  "ingredients": [
+    {
+      "name": "cod fillet",
+      "qty_g": 160
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "black olives",
+      "qty_g": 25
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "parsley",
+      "qty_g": 5
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 10
+    }
+  ]
+}

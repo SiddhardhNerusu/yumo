@@ -1,0 +1,39 @@
+{
+  "id": "gen-brit-05",
+  "name": "Salmon with new potatoes & broccoli",
+  "cuisine": "British",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "omega-3"
+  ],
+  "steps": [
+    "Boil the new potatoes for 12 minutes until tender.",
+    "Pan-fry the salmon in a little oil, 4 minutes each side.",
+    "Steam the broccoli for 4 minutes.",
+    "Plate everything together with a drizzle of oil."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

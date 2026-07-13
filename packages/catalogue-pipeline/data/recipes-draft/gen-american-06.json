@@ -1,0 +1,43 @@
+{
+  "id": "gen-american-06",
+  "name": "Tuna melt",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "quick",
+    "grill"
+  ],
+  "steps": [
+    "Drain the tuna and mix it with the mayonnaise.",
+    "Butter the outsides of the bread slices.",
+    "Fill with the tuna and cheddar, then close the sandwich.",
+    "Grill in a pan until golden and the cheese has melted, flipping once."
+  ],
+  "ingredients": [
+    {
+      "name": "tuna, canned in water",
+      "qty_g": 100
+    },
+    {
+      "name": "bread",
+      "qty_g": 60
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "mayonnaise",
+      "qty_g": 15
+    },
+    {
+      "name": "butter",
+      "qty_g": 6
+    }
+  ]
+}

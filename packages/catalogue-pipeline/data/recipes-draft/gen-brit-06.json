@@ -1,0 +1,42 @@
+{
+  "id": "gen-brit-06",
+  "name": "Bangers & mash with peas",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "hearty",
+    "comfort"
+  ],
+  "steps": [
+    "Grill or fry the sausages, turning, until browned through, about 15 minutes.",
+    "Boil the potato, then mash with butter and milk.",
+    "Simmer the peas for 3 minutes and drain.",
+    "Pile the mash on a plate, sit the sausages on top, and add the peas."
+  ],
+  "ingredients": [
+    {
+      "name": "pork sausage, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "peas, cooked",
+      "qty_g": 70
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    },
+    {
+      "name": "milk",
+      "qty_g": 20
+    }
+  ]
+}

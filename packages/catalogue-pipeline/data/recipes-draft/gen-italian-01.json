@@ -1,0 +1,47 @@
+{
+  "id": "gen-italian-01",
+  "name": "Chicken piccata with lemon & capers",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the chicken breast into two thin cutlets and dust with flour.",
+    "Pan-fry in olive oil until golden, about 3 minutes a side, then set aside.",
+    "Add lemon juice, capers and butter to the pan and simmer 2 minutes.",
+    "Return the chicken, spoon the sauce over and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 20
+    },
+    {
+      "name": "capers",
+      "qty_g": 15
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    },
+    {
+      "name": "all-purpose flour",
+      "qty_g": 10
+    }
+  ]
+}

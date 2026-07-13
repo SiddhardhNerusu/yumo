@@ -1,0 +1,48 @@
+{
+  "id": "gen-brekkie-03",
+  "name": "Peanut butter overnight oats",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "make-ahead",
+    "no-cook",
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Stir the oats, milk, greek yogurt and chia seeds together in a jar.",
+    "Swirl in the peanut butter and sliced banana.",
+    "Cover and chill overnight, then eat cold."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 60
+    },
+    {
+      "name": "milk",
+      "qty_g": 130
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 80
+    },
+    {
+      "name": "banana",
+      "qty_g": 60
+    },
+    {
+      "name": "chia seeds",
+      "qty_g": 10
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 15
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "gen-carib-02",
+  "name": "Nigerian jollof rice with chicken",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Fry the onion and tinned tomatoes down with a little oil to a thick base.",
+    "Stir in the rice and enough water, then simmer covered until tender.",
+    "Season the chicken breast and pan-cook it through, about 6 minutes a side.",
+    "Slice the chicken over the jollof rice and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

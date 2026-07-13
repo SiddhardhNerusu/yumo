@@ -1,0 +1,42 @@
+{
+  "id": "gen-brekkie-05",
+  "name": "Cottage cheese & tomato toast with egg",
+  "cuisine": "British",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Toast the bread and boil or fry the egg to your liking.",
+    "Spread the cottage cheese thickly over the toast.",
+    "Top with sliced tomato and the egg, drizzle the oil, and season."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 120
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "gen-thai-06",
+  "name": "Vietnamese pork noodle salad",
+  "cuisine": "Vietnamese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "salad",
+    "high-protein"
+  ],
+  "steps": [
+    "Pile the cooked rice noodles into a bowl.",
+    "Top with the sliced pork, cucumber, carrot and lettuce.",
+    "Scatter over the chopped peanuts.",
+    "Mix the fish sauce and lime juice and drizzle over."
+  ],
+  "ingredients": [
+    {
+      "name": "pork tenderloin, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "rice noodles, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 50
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "lettuce",
+      "qty_g": 30
+    },
+    {
+      "name": "peanuts",
+      "qty_g": 15
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 10
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 10
+    }
+  ]
+}

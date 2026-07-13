@@ -1,0 +1,53 @@
+{
+  "id": "gen-chinese-06",
+  "name": "Beef chow mein",
+  "cuisine": "Cantonese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "stir-fry",
+    "noodles",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the beef thinly and sear it in the hot oil, then set aside.",
+    "Stir-fry the carrot and bean sprouts for 2 minutes.",
+    "Add the cooked noodles and toss to loosen.",
+    "Return the beef, pour in the soy sauce and add the spring onions.",
+    "Toss until everything is hot and coated, then serve."
+  ],
+  "ingredients": [
+    {
+      "name": "beef sirloin, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "egg noodles, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "bean sprouts",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "spring onions",
+      "qty_g": 20
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

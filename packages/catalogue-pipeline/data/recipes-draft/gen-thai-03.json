@@ -1,0 +1,51 @@
+{
+  "id": "gen-thai-03",
+  "name": "Chicken larb",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "salad",
+    "high-protein"
+  ],
+  "steps": [
+    "Finely chop the cooked chicken and tip into a bowl.",
+    "Add the sliced shallot, mint and cilantro.",
+    "Dress with the lime juice and fish sauce and toss well.",
+    "Serve alongside the warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "shallot",
+      "qty_g": 20
+    },
+    {
+      "name": "mint",
+      "qty_g": 5
+    },
+    {
+      "name": "cilantro",
+      "qty_g": 5
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 15
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 120
+    }
+  ]
+}

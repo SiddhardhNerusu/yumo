@@ -1,0 +1,38 @@
+{
+  "id": "gen-quick-06",
+  "name": "Peanut butter banana toast",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "vegetarian"
+  ],
+  "steps": [
+    "Toast the bread.",
+    "Spread the peanut butter over both slices.",
+    "Lay the sliced banana on top and drizzle with honey."
+  ],
+  "ingredients": [
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 30
+    },
+    {
+      "name": "banana",
+      "qty_g": 100
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

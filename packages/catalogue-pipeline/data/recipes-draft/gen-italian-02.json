@@ -1,0 +1,46 @@
+{
+  "id": "gen-italian-02",
+  "name": "Tuna & white bean salad",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein"
+  ],
+  "steps": [
+    "Drain the tuna and tip into a bowl with the cannellini beans.",
+    "Add sliced red onion and chopped parsley.",
+    "Dress with olive oil and lemon juice, season and toss."
+  ],
+  "ingredients": [
+    {
+      "name": "canned tuna",
+      "qty_g": 100
+    },
+    {
+      "name": "white beans, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "red onion",
+      "qty_g": 30
+    },
+    {
+      "name": "parsley",
+      "qty_g": 5
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 15
+    }
+  ]
+}

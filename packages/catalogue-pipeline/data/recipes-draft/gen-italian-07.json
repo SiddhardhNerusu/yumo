@@ -1,0 +1,43 @@
+{
+  "id": "gen-italian-07",
+  "name": "Caprese with grilled chicken",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-carb"
+  ],
+  "steps": [
+    "Grill the chicken breast until cooked through, about 6 minutes a side.",
+    "Layer sliced tomato and fresh mozzarella on a plate.",
+    "Slice the chicken over the top and tuck in basil leaves.",
+    "Drizzle with olive oil and season well."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast",
+      "qty_g": 150
+    },
+    {
+      "name": "tomato",
+      "qty_g": 100
+    },
+    {
+      "name": "mozzarella cheese",
+      "qty_g": 60
+    },
+    {
+      "name": "basil",
+      "qty_g": 5
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

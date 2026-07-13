@@ -1,0 +1,43 @@
+{
+  "id": "gen-veggie-07",
+  "name": "Black bean & egg scramble",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan",
+    "breakfast"
+  ],
+  "steps": [
+    "Warm the black beans in the olive oil for 2 minutes.",
+    "Beat the eggs, pour them in, and scramble until just set.",
+    "Stir through the grated cheddar and serve with the tortilla."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

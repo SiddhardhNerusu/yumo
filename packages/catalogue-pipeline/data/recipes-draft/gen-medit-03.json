@@ -1,0 +1,42 @@
+{
+  "id": "gen-medit-03",
+  "name": "Turkish grilled sea bass with bulgur",
+  "cuisine": "Turkish",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grill"
+  ],
+  "steps": [
+    "Rub the sea bass with olive oil and grill skin-side down until cooked through, about 4 min a side.",
+    "Warm the bulgur and fluff it in a bowl.",
+    "Squeeze lemon juice over the fish and scatter chopped parsley on top."
+  ],
+  "ingredients": [
+    {
+      "name": "sea bass, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "bulgur, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 10
+    },
+    {
+      "name": "parsley",
+      "qty_g": 5
+    }
+  ]
+}

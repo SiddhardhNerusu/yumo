@@ -1,0 +1,47 @@
+{
+  "id": "gen-carib-04",
+  "name": "Egusi-style spinach stew with chicken",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pot",
+    "high-protein"
+  ],
+  "steps": [
+    "Fry the tinned tomatoes and onion in palm oil to a rich base.",
+    "Stir in the ground pumpkin seeds and a little water to thicken.",
+    "Add the chicken breast pieces and simmer until cooked through.",
+    "Fold through the spinach until wilted and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "spinach",
+      "qty_g": 80
+    },
+    {
+      "name": "pumpkin seeds",
+      "qty_g": 25
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "palm oil",
+      "qty_g": 10
+    }
+  ]
+}

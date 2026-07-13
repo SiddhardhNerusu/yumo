@@ -1,0 +1,50 @@
+{
+  "id": "gen-thai-02",
+  "name": "Red curry shrimp",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pot",
+    "curry",
+    "seafood",
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil and fry the red curry paste for a minute until aromatic.",
+    "Add the coconut milk and bring to a simmer.",
+    "Drop in the bell pepper and cook 4 minutes.",
+    "Add the cooked shrimp and warm through for 2 minutes.",
+    "Serve over the rice."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 120
+    },
+    {
+      "name": "red curry paste",
+      "qty_g": 25
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    }
+  ]
+}

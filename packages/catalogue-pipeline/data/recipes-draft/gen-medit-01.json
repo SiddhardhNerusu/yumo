@@ -1,0 +1,48 @@
+{
+  "id": "gen-medit-01",
+  "name": "Chicken souvlaki bowl",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grill",
+    "meal-prep"
+  ],
+  "steps": [
+    "Toss diced chicken breast with olive oil, lemon and oregano, then grill or pan-cook through, about 8 min.",
+    "Warm the rice and pile it in a bowl.",
+    "Stir the yogurt with grated cucumber for a quick tzatziki.",
+    "Top the rice with chicken, red onion and a spoon of tzatziki."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 60
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 60
+    },
+    {
+      "name": "red onion",
+      "qty_g": 20
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

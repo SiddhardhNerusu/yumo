@@ -22,8 +22,13 @@ export type VariationDial = 'habit' | 'balanced' | 'mixup';
 
 export interface UserProfile {
   budgetKcal: number;
-  /** for the protein floor 1.6 g/kg (§4.3). */
+  /** for the protein floor 1.6 g/kg (§4.3), used when proteinTargetG is unset. */
   targetWeightKg: number;
+  /** §5.1 explicit daily macro goals. protein is one-sided (hit-or-exceed);
+   * carbs/fat are soft bands. Absent → protein defaults to 1.6 g/kg, C/F untargeted. */
+  proteinTargetG?: number;
+  carbTargetG?: number;
+  fatTargetG?: number;
   allergies: Allergen[]; // HARD: never
   hates: string[]; // HARD: never (food tokens)
   needs: string[]; // pinned 1×/day (food tokens)

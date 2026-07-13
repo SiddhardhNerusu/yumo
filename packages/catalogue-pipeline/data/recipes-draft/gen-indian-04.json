@@ -1,0 +1,44 @@
+{
+  "id": "gen-indian-04",
+  "name": "Tandoori chicken plate",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grilled"
+  ],
+  "steps": [
+    "Whisk greek yogurt with paprika, cumin, garam masala, garlic and ginger.",
+    "Slash the chicken thighs and coat them in the marinade.",
+    "Roast or grill until deeply browned and cooked through, about 20 minutes.",
+    "Toss sliced onion and cucumber with lemon for a quick salad.",
+    "Serve the chicken with the salad and a lemon wedge."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 170
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 70
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 60
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 8
+    }
+  ]
+}

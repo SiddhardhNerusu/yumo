@@ -1,0 +1,43 @@
+{
+  "id": "gen-medit-06",
+  "name": "Turkish menemen",
+  "cuisine": "Turkish",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan",
+    "vegetarian"
+  ],
+  "steps": [
+    "Soften the chopped green pepper in olive oil for a few minutes.",
+    "Add the tomato and cook down until saucy.",
+    "Crack in the eggs and stir gently until just set.",
+    "Crumble feta over the top and serve from the pan."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "tomato",
+      "qty_g": 120
+    },
+    {
+      "name": "green pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 20
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

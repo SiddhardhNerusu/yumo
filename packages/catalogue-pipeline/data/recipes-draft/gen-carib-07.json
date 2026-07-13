@@ -1,0 +1,43 @@
+{
+  "id": "gen-carib-07",
+  "name": "West African peanut chicken stew",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pot",
+    "high-protein"
+  ],
+  "steps": [
+    "Brown the chicken thigh pieces in a pot with a little oil.",
+    "Stir in the peanut butter, tinned tomatoes and water to a smooth sauce.",
+    "Add the sweet potato and simmer until tender and the chicken is cooked.",
+    "Serve on its own or over rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 25
+    },
+    {
+      "name": "sweet potato",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    }
+  ]
+}

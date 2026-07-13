@@ -1,0 +1,47 @@
+{
+  "id": "gen-mexican-07",
+  "name": "Prawn taco bowl",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "quick"
+  ],
+  "steps": [
+    "Toss the prawns in lime, cumin and chilli and fry in oil 3 minutes until pink.",
+    "Warm the rice and add to a bowl.",
+    "Top with the prawns, shredded cabbage, avocado and tomato.",
+    "Finish with a squeeze of lime."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 60
+    },
+    {
+      "name": "avocado",
+      "qty_g": 50
+    },
+    {
+      "name": "tomato",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

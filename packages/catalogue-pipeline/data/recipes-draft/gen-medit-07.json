@@ -1,0 +1,43 @@
+{
+  "id": "gen-medit-07",
+  "name": "Spiced chickpea & spinach",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "one-pan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the chopped onion in olive oil until golden.",
+    "Stir in the tinned tomatoes with a pinch of cumin and paprika.",
+    "Add the chickpeas and simmer 5 min, then fold through the spinach until wilted."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "spinach",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "gen-thai-05",
+  "name": "Chicken satay with peanut sauce",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "grill",
+    "high-protein"
+  ],
+  "steps": [
+    "Whisk the peanut butter, coconut milk, soy sauce and lime juice into a smooth sauce.",
+    "Warm the cooked chicken through in a pan.",
+    "Pour the peanut sauce over and coat the chicken.",
+    "Serve with the warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 24
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 40
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 8
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "gen-mexican-05",
+  "name": "Spicy tofu and black bean bowl",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein"
+  ],
+  "steps": [
+    "Cube the tofu, toss in cumin, paprika and salt, and fry in oil until golden.",
+    "Warm the black beans and sweetcorn in the same pan.",
+    "Heat the rice and add to a bowl.",
+    "Top with the tofu, beans, corn and sliced avocado."
+  ],
+  "ingredients": [
+    {
+      "name": "tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "brown rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 60
+    },
+    {
+      "name": "avocado",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

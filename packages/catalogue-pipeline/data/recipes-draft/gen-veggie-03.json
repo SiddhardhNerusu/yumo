@@ -1,0 +1,48 @@
+{
+  "id": "gen-veggie-03",
+  "name": "Chickpea & spinach curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "one-pot",
+    "high-protein",
+    "vegan"
+  ],
+  "steps": [
+    "Soften the chopped onion in the olive oil for 5 minutes.",
+    "Stir in the tinned tomatoes and simmer 10 minutes.",
+    "Add the chickpeas and cook another 8 minutes.",
+    "Fold through the spinach until wilted, then serve over the rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "spinach",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

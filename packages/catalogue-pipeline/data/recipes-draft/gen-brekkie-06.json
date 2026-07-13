@@ -1,0 +1,41 @@
+{
+  "id": "gen-brekkie-06",
+  "name": "Smoked salmon scrambled eggs on rye",
+  "cuisine": "Scandinavian",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Toast the rye bread and spread with the cream cheese.",
+    "Softly scramble the eggs in the butter over low heat.",
+    "Fold in the smoked salmon at the end and pile onto the toast."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "smoked salmon",
+      "qty_g": 60
+    },
+    {
+      "name": "rye bread",
+      "qty_g": 60
+    },
+    {
+      "name": "cream cheese",
+      "qty_g": 20
+    },
+    {
+      "name": "butter",
+      "qty_g": 5
+    }
+  ]
+}

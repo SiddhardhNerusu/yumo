@@ -1,0 +1,55 @@
+{
+  "id": "gen-mideast-01",
+  "name": "Chicken shawarma bowl",
+  "cuisine": "Middle-Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "bowl"
+  ],
+  "steps": [
+    "Toss the chicken with olive oil, garlic and a pinch of cumin, then pan-fry through, ~6 min a side.",
+    "Warm the rice and pile it into a bowl.",
+    "Slice the chicken over the rice and scatter chopped cucumber and tomato on top.",
+    "Spoon over the greek yogurt and drizzle with the pan juices."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 45
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "cumin",
+      "qty_g": 2
+    }
+  ]
+}

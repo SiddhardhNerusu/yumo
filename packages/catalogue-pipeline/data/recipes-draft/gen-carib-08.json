@@ -1,0 +1,43 @@
+{
+  "id": "gen-carib-08",
+  "name": "Jerk tofu with black-eyed peas",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein"
+  ],
+  "steps": [
+    "Toss the tofu cubes in jerk seasoning and a little oil.",
+    "Pan-fry the tofu until golden and crisp on all sides.",
+    "Warm the black-eyed peas with the tomato and onion.",
+    "Spoon the peas into a bowl and top with the jerk tofu."
+  ],
+  "ingredients": [
+    {
+      "name": "tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "black-eyed peas, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "tomato",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

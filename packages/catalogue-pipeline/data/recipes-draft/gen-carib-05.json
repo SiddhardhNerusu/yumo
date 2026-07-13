@@ -1,0 +1,43 @@
+{
+  "id": "gen-carib-05",
+  "name": "Ackee-style scrambled eggs with saltfish",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "quick"
+  ],
+  "steps": [
+    "Flake the cooked cod and set aside.",
+    "Soften the onion and tomato in a little oil.",
+    "Pour in the beaten eggs and scramble softly with the cod through it.",
+    "Serve hot with the peppers folded in."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "cod, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "tomato",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "gen-american-03",
+  "name": "Chicken burrito bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "assembly"
+  ],
+  "steps": [
+    "Warm the rice and black beans through.",
+    "Slice the cooked chicken breast into strips.",
+    "Pile rice and beans in a bowl, add the chicken and sweetcorn.",
+    "Top with salsa and a scatter of grated cheddar."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 60
+    },
+    {
+      "name": "salsa",
+      "qty_g": 40
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 20
+    }
+  ]
+}

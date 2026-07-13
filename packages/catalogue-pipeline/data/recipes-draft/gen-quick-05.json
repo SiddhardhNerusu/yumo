@@ -1,0 +1,29 @@
+{
+  "id": "gen-quick-05",
+  "name": "Salted edamame bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan"
+  ],
+  "steps": [
+    "Warm the cooked edamame through in the microwave for a minute.",
+    "Tip into a bowl and toss with the soy sauce.",
+    "Squeeze the pods and eat the beans."
+  ],
+  "ingredients": [
+    {
+      "name": "edamame, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 8
+    }
+  ]
+}

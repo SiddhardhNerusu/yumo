@@ -1,0 +1,39 @@
+{
+  "id": "gen-mexican-06",
+  "name": "Chicken and black bean quesadilla",
+  "cuisine": "Tex-Mex",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Shred the cooked chicken and mix with the black beans.",
+    "Lay a tortilla in a dry pan and scatter over cheddar, chicken and beans.",
+    "Fold in half and cook 2 minutes each side until the cheese melts.",
+    "Slice into wedges and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 70
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 40
+    }
+  ]
+}

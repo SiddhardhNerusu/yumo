@@ -1,0 +1,51 @@
+{
+  "id": "gen-medit-02",
+  "name": "Chickpea & feta salad",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Drain the chickpeas and tip into a bowl.",
+    "Chop the cucumber, tomato and red onion and add them in.",
+    "Crumble over the feta, dress with olive oil and lemon juice, and toss."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 80
+    },
+    {
+      "name": "tomato",
+      "qty_g": 80
+    },
+    {
+      "name": "red onion",
+      "qty_g": 20
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 10
+    }
+  ]
+}

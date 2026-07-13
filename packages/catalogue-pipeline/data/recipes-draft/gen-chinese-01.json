@@ -1,0 +1,53 @@
+{
+  "id": "gen-chinese-01",
+  "name": "Kung pao chicken with rice",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "stir-fry",
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Dice the chicken breast and toss with a splash of the soy sauce.",
+    "Heat the oil in a wok and stir-fry the chicken until golden.",
+    "Add the red pepper and spring onions and fry 2 minutes.",
+    "Stir in the rest of the soy sauce and the peanuts and toss to coat.",
+    "Warm the rice and spoon the kung pao over the top."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "peanuts",
+      "qty_g": 20
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "spring onions",
+      "qty_g": 20
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "gen-american-08",
+  "name": "Buffalo chicken salad bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "salad",
+    "quick"
+  ],
+  "steps": [
+    "Shred or slice the cooked chicken breast and toss it in the hot sauce.",
+    "Chop the lettuce, celery, and carrot into a bowl.",
+    "Pile the buffalo chicken on top.",
+    "Drizzle with blue cheese dressing to finish."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "hot sauce",
+      "qty_g": 20
+    },
+    {
+      "name": "lettuce",
+      "qty_g": 100
+    },
+    {
+      "name": "celery",
+      "qty_g": 40
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "blue cheese dressing",
+      "qty_g": 25
+    }
+  ]
+}

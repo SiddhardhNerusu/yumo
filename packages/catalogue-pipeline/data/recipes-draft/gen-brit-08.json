@@ -1,0 +1,43 @@
+{
+  "id": "gen-brit-08",
+  "name": "Turkey meatballs with pasta & tomato",
+  "cuisine": "British",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "batch-cook"
+  ],
+  "steps": [
+    "Roll the turkey mince into small balls and fry until browned.",
+    "Add the onion and tinned tomatoes and simmer 10 minutes.",
+    "Boil the pasta until tender and drain.",
+    "Toss the pasta through the sauce and meatballs."
+  ],
+  "ingredients": [
+    {
+      "name": "ground turkey, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "pasta, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

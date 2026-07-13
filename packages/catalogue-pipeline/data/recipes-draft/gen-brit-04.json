@@ -1,0 +1,42 @@
+{
+  "id": "gen-brit-04",
+  "name": "Jacket potato with tuna & cheese",
+  "cuisine": "British",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "quick"
+  ],
+  "steps": [
+    "Prick the potato and microwave 10 minutes, turning once, until soft.",
+    "Mix the tuna, sweetcorn and yogurt in a bowl.",
+    "Split the potato open, spoon in the tuna mix, and top with cheese."
+  ],
+  "ingredients": [
+    {
+      "name": "potato, cooked",
+      "qty_g": 250
+    },
+    {
+      "name": "tuna, canned in water",
+      "qty_g": 100
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 40
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 20
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    }
+  ]
+}

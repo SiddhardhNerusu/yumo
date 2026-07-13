@@ -1,0 +1,38 @@
+{
+  "id": "gen-brekkie-01",
+  "name": "Spinach & feta scrambled eggs",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Melt the butter in a non-stick pan over medium heat.",
+    "Wilt the spinach for a minute, then pour in the whisked eggs.",
+    "Stir gently until just set, crumble the feta over, and season."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "spinach",
+      "qty_g": 50
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "butter",
+      "qty_g": 8
+    }
+  ]
+}

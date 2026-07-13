@@ -1,0 +1,47 @@
+{
+  "id": "gen-american-04",
+  "name": "Cheeseburger bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Brown the ground beef in a hot pan, seasoning well.",
+    "Shred the lettuce and dice the tomato, red onion, and pickles.",
+    "Layer the salad in a bowl and pile the beef on top.",
+    "Scatter grated cheddar over the warm beef so it melts."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "lettuce",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "red onion",
+      "qty_g": 20
+    },
+    {
+      "name": "pickles",
+      "qty_g": 20
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 25
+    }
+  ]
+}

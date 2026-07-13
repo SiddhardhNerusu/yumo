@@ -1,0 +1,34 @@
+{
+  "id": "gen-quick-03",
+  "name": "Tuna cucumber boats",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein"
+  ],
+  "steps": [
+    "Drain the tuna and mix it with the greek yogurt.",
+    "Halve the cucumber lengthways and scoop out the seeds.",
+    "Spoon the tuna into the cucumber hollows."
+  ],
+  "ingredients": [
+    {
+      "name": "tuna, canned in water",
+      "qty_g": 100
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 120
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 20
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "gen-indian-06",
+  "name": "Rajma masala",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Fry onion, garlic and ginger in oil until soft and golden.",
+    "Add tinned tomatoes, cumin, garam masala and chilli powder.",
+    "Simmer until the sauce thickens, about 8 minutes.",
+    "Stir in the kidney beans and simmer another 10 minutes.",
+    "Serve over warm rice with coriander."
+  ],
+  "ingredients": [
+    {
+      "name": "kidney beans, cooked",
+      "qty_g": 170
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

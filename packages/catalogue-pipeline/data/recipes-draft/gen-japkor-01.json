@@ -1,0 +1,47 @@
+{
+  "id": "gen-japkor-01",
+  "name": "Chicken teriyaki donburi",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the chicken thigh into strips and pan-fry over medium-high heat until browned, about 6 minutes.",
+    "Add soy sauce, honey and mirin, and let it bubble into a glaze coating the chicken.",
+    "Warm the rice and pile it into a bowl.",
+    "Spoon the chicken and glaze over the rice and scatter spring onion on top."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "honey",
+      "qty_g": 12
+    },
+    {
+      "name": "mirin",
+      "qty_g": 10
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

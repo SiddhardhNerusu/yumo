@@ -1,0 +1,42 @@
+{
+  "id": "gen-quick-01",
+  "name": "Greek yogurt & berry protein bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "high-protein"
+  ],
+  "steps": [
+    "Spoon the greek yogurt into a bowl.",
+    "Scatter the blueberries and strawberries over the top.",
+    "Sprinkle the granola on and drizzle with honey."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 170
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 50
+    },
+    {
+      "name": "strawberries",
+      "qty_g": 50
+    },
+    {
+      "name": "granola",
+      "qty_g": 30
+    },
+    {
+      "name": "honey",
+      "qty_g": 15
+    }
+  ]
+}

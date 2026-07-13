@@ -1,0 +1,43 @@
+{
+  "id": "gen-indian-05",
+  "name": "Palak paneer",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Wilt the spinach in a hot pan, then blend to a rough puree.",
+    "Fry garlic, ginger, cumin and garam masala in oil for a minute.",
+    "Stir the spinach puree into the spices and simmer 5 minutes.",
+    "Add the cubed paneer and a spoon of cream, warm through.",
+    "Serve with warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "spinach",
+      "qty_g": 150
+    },
+    {
+      "name": "paneer",
+      "qty_g": 120
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "heavy cream",
+      "qty_g": 20
+    }
+  ]
+}

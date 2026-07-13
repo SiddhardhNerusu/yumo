@@ -1,0 +1,39 @@
+{
+  "id": "gen-quick-04",
+  "name": "Boiled eggs & avocado toast",
+  "cuisine": "British",
+  "slotAffinity": [
+    "breakfast",
+    "lunch",
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Boil the eggs for 8 minutes, then cool and peel them.",
+    "Toast the bread and mash the avocado over it with a drizzle of oil.",
+    "Slice the eggs on top and season."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "avocado",
+      "qty_g": 70
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

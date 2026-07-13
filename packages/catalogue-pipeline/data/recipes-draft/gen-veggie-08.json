@@ -1,0 +1,47 @@
+{
+  "id": "gen-veggie-08",
+  "name": "Edamame & quinoa bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "bowl"
+  ],
+  "steps": [
+    "Tip the warm quinoa into a bowl.",
+    "Add the edamame, grated carrot, and sliced avocado.",
+    "Whisk the soy sauce with the sesame oil and drizzle over."
+  ],
+  "ingredients": [
+    {
+      "name": "quinoa, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "edamame",
+      "qty_g": 90
+    },
+    {
+      "name": "avocado",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 6
+    }
+  ]
+}

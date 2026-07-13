@@ -1,0 +1,48 @@
+{
+  "id": "gen-mideast-06",
+  "name": "Beef kofta rice bowl",
+  "cuisine": "Middle-Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan",
+    "bowl"
+  ],
+  "steps": [
+    "Mix the ground beef with the grated onion, parsley and cumin.",
+    "Shape into small logs and pan-fry until browned through, ~8 min.",
+    "Warm the rice and pile it into a bowl.",
+    "Top with the kofta and a drizzle of olive oil."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "parsley",
+      "qty_g": 10
+    },
+    {
+      "name": "cumin",
+      "qty_g": 2
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "gen-indian-02",
+  "name": "Paneer butter masala",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "one-pan"
+  ],
+  "steps": [
+    "Blend the tinned tomatoes into a smooth sauce.",
+    "Melt butter and fry garam masala, chilli powder and ginger for a minute.",
+    "Pour in the tomato and simmer until thickened, about 10 minutes.",
+    "Stir in cream, then add the cubed paneer and warm through.",
+    "Serve with warm naan and a pinch of dried fenugreek."
+  ],
+  "ingredients": [
+    {
+      "name": "paneer",
+      "qty_g": 120
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "butter",
+      "qty_g": 15
+    },
+    {
+      "name": "heavy cream",
+      "qty_g": 30
+    },
+    {
+      "name": "naan bread",
+      "qty_g": 80
+    }
+  ]
+}

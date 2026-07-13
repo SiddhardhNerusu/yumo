@@ -1,7 +1,24 @@
+import type { MealSlot } from '@yumo/shared';
 import type { VariationDial } from './types';
 
-/** §4.3 protein floor. */
+/** §4.3 protein floor (default target when the user sets no explicit protein goal). */
 export const PROTEIN_FLOOR_PER_KG = 1.6;
+
+/** §5.2 how the day's protein target splits across slots — dinners carry more,
+ * breakfast structurally lighter. Renormalised for however many slots exist. */
+export const PROTEIN_SLOT_SPLIT: Record<MealSlot, number> = {
+  breakfast: 0.2,
+  lunch: 0.32,
+  dinner: 0.38,
+  snack: 0.1,
+};
+
+/** §5.3 protein is one-sided: hitting the target is what matters; overshooting by
+ * up to this fraction is free (not penalised). */
+export const PROTEIN_OVERSHOOT_FREE = 0.15;
+
+/** §5.6 kcal tolerance may relax to this when protein needs topping up. */
+export const DAY_BUDGET_TOLERANCE_RELAXED = 0.075;
 
 /** §4.3 day total must land within ±5% of budget. */
 export const DAY_BUDGET_TOLERANCE = 0.05;

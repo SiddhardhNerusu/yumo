@@ -1,0 +1,55 @@
+{
+  "id": "gen-chinese-02",
+  "name": "Black bean beef stir-fry",
+  "cuisine": "Cantonese",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "stir-fry",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the beef sirloin thinly across the grain.",
+    "Heat the oil in a wok and sear the beef for 2 minutes.",
+    "Add the green pepper, onion and garlic and stir-fry 3 minutes.",
+    "Mash in the black beans with the soy sauce and toss until glossy.",
+    "Serve over the warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "beef sirloin, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 30
+    },
+    {
+      "name": "green bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "gen-veggie-02",
+  "name": "Tempeh & broccoli stir-fry",
+  "cuisine": "Indonesian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "stir-fry",
+    "high-protein",
+    "vegan"
+  ],
+  "steps": [
+    "Slice the tempeh and fry in the oil until browned on both sides.",
+    "Add the broccoli and toss for 2 minutes.",
+    "Pour in the soy sauce, then serve over the warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "tempeh",
+      "qty_g": 120
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "brown rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 10
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    }
+  ]
+}

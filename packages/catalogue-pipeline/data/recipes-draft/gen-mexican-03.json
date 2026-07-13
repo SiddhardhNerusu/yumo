@@ -1,0 +1,46 @@
+{
+  "id": "gen-mexican-03",
+  "name": "Huevos rancheros",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Warm the tinned tomatoes in a pan with a little onion, cumin and chilli.",
+    "Fry the two eggs in oil until the whites set.",
+    "Warm the tortilla in a dry pan.",
+    "Lay the tortilla on a plate, spoon over the tomato sauce, slide the eggs on top and add black beans."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "corn tortilla",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

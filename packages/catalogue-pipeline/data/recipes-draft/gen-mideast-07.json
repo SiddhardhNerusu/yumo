@@ -1,0 +1,52 @@
+{
+  "id": "gen-mideast-07",
+  "name": "Chickpea & spinach stew",
+  "cuisine": "Middle-Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "one-pot",
+    "budget"
+  ],
+  "steps": [
+    "Soften the onion and garlic in the olive oil, ~4 min.",
+    "Add the cumin and tinned tomatoes and simmer 5 min.",
+    "Stir in the chickpeas and spinach until the leaves wilt.",
+    "Season and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "spinach",
+      "qty_g": 80
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "cumin",
+      "qty_g": 2
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

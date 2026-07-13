@@ -1,0 +1,47 @@
+{
+  "id": "gen-italian-08",
+  "name": "Lentil & vegetable pasta",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "one-pan",
+    "high-fiber",
+    "vegetarian"
+  ],
+  "steps": [
+    "Soften diced onion and courgette in olive oil for 5 minutes.",
+    "Add tinned tomatoes and the cooked lentils and simmer 5 minutes.",
+    "Toss through the cooked pasta and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "lentils, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "courgette",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}
