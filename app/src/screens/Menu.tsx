@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
+import { logEvents, localParts } from '@yumo/brain';
 import { useTheme } from '../theme';
 import { getMenu, getMixup, getRecipeDetail, type Source, type RecipeIngredientLine } from '../data/repo';
 import { useEventStore } from '../data/eventStore';
@@ -43,7 +44,18 @@ export function Menu({ profile }: { profile: UserProfile }) {
   const [, setSource] = useState<Source>('local');
   const [dayIdx, setDayIdx] = useState(0);
   const [overrides, setOverrides] = useState<Record<string, MenuRecipe>>({});
-  const [logged, setLogged] = useState<Record<string, boolean>>({});
+  const [now] = useState(() => Date.now());
+  // "Logged" is derived from the persisted event log (by recipe+slot, today), NOT
+  // local state — so it survives the tab-switch remount and never double-logs.
+  const loggedToday = useMemo(() => {
+    const day = localParts(now, 0).epochDay;
+    const set = new Set<string>();
+    for (const e of logEvents(events)) {
+      if (e.foodId && e.slot && localParts(e.ts, 0).epochDay === day) set.add(`${e.slot}:${e.foodId}`);
+    }
+    return set;
+  }, [events, now]);
+  const isLoggedNow = (slot: MealSlot, recipeId: string) => loggedToday.has(`${slot}:${recipeId}`);
   const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[] } | null>(null);
   const [regenerating, setRegenerating] = useState(false);
   const [showKitchen, setShowKitchen] = useState(false);
@@ -87,7 +99,6 @@ export function Menu({ profile }: { profile: UserProfile }) {
         setSource(r.source);
         setDayIdx(0);
         setOverrides({});
-        setLogged({});
       })
       .finally(() => setRegenerating(false));
   };
@@ -136,7 +147,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
     return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal) };
   };
   const dayTotal = SLOTS.reduce((sum, s) => sum + (currentFor(s)?.kcal ?? 0), 0);
-  const loggedCount = SLOTS.filter((s) => logged[`${dayIdx}:${s}`]).length;
+  const loggedCount = SLOTS.filter((s) => { const cur = currentFor(s); return cur ? isLoggedNow(s, cur.recipe.id) : false; }).length;
 
   const openMix = (key: string, recipe: MenuRecipe, slot: MealSlot) => {
     setMix({ key, slot, recipe });
@@ -155,11 +166,10 @@ export function Menu({ profile }: { profile: UserProfile }) {
   };
 
   const logMeal = (slot: MealSlot, cur: Cur) => {
-    const key = `${dayIdx}:${slot}`;
+    if (isLoggedNow(slot, cur.recipe.id)) return; // already logged today — guard against double-log
     logFood(cur.recipe.id, { slot, kcal: cur.kcal, proteinG: cur.protein, carbsG: cur.carbs, fatG: cur.fat, name: cur.recipe.name, source: 'menu', taps: 1 });
     kitchen.decrementForRecipe(cur.recipe); // §6 auto-decrement the pantry
     track('menu_accepted', { recipeId: cur.recipe.id, slot });
-    setLogged((l) => ({ ...l, [key]: true }));
   };
   const openRecipe = (cur: Cur) =>
     getRecipeDetail(cur.recipe).then((d) => setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients }));
@@ -219,7 +229,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
             const cur = currentFor(slot);
             if (!cur) return null;
             const key = `${dayIdx}:${slot}`;
-            const isLogged = !!logged[key];
+            const isLogged = isLoggedNow(slot, cur.recipe.id);
             const cook = fromKitchen ? cookability(cur.recipe, have) : null;
             const macros: Array<[string, number]> = [['protein', cur.protein], ['carbs', cur.carbs], ['fat', cur.fat]];
             return (
