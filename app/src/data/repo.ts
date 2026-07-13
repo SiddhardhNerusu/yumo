@@ -130,23 +130,74 @@ function formatQty(name: string, g: number): string {
   return `${g}g`;
 }
 
+/** §5.4 seasonings, oil and aromatics stay fixed when a portion scales — you don't
+ * double the salt for a 2× serving. Everything else scales with the portion. */
+const FIXED_WHEN_SCALED = /\b(salt|pepper|oil|butter|ghee|margarine|spice|spices|turmeric|cumin|paprika|masala|chilli powder|chili powder|cinnamon|oregano|basil|thyme|parsley|coriander|cilantro|mint|dill|bay|garlic|ginger|baking powder|yeast|vanilla|nutmeg|cardamom|clove|seasoning|stock cube)\b/i;
+/** Clean rounding so scaled grams read like a recipe, not a lab (185→190, 22→20). */
+const roundQty = (g: number) => (g >= 100 ? Math.round(g / 10) * 10 : g >= 20 ? Math.round(g / 5) * 5 : Math.max(1, Math.round(g)));
+
+function scaleIngredient(i: { name: string; qty_g: number }, scale: number): { name: string; qty_g: number } {
+  if (scale === 1 || FIXED_WHEN_SCALED.test(i.name)) return i;
+  return { name: i.name, qty_g: roundQty(i.qty_g * scale) };
+}
+
+/** Scale the amounts written into a step's prose (150g → 225g, 2 eggs → 3) without
+ * touching times, temperatures, or fixed seasonings/oil (§5.4). */
+const countWord = (n: number, word: string) =>
+  n === 1 ? word.replace(/s$/i, '') : word.endsWith('s') ? word : `${word}s`;
+function scaleStepText(step: string, scale: number): string {
+  if (scale === 1) return step;
+  let out = step.replace(/(\d+(?:\.\d+)?)\s*(g|ml)\b/gi, (m, num: string, unit: string, off: number, whole: string) => {
+    if (FIXED_WHEN_SCALED.test(whole.slice(Math.max(0, off - 26), off + 26))) return m;
+    return `${roundQty(parseFloat(num) * scale)}${unit.toLowerCase()}`;
+  });
+  // whole-unit counts: ranges first ("1-2 slices"), then singles, with clean pluralisation.
+  out = out.replace(/\b(\d+)\s*-\s*(\d+)\s+(eggs?|tortillas?|slices?)\b/gi, (_m, a: string, b: string, word: string) => {
+    const lo = Math.max(1, Math.round(parseInt(a, 10) * scale));
+    const hi = Math.max(1, Math.round(parseInt(b, 10) * scale));
+    return lo === hi ? `${lo} ${countWord(lo, word)}` : `${lo}-${hi} ${countWord(hi, word)}`;
+  });
+  out = out.replace(/\b(\d+)\s+(eggs?|tortillas?|slices?)\b/gi, (_m, num: string, word: string) => {
+    const n = Math.max(1, Math.round(parseInt(num, 10) * scale));
+    return `${n} ${countWord(n, word)}`;
+  });
+  return out;
+}
+
+/** Clean-portion label for the recipe sheet: ½ · 1½ · 2 portions (blank at 1×). */
+export function portionLabel(scale: number): string | undefined {
+  if (Math.abs(scale - 1) < 1e-6) return undefined;
+  const frac: Record<string, string> = { '0.5': '½', '1.5': '1½', '2': '2', '2.5': '2½', '3': '3' };
+  const key = String(Number(scale.toFixed(2)).valueOf());
+  const label = frac[key] ?? `${scale.toFixed(1)}×`;
+  return `${label} portion${scale > 1 ? 's' : ''}`;
+}
+
 /** Split an offline "Rolled oats — 50g" seed line into { name, qty }. */
 function splitIngredient(line: string): RecipeIngredientLine {
   const idx = line.indexOf(' — ');
   return idx >= 0 ? { name: line.slice(0, idx), qty: line.slice(idx + 3) } : { name: line, qty: '' };
 }
 
-export async function getRecipeDetail(recipe: MenuRecipe): Promise<RecipeDetail> {
+/** §5.4 the sheet is shown at the *served* portion: amounts and step numbers are
+ * scaled by `scale` (the menu's clean ½/1/1½/2 multiplier) so what you read matches
+ * the calories on the card. Seasonings and oil stay fixed. */
+export async function getRecipeDetail(recipe: MenuRecipe, scale = 1): Promise<RecipeDetail> {
+  const fmt = (i: { name: string; qty_g: number }) => {
+    const s = scaleIngredient(i, scale);
+    return { name: titleCase(s.name), qty: formatQty(s.name, s.qty_g) };
+  };
+  const scaleSteps = (steps: string[]) => steps.map((s) => scaleStepText(s, scale));
   try {
     const r = await api.recipe(recipe.id);
-    const ingredients = (r.ingredients ?? []).map((i) => ({ name: titleCase(i.name), qty: formatQty(i.name, i.qty_g) }));
-    return { steps: r.steps ?? [], ingredients, methods: POOL_METHODS_MAP.get(recipe.id) };
+    const ingredients = (r.ingredients ?? []).map(fmt);
+    return { steps: scaleSteps(r.steps ?? []), ingredients, methods: POOL_METHODS_MAP.get(recipe.id) };
   } catch {
     const structured = POOL_INGREDIENTS_MAP.get(recipe.id);
     const ingredients = structured
-      ? structured.map((i) => ({ name: titleCase(i.name), qty: formatQty(i.name, i.qty_g) }))
-      : (POOL_INGREDIENTS.get(recipe.id) ?? []).map(splitIngredient);
-    return { steps: POOL_STEPS.get(recipe.id) ?? [], ingredients, methods: POOL_METHODS_MAP.get(recipe.id) };
+      ? structured.map(fmt)
+      : (POOL_INGREDIENTS.get(recipe.id) ?? []).map(splitIngredient); // hand-seeds are display strings; shown at 1×
+    return { steps: scaleSteps(POOL_STEPS.get(recipe.id) ?? []), ingredients, methods: POOL_METHODS_MAP.get(recipe.id) };
   }
 }
 

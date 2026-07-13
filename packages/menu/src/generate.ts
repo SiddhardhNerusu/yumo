@@ -10,11 +10,15 @@ import {
   DAY_BUDGET_TOLERANCE,
   MAX_HARD_DINNERS_PER_WEEK,
   PORTION_SCALE_RANGE,
+  CLEAN_PORTION_STEPS,
+  SNACK_SCALE_RANGE,
 } from './config';
 
 const SLOTS = MEAL_SLOTS;
 const EFFORT_MIN = PORTION_SCALE_RANGE[0];
 const EFFORT_MAX = PORTION_SCALE_RANGE[1];
+const CLEAN_MIN = CLEAN_PORTION_STEPS[0];
+const CLEAN_MAX = CLEAN_PORTION_STEPS[CLEAN_PORTION_STEPS.length - 1];
 
 function clamp(x: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, x));
@@ -88,6 +92,70 @@ function repairDay(picks: MenuSlotPick[], budgetKcal: number, proteinTargetG: nu
     const maxByKcal = (kcalCap - othersKcal) / Math.max(1, p.recipe.perServing.kcal);
     const newScale = clamp(Math.min(EFFORT_MAX, maxByKcal), p.portionScale, EFFORT_MAX);
     if (newScale > p.portionScale) { applyScale(p, newScale); protein = picks.reduce((s, q) => s + q.protein_g, 0); }
+  }
+}
+
+const snapClean = (x: number): number =>
+  CLEAN_PORTION_STEPS.reduce((a, b) => (Math.abs(b - x) < Math.abs(a - x) ? b : a));
+
+/** §5.4 pin cooked meals to clean portions (½ / 1 / 1½ / 2) so the amounts a
+ * user reads are honest, then let the snack flex continuously to absorb the
+ * day's kcal residual. Mains that snapped down are nudged back up a step when
+ * the day is short on protein and the kcal cap allows. */
+function quantizePortions(picks: MenuSlotPick[], budgetKcal: number, proteinTargetG: number): void {
+  if (!picks.length) return;
+  const snack = picks.find((p) => p.slot === 'snack');
+  const mains = picks.filter((p) => p !== snack);
+  for (const p of mains) applyScale(p, clamp(snapClean(p.portionScale), CLEAN_MIN, CLEAN_MAX));
+
+  const absorb = () => {
+    if (!snack) return;
+    const mainsKcal = picks.reduce((s, q) => s + (q === snack ? 0 : q.kcal), 0);
+    const need = (budgetKcal - mainsKcal) / Math.max(1, snack.recipe.perServing.kcal);
+    applyScale(snack, clamp(need, SNACK_SCALE_RANGE[0], SNACK_SCALE_RANGE[1]));
+  };
+  absorb();
+
+  // When the snack alone can't swallow the residual (it clamped), step the single
+  // main that best closes the day's kcal gap by one clean portion, then re-absorb.
+  for (let iter = 0; iter < 4; iter++) {
+    const total = picks.reduce((s, p) => s + p.kcal, 0);
+    const err = total - budgetKcal;
+    if (Math.abs(err) / budgetKcal <= DAY_BUDGET_TOLERANCE) break;
+    const over = err > 0;
+    let best: { p: MenuSlotPick; step: number } | null = null;
+    let bestGap = Math.abs(err);
+    for (const p of mains) {
+      const idx = CLEAN_PORTION_STEPS.indexOf(p.portionScale);
+      const j = over ? idx - 1 : idx + 1;
+      if (idx < 0 || j < 0 || j >= CLEAN_PORTION_STEPS.length) continue;
+      const step = CLEAN_PORTION_STEPS[j];
+      const gap = Math.abs(err + p.recipe.perServing.kcal * (step - p.portionScale));
+      if (gap < bestGap) { bestGap = gap; best = { p, step }; }
+    }
+    if (!best) break;
+    applyScale(best.p, best.step);
+    absorb();
+  }
+
+  let protein = picks.reduce((s, p) => s + p.protein_g, 0);
+  if (protein >= proteinTargetG) return;
+  const kcalCap = budgetKcal * (1 + DAY_BUDGET_TOLERANCE);
+  const dense = [...mains].sort(
+    (a, b) =>
+      b.recipe.perServing.protein_g / Math.max(1, b.recipe.perServing.kcal) -
+      a.recipe.perServing.protein_g / Math.max(1, a.recipe.perServing.kcal),
+  );
+  for (const p of dense) {
+    if (protein >= proteinTargetG) break;
+    const idx = CLEAN_PORTION_STEPS.indexOf(p.portionScale);
+    if (idx < 0 || idx >= CLEAN_PORTION_STEPS.length - 1) continue;
+    const next = CLEAN_PORTION_STEPS[idx + 1];
+    const othersKcal = picks.reduce((s, q) => s + (q === p ? 0 : q.kcal), 0);
+    if (othersKcal + p.recipe.perServing.kcal * next > kcalCap) continue;
+    applyScale(p, next);
+    absorb();
+    protein = picks.reduce((s, q) => s + q.protein_g, 0);
   }
 }
 
@@ -182,6 +250,7 @@ export function generateWeekMenu(
 
     const finalPicks = picks.filter((p): p is MenuSlotPick => p !== null);
     repairDay(finalPicks, profile.budgetKcal, proteinTarget);
+    quantizePortions(finalPicks, profile.budgetKcal, proteinTarget); // §5.4 clean portions
 
     const totalKcal = finalPicks.reduce((s, p) => s + p.kcal, 0);
     const totalProtein = finalPicks.reduce((s, p) => s + p.protein_g, 0);

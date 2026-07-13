@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { generateWeekMenu } from '../src/generate';
 import { containsAnyToken } from '../src/filter';
-import { PORTION_SCALE_RANGE } from '../src/config';
+import { CLEAN_PORTION_STEPS, SNACK_SCALE_RANGE } from '../src/config';
 import type { MenuRecipe, UserProfile, VariationDial } from '../src/types';
 import type { MealSlot, Allergen } from '@yumo/shared';
 import { ALLERGENS } from '@yumo/shared';
@@ -14,7 +14,8 @@ import { mulberry32, hashSeed } from '../src/rng';
  * measure plan quality (kcal fit, protein hit, variety). Fully seeded → reproducible.
  */
 
-const [SCALE_MIN, SCALE_MAX] = PORTION_SCALE_RANGE;
+const [SNACK_MIN, SNACK_MAX] = SNACK_SCALE_RANGE;
+const isCleanStep = (x: number) => CLEAN_PORTION_STEPS.some((s) => Math.abs(s - x) < 1e-6);
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 const CUISINES = ['British', 'Indian', 'Chinese', 'Italian', 'Thai', 'Mexican', 'Mediterranean', 'Japanese', 'American', 'Caribbean'];
 const EFFORTS = ['5min', '15min', '30min+'] as const;
@@ -99,7 +100,12 @@ describe('§11.2 plan-quality regression net (500 users)', () => {
         if (pick.recipe.allergens.some((a) => user.allergies.includes(a))) allergyViolations++;
         if (containsAnyToken(pick.recipe, user.hates)) hateViolations++;
         if (!pick.recipe.slotAffinity.includes(pick.slot)) slotViolations++;
-        if (pick.portionScale < SCALE_MIN - 1e-6 || pick.portionScale > SCALE_MAX + 1e-6) boundViolations++;
+        // §5.4 mains serve at clean portions (½/1/1½/2); the snack flexes within its own range.
+        if (pick.slot === 'snack') {
+          if (pick.portionScale < SNACK_MIN - 1e-6 || pick.portionScale > SNACK_MAX + 1e-6) boundViolations++;
+        } else if (!isCleanStep(pick.portionScale)) {
+          boundViolations++;
+        }
         weekUse.set(pick.recipe.id, (weekUse.get(pick.recipe.id) ?? 0) + 1);
       }
     }
@@ -119,8 +125,7 @@ describe('§11.2 plan-quality regression net (500 users)', () => {
     expect(slotViolations).toBe(0);
     expect(boundViolations).toBe(0);
   });
-  // ~93% today via scale-repair alone; the last points to the §11 98% bar need the
-  // §5.6 swap-snack repair step (re-select a meal, not just rescale) — a clean follow-on.
+  // ~98% via clean-portion snap + snack-absorb + one-step residual correction (§5.4).
   it('lands ≥90% of days within ±5% of the calorie budget (regression floor)', () => {
     expect(kcalRate).toBeGreaterThanOrEqual(0.9);
   });

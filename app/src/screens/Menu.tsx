@@ -4,7 +4,7 @@ import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
 import { logEvents, localParts } from '@yumo/brain';
 import { useTheme } from '../theme';
-import { getMenu, getMixup, getRecipeDetail, type Source, type RecipeIngredientLine } from '../data/repo';
+import { getMenu, getMixup, getRecipeDetail, portionLabel, type Source, type RecipeIngredientLine } from '../data/repo';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
 import { menuBoostIds, mixReason } from '../data/menuPrefs';
@@ -22,7 +22,7 @@ const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 const num = { fontVariant: ['tabular-nums' as const] };
 
-type Cur = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number };
+type Cur = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number; portionScale: number };
 
 export function Menu({ profile }: { profile: UserProfile }) {
   const { c } = useTheme();
@@ -56,7 +56,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
     return set;
   }, [events, now]);
   const isLoggedNow = (slot: MealSlot, recipeId: string) => loggedToday.has(`${slot}:${recipeId}`);
-  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[] } | null>(null);
+  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null>(null);
   const [regenerating, setRegenerating] = useState(false);
   const [showKitchen, setShowKitchen] = useState(false);
   const [fromKitchen, setFromKitchen] = useState(false);
@@ -139,12 +139,12 @@ export function Menu({ profile }: { profile: UserProfile }) {
     const ov = overrides[key];
     if (ov) {
       const kcal = Math.round(ov.perServing.kcal);
-      return { recipe: ov, kcal, ...macrosFor(ov, kcal) };
+      return { recipe: ov, kcal, ...macrosFor(ov, kcal), portionScale: 1 };
     }
     const pick = day.picks.find((p) => p.slot === slot);
     if (!pick) return null;
     const kcal = Math.round(pick.kcal);
-    return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal) };
+    return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal), portionScale: pick.portionScale };
   };
   const dayTotal = SLOTS.reduce((sum, s) => sum + (currentFor(s)?.kcal ?? 0), 0);
   const loggedCount = SLOTS.filter((s) => { const cur = currentFor(s); return cur ? isLoggedNow(s, cur.recipe.id) : false; }).length;
@@ -171,8 +171,11 @@ export function Menu({ profile }: { profile: UserProfile }) {
     kitchen.decrementForRecipe(cur.recipe); // §6 auto-decrement the pantry
     track('menu_accepted', { recipeId: cur.recipe.id, slot });
   };
-  const openRecipe = (cur: Cur) =>
-    getRecipeDetail(cur.recipe).then((d) => setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods }));
+  const openRecipe = (cur: Cur) => {
+    const s = Math.max(0.5, Math.round(cur.portionScale * 2) / 2); // clean half for the sheet
+    return getRecipeDetail(cur.recipe, s).then((d) =>
+      setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s) }));
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>

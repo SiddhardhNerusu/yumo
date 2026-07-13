@@ -8,7 +8,7 @@ import { useTheme } from '../theme';
 import { useToday } from '../useToday';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
-import { getMenu, getMixup, getRecipeDetail, type RecipeIngredientLine } from '../data/repo';
+import { getMenu, getMixup, getRecipeDetail, portionLabel, type RecipeIngredientLine } from '../data/repo';
 import { menuBoostIds, mixReason } from '../data/menuPrefs';
 import { expiringItems, expiringUsedBy } from '../data/expiring';
 import { cookability } from '../data/cookability';
@@ -26,7 +26,7 @@ const num = { fontVariant: ['tabular-nums' as const] };
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-type Planned = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number };
+type Planned = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number; portionScale: number };
 
 /** Build a throwaway profile for menu/mix calls (Today only knows budget + tokens). */
 const profileFor = (budget: number, likes: string[]): UserProfile => ({ budgetKcal: budget, targetWeightKg: 75, allergies: [], hates: [], needs: [], likes, pantry: [], variation: 'balanced' });
@@ -44,7 +44,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   const [mix, setMix] = useState<{ slot: MealSlot; recipe: MenuRecipe } | null>(null);
   const [mixOptions, setMixOptions] = useState<MixOption[]>([]);
   const [mixLoading, setMixLoading] = useState(false);
-  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[] } | null>(null);
+  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null>(null);
 
   const likes = tokens ?? [];
   const boostIds = useMemo(() => menuBoostIds(events), [events]);
@@ -91,11 +91,11 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   };
   const plannedFor = (slot: MealSlot): Planned | null => {
     const ov = featuredOverride[slot];
-    if (ov) { const kcal = Math.round(ov.perServing.kcal); return { recipe: ov, kcal, ...macrosFor(ov, kcal) }; }
+    if (ov) { const kcal = Math.round(ov.perServing.kcal); return { recipe: ov, kcal, ...macrosFor(ov, kcal), portionScale: 1 }; }
     const pick = day?.picks.find((p) => p.slot === slot);
     if (!pick) return null;
     const kcal = Math.round(pick.kcal);
-    return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal) };
+    return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal), portionScale: pick.portionScale };
   };
 
   // §5 computed coach line.
@@ -144,7 +144,10 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
     setFeaturedOverride((o) => ({ ...o, [mix.slot]: alt })); // swaps the suggestion; does NOT log
     setMix(null);
   };
-  const openRecipe = (p: Planned) => getRecipeDetail(p.recipe).then((detail) => setSheet({ name: p.recipe.name, kcal: p.kcal, steps: detail.steps, ingredients: detail.ingredients, methods: detail.methods }));
+  const openRecipe = (p: Planned) => {
+    const s = Math.max(0.5, Math.round(p.portionScale * 2) / 2);
+    return getRecipeDetail(p.recipe, s).then((detail) => setSheet({ name: p.recipe.name, kcal: p.kcal, steps: detail.steps, ingredients: detail.ingredients, methods: detail.methods, portion: portionLabel(s) }));
+  };
   const addPlanned = (slot: MealSlot): AddItem | null => {
     const p = plannedFor(slot);
     return p ? { id: p.recipe.id, name: p.recipe.name, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, source: 'menu' } : null;

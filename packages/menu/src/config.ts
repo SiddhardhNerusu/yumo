@@ -37,6 +37,14 @@ export const MAX_HARD_DINNERS_PER_WEEK = 2;
 /** Clamp portion scaling so a recipe is never stretched absurdly to hit a slot. */
 export const PORTION_SCALE_RANGE: readonly [number, number] = [0.6, 1.6];
 
+/** §5.4 cooked meals are served at clean, human portions (½ / 1 / 1½ / 2) so the
+ * displayed amounts stay honest and readable. The snack slot is the continuous
+ * fine-tuner that absorbs the day's residual. */
+export const CLEAN_PORTION_STEPS: readonly number[] = [0.5, 1, 1.5, 2];
+/** The snack can flex wider than a main (a bigger/smaller handful) to close the
+ * day's kcal gap once the mains are pinned to clean portions. */
+export const SNACK_SCALE_RANGE: readonly [number, number] = [0.5, 3];
+
 /** Soft-score term weights. */
 export const SOFT_WEIGHTS = {
   likes: 0.5,

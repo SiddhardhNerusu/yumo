@@ -9,18 +9,21 @@ export function RecipeSheet({
   recipe,
   onClose,
 }: {
-  recipe: { name: string; kcal?: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[] } | null;
+  recipe: { name: string; kcal?: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null;
   onClose: () => void;
 }) {
   const { c } = useTheme();
   return (
     <Sheet visible={recipe !== null} onClose={onClose}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: recipe?.portion ? 4 : 18 }}>
         <Serif size={24} weight="medium" color={c('textPrimary')} style={{ flex: 1 }}>{recipe?.name ?? ''}</Serif>
         {recipe?.kcal != null ? (
           <Text style={{ color: c('textSecondary'), fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{recipe.kcal.toLocaleString()} kcal</Text>
         ) : null}
       </View>
+      {recipe?.portion ? (
+        <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '600', marginBottom: 18 }}>Amounts for {recipe.portion}</Text>
+      ) : null}
 
       <ScrollView>
         {recipe?.ingredients?.length ? (
