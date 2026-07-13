@@ -12,17 +12,29 @@ export function setToken(t: string | null): void {
   token = t;
 }
 
-async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      'content-type': 'application/json',
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  });
-  if (!res.ok) throw new Error(`${path} → ${res.status}`);
-  return (await res.json()) as T;
+/** Fall back to local/offline data fast rather than hang on a slow or cold server.
+ * (Render's free tier spins down when idle; the first request can take 30–60s to
+ * cold-boot. Without this, the app waited the whole time instead of using its seed.) */
+const REQ_TIMEOUT_MS = 4000;
+
+async function req<T>(path: string, init?: RequestInit, timeoutMs = REQ_TIMEOUT_MS): Promise<T> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      signal: ctrl.signal,
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
+    });
+    if (!res.ok) throw new Error(`${path} → ${res.status}`);
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export interface DevLoginResp {
