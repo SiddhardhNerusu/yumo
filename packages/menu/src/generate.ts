@@ -60,10 +60,21 @@ function buildPick(slot: MealSlot, recipe: MenuRecipe, budgetKcal: number, prote
  * day is short on protein, scale up the most protein-dense meals within bounds,
  * accepting kcal up to the relaxed +7.5% ceiling. Never breaks scale bounds. */
 function repairDay(picks: MenuSlotPick[], budgetKcal: number, proteinTargetG: number): void {
-  const total = picks.reduce((s, p) => s + p.kcal, 0);
-  if (total <= 0) return;
-  const factor = budgetKcal / total;
-  for (const p of picks) applyScale(p, clamp(p.portionScale * factor, EFFORT_MIN, EFFORT_MAX));
+  if (!picks.length) return;
+  // Distribute the kcal correction across only the meals with headroom in the needed
+  // direction, iterating so meals pinned at a clamp don't defeat a single factor.
+  for (let iter = 0; iter < 5; iter++) {
+    const total = picks.reduce((s, p) => s + p.kcal, 0);
+    if (total <= 0) return;
+    if (Math.abs(total - budgetKcal) / budgetKcal <= 0.005) break;
+    const up = total < budgetKcal;
+    const adj = picks.filter((p) => (up ? p.portionScale < EFFORT_MAX - 1e-6 : p.portionScale > EFFORT_MIN + 1e-6));
+    if (!adj.length) break;
+    const adjKcal = adj.reduce((s, p) => s + p.kcal, 0);
+    const fixedKcal = total - adjKcal;
+    const factor = (budgetKcal - fixedKcal) / Math.max(1, adjKcal);
+    for (const p of adj) applyScale(p, clamp(p.portionScale * factor, EFFORT_MIN, EFFORT_MAX));
+  }
 
   // protein one-sided: only top up when short (§5.3). Chase it WITHIN the ±5% kcal
   // budget (the ±7.5% relaxation is a later last-resort step, after a snack swap).
