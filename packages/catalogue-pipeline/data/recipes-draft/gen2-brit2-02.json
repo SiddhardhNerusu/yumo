@@ -1,0 +1,47 @@
+{
+  "id": "gen2-brit2-02",
+  "name": "Beef shepherd's pie",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "comfort-food"
+  ],
+  "steps": [
+    "Brown the minced beef in a pan and drain any excess fat.",
+    "Add the diced onion and carrot and soften for five minutes.",
+    "Stir in the tinned tomatoes and simmer until thickened.",
+    "Boil the potatoes and mash smooth with a little butter.",
+    "Top the mince with mash and bake at 200C for twenty-five minutes."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef",
+      "qty_g": 140
+    },
+    {
+      "name": "potato",
+      "qty_g": 200
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    }
+  ]
+}

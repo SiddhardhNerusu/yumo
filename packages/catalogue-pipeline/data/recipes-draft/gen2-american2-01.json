@@ -1,0 +1,45 @@
+{
+  "id": "gen2-american2-01",
+  "name": "Ground turkey chilli bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot",
+    "meal-prep"
+  ],
+  "steps": [
+    "Brown the ground turkey in a pot with a little oil until no longer pink.",
+    "Stir in the diced onion and cook until softened.",
+    "Add chilli powder, cumin, and a pinch of salt and toast for a minute.",
+    "Pour in the tinned tomatoes and kidney beans and bring to a simmer.",
+    "Simmer for 20 minutes until thick, then serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "ground turkey",
+      "qty_g": 150
+    },
+    {
+      "name": "kidney beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 7
+    }
+  ]
+}

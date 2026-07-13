@@ -1,0 +1,48 @@
+{
+  "id": "gen2-quick5-05",
+  "name": "Black bean & corn taco cups",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "assemble-only"
+  ],
+  "steps": [
+    "Tip the black beans and corn into a bowl and stir together.",
+    "Add the salsa, lime juice and a pinch of cumin.",
+    "Spoon the mixture into the taco shells.",
+    "Top with a little crumbled feta and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "black beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "corn, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "salsa",
+      "qty_g": 40
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 8
+    },
+    {
+      "name": "taco shells",
+      "qty_g": 40
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 25
+    }
+  ]
+}

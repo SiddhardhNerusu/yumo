@@ -1,0 +1,47 @@
+{
+  "id": "gen2-italian2-06",
+  "name": "Turkey meatballs in tomato sauce",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Mix the turkey mince with breadcrumbs, egg and parmesan.",
+    "Roll into small meatballs.",
+    "Brown them in olive oil.",
+    "Pour over the tinned tomatoes and simmer until cooked through.",
+    "Season and finish with a little more parmesan."
+  ],
+  "ingredients": [
+    {
+      "name": "turkey mince",
+      "qty_g": 150
+    },
+    {
+      "name": "breadcrumbs",
+      "qty_g": 20
+    },
+    {
+      "name": "egg",
+      "qty_g": 20
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

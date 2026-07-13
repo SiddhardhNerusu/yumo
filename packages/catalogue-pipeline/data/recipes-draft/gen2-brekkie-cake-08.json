@@ -1,0 +1,40 @@
+{
+  "id": "gen2-brekkie-cake-08",
+  "name": "Ricotta lemon protein pancakes",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Whisk the egg yolks with the ricotta and flour until smooth.",
+    "Beat the egg whites to soft peaks in a separate bowl.",
+    "Gently fold the whites into the ricotta batter.",
+    "Heat a greased non-stick pan over medium-low heat.",
+    "Cook the pancakes gently until golden on both sides.",
+    "Serve warm and fluffy."
+  ],
+  "ingredients": [
+    {
+      "name": "ricotta cheese",
+      "qty_g": 120
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "all-purpose flour",
+      "qty_g": 40
+    },
+    {
+      "name": "lemon",
+      "qty_g": 15
+    }
+  ]
+}

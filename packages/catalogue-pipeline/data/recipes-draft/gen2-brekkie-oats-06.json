@@ -1,0 +1,44 @@
+{
+  "id": "gen2-brekkie-oats-06",
+  "name": "Coconut chia oat pudding",
+  "cuisine": "Tropical",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "vegan",
+    "make-ahead",
+    "no-cook"
+  ],
+  "steps": [
+    "Mix the oats, chia seeds and coconut milk in a jar.",
+    "Stir well so the chia seeds are evenly dispersed.",
+    "Chill overnight until thick and set.",
+    "Top with mango and shredded coconut to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 40
+    },
+    {
+      "name": "chia seeds",
+      "qty_g": 15
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 180
+    },
+    {
+      "name": "mango",
+      "qty_g": 90
+    },
+    {
+      "name": "shredded coconut",
+      "qty_g": 10
+    }
+  ]
+}

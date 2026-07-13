@@ -1,0 +1,40 @@
+{
+  "id": "gen2-snack-fruit-02",
+  "name": "Greek yogurt with mixed berries",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "snack",
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the greek yogurt into a bowl.",
+    "Rinse the berries and halve any large strawberries.",
+    "Scatter the berries over the yogurt.",
+    "Drizzle with honey to finish."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 170
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 60
+    },
+    {
+      "name": "strawberries",
+      "qty_g": 60
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "gen2-mideast2-08",
+  "name": "Grilled halloumi mezze",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the halloumi and pat dry.",
+    "Grill the halloumi in a dry hot pan until golden on both sides.",
+    "Warm the pita and cut into wedges.",
+    "Arrange the halloumi with tomato and cucumber.",
+    "Drizzle with olive oil and a squeeze of lemon.",
+    "Scatter with mint to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "halloumi cheese",
+      "qty_g": 90
+    },
+    {
+      "name": "pita bread",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 70
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

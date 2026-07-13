@@ -1,0 +1,44 @@
+{
+  "id": "gen2-spanish-07",
+  "name": "Pan-seared salmon with romesco",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "omega-3"
+  ],
+  "steps": [
+    "Season the salmon and sear it skin-side down in olive oil.",
+    "Flip and cook until just opaque through the centre.",
+    "Blend the red pepper, almonds, garlic, and paprika into a sauce.",
+    "Loosen the romesco with a little olive oil and salt.",
+    "Spoon the sauce onto the plate and set the salmon on top."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon",
+      "qty_g": 160
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 80
+    },
+    {
+      "name": "almonds",
+      "qty_g": 20
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    }
+  ]
+}

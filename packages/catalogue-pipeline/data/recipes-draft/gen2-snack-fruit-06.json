@@ -1,0 +1,40 @@
+{
+  "id": "gen2-snack-fruit-06",
+  "name": "Yogurt granola parfait",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack",
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon half the greek yogurt into a glass.",
+    "Add a layer of granola and half the raspberries.",
+    "Top with the remaining yogurt and raspberries.",
+    "Finish with a drizzle of honey."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 150
+    },
+    {
+      "name": "granola",
+      "qty_g": 40
+    },
+    {
+      "name": "raspberries",
+      "qty_g": 60
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

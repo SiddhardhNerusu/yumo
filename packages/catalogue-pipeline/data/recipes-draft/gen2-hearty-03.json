@@ -1,0 +1,47 @@
+{
+  "id": "gen2-hearty-03",
+  "name": "Salmon teriyaki rice bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "pescatarian"
+  ],
+  "steps": [
+    "Pan-sear the salmon fillet skin-side down until crisp, then flip to finish.",
+    "Glaze the salmon with soy sauce and honey until sticky.",
+    "Steam the broccoli until just tender.",
+    "Pile the cooked rice into a bowl and top with the salmon and broccoli.",
+    "Drizzle over the pan glaze and sprinkle sesame seeds."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 220
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "honey",
+      "qty_g": 15
+    },
+    {
+      "name": "sesame seeds",
+      "qty_g": 6
+    }
+  ]
+}

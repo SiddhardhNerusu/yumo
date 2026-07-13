@@ -1,0 +1,55 @@
+{
+  "id": "gen2-french-04",
+  "name": "Coq au vin lite",
+  "cuisine": "French",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Brown the chicken thigh pieces in a little olive oil.",
+    "Add the mushrooms, onion and garlic and cook until softened.",
+    "Pour in the red wine and let it reduce by half.",
+    "Add the chicken stock and a sprig of thyme, then simmer 20 minutes.",
+    "Stir the sliced carrot through for the last 10 minutes.",
+    "Reduce the sauce until glossy and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "mushrooms",
+      "qty_g": 80
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "red wine",
+      "qty_g": 80
+    },
+    {
+      "name": "chicken stock",
+      "qty_g": 100
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

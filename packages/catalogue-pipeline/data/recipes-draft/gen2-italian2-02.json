@@ -1,0 +1,51 @@
+{
+  "id": "gen2-italian2-02",
+  "name": "Chicken and pea risotto",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Toast the arborio rice in olive oil with a little onion.",
+    "Ladle in warm stock gradually, stirring until absorbed.",
+    "Stir in the cooked chicken and peas near the end.",
+    "Finish with parmesan and a knob of butter.",
+    "Season and serve creamy."
+  ],
+  "ingredients": [
+    {
+      "name": "arborio rice",
+      "qty_g": 70
+    },
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "peas",
+      "qty_g": 60
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 20
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    }
+  ]
+}

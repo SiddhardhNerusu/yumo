@@ -1,0 +1,53 @@
+{
+  "id": "gen2-bowls-01",
+  "name": "Chicken quinoa power bowl",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "meal-prep",
+    "gluten-free"
+  ],
+  "steps": [
+    "Season the chicken breast and pan-sear until cooked through, then slice.",
+    "Spoon the warm cooked quinoa into a bowl as the base.",
+    "Add the cherry tomatoes, cucumber and chickpeas around the edge.",
+    "Lay the sliced chicken on top and crumble over the feta.",
+    "Drizzle with olive oil and a squeeze of lemon before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "quinoa, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 50
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

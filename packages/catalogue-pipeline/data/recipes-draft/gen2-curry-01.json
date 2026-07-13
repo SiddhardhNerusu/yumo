@@ -1,0 +1,43 @@
+{
+  "id": "gen2-curry-01",
+  "name": "Thai green chicken curry",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil in a pan and stir a spoonful of green curry paste until fragrant.",
+    "Pour in the coconut milk and bring to a gentle simmer.",
+    "Add the sliced green beans and cook for three minutes until just tender.",
+    "Fold in the cooked chicken and warm through for two minutes.",
+    "Serve the curry over the hot cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 120
+    },
+    {
+      "name": "green beans",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 5
+    }
+  ]
+}

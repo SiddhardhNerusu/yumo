@@ -1,0 +1,48 @@
+{
+  "id": "gen2-quick15-07",
+  "name": "Tuna and white bean salad bowl",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "no-cook"
+  ],
+  "steps": [
+    "Drain the tuna and flake it into a bowl.",
+    "Add the white beans and sliced red onion.",
+    "Fold in the rocket leaves.",
+    "Dress with olive oil, lemon, salt, and pepper.",
+    "Toss gently and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "canned tuna",
+      "qty_g": 120
+    },
+    {
+      "name": "white beans, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "red onion",
+      "qty_g": 30
+    },
+    {
+      "name": "arugula",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lemon",
+      "qty_g": 15
+    }
+  ]
+}

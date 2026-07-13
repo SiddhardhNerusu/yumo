@@ -1,0 +1,45 @@
+{
+  "id": "gen2-brekkie-eggs-05",
+  "name": "Mushroom and spinach frittata",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Saut\u00e9 the sliced mushrooms in olive oil until browned.",
+    "Add the spinach and let it wilt down.",
+    "Whisk the eggs with grated parmesan and salt.",
+    "Pour the eggs over the vegetables and cook until the edges set.",
+    "Finish under a hot grill until the top is golden and firm."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "mushrooms",
+      "qty_g": 80
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 20
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

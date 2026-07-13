@@ -1,0 +1,40 @@
+{
+  "id": "gen2-brekkie-eggs-06",
+  "name": "Egg white and turkey scramble",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-fat",
+    "gluten-free"
+  ],
+  "steps": [
+    "Brown the turkey mince in a pan with a little olive oil.",
+    "Add the diced tomato and cook until softened.",
+    "Pour in the egg whites and stir gently.",
+    "Cook until the whites are just set and fluffy.",
+    "Season with salt and pepper and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "egg white",
+      "qty_g": 150
+    },
+    {
+      "name": "ground turkey",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

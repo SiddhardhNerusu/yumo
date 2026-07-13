@@ -1,0 +1,44 @@
+{
+  "id": "gen2-quick15-02",
+  "name": "Chicken teriyaki rice bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Slice the chicken breast into thin strips.",
+    "Sear the chicken in a hot pan with a little oil until golden.",
+    "Pour in the soy sauce and honey and let it bubble into a glaze.",
+    "Warm the rice and pile it into a bowl.",
+    "Spoon the glazed chicken over the rice and scatter the spring onion."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "honey",
+      "qty_g": 12
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

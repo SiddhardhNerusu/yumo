@@ -1,0 +1,47 @@
+{
+  "id": "gen2-japanese-01",
+  "name": "Chicken katsu with rice",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Flatten the chicken breast slightly and season with salt.",
+    "Dust in flour, dip in beaten egg, then coat in panko.",
+    "Shallow-fry in hot oil until golden and cooked through, about 4 minutes per side.",
+    "Rest for a minute, then slice into strips.",
+    "Serve over the warm rice with a drizzle of tonkatsu-style sauce."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast",
+      "qty_g": 180
+    },
+    {
+      "name": "panko breadcrumbs",
+      "qty_g": 40
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "wheat flour",
+      "qty_g": 20
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 15
+    }
+  ]
+}

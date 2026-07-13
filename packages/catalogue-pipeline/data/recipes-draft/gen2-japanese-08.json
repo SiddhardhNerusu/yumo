@@ -1,0 +1,43 @@
+{
+  "id": "gen2-japanese-08",
+  "name": "Miso salmon udon",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Brush the salmon with a little miso and grill until just cooked.",
+    "Warm dashi with the rest of the miso whisked in.",
+    "Add the cooked udon noodles to the broth and heat through.",
+    "Stir in spinach until wilted.",
+    "Flake the salmon over the noodles and top with spring onion."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon",
+      "qty_g": 150
+    },
+    {
+      "name": "miso",
+      "qty_g": 20
+    },
+    {
+      "name": "udon noodles, cooked",
+      "qty_g": 190
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

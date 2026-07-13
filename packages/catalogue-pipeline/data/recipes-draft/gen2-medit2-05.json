@@ -1,0 +1,47 @@
+{
+  "id": "gen2-medit2-05",
+  "name": "Classic Greek salad with feta",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Chop the cucumber, tomato, and red onion into chunks.",
+    "Toss with olives in a bowl.",
+    "Drizzle with olive oil and a splash of red wine vinegar.",
+    "Top with a slab of feta and dried oregano."
+  ],
+  "ingredients": [
+    {
+      "name": "cucumber",
+      "qty_g": 120
+    },
+    {
+      "name": "tomato",
+      "qty_g": 120
+    },
+    {
+      "name": "red onion",
+      "qty_g": 30
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 50
+    },
+    {
+      "name": "olives",
+      "qty_g": 25
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    }
+  ]
+}

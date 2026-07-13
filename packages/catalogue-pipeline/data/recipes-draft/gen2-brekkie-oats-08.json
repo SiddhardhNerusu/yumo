@@ -1,0 +1,45 @@
+{
+  "id": "gen2-brekkie-oats-08",
+  "name": "Pumpkin spice soy overnight oats",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "vegetarian",
+    "make-ahead",
+    "no-cook"
+  ],
+  "steps": [
+    "Combine the oats, soy milk and pumpkin puree in a jar.",
+    "Stir in the pumpkin pie spice and maple syrup.",
+    "Chill overnight until thick.",
+    "Top with chopped walnuts before eating."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 50
+    },
+    {
+      "name": "soy milk",
+      "qty_g": 180
+    },
+    {
+      "name": "pumpkin puree",
+      "qty_g": 80
+    },
+    {
+      "name": "maple syrup",
+      "qty_g": 15
+    },
+    {
+      "name": "walnuts",
+      "qty_g": 20
+    }
+  ]
+}

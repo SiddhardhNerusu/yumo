@@ -1,0 +1,44 @@
+{
+  "id": "gen2-wraps-08",
+  "name": "Grilled halloumi & pepper wrap",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the halloumi and griddle until golden on both sides.",
+    "Char the sliced red pepper in the same pan.",
+    "Spread hummus across the tortilla.",
+    "Lay the halloumi, pepper and spinach down the centre.",
+    "Roll up tightly and halve to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "halloumi cheese",
+      "qty_g": 90
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 70
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 40
+    },
+    {
+      "name": "hummus",
+      "qty_g": 30
+    },
+    {
+      "name": "spinach",
+      "qty_g": 20
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "gen2-thai2-05",
+  "name": "Vietnamese bun cha pork bowl",
+  "cuisine": "Vietnamese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grilled",
+    "noodle-bowl"
+  ],
+  "steps": [
+    "Shape the pork into small patties and grill until charred and cooked through.",
+    "Whisk the fish sauce, lime juice, and sugar into a light dressing.",
+    "Pile the cooked rice noodles into a bowl.",
+    "Add the sliced cucumber, carrots, and lettuce alongside.",
+    "Top with the grilled pork and spoon the dressing over."
+  ],
+  "ingredients": [
+    {
+      "name": "pork, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "rice noodles, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 40
+    },
+    {
+      "name": "carrots",
+      "qty_g": 30
+    },
+    {
+      "name": "lettuce",
+      "qty_g": 40
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 8
+    },
+    {
+      "name": "sugar",
+      "qty_g": 6
+    }
+  ]
+}

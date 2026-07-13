@@ -1,0 +1,41 @@
+{
+  "id": "gen2-student-03",
+  "name": "Peanut butter banana porridge",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "budget"
+  ],
+  "steps": [
+    "Simmer the oats with the milk until thick and creamy.",
+    "Stir in the peanut butter until melted through.",
+    "Top with sliced banana and a drizzle of honey."
+  ],
+  "ingredients": [
+    {
+      "name": "oats",
+      "qty_g": 60
+    },
+    {
+      "name": "milk, whole",
+      "qty_g": 250
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 25
+    },
+    {
+      "name": "banana",
+      "qty_g": 100
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

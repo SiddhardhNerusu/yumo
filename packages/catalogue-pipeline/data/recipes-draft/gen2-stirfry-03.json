@@ -1,0 +1,48 @@
+{
+  "id": "gen2-stirfry-03",
+  "name": "Tofu & vegetable stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "vegan",
+    "stir-fry"
+  ],
+  "steps": [
+    "Press and cube the tofu, then fry in a hot oiled wok until crisp on the edges.",
+    "Add the carrot and broccoli and stir-fry for three minutes.",
+    "Splash in the soy sauce and sesame oil and toss to coat.",
+    "Serve over the cooked white rice."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

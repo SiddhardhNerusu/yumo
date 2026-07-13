@@ -1,0 +1,48 @@
+{
+  "id": "gen2-salads-06",
+  "name": "Chickpea and feta power salad",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Tip the chickpeas into a bowl.",
+    "Add the cucumber, tomatoes and red onion.",
+    "Crumble in the feta cheese.",
+    "Dress with olive oil and lemon juice.",
+    "Toss well and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 50
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 70
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 70
+    },
+    {
+      "name": "red onion",
+      "qty_g": 25
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

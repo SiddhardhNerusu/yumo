@@ -1,0 +1,44 @@
+{
+  "id": "gen2-wraps-03",
+  "name": "Falafel & hummus pita",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Warm the falafel through in a hot oven or pan until crisp.",
+    "Split the pita and open a pocket.",
+    "Spread hummus inside the pocket.",
+    "Stuff with the falafel, chopped tomato and cucumber.",
+    "Season with a pinch of salt and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "falafel",
+      "qty_g": 120
+    },
+    {
+      "name": "pita bread",
+      "qty_g": 60
+    },
+    {
+      "name": "hummus",
+      "qty_g": 40
+    },
+    {
+      "name": "tomato",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 30
+    }
+  ]
+}

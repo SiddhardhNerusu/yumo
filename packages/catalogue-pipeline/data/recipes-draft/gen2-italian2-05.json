@@ -1,0 +1,56 @@
+{
+  "id": "gen2-italian2-05",
+  "name": "Bean and vegetable minestrone",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the onion, carrot and celery in olive oil.",
+    "Add the tinned tomatoes and vegetable stock.",
+    "Stir in the cannellini beans and small pasta.",
+    "Simmer until the pasta is tender.",
+    "Finish with parmesan and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "cannellini beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "celery",
+      "qty_g": 40
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "pasta, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 12
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

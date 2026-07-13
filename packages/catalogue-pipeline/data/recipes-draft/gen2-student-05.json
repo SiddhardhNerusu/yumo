@@ -1,0 +1,43 @@
+{
+  "id": "gen2-student-05",
+  "name": "Black bean & frozen veg rice bowl",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "budget"
+  ],
+  "steps": [
+    "Warm the cooked rice through in a pan or microwave.",
+    "Fry the frozen mixed vegetables in a little oil until hot.",
+    "Add the black beans and a pinch of cumin and chilli.",
+    "Spoon over the rice and finish with a squeeze of lime."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "mixed vegetables, frozen",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 8
+    }
+  ]
+}

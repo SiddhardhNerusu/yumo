@@ -1,0 +1,44 @@
+{
+  "id": "gen2-quick5-06",
+  "name": "Greek yogurt & berry protein bowl",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the Greek yogurt into a bowl.",
+    "Scatter the blueberries over the top.",
+    "Sprinkle on the granola and chopped almonds.",
+    "Drizzle with honey and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 200
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 70
+    },
+    {
+      "name": "granola",
+      "qty_g": 35
+    },
+    {
+      "name": "almonds",
+      "qty_g": 15
+    },
+    {
+      "name": "honey",
+      "qty_g": 12
+    }
+  ]
+}

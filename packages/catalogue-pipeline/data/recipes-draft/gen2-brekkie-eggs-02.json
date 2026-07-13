@@ -1,0 +1,49 @@
+{
+  "id": "gen2-brekkie-eggs-02",
+  "name": "Shakshuka with feta",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "one-pan",
+    "high-protein"
+  ],
+  "steps": [
+    "Soften the onion and pepper in olive oil until tender.",
+    "Add the tinned tomatoes with cumin and paprika and simmer to thicken.",
+    "Make two wells and crack the eggs into them.",
+    "Cover and cook gently until the whites set but yolks stay soft.",
+    "Crumble the feta over the top and serve from the pan."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 200
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 70
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

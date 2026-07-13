@@ -1,0 +1,45 @@
+{
+  "id": "gen2-mexican2-06",
+  "name": "Steak fajitas",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "pan-fried"
+  ],
+  "steps": [
+    "Slice the beef steak into thin strips and season with salt and cumin.",
+    "Get the pan very hot with the olive oil and sear the steak strips fast.",
+    "Remove the steak and add the sliced peppers and onion to the same pan.",
+    "Cook the vegetables until charred at the edges but still crisp.",
+    "Return the steak to the pan and toss together for a minute.",
+    "Pile into warmed flour tortillas and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "beef steak",
+      "qty_g": 130
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

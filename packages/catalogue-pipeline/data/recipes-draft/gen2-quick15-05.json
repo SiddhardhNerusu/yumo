@@ -1,0 +1,43 @@
+{
+  "id": "gen2-quick15-05",
+  "name": "Beef and broccoli stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Slice the beef thinly against the grain.",
+    "Sear the beef in a screaming-hot wok with a little oil, then set aside.",
+    "Stir-fry the broccoli with the garlic for two minutes.",
+    "Return the beef and pour in the soy sauce.",
+    "Toss until glossy and serve over the warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "beef sirloin",
+      "qty_g": 140
+    },
+    {
+      "name": "broccoli",
+      "qty_g": 120
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

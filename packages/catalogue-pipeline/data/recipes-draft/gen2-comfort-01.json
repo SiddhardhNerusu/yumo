@@ -1,0 +1,45 @@
+{
+  "id": "gen2-comfort-01",
+  "name": "Lighter cottage cheese mac & cheese",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "one-pan"
+  ],
+  "steps": [
+    "Blend the cottage cheese with the milk and mustard until smooth.",
+    "Warm the blended sauce in a pan over low heat.",
+    "Stir in the grated cheddar until melted and glossy.",
+    "Fold the cooked macaroni through the sauce.",
+    "Season with salt and pepper and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "macaroni, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "cottage cheese",
+      "qty_g": 110
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "milk",
+      "qty_g": 60
+    },
+    {
+      "name": "dijon mustard",
+      "qty_g": 5
+    }
+  ]
+}

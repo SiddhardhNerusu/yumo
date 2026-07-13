@@ -1,0 +1,52 @@
+{
+  "id": "gen2-soups-04",
+  "name": "Lighter salmon chowder",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot"
+  ],
+  "steps": [
+    "Soften chopped onion in a pot with a little oil.",
+    "Add diced potato and fish stock and simmer until tender.",
+    "Pour in the milk and warm through gently.",
+    "Add the flaked salmon and sweetcorn and heat for three minutes.",
+    "Season with black pepper and a little chopped dill."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon, cooked",
+      "qty_g": 110
+    },
+    {
+      "name": "potato",
+      "qty_g": 120
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 60
+    },
+    {
+      "name": "milk",
+      "qty_g": 200
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "fish stock",
+      "qty_g": 200
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

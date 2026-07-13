@@ -1,0 +1,35 @@
+{
+  "id": "gen2-snack-sav-03",
+  "name": "Cottage cheese & tomato rice cakes",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Set the rice cakes on a plate.",
+    "Spread a thick layer of cottage cheese over each one.",
+    "Halve the cherry tomatoes and scatter them on top.",
+    "Finish with a grind of black pepper."
+  ],
+  "ingredients": [
+    {
+      "name": "rice cakes",
+      "qty_g": 20
+    },
+    {
+      "name": "cottage cheese",
+      "qty_g": 120
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "gen2-chinese2-01",
+  "name": "Chicken chow mein",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Boil the egg noodles until just tender, then drain and toss with a little oil.",
+    "Slice the chicken breast thinly and stir-fry in hot oil until cooked through.",
+    "Add the shredded cabbage and carrot and stir-fry until softened.",
+    "Return the noodles to the pan and pour over the soy sauce.",
+    "Toss everything over high heat until glossy and hot through."
+  ],
+  "ingredients": [
+    {
+      "name": "egg noodles, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "chicken breast",
+      "qty_g": 130
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 70
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 18
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

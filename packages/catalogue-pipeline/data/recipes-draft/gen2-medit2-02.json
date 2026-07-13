@@ -1,0 +1,36 @@
+{
+  "id": "gen2-medit2-02",
+  "name": "Grilled sea bass with lemon",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grilled",
+    "pescatarian"
+  ],
+  "steps": [
+    "Pat the sea bass dry and score the skin.",
+    "Rub with olive oil, salt, and oregano.",
+    "Grill skin-side down until crisp, then flip.",
+    "Cook until the flesh is opaque and flakes easily.",
+    "Finish with a squeeze of lemon."
+  ],
+  "ingredients": [
+    {
+      "name": "sea bass",
+      "qty_g": 200
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 12
+    }
+  ]
+}

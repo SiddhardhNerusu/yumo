@@ -1,0 +1,39 @@
+{
+  "id": "gen2-snack-sav-01",
+  "name": "Hummus & rainbow veg sticks",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "no-cook",
+    "high-fibre"
+  ],
+  "steps": [
+    "Spoon the hummus into a small bowl.",
+    "Peel the carrot and cut it into thin batons.",
+    "Slice the cucumber and bell pepper into sticks.",
+    "Arrange the veg around the bowl and dip."
+  ],
+  "ingredients": [
+    {
+      "name": "hummus",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 60
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 50
+    }
+  ]
+}

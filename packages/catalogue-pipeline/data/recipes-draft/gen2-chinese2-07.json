@@ -1,0 +1,48 @@
+{
+  "id": "gen2-chinese2-07",
+  "name": "Vegetable tofu chow mein",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "stir-fry"
+  ],
+  "steps": [
+    "Cube the tofu and stir-fry in hot oil until golden on all sides.",
+    "Add the sliced mushrooms and carrot and stir-fry until softened.",
+    "Add the cooked egg noodles and toss to combine.",
+    "Pour over the soy sauce and toss over high heat.",
+    "Finish with the spring onion and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 140
+    },
+    {
+      "name": "egg noodles, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "mushrooms",
+      "qty_g": 70
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 18
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 12
+    }
+  ]
+}

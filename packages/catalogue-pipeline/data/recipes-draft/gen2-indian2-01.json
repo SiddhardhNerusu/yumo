@@ -1,0 +1,61 @@
+{
+  "id": "gen2-indian2-01",
+  "name": "Chicken biryani",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Marinate the chicken in the yogurt with garam masala and turmeric for a few minutes.",
+    "Fry the sliced onion in ghee until deep golden and soft.",
+    "Add the garlic and ginger and cook until fragrant.",
+    "Stir in the marinated chicken and cook until browned through.",
+    "Fold through the cooked rice with a splash of water, cover, and steam on low for ten minutes.",
+    "Rest off the heat, then fluff and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 40
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "ghee",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "fresh ginger",
+      "qty_g": 6
+    },
+    {
+      "name": "garam masala",
+      "qty_g": 3
+    },
+    {
+      "name": "ground turmeric",
+      "qty_g": 2
+    }
+  ]
+}

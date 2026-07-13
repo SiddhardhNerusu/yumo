@@ -1,0 +1,47 @@
+{
+  "id": "gen2-hearty-08",
+  "name": "Pork sausage & lentil stew",
+  "cuisine": "French",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "high-calorie"
+  ],
+  "steps": [
+    "Brown the sausages in a pot until coloured all over.",
+    "Add the chopped onion and carrot and soften for a few minutes.",
+    "Stir in the cooked lentils and tinned tomatoes.",
+    "Simmer for fifteen minutes until thick and hearty.",
+    "Season well and serve in a deep bowl."
+  ],
+  "ingredients": [
+    {
+      "name": "pork sausage, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "lentils, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

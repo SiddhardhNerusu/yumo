@@ -1,0 +1,44 @@
+{
+  "id": "gen2-brekkie-oats-04",
+  "name": "Greek yogurt granola bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the Greek yogurt into a bowl.",
+    "Scatter the granola over the top.",
+    "Add the strawberries and a scatter of almonds.",
+    "Finish with a drizzle of honey."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 170
+    },
+    {
+      "name": "granola",
+      "qty_g": 45
+    },
+    {
+      "name": "strawberries",
+      "qty_g": 80
+    },
+    {
+      "name": "almonds",
+      "qty_g": 15
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

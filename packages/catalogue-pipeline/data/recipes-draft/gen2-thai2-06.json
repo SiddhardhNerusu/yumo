@@ -1,0 +1,52 @@
+{
+  "id": "gen2-thai2-06",
+  "name": "Peanut satay tofu bowl",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "meal-prep"
+  ],
+  "steps": [
+    "Pan-fry the cubed tofu until golden on all sides.",
+    "Stir the peanut butter, coconut milk, soy sauce, and lime juice into a sauce.",
+    "Steam the broccoli until just tender.",
+    "Spoon the cooked rice into a bowl and add the tofu and broccoli.",
+    "Drizzle the satay sauce generously over the top."
+  ],
+  "ingredients": [
+    {
+      "name": "tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 30
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 40
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 10
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 70
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 6
+    }
+  ]
+}

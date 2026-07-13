@@ -1,0 +1,50 @@
+{
+  "id": "gen2-batch-07",
+  "name": "Black bean & sweetcorn chilli",
+  "cuisine": "Tex-Mex",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre",
+    "batch-cook",
+    "reheatable"
+  ],
+  "steps": [
+    "Cook the onion and pepper in oil until softened.",
+    "Stir in the chilli powder, cumin and smoked paprika.",
+    "Add the black beans, sweetcorn and tinned tomatoes.",
+    "Simmer for 25 minutes until thick and glossy.",
+    "Serve over rice or cool and portion."
+  ],
+  "ingredients": [
+    {
+      "name": "black beans, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 80
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 70
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 140
+    }
+  ]
+}

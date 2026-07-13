@@ -1,0 +1,53 @@
+{
+  "id": "gen2-vegan-03",
+  "name": "Sesame tofu stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Press and cube the tofu, then sear in the sesame oil until golden.",
+    "Add the broccoli and sliced bell pepper and stir-fry until crisp-tender.",
+    "Toss in the garlic and pour over the soy sauce.",
+    "Cook for another minute until everything is glossy.",
+    "Serve over the warm cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 200
+    },
+    {
+      "name": "broccoli",
+      "qty_g": 120
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    }
+  ]
+}

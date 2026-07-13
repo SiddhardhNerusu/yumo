@@ -1,0 +1,42 @@
+{
+  "id": "gen2-brekkie-yog-02",
+  "name": "Peanut butter banana protein smoothie bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Blend the banana, whey protein powder, oats and milk until thick and smooth.",
+    "Pour the mixture into a bowl and level the surface.",
+    "Swirl the peanut butter over the top.",
+    "Eat immediately with a spoon."
+  ],
+  "ingredients": [
+    {
+      "name": "banana",
+      "qty_g": 120
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 30
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 16
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 20
+    },
+    {
+      "name": "milk",
+      "qty_g": 150
+    }
+  ]
+}

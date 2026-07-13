@@ -1,0 +1,42 @@
+{
+  "id": "gen2-wraps-02",
+  "name": "Classic tuna melt",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Drain the tuna and mix it with the mayonnaise and a little black pepper.",
+    "Spread the tuna over one slice of bread and top with cheddar.",
+    "Close the sandwich and butter the outsides.",
+    "Grill in a hot pan, pressing gently, until golden.",
+    "Flip and cook until the cheese has melted, then slice."
+  ],
+  "ingredients": [
+    {
+      "name": "canned tuna",
+      "qty_g": 100
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "white bread",
+      "qty_g": 60
+    },
+    {
+      "name": "mayonnaise",
+      "qty_g": 15
+    },
+    {
+      "name": "butter",
+      "qty_g": 8
+    }
+  ]
+}

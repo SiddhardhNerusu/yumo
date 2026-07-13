@@ -1,0 +1,47 @@
+{
+  "id": "gen2-japanese-05",
+  "name": "Beef gyudon donburi",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Simmer thinly sliced onion in dashi, soy sauce, mirin, and a little sugar.",
+    "Add the thin-sliced beef and cook until no longer pink.",
+    "Let the broth reduce slightly to concentrate the flavour.",
+    "Spoon the beef and onion over a bowl of hot rice.",
+    "Ladle a little broth on top and add pickled ginger if you like."
+  ],
+  "ingredients": [
+    {
+      "name": "beef sirloin",
+      "qty_g": 140
+    },
+    {
+      "name": "onion",
+      "qty_g": 80
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 18
+    },
+    {
+      "name": "mirin",
+      "qty_g": 12
+    },
+    {
+      "name": "sugar",
+      "qty_g": 5
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 200
+    }
+  ]
+}

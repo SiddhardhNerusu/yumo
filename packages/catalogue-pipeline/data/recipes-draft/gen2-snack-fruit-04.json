@@ -1,0 +1,31 @@
+{
+  "id": "gen2-snack-fruit-04",
+  "name": "Banana with crushed walnuts",
+  "cuisine": "International",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Peel the banana and slice it into a bowl.",
+    "Roughly crush the walnuts with your fingers.",
+    "Scatter the walnuts over the banana.",
+    "Dust with a pinch of cinnamon."
+  ],
+  "ingredients": [
+    {
+      "name": "banana",
+      "qty_g": 120
+    },
+    {
+      "name": "walnuts",
+      "qty_g": 25
+    }
+  ]
+}

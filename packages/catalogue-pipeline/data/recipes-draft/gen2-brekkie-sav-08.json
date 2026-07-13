@@ -1,0 +1,44 @@
+{
+  "id": "gen2-brekkie-sav-08",
+  "name": "Chicken sausage & sweet potato breakfast bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Roast the diced sweet potato in olive oil until tender.",
+    "Slice and brown the chicken sausage in a hot pan.",
+    "Fry the egg to your liking in the same pan.",
+    "Wilt the spinach in the residual heat.",
+    "Layer the sweet potato, sausage and spinach in a bowl.",
+    "Top with the fried egg and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken sausage",
+      "qty_g": 100
+    },
+    {
+      "name": "sweet potato, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

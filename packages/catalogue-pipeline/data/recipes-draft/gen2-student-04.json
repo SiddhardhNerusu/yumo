@@ -1,0 +1,48 @@
+{
+  "id": "gen2-student-04",
+  "name": "Lentil & tinned tomato pasta",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "budget"
+  ],
+  "steps": [
+    "Cook the pasta in salted boiling water until tender.",
+    "Simmer the tinned tomatoes with garlic and the cooked lentils.",
+    "Season the sauce with salt, pepper and a pinch of dried herbs.",
+    "Toss the drained pasta through the sauce and top with cheese."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 220
+    },
+    {
+      "name": "lentils, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

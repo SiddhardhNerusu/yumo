@@ -1,0 +1,45 @@
+{
+  "id": "gen2-spanish-06",
+  "name": "Gambas al ajillo garlic prawns",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "lunch",
+    "dinner",
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-carb"
+  ],
+  "steps": [
+    "Warm the olive oil gently with the sliced garlic and paprika.",
+    "Add the prawns and cook until they turn pink and curl.",
+    "Season with salt and a pinch of chilli.",
+    "Squeeze over the lemon and scatter with parsley.",
+    "Serve sizzling straight from the pan."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp",
+      "qty_g": 160
+    },
+    {
+      "name": "garlic",
+      "qty_g": 12
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 14
+    },
+    {
+      "name": "lemon",
+      "qty_g": 15
+    },
+    {
+      "name": "parsley",
+      "qty_g": 5
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "gen2-brekkie-cake-07",
+  "name": "Buckwheat blueberry pancakes",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian"
+  ],
+  "steps": [
+    "Whisk the buckwheat flour, baking powder and a pinch of salt together.",
+    "Beat in the egg and milk to form a smooth batter.",
+    "Fold in the blueberries.",
+    "Heat a greased non-stick pan over medium heat.",
+    "Cook pancakes until bubbles form, then flip and finish.",
+    "Serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "buckwheat flour",
+      "qty_g": 60
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "milk",
+      "qty_g": 100
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 50
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "gen2-brekkie-eggs-04",
+  "name": "Ham and cheese egg muffins",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "meal-prep",
+    "gluten-free"
+  ],
+  "steps": [
+    "Heat the oven to 180C and grease a few muffin cups.",
+    "Whisk the eggs with a pinch of salt and pepper.",
+    "Divide the chopped ham and cheddar between the cups.",
+    "Pour the egg over the fillings until nearly full.",
+    "Bake for about 18 minutes until puffed and set."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "ham",
+      "qty_g": 45
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    }
+  ]
+}

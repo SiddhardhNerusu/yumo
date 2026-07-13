@@ -1,0 +1,53 @@
+{
+  "id": "gen2-comfort-04",
+  "name": "Chickpea & spinach curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the onion in oil until golden.",
+    "Stir in the curry powder and cook until fragrant.",
+    "Add the tinned tomatoes and chickpeas, then simmer.",
+    "Pour in the coconut milk and stir through the spinach.",
+    "Simmer until thickened and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 45
+    },
+    {
+      "name": "curry powder",
+      "qty_g": 5
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

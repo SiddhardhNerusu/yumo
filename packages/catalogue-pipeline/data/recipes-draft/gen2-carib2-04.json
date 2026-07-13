@@ -1,0 +1,54 @@
+{
+  "id": "gen2-carib2-04",
+  "name": "Saltfish and egg scramble",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan",
+    "gluten-free"
+  ],
+  "steps": [
+    "Flake the cod and warm it in oil with the onion, bell pepper and tomato.",
+    "Cook until the vegetables soften and the fish is heated through.",
+    "Whisk the eggs and pour into the pan.",
+    "Stir gently until the eggs are just set.",
+    "Scatter over the spring onion.",
+    "Serve straight away."
+  ],
+  "ingredients": [
+    {
+      "name": "cod",
+      "qty_g": 100
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "tomato",
+      "qty_g": 50
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

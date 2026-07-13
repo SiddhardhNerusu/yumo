@@ -1,0 +1,57 @@
+{
+  "id": "gen2-thai2-01",
+  "name": "Chicken pad thai",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry",
+    "noodle-bowl"
+  ],
+  "steps": [
+    "Soak the rice noodles in hot water until pliable, then drain.",
+    "Stir-fry the sliced chicken in a hot oiled wok until golden.",
+    "Push the chicken aside, scramble the egg, then toss in the noodles.",
+    "Add fish sauce, brown sugar, and lime juice and toss to coat.",
+    "Fold through the bean sprouts and finish with crushed peanuts."
+  ],
+  "ingredients": [
+    {
+      "name": "rice noodles, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "bean sprouts",
+      "qty_g": 60
+    },
+    {
+      "name": "peanuts",
+      "qty_g": 15
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "brown sugar",
+      "qty_g": 8
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 8
+    }
+  ]
+}

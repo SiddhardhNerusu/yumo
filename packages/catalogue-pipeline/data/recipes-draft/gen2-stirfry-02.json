@@ -1,0 +1,47 @@
+{
+  "id": "gen2-stirfry-02",
+  "name": "Chicken cashew stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Stir-fry the diced chicken in a hot oiled wok until golden and cooked through.",
+    "Add the red pepper and spring onion and toss for two minutes.",
+    "Pour in the soy sauce and scatter in the cashew nuts.",
+    "Toss until the nuts are glossy and serve over the rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "cashew nuts",
+      "qty_g": 30
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

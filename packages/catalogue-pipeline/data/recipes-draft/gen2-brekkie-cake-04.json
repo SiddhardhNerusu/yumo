@@ -1,0 +1,40 @@
+{
+  "id": "gen2-brekkie-cake-04",
+  "name": "Protein powder blender pancakes",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Blend the egg whites, whey protein, oats and banana until smooth.",
+    "Rest the batter for a couple of minutes to thicken.",
+    "Heat a non-stick pan over medium heat and grease lightly.",
+    "Pour small rounds and cook until bubbles appear.",
+    "Flip and cook the other side until set.",
+    "Stack and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg white",
+      "qty_g": 120
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 30
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 40
+    },
+    {
+      "name": "banana",
+      "qty_g": 60
+    }
+  ]
+}

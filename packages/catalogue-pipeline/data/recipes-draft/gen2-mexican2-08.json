@@ -1,0 +1,45 @@
+{
+  "id": "gen2-mexican2-08",
+  "name": "Huevos con chorizo",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "pan-fried"
+  ],
+  "steps": [
+    "Crumble the chorizo into a hot pan and render until the oil turns red.",
+    "Add the chopped onion and soften in the chorizo oil.",
+    "Whisk the eggs with a pinch of salt.",
+    "Pour the eggs into the pan and stir gently until softly scrambled.",
+    "Warm the corn tortillas in a dry pan.",
+    "Spoon the eggs and chorizo into the tortillas and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "chorizo",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "corn tortilla",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 4
+    }
+  ]
+}

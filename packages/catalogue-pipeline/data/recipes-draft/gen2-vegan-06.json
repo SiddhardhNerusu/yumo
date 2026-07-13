@@ -1,0 +1,48 @@
+{
+  "id": "gen2-vegan-06",
+  "name": "Edamame soba bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein"
+  ],
+  "steps": [
+    "Cook the soba noodles, then rinse under cold water and drain.",
+    "Warm the shelled edamame and grated carrot in the sesame oil.",
+    "Add the noodles and pour over the soy sauce.",
+    "Toss until everything is evenly coated and heated through.",
+    "Scatter with sliced spring onions to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "soba noodles, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "edamame",
+      "qty_g": 150
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "spring onions",
+      "qty_g": 15
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "gen2-salads-01",
+  "name": "Grilled chicken Caesar salad",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Season the chicken breast with salt and pepper.",
+    "Grill the chicken until cooked through, then slice.",
+    "Toss the romaine with Caesar dressing.",
+    "Add the sliced chicken and croutons.",
+    "Shower with grated parmesan and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "romaine lettuce",
+      "qty_g": 120
+    },
+    {
+      "name": "caesar dressing",
+      "qty_g": 30
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 20
+    },
+    {
+      "name": "croutons",
+      "qty_g": 25
+    }
+  ]
+}

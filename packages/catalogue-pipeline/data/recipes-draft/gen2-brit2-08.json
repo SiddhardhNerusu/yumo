@@ -1,0 +1,43 @@
+{
+  "id": "gen2-brit2-08",
+  "name": "Ploughman's chicken salad plate",
+  "cuisine": "British",
+  "slotAffinity": [
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "no-cook"
+  ],
+  "steps": [
+    "Slice the cooked chicken breast into thick pieces.",
+    "Cut the cheddar into chunks and quarter the apple.",
+    "Arrange the chicken, cheese and apple on a plate.",
+    "Add the salad leaves and a spoon of pickle to the side.",
+    "Season with black pepper and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "apple",
+      "qty_g": 90
+    },
+    {
+      "name": "lettuce",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 50
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "gen2-curry-08",
+  "name": "South Indian fish curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil and soften the chopped onion.",
+    "Add your curry spices and cook for a minute.",
+    "Pour in the tinned tomatoes and coconut milk, then simmer for five minutes.",
+    "Gently lower in the cod and poach for six minutes until flaky.",
+    "Serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "cod, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 6
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

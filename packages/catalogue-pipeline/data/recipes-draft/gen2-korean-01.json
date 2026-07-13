@@ -1,0 +1,56 @@
+{
+  "id": "gen2-korean-01",
+  "name": "Beef bibimbap bowl",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "batch-friendly"
+  ],
+  "steps": [
+    "Season the ground beef with soy sauce and sesame oil, then brown it in a hot pan.",
+    "Saute the carrot and wilt the spinach separately with a pinch of salt.",
+    "Fry the egg sunny-side up in a little oil.",
+    "Pile the warm rice into a bowl and arrange the beef and vegetables on top.",
+    "Add the egg, spoon over the gochujang, and toss everything together before eating."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "beef, ground",
+      "qty_g": 100
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "gochujang",
+      "qty_g": 15
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 6
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    }
+  ]
+}

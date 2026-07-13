@@ -1,0 +1,43 @@
+{
+  "id": "gen2-american2-05",
+  "name": "Turkey meatloaf-lite plate",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "baked"
+  ],
+  "steps": [
+    "Mix the ground turkey with breadcrumbs, egg, and a pinch of salt.",
+    "Press the mixture into a small loaf shape on a lined tray.",
+    "Brush the top with a thin layer of ketchup.",
+    "Bake at 190C for about 25 minutes until cooked through.",
+    "Serve with the steamed green beans alongside."
+  ],
+  "ingredients": [
+    {
+      "name": "ground turkey",
+      "qty_g": 160
+    },
+    {
+      "name": "breadcrumbs",
+      "qty_g": 25
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "ketchup",
+      "qty_g": 20
+    },
+    {
+      "name": "green beans",
+      "qty_g": 90
+    }
+  ]
+}

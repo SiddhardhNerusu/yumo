@@ -1,0 +1,44 @@
+{
+  "id": "gen2-quick5-08",
+  "name": "Turkey & cheese roll-ups",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "no-cook",
+    "assemble-only"
+  ],
+  "steps": [
+    "Lay the turkey slices flat on a board.",
+    "Place a strip of cheddar and a few cucumber batons on each.",
+    "Add a thin smear of mustard.",
+    "Roll each slice up tightly and serve with the cherry tomatoes."
+  ],
+  "ingredients": [
+    {
+      "name": "turkey breast, deli",
+      "qty_g": 100
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 50
+    },
+    {
+      "name": "mustard",
+      "qty_g": 8
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    }
+  ]
+}

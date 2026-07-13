@@ -1,0 +1,52 @@
+{
+  "id": "gen2-bowls-04",
+  "name": "Falafel & hummus bowl",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre"
+  ],
+  "steps": [
+    "Warm the falafel in a hot oven or pan until crisp.",
+    "Spoon the cooked couscous into a bowl as the base.",
+    "Add the cherry tomatoes, cucumber and red onion.",
+    "Nestle the falafel on top with a scoop of hummus.",
+    "Finish with a drizzle of olive oil and chopped parsley."
+  ],
+  "ingredients": [
+    {
+      "name": "falafel",
+      "qty_g": 120
+    },
+    {
+      "name": "couscous, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "hummus",
+      "qty_g": 50
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 50
+    },
+    {
+      "name": "red onion",
+      "qty_g": 20
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "gen2-lowcal-07",
+  "name": "Lentil & vegetable broth",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "vegan",
+    "low-calorie",
+    "broth",
+    "high-fiber"
+  ],
+  "steps": [
+    "Warm the olive oil in a pot and soften the diced carrot and celery.",
+    "Pour in the tinned tomatoes and vegetable broth.",
+    "Add the cooked lentils and bring to a simmer.",
+    "Simmer for ten minutes until the vegetables are tender.",
+    "Season with salt and pepper and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "celery",
+      "qty_g": 40
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    },
+    {
+      "name": "vegetable broth",
+      "qty_g": 300
+    }
+  ]
+}

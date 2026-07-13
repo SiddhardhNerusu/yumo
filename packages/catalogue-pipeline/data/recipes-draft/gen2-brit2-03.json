@@ -1,0 +1,39 @@
+{
+  "id": "gen2-brit2-03",
+  "name": "Gammon with fried egg",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Snip the fat edge of the gammon to stop it curling.",
+    "Fry the gammon steak in a hot pan for four minutes each side.",
+    "Fry the egg in the same pan until the white is set.",
+    "Warm the peas in a small pan of boiling water.",
+    "Plate the gammon with the egg on top and peas alongside."
+  ],
+  "ingredients": [
+    {
+      "name": "ham",
+      "qty_g": 150
+    },
+    {
+      "name": "egg",
+      "qty_g": 55
+    },
+    {
+      "name": "green peas",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "gen2-bowls-03",
+  "name": "Teriyaki tofu bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "vegetarian"
+  ],
+  "steps": [
+    "Press the tofu, cube it, and pan-fry until golden on all sides.",
+    "Toss the hot tofu with the teriyaki sauce to glaze.",
+    "Spoon the cooked brown rice into a bowl.",
+    "Add the steamed broccoli and shredded carrot.",
+    "Top with the glazed tofu and scatter over the sesame seeds."
+  ],
+  "ingredients": [
+    {
+      "name": "tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "brown rice, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "broccoli, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "teriyaki sauce",
+      "qty_g": 25
+    },
+    {
+      "name": "sesame seeds",
+      "qty_g": 5
+    }
+  ]
+}

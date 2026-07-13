@@ -1,0 +1,53 @@
+{
+  "id": "gen2-vegan-07",
+  "name": "Tuscan white bean and kale stew",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "one-pot",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the diced onion, carrot, and garlic in the olive oil.",
+    "Add the tinned tomatoes and a splash of water and bring to a simmer.",
+    "Stir in the white beans and cooked kale.",
+    "Simmer gently for fifteen minutes until thick and fragrant.",
+    "Season with salt, pepper, and a drizzle of olive oil."
+  ],
+  "ingredients": [
+    {
+      "name": "white beans, cooked",
+      "qty_g": 220
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "kale, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    }
+  ]
+}

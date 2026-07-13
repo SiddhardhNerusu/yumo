@@ -1,0 +1,43 @@
+{
+  "id": "gen2-hearty-01",
+  "name": "Steak & garlic butter mash",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Season the steak generously and sear in a hot pan with oil, 3 minutes each side.",
+    "Add butter and crushed garlic to the pan and baste the steak as it rests.",
+    "Boil the potatoes until tender, then drain well.",
+    "Mash the potatoes with the garlic butter from the pan until smooth.",
+    "Slice the steak against the grain and serve over the mash."
+  ],
+  "ingredients": [
+    {
+      "name": "beef steak, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 250
+    },
+    {
+      "name": "butter",
+      "qty_g": 30
+    },
+    {
+      "name": "garlic",
+      "qty_g": 8
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

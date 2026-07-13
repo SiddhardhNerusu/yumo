@@ -1,0 +1,44 @@
+{
+  "id": "gen2-american2-07",
+  "name": "BBQ pulled chicken slaw bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "meal-prep"
+  ],
+  "steps": [
+    "Shred the cooked chicken breast with two forks.",
+    "Toss the shredded chicken with the barbecue sauce.",
+    "Mix the shredded cabbage and carrot with a spoon of greek yogurt.",
+    "Pile the slaw into a bowl and top with the BBQ chicken.",
+    "Season with a little black pepper and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "barbecue sauce",
+      "qty_g": 30
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 80
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 40
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "gen2-snack-sav-08",
+  "name": "Turkey, cheese & olive roll-ups",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "no-cook",
+    "low-carb"
+  ],
+  "steps": [
+    "Lay the turkey slices flat on a board.",
+    "Cut the cheddar into thin batons.",
+    "Place a baton of cheese on each slice and roll up.",
+    "Serve with the olives on the side."
+  ],
+  "ingredients": [
+    {
+      "name": "turkey breast, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "black olives",
+      "qty_g": 20
+    }
+  ]
+}

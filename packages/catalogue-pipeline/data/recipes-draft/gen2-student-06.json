@@ -1,0 +1,42 @@
+{
+  "id": "gen2-student-06",
+  "name": "Sardine & tomato spaghetti",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "budget"
+  ],
+  "steps": [
+    "Boil the spaghetti until al dente and drain.",
+    "Gently fry the garlic in olive oil in a wide pan.",
+    "Add the tinned tomatoes and flaked sardines and simmer briefly.",
+    "Toss the spaghetti through the sauce and season well."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 220
+    },
+    {
+      "name": "sardines, canned",
+      "qty_g": 90
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

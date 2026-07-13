@@ -1,0 +1,48 @@
+{
+  "id": "gen2-chinese2-06",
+  "name": "Char siu pork with rice",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "roasted"
+  ],
+  "steps": [
+    "Mix the hoisin sauce, honey and soy sauce into a marinade.",
+    "Coat the pork shoulder in the marinade and leave for a few minutes.",
+    "Roast the pork in a hot oven until caramelised and cooked through.",
+    "Rest the pork briefly, then slice thinly.",
+    "Serve over the hot rice with the pak choi alongside."
+  ],
+  "ingredients": [
+    {
+      "name": "pork shoulder",
+      "qty_g": 140
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "pak choi",
+      "qty_g": 80
+    },
+    {
+      "name": "hoisin sauce",
+      "qty_g": 22
+    },
+    {
+      "name": "honey",
+      "qty_g": 12
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 10
+    }
+  ]
+}

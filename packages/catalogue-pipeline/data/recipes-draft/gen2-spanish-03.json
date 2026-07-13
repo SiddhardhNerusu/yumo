@@ -1,0 +1,44 @@
+{
+  "id": "gen2-spanish-03",
+  "name": "Chickpea & spinach stew",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Warm the olive oil and fry the garlic with the smoked paprika.",
+    "Add the tomatoes and cumin and simmer for a few minutes.",
+    "Tip in the chickpeas and a splash of water and heat through.",
+    "Stir in the spinach until wilted and season to taste.",
+    "Serve warm with a squeeze of lemon."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "gen2-indian2-02",
+  "name": "Lamb rogan josh",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Brown the lamb in ghee over high heat, then set aside.",
+    "Fry the sliced onion until deep golden.",
+    "Add the garlic, ginger, cumin, coriander, chilli powder and garam masala and cook one minute.",
+    "Stir in the tomatoes and yogurt and simmer to a thick sauce.",
+    "Return the lamb, cover, and simmer gently until tender.",
+    "Season and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "lamb, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 70
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "ghee",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "fresh ginger",
+      "qty_g": 6
+    },
+    {
+      "name": "ground cumin",
+      "qty_g": 2
+    },
+    {
+      "name": "ground coriander",
+      "qty_g": 3
+    },
+    {
+      "name": "chili powder",
+      "qty_g": 2
+    },
+    {
+      "name": "garam masala",
+      "qty_g": 2
+    }
+  ]
+}

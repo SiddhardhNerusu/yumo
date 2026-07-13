@@ -1,0 +1,57 @@
+{
+  "id": "gen2-vegan-01",
+  "name": "Red lentil dal",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "one-pot",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the diced onion and garlic in the oil over medium heat.",
+    "Stir in the cumin and turmeric and cook until fragrant.",
+    "Add the cooked lentils and tinned tomatoes with a splash of water.",
+    "Simmer for fifteen minutes until thick and creamy.",
+    "Stir through the coconut milk and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 210
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 50
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "ground cumin",
+      "qty_g": 3
+    },
+    {
+      "name": "ground turmeric",
+      "qty_g": 2
+    }
+  ]
+}

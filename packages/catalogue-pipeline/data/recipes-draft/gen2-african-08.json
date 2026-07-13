@@ -1,0 +1,52 @@
+{
+  "id": "gen2-african-08",
+  "name": "Egyptian koshari bowl",
+  "cuisine": "North African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre"
+  ],
+  "steps": [
+    "Combine the cooked rice, lentils, and macaroni in a bowl.",
+    "Simmer the tinned tomatoes with garlic, cumin, and a pinch of chilli into a sauce.",
+    "Fry the sliced onion in oil until deeply crisp and browned.",
+    "Spoon the tomato sauce over the rice, lentils, and pasta.",
+    "Top with the chickpeas and the crispy fried onions."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "lentils, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "pasta, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 12
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "gen2-indian2-05",
+  "name": "Tarka dal",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre",
+    "gluten-free"
+  ],
+  "steps": [
+    "Simmer the cooked lentils with a little water until soft and creamy.",
+    "In a separate pan, fry the onion in ghee until golden.",
+    "Add the garlic, turmeric, cumin and chilli powder and sizzle briefly.",
+    "Stir in the tomatoes and cook to a thick base.",
+    "Pour the spiced tarka into the lentils and stir through.",
+    "Simmer a few minutes, season, and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "ghee",
+      "qty_g": 10
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "ground turmeric",
+      "qty_g": 2
+    },
+    {
+      "name": "ground cumin",
+      "qty_g": 2
+    },
+    {
+      "name": "chili powder",
+      "qty_g": 1
+    }
+  ]
+}

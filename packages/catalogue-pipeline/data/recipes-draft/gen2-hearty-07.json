@@ -1,0 +1,43 @@
+{
+  "id": "gen2-hearty-07",
+  "name": "Loaded turkey sweet potato",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Roast the sweet potato until soft all the way through.",
+    "Brown the minced turkey in a pan with a pinch of smoked paprika.",
+    "Stir the black beans into the turkey and warm through.",
+    "Split the sweet potato open and pile the turkey and beans on top.",
+    "Finish with a spoon of greek yogurt and grated cheddar."
+  ],
+  "ingredients": [
+    {
+      "name": "ground turkey, cooked",
+      "qty_g": 170
+    },
+    {
+      "name": "sweet potato, cooked",
+      "qty_g": 250
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 50
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 35
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "gen2-wraps-07",
+  "name": "Smoked salmon & cream cheese bagel",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Slice and lightly toast the bagel.",
+    "Spread cream cheese over both halves.",
+    "Drape the smoked salmon over the base.",
+    "Scatter over thinly sliced red onion.",
+    "Close the bagel and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "smoked salmon",
+      "qty_g": 80
+    },
+    {
+      "name": "bagel",
+      "qty_g": 90
+    },
+    {
+      "name": "cream cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "red onion",
+      "qty_g": 15
+    }
+  ]
+}

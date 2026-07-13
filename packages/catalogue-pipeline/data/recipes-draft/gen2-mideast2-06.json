@@ -1,0 +1,48 @@
+{
+  "id": "gen2-mideast2-06",
+  "name": "Tabbouleh chickpea bowl",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Chop the parsley, tomato and cucumber finely.",
+    "Fluff the cooked bulgur and let it cool slightly.",
+    "Fold the chickpeas and vegetables through the bulgur.",
+    "Dress with lemon juice, olive oil and salt.",
+    "Toss well and taste for seasoning.",
+    "Serve chilled or at room temperature."
+  ],
+  "ingredients": [
+    {
+      "name": "bulgur, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "parsley",
+      "qty_g": 30
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

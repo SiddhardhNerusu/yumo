@@ -1,0 +1,50 @@
+{
+  "id": "gen2-batch-04",
+  "name": "Lentil & sweet potato curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre",
+    "batch-cook",
+    "reheatable"
+  ],
+  "steps": [
+    "Soften the onion in oil, then add the curry spices.",
+    "Stir in the diced sweet potato to coat in the spices.",
+    "Add the lentils, tinned tomatoes and a cup of water.",
+    "Simmer for 30 minutes until the sweet potato is tender.",
+    "Serve with rice or cool for later."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "sweet potato",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

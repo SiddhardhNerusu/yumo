@@ -1,0 +1,32 @@
+{
+  "id": "gen2-snack-fruit-05",
+  "name": "Cottage cheese with pineapple",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the cottage cheese into a bowl.",
+    "Dice the pineapple into bite-size chunks.",
+    "Pile the pineapple over the cottage cheese.",
+    "Crack over a little black pepper if you like."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 200
+    },
+    {
+      "name": "pineapple",
+      "qty_g": 90
+    }
+  ]
+}

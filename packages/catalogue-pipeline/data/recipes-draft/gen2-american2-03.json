@@ -1,0 +1,56 @@
+{
+  "id": "gen2-american2-03",
+  "name": "Classic cobb salad",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "no-cook",
+    "salad"
+  ],
+  "steps": [
+    "Chop the romaine lettuce and spread it on a plate.",
+    "Arrange the sliced chicken, egg, avocado, and tomato in rows.",
+    "Scatter the crumbled bacon and blue cheese over the top.",
+    "Drizzle with olive oil and a pinch of salt before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "romaine lettuce",
+      "qty_g": 80
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "avocado",
+      "qty_g": 50
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "bacon",
+      "qty_g": 20
+    },
+    {
+      "name": "blue cheese",
+      "qty_g": 25
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

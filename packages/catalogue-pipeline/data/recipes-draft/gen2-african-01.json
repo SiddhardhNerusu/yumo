@@ -1,0 +1,53 @@
+{
+  "id": "gen2-african-01",
+  "name": "Nigerian jollof rice with chicken",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot"
+  ],
+  "steps": [
+    "Blend the tinned tomatoes, red pepper, onion, and scotch bonnet into a smooth base.",
+    "Fry the tomato blend in oil with tomato puree until reduced and darkened.",
+    "Stir in curry powder, thyme, a stock cube, and a splash of water.",
+    "Add the rinsed rice, stir to coat, cover, and simmer until tender.",
+    "Pan-sear the diced chicken breast until browned and cooked through.",
+    "Fold the chicken through the rice and rest for a few minutes before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "tomato paste",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 12
+    }
+  ]
+}

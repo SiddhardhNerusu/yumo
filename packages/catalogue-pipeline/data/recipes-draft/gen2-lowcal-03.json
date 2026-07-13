@@ -1,0 +1,48 @@
+{
+  "id": "gen2-lowcal-03",
+  "name": "Garlic prawn & courgette stir-fry",
+  "cuisine": "Asian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-calorie",
+    "pescatarian"
+  ],
+  "steps": [
+    "Heat the olive oil in a pan over high heat.",
+    "Add the garlic and stir for a few seconds until fragrant.",
+    "Add the zucchini and red bell pepper and stir-fry until crisp-tender.",
+    "Toss in the cooked shrimp and warm through.",
+    "Splash in the soy sauce and serve straight away."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "zucchini",
+      "qty_g": 150
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 80
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "gen2-salads-08",
+  "name": "Shredded chicken and edamame slaw",
+  "cuisine": "Asian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Shred the cooked chicken into a large bowl.",
+    "Add the shredded cabbage, carrot and edamame.",
+    "Scatter over the spring onions.",
+    "Whisk the soy sauce with sesame oil and lime.",
+    "Pour the dressing over the slaw and toss to coat.",
+    "Top with sesame seeds and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "edamame, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 90
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 6
+    },
+    {
+      "name": "sesame seeds",
+      "qty_g": 8
+    }
+  ]
+}

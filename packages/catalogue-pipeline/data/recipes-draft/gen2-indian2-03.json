@@ -1,0 +1,65 @@
+{
+  "id": "gen2-indian2-03",
+  "name": "Chicken korma",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Fry the onion in oil until soft and pale golden.",
+    "Add the garlic, ginger, garam masala and turmeric and cook until fragrant.",
+    "Stir in the ground almonds with a splash of water to form a paste.",
+    "Add the chicken and coat well in the sauce.",
+    "Lower the heat and stir through the yogurt and cream.",
+    "Simmer gently until rich and thickened, then serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 50
+    },
+    {
+      "name": "heavy cream",
+      "qty_g": 30
+    },
+    {
+      "name": "almonds",
+      "qty_g": 15
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "fresh ginger",
+      "qty_g": 5
+    },
+    {
+      "name": "garam masala",
+      "qty_g": 3
+    },
+    {
+      "name": "ground turmeric",
+      "qty_g": 1
+    }
+  ]
+}

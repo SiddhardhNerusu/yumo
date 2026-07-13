@@ -1,0 +1,53 @@
+{
+  "id": "gen2-veg-hi-01",
+  "name": "Crispy tofu & broccoli stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "stir-fry"
+  ],
+  "steps": [
+    "Press the tofu, cube it, and toss with cornflour and a pinch of salt.",
+    "Pan-fry the tofu in hot oil until golden and crisp on all sides.",
+    "Add the broccoli and a splash of water, then cover and steam for two minutes.",
+    "Stir through the soy sauce and garlic and toss until glossy.",
+    "Serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 200
+    },
+    {
+      "name": "broccoli",
+      "qty_g": 120
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "cornstarch",
+      "qty_g": 10
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 12
+    }
+  ]
+}

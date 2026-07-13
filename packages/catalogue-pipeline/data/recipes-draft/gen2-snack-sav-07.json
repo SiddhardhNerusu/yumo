@@ -1,0 +1,38 @@
+{
+  "id": "gen2-snack-sav-07",
+  "name": "Salt & chilli edamame",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein"
+  ],
+  "steps": [
+    "Steam or microwave the edamame until hot.",
+    "Toss with the olive oil while still warm.",
+    "Sprinkle over the chilli flakes and sea salt.",
+    "Squeeze the pods to eat the beans."
+  ],
+  "ingredients": [
+    {
+      "name": "edamame",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 4
+    },
+    {
+      "name": "chilli flakes",
+      "qty_g": 1
+    },
+    {
+      "name": "sea salt",
+      "qty_g": 1
+    }
+  ]
+}

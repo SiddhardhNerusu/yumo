@@ -1,0 +1,49 @@
+{
+  "id": "gen2-soups-02",
+  "name": "Hearty red lentil soup",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "one-pot"
+  ],
+  "steps": [
+    "Fry chopped onion and garlic in olive oil until soft.",
+    "Stir in ground cumin and cook for a minute.",
+    "Add the cooked red lentils and vegetable stock.",
+    "Simmer for ten minutes then blend until smooth.",
+    "Finish with a squeeze of lemon and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 220
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "garlic",
+      "qty_g": 8
+    },
+    {
+      "name": "vegetable stock",
+      "qty_g": 350
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 10
+    }
+  ]
+}

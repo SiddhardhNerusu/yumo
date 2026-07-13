@@ -1,0 +1,39 @@
+{
+  "id": "gen2-snack-prot-05",
+  "name": "Peanut butter protein balls",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Stir the peanut butter, oats and honey together into a stiff dough.",
+    "Fold in the whey protein powder until fully combined.",
+    "Roll the mixture into small balls with your hands.",
+    "Chill for 10 minutes to firm up before eating."
+  ],
+  "ingredients": [
+    {
+      "name": "peanut butter",
+      "qty_g": 40
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 30
+    },
+    {
+      "name": "honey",
+      "qty_g": 15
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 25
+    }
+  ]
+}

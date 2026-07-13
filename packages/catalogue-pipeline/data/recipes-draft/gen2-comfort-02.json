@@ -1,0 +1,57 @@
+{
+  "id": "gen2-comfort-02",
+  "name": "Turkey cottage pie with cauliflower mash",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "baked",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the onion and carrot in olive oil for a few minutes.",
+    "Add the ground turkey and brown it, breaking up any lumps.",
+    "Stir in the tomato paste, peas and a splash of water, then simmer.",
+    "Mash the cooked cauliflower and potato together until smooth.",
+    "Spoon the turkey into a dish and spread the mash on top.",
+    "Bake until the topping is golden."
+  ],
+  "ingredients": [
+    {
+      "name": "ground turkey",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "peas",
+      "qty_g": 50
+    },
+    {
+      "name": "tomato paste",
+      "qty_g": 15
+    },
+    {
+      "name": "cauliflower, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

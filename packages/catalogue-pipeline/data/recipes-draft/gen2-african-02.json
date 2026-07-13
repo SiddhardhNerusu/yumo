@@ -1,0 +1,53 @@
+{
+  "id": "gen2-african-02",
+  "name": "West African peanut stew with chicken",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stew"
+  ],
+  "steps": [
+    "Brown the diced chicken thigh in oil, then set aside.",
+    "Soften the onion, garlic, and ginger in the same pot.",
+    "Stir in the peanut butter, tomato paste, and a little water into a smooth sauce.",
+    "Return the chicken, add the sweet potato, and pour in stock to cover.",
+    "Simmer until the sweet potato is tender and the sauce thickens.",
+    "Stir the spinach through until wilted and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 32
+    },
+    {
+      "name": "sweet potato",
+      "qty_g": 120
+    },
+    {
+      "name": "tomato paste",
+      "qty_g": 15
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

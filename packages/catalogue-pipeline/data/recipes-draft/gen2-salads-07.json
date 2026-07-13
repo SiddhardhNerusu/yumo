@@ -1,0 +1,43 @@
+{
+  "id": "gen2-salads-07",
+  "name": "Steak and rocket salad",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Season the steak and sear to your liking, then rest.",
+    "Slice the steak thinly against the grain.",
+    "Pile the rocket and cherry tomatoes on a plate.",
+    "Lay the steak slices over the leaves.",
+    "Shave over the parmesan and drizzle with olive oil."
+  ],
+  "ingredients": [
+    {
+      "name": "beef steak, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "rocket",
+      "qty_g": 50
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

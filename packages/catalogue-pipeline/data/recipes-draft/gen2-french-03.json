@@ -1,0 +1,42 @@
+{
+  "id": "gen2-french-03",
+  "name": "Classic French herb omelette",
+  "cuisine": "French",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "gluten-free"
+  ],
+  "steps": [
+    "Whisk the eggs with a pinch of salt and the chopped chives.",
+    "Melt the butter in a non-stick pan over medium heat.",
+    "Pour in the eggs and stir gently as they begin to set.",
+    "Tilt the pan and let the omelette cook without browning.",
+    "Scatter the gruyere over one half.",
+    "Fold the omelette over and slide onto a plate."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "gruyere cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    },
+    {
+      "name": "chives",
+      "qty_g": 5
+    }
+  ]
+}

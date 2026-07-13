@@ -1,0 +1,55 @@
+{
+  "id": "gen2-veg-hi-03",
+  "name": "Paneer tikka masala",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Cube the paneer and sear in oil until lightly golden, then set aside.",
+    "Soften the onion, then stir in the garam masala and garlic.",
+    "Pour in the tinned tomatoes and simmer until thickened.",
+    "Stir through the greek yogurt and return the paneer to the sauce.",
+    "Simmer for five minutes and serve with the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "paneer",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 70
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 45
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "garam masala",
+      "qty_g": 4
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "gen2-spanish-02",
+  "name": "Tortilla espanola",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "breakfast",
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Slice the potato and onion thinly and soften them in olive oil.",
+    "Beat the eggs with a pinch of salt in a bowl.",
+    "Fold the drained potato and onion into the eggs.",
+    "Pour into a small pan and cook gently until the base is set.",
+    "Flip and cook the other side until just firm, then slide out."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "potato",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    }
+  ]
+}

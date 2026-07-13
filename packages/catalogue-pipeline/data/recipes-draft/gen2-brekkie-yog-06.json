@@ -1,0 +1,47 @@
+{
+  "id": "gen2-brekkie-yog-06",
+  "name": "Blueberry almond Greek yogurt oat bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Stir the rolled oats through the Greek yogurt and let it stand for two minutes.",
+    "Spoon the mixture into a bowl.",
+    "Top with the blueberries and flax seeds.",
+    "Swirl over the almond butter and maple syrup, then serve."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 180
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 70
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 30
+    },
+    {
+      "name": "almond butter",
+      "qty_g": 16
+    },
+    {
+      "name": "flax seeds",
+      "qty_g": 10
+    },
+    {
+      "name": "maple syrup",
+      "qty_g": 10
+    }
+  ]
+}

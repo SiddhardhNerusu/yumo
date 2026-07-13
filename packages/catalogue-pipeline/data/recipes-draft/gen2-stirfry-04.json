@@ -1,0 +1,47 @@
+{
+  "id": "gen2-stirfry-04",
+  "name": "Garlic prawn stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Fry the garlic in a hot oiled wok for thirty seconds until fragrant.",
+    "Add the sugar snap peas and red pepper and stir-fry for two minutes.",
+    "Toss in the prawns and cook until heated through.",
+    "Splash in the soy sauce and serve over the rice."
+  ],
+  "ingredients": [
+    {
+      "name": "prawns, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "sugar snap peas",
+      "qty_g": 60
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 50
+    },
+    {
+      "name": "garlic",
+      "qty_g": 8
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

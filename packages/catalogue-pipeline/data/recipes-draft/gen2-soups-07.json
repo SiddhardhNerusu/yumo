@@ -1,0 +1,52 @@
+{
+  "id": "gen2-soups-07",
+  "name": "Turkey and white bean soup",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot"
+  ],
+  "steps": [
+    "Soften chopped onion and celery in a pot with oil.",
+    "Add the chicken stock and bring to a simmer.",
+    "Stir in the cooked white beans and shredded turkey.",
+    "Add the chopped kale and simmer for five minutes.",
+    "Season with salt, pepper and a pinch of chilli flakes."
+  ],
+  "ingredients": [
+    {
+      "name": "turkey breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "cannellini beans, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "kale",
+      "qty_g": 50
+    },
+    {
+      "name": "celery",
+      "qty_g": 35
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "chicken stock",
+      "qty_g": 320
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

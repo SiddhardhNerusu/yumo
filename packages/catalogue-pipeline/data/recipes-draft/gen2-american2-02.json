@@ -1,0 +1,40 @@
+{
+  "id": "gen2-american2-02",
+  "name": "BBQ chicken and rice plate",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "meal-prep"
+  ],
+  "steps": [
+    "Season the chicken breast with salt and pepper.",
+    "Grill or pan-cook the chicken until cooked through.",
+    "Brush the chicken with barbecue sauce and let it glaze for a minute.",
+    "Slice the chicken and serve over the warm rice.",
+    "Add a spoon of sweetcorn on the side."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 170
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "barbecue sauce",
+      "qty_g": 30
+    },
+    {
+      "name": "sweetcorn",
+      "qty_g": 60
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "gen2-snack-prot-06",
+  "name": "Cottage cheese savoury crackers",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the cottage cheese into a bowl.",
+    "Halve the cherry tomatoes and stir them through with black pepper.",
+    "Spoon onto the crackers and finish with a drizzle of olive oil."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 150
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "whole wheat crackers",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 4
+    }
+  ]
+}

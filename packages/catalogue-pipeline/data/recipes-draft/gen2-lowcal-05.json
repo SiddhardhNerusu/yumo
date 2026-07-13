@@ -1,0 +1,44 @@
+{
+  "id": "gen2-lowcal-05",
+  "name": "Baked cod with tomato & spinach",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-calorie",
+    "pescatarian"
+  ],
+  "steps": [
+    "Heat the olive oil in an ovenproof pan and soften the garlic.",
+    "Add the tinned tomatoes and simmer until slightly thickened.",
+    "Stir in the cooked spinach.",
+    "Nestle the cod into the sauce and spoon some over the top.",
+    "Bake at 200C until the fish is hot and flaking."
+  ],
+  "ingredients": [
+    {
+      "name": "cod, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

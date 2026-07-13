@@ -1,0 +1,49 @@
+{
+  "id": "gen2-mideast2-04",
+  "name": "Shakshuka with feta",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Soften the onion and pepper in olive oil until tender.",
+    "Add the tinned tomatoes with cumin and paprika and simmer.",
+    "Make two wells and crack in the eggs.",
+    "Cover and cook until the whites are just set.",
+    "Crumble the feta over the top.",
+    "Scatter with parsley and serve from the pan."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 200
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

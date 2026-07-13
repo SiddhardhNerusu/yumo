@@ -1,0 +1,40 @@
+{
+  "id": "gen2-seafood-06",
+  "name": "Grilled prawn skewers with couscous",
+  "cuisine": "Moroccan",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grilled"
+  ],
+  "steps": [
+    "Toss the prawns with olive oil, paprika, cumin and salt.",
+    "Thread onto skewers and heat the grill to high.",
+    "Grill for two minutes each side until charred and pink.",
+    "Pour hot water over the couscous and let it steam for five minutes.",
+    "Fluff the couscous and serve the skewers on top."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp",
+      "qty_g": 160
+    },
+    {
+      "name": "couscous, cooked",
+      "qty_g": 170
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "paprika",
+      "qty_g": 2
+    }
+  ]
+}

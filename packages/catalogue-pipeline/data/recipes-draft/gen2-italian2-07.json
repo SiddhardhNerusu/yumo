@@ -1,0 +1,47 @@
+{
+  "id": "gen2-italian2-07",
+  "name": "Prawn and lemon linguine",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Cook the linguine until al dente.",
+    "Sizzle the garlic and chilli in olive oil.",
+    "Add the prawns and cook until pink.",
+    "Toss in the pasta with a squeeze of lemon.",
+    "Season and finish with chopped parsley."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 190
+    },
+    {
+      "name": "prawns",
+      "qty_g": 110
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 10
+    },
+    {
+      "name": "parsley",
+      "qty_g": 5
+    }
+  ]
+}

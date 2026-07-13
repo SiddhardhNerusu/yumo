@@ -1,0 +1,41 @@
+{
+  "id": "gen2-seafood-03",
+  "name": "Seared tuna steak with greens",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "seared",
+    "low-carb"
+  ],
+  "steps": [
+    "Pat the tuna steak dry and rub with a little sesame oil.",
+    "Season both sides with salt and pepper.",
+    "Sear in a very hot pan for one minute each side.",
+    "Wilt the spinach in the same pan with soy sauce.",
+    "Slice the tuna and lay over the greens to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "tuna",
+      "qty_g": 160
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 6
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    }
+  ]
+}

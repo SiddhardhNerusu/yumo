@@ -1,0 +1,43 @@
+{
+  "id": "gen2-hearty-05",
+  "name": "Creamy bacon carbonara",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "high-calorie"
+  ],
+  "steps": [
+    "Fry the chopped bacon until crisp and the fat renders.",
+    "Whisk the eggs with grated parmesan and plenty of black pepper.",
+    "Toss the hot cooked pasta into the bacon pan off the heat.",
+    "Pour in the egg mixture and stir quickly to make a glossy sauce.",
+    "Loosen with a splash of pasta water and serve at once."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 250
+    },
+    {
+      "name": "bacon",
+      "qty_g": 70
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 35
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

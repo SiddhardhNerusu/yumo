@@ -1,0 +1,51 @@
+{
+  "id": "gen2-japanese-02",
+  "name": "Pork katsu don",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Coat the pork loin in flour, egg, then panko.",
+    "Fry in hot oil until golden and cooked through, then slice.",
+    "Simmer sliced onion in dashi, soy sauce, and mirin for a few minutes.",
+    "Lay the pork in the simmering broth and pour beaten egg over the top.",
+    "Cover briefly until the egg just sets, then slide over the hot rice."
+  ],
+  "ingredients": [
+    {
+      "name": "pork loin",
+      "qty_g": 150
+    },
+    {
+      "name": "panko breadcrumbs",
+      "qty_g": 35
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "wheat flour",
+      "qty_g": 15
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    }
+  ]
+}

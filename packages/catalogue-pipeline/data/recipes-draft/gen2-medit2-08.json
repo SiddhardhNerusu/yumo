@@ -1,0 +1,51 @@
+{
+  "id": "gen2-medit2-08",
+  "name": "Lemon chicken and chickpea salad",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "high-fibre"
+  ],
+  "steps": [
+    "Combine the chickpeas, chopped tomato, and cucumber in a bowl.",
+    "Slice the cooked chicken and add it in.",
+    "Dress with olive oil, lemon juice, and oregano.",
+    "Crumble over the feta and toss gently.",
+    "Season to taste and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "tomato",
+      "qty_g": 80
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 70
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 12
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "gen2-korean-03",
+  "name": "Soft tofu and egg stew",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "spicy",
+    "vegetarian"
+  ],
+  "steps": [
+    "Soften the garlic and kimchi in a little sesame oil in a small pot.",
+    "Stir in the gochujang and a splash of water to make a broth.",
+    "Spoon in the silken tofu in large chunks and simmer gently.",
+    "Crack the egg into the middle and let it poach for a minute.",
+    "Finish with the sliced green onion and serve bubbling hot."
+  ],
+  "ingredients": [
+    {
+      "name": "silken tofu",
+      "qty_g": 200
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "kimchi",
+      "qty_g": 50
+    },
+    {
+      "name": "gochujang",
+      "qty_g": 12
+    },
+    {
+      "name": "green onion",
+      "qty_g": 15
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    }
+  ]
+}

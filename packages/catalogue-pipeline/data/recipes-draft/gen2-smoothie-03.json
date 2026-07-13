@@ -1,0 +1,43 @@
+{
+  "id": "gen2-smoothie-03",
+  "name": "Blueberry oat breakfast smoothie",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "no-cook",
+    "blended",
+    "high-fibre"
+  ],
+  "steps": [
+    "Add the rolled oats to the blender and blitz for a few seconds to break them down.",
+    "Add the blueberries, greek yogurt, milk and honey.",
+    "Blend until thick and smooth, then pour into a glass."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 40
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 80
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 120
+    },
+    {
+      "name": "milk",
+      "qty_g": 150
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

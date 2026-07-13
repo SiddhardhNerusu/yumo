@@ -1,0 +1,59 @@
+{
+  "id": "gen2-carib2-01",
+  "name": "Jerk chicken thighs",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "spicy",
+    "gluten-free-adaptable",
+    "grill"
+  ],
+  "steps": [
+    "Blend the spring onion, garlic, thyme, allspice, soy sauce, lime juice and oil into a rough marinade.",
+    "Coat the chicken thighs and leave to sit for at least 20 minutes.",
+    "Heat a griddle or heavy pan until very hot.",
+    "Sear the thighs for 5 to 6 minutes each side until charred and cooked through.",
+    "Spoon over any remaining marinade for the last minute.",
+    "Rest for a couple of minutes, then serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh",
+      "qty_g": 200
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 10
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 20
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "thyme",
+      "qty_g": 2
+    },
+    {
+      "name": "allspice",
+      "qty_g": 2
+    }
+  ]
+}

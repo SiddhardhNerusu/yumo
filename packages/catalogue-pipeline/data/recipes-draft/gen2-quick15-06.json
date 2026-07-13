@@ -1,0 +1,39 @@
+{
+  "id": "gen2-quick15-06",
+  "name": "Halloumi and chickpea traybake",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "traybake"
+  ],
+  "steps": [
+    "Heat the oven to its highest setting.",
+    "Tumble the chickpeas and cherry tomatoes onto a lined tray with olive oil.",
+    "Roast for eight minutes until the tomatoes begin to burst.",
+    "Add the sliced halloumi and roast for four more minutes.",
+    "Season with pepper and serve straight from the tray."
+  ],
+  "ingredients": [
+    {
+      "name": "halloumi cheese",
+      "qty_g": 90
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

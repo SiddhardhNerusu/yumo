@@ -1,0 +1,55 @@
+{
+  "id": "gen2-veg-hi-05",
+  "name": "Seitan fajita skillet",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Slice the seitan into strips and sear in oil until browned.",
+    "Add the sliced bell pepper and onion and cook until softened and charred.",
+    "Stir in the cumin and paprika with a pinch of salt.",
+    "Squeeze over lime juice and toss to coat.",
+    "Serve wrapped in the warmed tortillas."
+  ],
+  "ingredients": [
+    {
+      "name": "seitan",
+      "qty_g": 150
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 90
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 90
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 10
+    },
+    {
+      "name": "cumin",
+      "qty_g": 3
+    },
+    {
+      "name": "paprika",
+      "qty_g": 3
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 12
+    }
+  ]
+}

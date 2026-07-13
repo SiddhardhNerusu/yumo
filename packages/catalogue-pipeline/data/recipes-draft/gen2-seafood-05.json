@@ -1,0 +1,43 @@
+{
+  "id": "gen2-seafood-05",
+  "name": "Steamed mussels in white wine",
+  "cuisine": "French",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "steamed"
+  ],
+  "steps": [
+    "Scrub the mussels and discard any that stay open.",
+    "Soften the shallot and garlic in butter in a deep pot.",
+    "Pour in the white wine and bring to a simmer.",
+    "Add the mussels, cover and steam for four to five minutes.",
+    "Discard any unopened shells and finish with parsley."
+  ],
+  "ingredients": [
+    {
+      "name": "mussels",
+      "qty_g": 300
+    },
+    {
+      "name": "butter",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "shallot",
+      "qty_g": 25
+    },
+    {
+      "name": "white wine",
+      "qty_g": 80
+    }
+  ]
+}

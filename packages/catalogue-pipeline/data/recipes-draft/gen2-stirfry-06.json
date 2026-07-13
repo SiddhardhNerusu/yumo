@@ -1,0 +1,51 @@
+{
+  "id": "gen2-stirfry-06",
+  "name": "Thai basil chicken stir-fry",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Stir-fry the garlic and chilli in a hot oiled wok until fragrant.",
+    "Add the minced chicken and cook until browned.",
+    "Toss in the green beans and soy sauce and stir-fry for two minutes.",
+    "Fold through fresh basil, then top with a fried egg and serve over rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "green beans",
+      "qty_g": 50
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "chilli pepper",
+      "qty_g": 5
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

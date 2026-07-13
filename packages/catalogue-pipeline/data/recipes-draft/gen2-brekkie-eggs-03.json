@@ -1,0 +1,39 @@
+{
+  "id": "gen2-brekkie-eggs-03",
+  "name": "Smoked salmon scrambled eggs",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Whisk the eggs with a splash of milk and a little salt.",
+    "Melt the butter in a pan over low heat.",
+    "Pour in the eggs and stir slowly to form soft curds.",
+    "Fold in the smoked salmon just before the eggs finish setting.",
+    "Finish with chopped chives and serve at once."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "smoked salmon",
+      "qty_g": 50
+    },
+    {
+      "name": "butter",
+      "qty_g": 8
+    },
+    {
+      "name": "milk",
+      "qty_g": 20
+    }
+  ]
+}

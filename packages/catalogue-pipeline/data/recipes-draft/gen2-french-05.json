@@ -1,0 +1,52 @@
+{
+  "id": "gen2-french-05",
+  "name": "French green lentils with lardons",
+  "cuisine": "French",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Fry the bacon lardons until crisp and golden.",
+    "Add the diced onion, carrot and celery and soften.",
+    "Stir in the cooked green lentils to coat in the fat.",
+    "Add a splash of chicken stock and a bay leaf, then simmer 10 minutes.",
+    "Season with black pepper and a dash of red wine vinegar.",
+    "Spoon into a bowl and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "bacon",
+      "qty_g": 40
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "celery",
+      "qty_g": 30
+    },
+    {
+      "name": "chicken stock",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "gen2-wraps-01",
+  "name": "Grilled chicken Caesar wrap",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Slice the cooked chicken breast into strips.",
+    "Toss the romaine with the Caesar dressing and parmesan.",
+    "Lay the chicken and dressed lettuce down the middle of the tortilla.",
+    "Fold in the sides and roll up tightly.",
+    "Halve on the diagonal and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 70
+    },
+    {
+      "name": "romaine lettuce",
+      "qty_g": 30
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "caesar dressing",
+      "qty_g": 20
+    }
+  ]
+}

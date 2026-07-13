@@ -1,0 +1,45 @@
+{
+  "id": "gen2-soups-08",
+  "name": "Miso tofu and edamame soup",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "one-pot"
+  ],
+  "steps": [
+    "Warm the vegetable stock in a pot until steaming.",
+    "Whisk in the miso paste until fully dissolved.",
+    "Add the cubed tofu and edamame beans.",
+    "Simmer gently for four minutes without boiling.",
+    "Scatter over sliced spring onion and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "edamame",
+      "qty_g": 80
+    },
+    {
+      "name": "miso paste",
+      "qty_g": 20
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable stock",
+      "qty_g": 350
+    }
+  ]
+}

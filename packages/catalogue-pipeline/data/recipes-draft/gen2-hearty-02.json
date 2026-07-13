@@ -1,0 +1,43 @@
+{
+  "id": "gen2-hearty-02",
+  "name": "Chicken thigh & chorizo rice",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Brown the chicken thighs skin-side down in a pan until golden.",
+    "Add the sliced chorizo and let the oils release.",
+    "Stir in the cooked rice with the tinned tomatoes and a pinch of paprika.",
+    "Simmer everything together until the rice soaks up the sauce.",
+    "Season and serve hot from the pan."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "chorizo",
+      "qty_g": 60
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "gen2-brekkie-sav-02",
+  "name": "Loaded breakfast burrito",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Scramble the eggs in a hot pan with a little oil.",
+    "Warm the black beans through and season with salt.",
+    "Lay the tortilla flat and pile the eggs and beans down the middle.",
+    "Scatter over the grated cheddar and spoon on the salsa.",
+    "Fold in the sides and roll into a tight burrito.",
+    "Sear the burrito seam-side down until golden."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 60
+    },
+    {
+      "name": "salsa",
+      "qty_g": 30
+    }
+  ]
+}

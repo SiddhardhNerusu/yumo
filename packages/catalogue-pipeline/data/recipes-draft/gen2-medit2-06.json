@@ -1,0 +1,45 @@
+{
+  "id": "gen2-medit2-06",
+  "name": "Grilled prawn and lemon orzo",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grilled",
+    "pescatarian"
+  ],
+  "steps": [
+    "Toss the prawns with olive oil, garlic, and lemon zest.",
+    "Grill quickly until pink and opaque.",
+    "Fold the cooked orzo through with lemon juice and parsley.",
+    "Spoon the prawns over the orzo.",
+    "Season and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "prawns",
+      "qty_g": 150
+    },
+    {
+      "name": "pasta, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    }
+  ]
+}

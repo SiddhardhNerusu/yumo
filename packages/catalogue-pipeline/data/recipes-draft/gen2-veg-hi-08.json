@@ -1,0 +1,40 @@
+{
+  "id": "gen2-veg-hi-08",
+  "name": "Cottage cheese & edamame protein bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the cottage cheese into a bowl.",
+    "Scatter over the shelled edamame and halved cherry tomatoes.",
+    "Drizzle with olive oil and season with black pepper.",
+    "Toss gently and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 200
+    },
+    {
+      "name": "edamame",
+      "qty_g": 90
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 70
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

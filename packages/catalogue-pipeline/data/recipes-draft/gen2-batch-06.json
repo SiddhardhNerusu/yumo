@@ -1,0 +1,49 @@
+{
+  "id": "gen2-batch-06",
+  "name": "Irish beef & vegetable stew",
+  "cuisine": "Irish",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "batch-cook",
+    "reheatable"
+  ],
+  "steps": [
+    "Brown the diced beef in oil in a heavy pot.",
+    "Add the onion, carrot and potato and stir briefly.",
+    "Pour in the beef stock to just cover everything.",
+    "Cover and simmer gently for 1 hour until tender.",
+    "Season to taste and serve hot or cool to store."
+  ],
+  "ingredients": [
+    {
+      "name": "beef chuck, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "potato",
+      "qty_g": 150
+    },
+    {
+      "name": "carrot",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "beef broth",
+      "qty_g": 200
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

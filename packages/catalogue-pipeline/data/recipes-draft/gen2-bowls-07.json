@@ -1,0 +1,47 @@
+{
+  "id": "gen2-bowls-07",
+  "name": "Steak & farro bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "high-calorie"
+  ],
+  "steps": [
+    "Season the steak and sear to your liking, then rest and slice.",
+    "Spoon the cooked farro into a bowl.",
+    "Add the roasted sweet potato and rocket.",
+    "Fan the sliced steak over the top.",
+    "Drizzle with olive oil and scatter over the crumbled goat cheese."
+  ],
+  "ingredients": [
+    {
+      "name": "beef steak",
+      "qty_g": 140
+    },
+    {
+      "name": "farro, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "sweet potato, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "arugula",
+      "qty_g": 30
+    },
+    {
+      "name": "goat cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

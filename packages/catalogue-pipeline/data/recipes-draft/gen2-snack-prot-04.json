@@ -1,0 +1,40 @@
+{
+  "id": "gen2-snack-prot-04",
+  "name": "Tuna cucumber boats",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-carb",
+    "no-cook"
+  ],
+  "steps": [
+    "Drain the tuna and mix with the Greek yogurt and lemon juice.",
+    "Halve the cucumber lengthways and scoop out the seeds.",
+    "Spoon the tuna mixture into the cucumber halves.",
+    "Season with black pepper and eat."
+  ],
+  "ingredients": [
+    {
+      "name": "canned tuna",
+      "qty_g": 100
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 120
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 5
+    }
+  ]
+}

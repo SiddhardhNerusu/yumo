@@ -1,0 +1,39 @@
+{
+  "id": "gen2-snack-prot-07",
+  "name": "Devilled eggs with Greek yogurt",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "low-carb"
+  ],
+  "steps": [
+    "Hard-boil the eggs for 9 minutes, then cool and peel.",
+    "Halve the eggs and scoop the yolks into a bowl.",
+    "Mash the yolks with Greek yogurt, mustard and a pinch of salt.",
+    "Spoon the filling back into the whites and dust with paprika."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 30
+    },
+    {
+      "name": "mustard",
+      "qty_g": 5
+    },
+    {
+      "name": "paprika",
+      "qty_g": 1
+    }
+  ]
+}

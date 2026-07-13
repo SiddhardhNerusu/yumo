@@ -1,0 +1,52 @@
+{
+  "id": "gen2-thai2-07",
+  "name": "Thai red curry prawns",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "curry",
+    "pescatarian"
+  ],
+  "steps": [
+    "Fry the red curry paste in a little oil until aromatic.",
+    "Stir in the coconut milk and bring to a simmer.",
+    "Add the bamboo shoots and red pepper and cook until softened.",
+    "Add the prawns and simmer until heated through, then season with fish sauce.",
+    "Serve the curry over the cooked white rice."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 100
+    },
+    {
+      "name": "red curry paste",
+      "qty_g": 25
+    },
+    {
+      "name": "bamboo shoots",
+      "qty_g": 40
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 50
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

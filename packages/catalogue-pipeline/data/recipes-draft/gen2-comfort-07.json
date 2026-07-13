@@ -1,0 +1,49 @@
+{
+  "id": "gen2-comfort-07",
+  "name": "Butternut squash & sage risotto",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the onion in olive oil until translucent.",
+    "Add the diced butternut squash and cook for a few minutes.",
+    "Stir in the arborio rice to coat.",
+    "Add the warm broth a ladle at a time, stirring until absorbed.",
+    "Cook until the rice and squash are tender and creamy.",
+    "Stir through the parmesan and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "arborio rice",
+      "qty_g": 75
+    },
+    {
+      "name": "butternut squash",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "vegetable broth",
+      "qty_g": 250
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

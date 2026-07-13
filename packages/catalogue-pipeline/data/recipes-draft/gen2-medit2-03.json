@@ -1,0 +1,47 @@
+{
+  "id": "gen2-medit2-03",
+  "name": "Lightened moussaka bowl",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "baked"
+  ],
+  "steps": [
+    "Slice the aubergine and roast with a little olive oil until soft.",
+    "Brown the lean lamb mince with onion and cinnamon.",
+    "Stir in the tinned tomatoes and simmer to thicken.",
+    "Layer the aubergine and mince in a small dish.",
+    "Top with greek yogurt and bake until bubbling."
+  ],
+  "ingredients": [
+    {
+      "name": "lamb mince",
+      "qty_g": 120
+    },
+    {
+      "name": "aubergine",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

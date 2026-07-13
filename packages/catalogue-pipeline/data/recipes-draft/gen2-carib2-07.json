@@ -1,0 +1,51 @@
+{
+  "id": "gen2-carib2-07",
+  "name": "Callaloo-style spinach with shrimp",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan",
+    "gluten-free",
+    "dairy-free"
+  ],
+  "steps": [
+    "Soften the onion and garlic in oil.",
+    "Add the chopped tomato and cook down for a minute.",
+    "Stir in the shrimp and cook until just pink.",
+    "Fold through the cooked spinach and warm together.",
+    "Season with salt and pepper.",
+    "Serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp",
+      "qty_g": 150
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "tomato",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "gen2-brekkie-sav-03",
+  "name": "Turmeric tofu scramble",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan"
+  ],
+  "steps": [
+    "Crumble the firm tofu into rough curds with your hands.",
+    "Soften the chopped onion in olive oil over medium heat.",
+    "Add the tofu and turmeric and fry until warmed through.",
+    "Stir in the spinach and cook until wilted.",
+    "Season well with salt and black pepper before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    },
+    {
+      "name": "turmeric",
+      "qty_g": 1
+    }
+  ]
+}

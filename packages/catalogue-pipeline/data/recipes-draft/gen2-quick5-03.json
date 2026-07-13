@@ -1,0 +1,47 @@
+{
+  "id": "gen2-quick5-03",
+  "name": "Microwave salmon rice bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "microwave"
+  ],
+  "steps": [
+    "Microwave the pre-cooked rice until steaming, about 90 seconds.",
+    "Flake the tinned salmon over the hot rice.",
+    "Add the sliced avocado and edamame.",
+    "Drizzle with soy sauce and sesame oil to finish."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "salmon, canned",
+      "qty_g": 90
+    },
+    {
+      "name": "avocado",
+      "qty_g": 50
+    },
+    {
+      "name": "edamame, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    }
+  ]
+}

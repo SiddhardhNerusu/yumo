@@ -1,0 +1,53 @@
+{
+  "id": "gen2-vegan-04",
+  "name": "Black bean chilli",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "one-pot",
+    "spicy"
+  ],
+  "steps": [
+    "Sweat the onion and bell pepper in the oil until soft.",
+    "Stir in the garlic and cook briefly until fragrant.",
+    "Add the black beans, tinned tomatoes, and corn.",
+    "Simmer for twenty minutes until rich and thickened.",
+    "Season with chilli, salt, and pepper to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "black beans, cooked",
+      "qty_g": 220
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "corn",
+      "qty_g": 40
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "gen2-mexican2-02",
+  "name": "Shrimp quesadilla",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "pan-fried"
+  ],
+  "steps": [
+    "Pat the shrimp dry and toss with a pinch of salt.",
+    "Sear the shrimp and sliced bell pepper in the olive oil for two minutes until pink.",
+    "Lay the flour tortilla flat and scatter half the cheese over one side.",
+    "Spread the shrimp and pepper over the cheese, then top with the rest of the cheese and fold.",
+    "Toast the folded tortilla in the dry pan until golden on both sides and the cheese melts.",
+    "Rest for a minute, then cut into wedges."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp",
+      "qty_g": 100
+    },
+    {
+      "name": "flour tortilla",
+      "qty_g": 80
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 50
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 45
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

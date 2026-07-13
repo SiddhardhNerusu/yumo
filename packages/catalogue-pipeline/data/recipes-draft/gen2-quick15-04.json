@@ -1,0 +1,39 @@
+{
+  "id": "gen2-quick15-04",
+  "name": "Salmon and asparagus traybake",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "traybake"
+  ],
+  "steps": [
+    "Heat the oven to its highest setting.",
+    "Lay the salmon fillet and asparagus on a lined tray.",
+    "Drizzle with olive oil and season with salt and pepper.",
+    "Roast for about twelve minutes until the salmon flakes.",
+    "Squeeze over the lemon before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon",
+      "qty_g": 150
+    },
+    {
+      "name": "asparagus",
+      "qty_g": 100
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lemon",
+      "qty_g": 20
+    }
+  ]
+}

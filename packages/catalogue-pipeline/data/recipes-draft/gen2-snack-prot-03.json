@@ -1,0 +1,35 @@
+{
+  "id": "gen2-snack-prot-03",
+  "name": "Soft-boiled eggs with avocado toast",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack",
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Boil the eggs for 7 minutes, then cool under cold water and peel.",
+    "Toast the bread until golden.",
+    "Mash the avocado over the toast with salt and pepper.",
+    "Halve the eggs and lay them on top."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 40
+    },
+    {
+      "name": "avocado",
+      "qty_g": 60
+    }
+  ]
+}

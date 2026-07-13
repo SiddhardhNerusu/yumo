@@ -1,0 +1,45 @@
+{
+  "id": "gen2-african-07",
+  "name": "Kenyan sukuma wiki with beef",
+  "cuisine": "East African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Brown the minced beef in oil until crumbly and cooked.",
+    "Add the onion and tomato and cook until softened.",
+    "Season with cumin and a pinch of salt.",
+    "Stir in the chopped kale and a splash of water.",
+    "Cover and simmer until the greens are tender.",
+    "Finish with a squeeze of lemon."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "kale, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

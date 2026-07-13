@@ -1,0 +1,56 @@
+{
+  "id": "gen2-veg-hi-07",
+  "name": "Red lentil dal with spinach",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "one-pot"
+  ],
+  "steps": [
+    "Soften the onion and garlic in oil until translucent.",
+    "Stir in the turmeric and cumin until fragrant.",
+    "Add the cooked lentils with a splash of water and simmer to thicken.",
+    "Fold through the spinach until wilted.",
+    "Serve with the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "basmati rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "turmeric",
+      "qty_g": 2
+    },
+    {
+      "name": "cumin",
+      "qty_g": 3
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "gen2-brekkie-oats-01",
+  "name": "Peanut butter banana overnight oats",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "make-ahead",
+    "no-cook"
+  ],
+  "steps": [
+    "Stir the rolled oats, milk and Greek yogurt together in a jar.",
+    "Swirl in the peanut butter and a pinch of salt.",
+    "Seal and chill overnight.",
+    "Top with sliced banana before eating."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 50
+    },
+    {
+      "name": "milk",
+      "qty_g": 150
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 100
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 20
+    },
+    {
+      "name": "banana",
+      "qty_g": 90
+    }
+  ]
+}

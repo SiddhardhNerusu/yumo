@@ -1,0 +1,44 @@
+{
+  "id": "gen2-seafood-07",
+  "name": "Honey soy grilled salmon bowl",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "grilled"
+  ],
+  "steps": [
+    "Whisk the soy sauce, honey and grated ginger into a glaze.",
+    "Brush the salmon fillet all over with the glaze.",
+    "Grill for five to six minutes each side, brushing again once.",
+    "Warm the cooked brown rice in a bowl.",
+    "Flake the salmon over the rice and drizzle with the pan glaze."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon",
+      "qty_g": 160
+    },
+    {
+      "name": "brown rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "honey",
+      "qty_g": 12
+    },
+    {
+      "name": "ginger",
+      "qty_g": 5
+    }
+  ]
+}

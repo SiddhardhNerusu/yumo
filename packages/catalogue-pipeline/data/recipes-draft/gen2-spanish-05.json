@@ -1,0 +1,44 @@
+{
+  "id": "gen2-spanish-05",
+  "name": "Spanish white bean & chorizo pot",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Fry the sliced chorizo until its red oil is released.",
+    "Add the onion and garlic and soften for a few minutes.",
+    "Stir in the tomatoes and smoked paprika and simmer briefly.",
+    "Tip in the white beans and a splash of stock and heat through.",
+    "Simmer until thick, then season and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "white beans, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "chorizo",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 70
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

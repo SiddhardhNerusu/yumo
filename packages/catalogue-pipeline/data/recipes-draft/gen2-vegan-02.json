@@ -1,0 +1,53 @@
+{
+  "id": "gen2-vegan-02",
+  "name": "Chickpea curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein",
+    "one-pot"
+  ],
+  "steps": [
+    "Fry the onion, garlic, and ginger in the oil until soft.",
+    "Add the cumin and cook for a minute to release the aroma.",
+    "Tip in the chickpeas and tinned tomatoes and stir to coat.",
+    "Simmer for twenty minutes until the sauce thickens.",
+    "Season well and finish with a squeeze of lemon if you like."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 240
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 130
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "ginger",
+      "qty_g": 5
+    },
+    {
+      "name": "ground cumin",
+      "qty_g": 3
+    }
+  ]
+}

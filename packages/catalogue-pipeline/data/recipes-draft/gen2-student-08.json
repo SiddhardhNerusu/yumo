@@ -1,0 +1,47 @@
+{
+  "id": "gen2-student-08",
+  "name": "Chickpea & spinach curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "budget",
+    "high-protein"
+  ],
+  "steps": [
+    "Fry the chopped onion and garlic in oil until soft.",
+    "Stir in the curry powder and cook until fragrant.",
+    "Add the tinned tomatoes and chickpeas and simmer to thicken.",
+    "Wilt in the spinach and serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

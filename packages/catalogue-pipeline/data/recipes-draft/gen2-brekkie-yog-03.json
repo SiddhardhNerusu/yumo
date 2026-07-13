@@ -1,0 +1,46 @@
+{
+  "id": "gen2-brekkie-yog-03",
+  "name": "Mango coconut tropical smoothie bowl",
+  "cuisine": "Tropical",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Blend the mango, banana, coconut milk and Greek yogurt until creamy.",
+    "Pour into a bowl and smooth the top.",
+    "Scatter the granola and shredded coconut over the surface.",
+    "Serve chilled."
+  ],
+  "ingredients": [
+    {
+      "name": "mango",
+      "qty_g": 150
+    },
+    {
+      "name": "banana",
+      "qty_g": 100
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 100
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 80
+    },
+    {
+      "name": "granola",
+      "qty_g": 30
+    },
+    {
+      "name": "coconut",
+      "qty_g": 8
+    }
+  ]
+}

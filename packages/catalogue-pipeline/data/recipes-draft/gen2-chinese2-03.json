@@ -1,0 +1,48 @@
+{
+  "id": "gen2-chinese2-03",
+  "name": "Mapo tofu",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Brown the minced pork in a hot pan until crisp at the edges.",
+    "Stir in the chilli bean paste and garlic until fragrant.",
+    "Pour in a splash of water and bring to a gentle simmer.",
+    "Add the cubed tofu and simmer gently for five minutes.",
+    "Scatter over the spring onion and serve with the rice."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 160
+    },
+    {
+      "name": "ground pork",
+      "qty_g": 90
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 170
+    },
+    {
+      "name": "chili bean paste",
+      "qty_g": 20
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 20
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    }
+  ]
+}

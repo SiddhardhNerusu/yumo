@@ -1,0 +1,44 @@
+{
+  "id": "gen2-french-07",
+  "name": "Croque madame open toast",
+  "cuisine": "French",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Toast the bread and lay the ham over it.",
+    "Cover with the gruyere and grill until bubbling.",
+    "Fry the egg in a little butter until the white sets.",
+    "Slide the fried egg on top of the melted cheese.",
+    "Season with black pepper.",
+    "Serve immediately while hot."
+  ],
+  "ingredients": [
+    {
+      "name": "bread",
+      "qty_g": 60
+    },
+    {
+      "name": "ham",
+      "qty_g": 60
+    },
+    {
+      "name": "gruyere cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "butter",
+      "qty_g": 8
+    }
+  ]
+}

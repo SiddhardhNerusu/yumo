@@ -1,0 +1,48 @@
+{
+  "id": "gen2-african-03",
+  "name": "Moroccan chickpea and lamb tagine",
+  "cuisine": "North African",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stew"
+  ],
+  "steps": [
+    "Brown the diced lamb in oil with the onion.",
+    "Stir in cumin, cinnamon, ginger, and paprika until fragrant.",
+    "Add the tinned tomatoes, chickpeas, and a little water.",
+    "Cover and simmer gently until the lamb is tender.",
+    "Stir in the dried apricots and cook a few minutes more.",
+    "Scatter with chopped coriander before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "lamb, cooked",
+      "qty_g": 110
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "dried apricots",
+      "qty_g": 25
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "gen2-brekkie-eggs-07",
+  "name": "Black bean and avocado breakfast scramble",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre",
+    "gluten-free"
+  ],
+  "steps": [
+    "Warm the black beans in a pan with a pinch of cumin.",
+    "Whisk the eggs with salt and pour into the pan.",
+    "Stir gently until the eggs form soft curds.",
+    "Fold in most of the beans and take off the heat.",
+    "Top with sliced avocado and a squeeze of lime."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "avocado",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

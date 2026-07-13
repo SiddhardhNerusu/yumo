@@ -1,0 +1,48 @@
+{
+  "id": "gen2-soups-01",
+  "name": "Chicken noodle soup",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot"
+  ],
+  "steps": [
+    "Soften diced carrot and celery in a pot with a little oil.",
+    "Pour in the chicken stock and bring to a gentle simmer.",
+    "Add the cooked egg noodles and shredded chicken breast.",
+    "Simmer for five minutes until everything is hot through.",
+    "Season with salt, pepper and a scatter of parsley."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "egg noodles, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "celery",
+      "qty_g": 40
+    },
+    {
+      "name": "chicken stock",
+      "qty_g": 350
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

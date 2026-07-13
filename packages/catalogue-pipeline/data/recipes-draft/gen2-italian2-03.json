@@ -1,0 +1,47 @@
+{
+  "id": "gen2-italian2-03",
+  "name": "Tuna and tomato pasta",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Cook the pasta until al dente.",
+    "Warm the tinned tomatoes with garlic and olive oil.",
+    "Flake in the tuna and stir through.",
+    "Toss with the drained pasta.",
+    "Finish with a little parmesan and black pepper."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "tuna",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 12
+    }
+  ]
+}

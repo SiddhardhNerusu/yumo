@@ -1,0 +1,56 @@
+{
+  "id": "gen2-korean-05",
+  "name": "Gochujang grilled chicken",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "spicy"
+  ],
+  "steps": [
+    "Mix the gochujang, soy sauce, honey, garlic and sesame oil into a marinade.",
+    "Coat the chicken thigh and leave it to sit for a few minutes.",
+    "Grill or pan-fry the chicken until charred and cooked through.",
+    "Rest briefly, then slice into strips.",
+    "Serve over the warm rice with the green onion scattered on top."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh",
+      "qty_g": 170
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "gochujang",
+      "qty_g": 20
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "honey",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    },
+    {
+      "name": "green onion",
+      "qty_g": 15
+    }
+  ]
+}

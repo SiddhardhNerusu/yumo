@@ -1,0 +1,43 @@
+{
+  "id": "gen2-smoothie-06",
+  "name": "Almond butter date shake",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "no-cook",
+    "blended"
+  ],
+  "steps": [
+    "Pit the dates and drop them into the blender.",
+    "Add the almond milk, banana, almond butter and rolled oats.",
+    "Blend until the dates are broken down and the shake is smooth and creamy."
+  ],
+  "ingredients": [
+    {
+      "name": "almond milk",
+      "qty_g": 250
+    },
+    {
+      "name": "dates",
+      "qty_g": 40
+    },
+    {
+      "name": "banana",
+      "qty_g": 100
+    },
+    {
+      "name": "almond butter",
+      "qty_g": 20
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 30
+    }
+  ]
+}

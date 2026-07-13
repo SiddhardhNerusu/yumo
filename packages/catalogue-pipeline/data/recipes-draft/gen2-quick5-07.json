@@ -1,0 +1,39 @@
+{
+  "id": "gen2-quick5-07",
+  "name": "Sardine avocado toast",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "assemble-only"
+  ],
+  "steps": [
+    "Toast the bread until golden.",
+    "Mash the avocado over the toast with a pinch of salt.",
+    "Lay the drained sardines on top.",
+    "Finish with lemon juice and a few chilli flakes."
+  ],
+  "ingredients": [
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "sardines, canned",
+      "qty_g": 90
+    },
+    {
+      "name": "avocado",
+      "qty_g": 60
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 8
+    }
+  ]
+}

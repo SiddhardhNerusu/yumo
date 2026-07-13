@@ -1,0 +1,44 @@
+{
+  "id": "gen2-curry-06",
+  "name": "Palak paneer",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil and soften the chopped onion.",
+    "Add your spices and cook for a minute until fragrant.",
+    "Stir in the cooked spinach and simmer for five minutes.",
+    "Add the cubed paneer and warm through gently.",
+    "Serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "paneer",
+      "qty_g": 100
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 6
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

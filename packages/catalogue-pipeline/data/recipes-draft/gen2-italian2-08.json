@@ -1,0 +1,44 @@
+{
+  "id": "gen2-italian2-08",
+  "name": "Caprese white bean salad",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre"
+  ],
+  "steps": [
+    "Tip the cannellini beans into a bowl.",
+    "Add halved cherry tomatoes and torn mozzarella.",
+    "Drizzle with olive oil and season.",
+    "Scatter over the basil leaves.",
+    "Toss gently and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "cannellini beans, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 90
+    },
+    {
+      "name": "mozzarella cheese",
+      "qty_g": 70
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "basil",
+      "qty_g": 5
+    }
+  ]
+}

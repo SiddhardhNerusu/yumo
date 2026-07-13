@@ -1,0 +1,48 @@
+{
+  "id": "gen2-salads-04",
+  "name": "Halloumi and quinoa grain salad",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Slice the halloumi and fry until golden on both sides.",
+    "Spoon the cooked quinoa into a bowl.",
+    "Add the cucumber, tomatoes and rocket.",
+    "Lay the halloumi over the grains.",
+    "Dress with olive oil and lemon juice and toss gently."
+  ],
+  "ingredients": [
+    {
+      "name": "halloumi cheese",
+      "qty_g": 90
+    },
+    {
+      "name": "quinoa, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 70
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "rocket",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

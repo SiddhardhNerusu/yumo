@@ -1,0 +1,37 @@
+{
+  "id": "gen2-brekkie-eggs-08",
+  "name": "Cottage cheese and chive scramble",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "quick",
+    "gluten-free"
+  ],
+  "steps": [
+    "Whisk the eggs with a pinch of salt.",
+    "Melt the butter in a nonstick pan over low heat.",
+    "Pour in the eggs and stir slowly as they set.",
+    "Fold in the cottage cheese while the eggs are still soft.",
+    "Scatter chopped chives over the top and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "cottage cheese",
+      "qty_g": 80
+    },
+    {
+      "name": "butter",
+      "qty_g": 6
+    }
+  ]
+}

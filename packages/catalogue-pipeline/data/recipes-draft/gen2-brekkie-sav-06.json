@@ -1,0 +1,39 @@
+{
+  "id": "gen2-brekkie-sav-06",
+  "name": "Cottage cheese & smoked salmon bagel",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "no-cook"
+  ],
+  "steps": [
+    "Slice and lightly toast the bagel.",
+    "Spread the cottage cheese thickly over both halves.",
+    "Lay the smoked salmon over the base.",
+    "Add the sliced cucumber and a grind of black pepper.",
+    "Close the bagel and press gently to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 100
+    },
+    {
+      "name": "smoked salmon",
+      "qty_g": 50
+    },
+    {
+      "name": "bagel",
+      "qty_g": 80
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 30
+    }
+  ]
+}

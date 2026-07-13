@@ -1,0 +1,60 @@
+{
+  "id": "gen2-korean-08",
+  "name": "Spicy pork bulgogi",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "spicy"
+  ],
+  "steps": [
+    "Toss the sliced pork with gochujang, soy sauce, sugar, garlic and sesame oil.",
+    "Heat a pan until very hot and add the pork with the onion.",
+    "Stir-fry over high heat until the pork is caramelised at the edges.",
+    "Scatter over the green onion right at the end.",
+    "Serve over the warm rice."
+  ],
+  "ingredients": [
+    {
+      "name": "pork shoulder",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "gochujang",
+      "qty_g": 20
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 10
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    },
+    {
+      "name": "sugar",
+      "qty_g": 5
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "green onion",
+      "qty_g": 15
+    }
+  ]
+}

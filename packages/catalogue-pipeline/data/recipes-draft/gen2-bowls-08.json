@@ -1,0 +1,49 @@
+{
+  "id": "gen2-bowls-08",
+  "name": "Tempeh & brown rice bowl",
+  "cuisine": "Indonesian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "vegetarian"
+  ],
+  "steps": [
+    "Slice the tempeh and pan-fry until browned and crisp.",
+    "Toss the tempeh with the peanut sauce to coat.",
+    "Spoon the cooked brown rice into a bowl.",
+    "Add the steamed green beans and shredded red cabbage.",
+    "Top with the tempeh and sprinkle over the peanuts."
+  ],
+  "ingredients": [
+    {
+      "name": "tempeh",
+      "qty_g": 130
+    },
+    {
+      "name": "brown rice, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "green beans, cooked",
+      "qty_g": 70
+    },
+    {
+      "name": "red cabbage",
+      "qty_g": 40
+    },
+    {
+      "name": "peanut sauce",
+      "qty_g": 30
+    },
+    {
+      "name": "peanuts",
+      "qty_g": 15
+    }
+  ]
+}

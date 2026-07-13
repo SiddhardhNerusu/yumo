@@ -1,0 +1,48 @@
+{
+  "id": "gen2-brekkie-oats-05",
+  "name": "Chocolate cottage cheese overnight oats",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "make-ahead",
+    "no-cook"
+  ],
+  "steps": [
+    "Whisk the cottage cheese and milk until smooth.",
+    "Stir in the oats, cocoa powder and maple syrup.",
+    "Seal in a jar and refrigerate overnight.",
+    "Top with raspberries before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 50
+    },
+    {
+      "name": "cottage cheese",
+      "qty_g": 120
+    },
+    {
+      "name": "milk",
+      "qty_g": 120
+    },
+    {
+      "name": "cocoa powder",
+      "qty_g": 8
+    },
+    {
+      "name": "maple syrup",
+      "qty_g": 15
+    },
+    {
+      "name": "raspberries",
+      "qty_g": 60
+    }
+  ]
+}

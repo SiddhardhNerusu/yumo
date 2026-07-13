@@ -1,0 +1,56 @@
+{
+  "id": "gen2-korean-07",
+  "name": "Doenjang tofu stew",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "comfort"
+  ],
+  "steps": [
+    "Whisk the doenjang into a small pot of water to make a savoury broth.",
+    "Add the potato and onion and simmer until nearly tender.",
+    "Stir in the zucchini and mushrooms and cook a few more minutes.",
+    "Slide in the cubed firm tofu with the garlic and warm through.",
+    "Finish with green onion and serve piping hot."
+  ],
+  "ingredients": [
+    {
+      "name": "firm tofu",
+      "qty_g": 150
+    },
+    {
+      "name": "doenjang",
+      "qty_g": 25
+    },
+    {
+      "name": "zucchini",
+      "qty_g": 60
+    },
+    {
+      "name": "potato",
+      "qty_g": 50
+    },
+    {
+      "name": "mushroom",
+      "qty_g": 40
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "green onion",
+      "qty_g": 15
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    }
+  ]
+}

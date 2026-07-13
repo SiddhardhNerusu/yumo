@@ -1,0 +1,44 @@
+{
+  "id": "gen2-mexican2-04",
+  "name": "Beef chilli con carne",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot"
+  ],
+  "steps": [
+    "Soften the chopped onion in the olive oil until translucent.",
+    "Add the ground beef and brown it well, breaking up any clumps.",
+    "Stir in cumin and a pinch of salt, then pour in the tinned tomatoes.",
+    "Add the kidney beans and a splash of water and bring to a simmer.",
+    "Cook gently for 20 minutes until thickened and rich.",
+    "Taste, adjust the seasoning, and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "ground beef",
+      "qty_g": 130
+    },
+    {
+      "name": "kidney beans, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "gen2-stirfry-08",
+  "name": "Egg & vegetable fried rice",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "stir-fry"
+  ],
+  "steps": [
+    "Scramble the egg in a hot oiled wok, then set aside.",
+    "Stir-fry the carrot, peas and spring onion for two minutes.",
+    "Add the cooked rice and toss over high heat until piping hot.",
+    "Return the egg, splash in the soy sauce and toss to combine."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "green peas",
+      "qty_g": 40
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "gen2-brekkie-cake-01",
+  "name": "Cottage cheese protein pancakes",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Blend the cottage cheese, eggs, oats and a pinch of salt until smooth.",
+    "Let the batter rest for five minutes to thicken.",
+    "Heat a non-stick pan with a little butter over medium heat.",
+    "Pour small rounds and cook until bubbles form on top.",
+    "Flip and cook the other side until golden.",
+    "Stack and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 120
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 50
+    },
+    {
+      "name": "butter",
+      "qty_g": 8
+    }
+  ]
+}

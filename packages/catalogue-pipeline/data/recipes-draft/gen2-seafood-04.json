@@ -1,0 +1,41 @@
+{
+  "id": "gen2-seafood-04",
+  "name": "Baked cod with tomatoes",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "baked",
+    "low-carb"
+  ],
+  "steps": [
+    "Heat the oven to 190C.",
+    "Place the cod fillet in a small baking dish.",
+    "Spoon over the tinned tomatoes and scatter garlic and olive oil.",
+    "Season with salt, pepper and dried oregano.",
+    "Bake for 18 to 20 minutes until the cod flakes easily."
+  ],
+  "ingredients": [
+    {
+      "name": "cod",
+      "qty_g": 180
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "gen2-smoothie-01",
+  "name": "Peanut butter banana protein shake",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook",
+    "blended"
+  ],
+  "steps": [
+    "Add the milk, banana, peanut butter and protein powder to a blender.",
+    "Blend on high until completely smooth.",
+    "Pour into a tall glass and drink straight away."
+  ],
+  "ingredients": [
+    {
+      "name": "milk",
+      "qty_g": 300
+    },
+    {
+      "name": "banana",
+      "qty_g": 100
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 20
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 30
+    }
+  ]
+}

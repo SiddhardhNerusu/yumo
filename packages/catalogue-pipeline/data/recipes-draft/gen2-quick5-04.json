@@ -1,0 +1,41 @@
+{
+  "id": "gen2-quick5-04",
+  "name": "Cottage cheese & tomato bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the cottage cheese into a bowl.",
+    "Halve the cherry tomatoes and scatter them over the top.",
+    "Add a little olive oil, black pepper and chopped chives.",
+    "Serve with the wholegrain crackers on the side."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 180
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    },
+    {
+      "name": "whole wheat crackers",
+      "qty_g": 30
+    }
+  ]
+}

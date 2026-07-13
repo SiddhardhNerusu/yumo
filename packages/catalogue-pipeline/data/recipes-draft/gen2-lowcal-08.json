@@ -1,0 +1,44 @@
+{
+  "id": "gen2-lowcal-08",
+  "name": "Poached egg & greens broth",
+  "cuisine": "Asian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "low-calorie",
+    "broth"
+  ],
+  "steps": [
+    "Bring the vegetable broth to a gentle simmer.",
+    "Add the sliced mushrooms and chopped tomato and cook for three minutes.",
+    "Stir in the spinach.",
+    "Crack the eggs into the simmering broth and poach until set.",
+    "Ladle into a bowl and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 70
+    },
+    {
+      "name": "mushrooms",
+      "qty_g": 60
+    },
+    {
+      "name": "tomato",
+      "qty_g": 80
+    },
+    {
+      "name": "vegetable broth",
+      "qty_g": 350
+    }
+  ]
+}

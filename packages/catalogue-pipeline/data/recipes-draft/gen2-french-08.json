@@ -1,0 +1,54 @@
+{
+  "id": "gen2-french-08",
+  "name": "Provencal white bean and tomato stew",
+  "cuisine": "French",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the onion, garlic and carrot in olive oil.",
+    "Stir in the tinned tomatoes and a pinch of herbes de Provence.",
+    "Add the cooked white beans and simmer 15 minutes.",
+    "Fold the chopped spinach through until wilted.",
+    "Season with salt and black pepper.",
+    "Finish with a drizzle of olive oil and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "white beans, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 60
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

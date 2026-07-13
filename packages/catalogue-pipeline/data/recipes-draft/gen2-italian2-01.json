@@ -1,0 +1,51 @@
+{
+  "id": "gen2-italian2-01",
+  "name": "Chicken parmesan",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Flatten the chicken breast and dip it in beaten egg then breadcrumbs.",
+    "Pan-fry in olive oil until golden on both sides.",
+    "Spoon over the tinned tomatoes and season.",
+    "Top with mozzarella and parmesan.",
+    "Bake until the cheese melts and the chicken is cooked through."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast",
+      "qty_g": 170
+    },
+    {
+      "name": "egg",
+      "qty_g": 25
+    },
+    {
+      "name": "breadcrumbs",
+      "qty_g": 30
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "mozzarella cheese",
+      "qty_g": 50
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "gen2-american2-04",
+  "name": "Steak burrito bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "meal-prep"
+  ],
+  "steps": [
+    "Season the beef steak with salt, cumin, and chilli powder.",
+    "Sear the steak in a hot pan for a few minutes each side, then slice.",
+    "Spoon the warm rice and black beans into a bowl.",
+    "Top with the sliced steak, salsa, and cheddar cheese.",
+    "Finish with a spoon of soured cream."
+  ],
+  "ingredients": [
+    {
+      "name": "beef steak, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "salsa",
+      "qty_g": 40
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 25
+    },
+    {
+      "name": "soured cream",
+      "qty_g": 30
+    }
+  ]
+}

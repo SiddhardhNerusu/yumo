@@ -1,0 +1,44 @@
+{
+  "id": "gen2-quick15-01",
+  "name": "Garlic butter shrimp pasta",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan",
+    "quick-pasta"
+  ],
+  "steps": [
+    "Boil the pasta until just tender, then drain.",
+    "Melt the butter in a hot pan and add the minced garlic.",
+    "Add the shrimp and cook until pink, about two minutes each side.",
+    "Toss in the drained pasta with a splash of the pasta water.",
+    "Finish with parmesan, salt, and black pepper."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "shrimp",
+      "qty_g": 120
+    },
+    {
+      "name": "butter",
+      "qty_g": 15
+    },
+    {
+      "name": "garlic",
+      "qty_g": 8
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "gen2-salads-03",
+  "name": "Tuna nicoise salad",
+  "cuisine": "French",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Boil the new potatoes until tender, then halve.",
+    "Cook the green beans until just crisp, then drain.",
+    "Boil the egg, cool, peel and quarter it.",
+    "Arrange the lettuce, potatoes, beans and tomatoes on a plate.",
+    "Flake the tuna over the top and add the olives.",
+    "Drizzle with olive oil and a squeeze of lemon."
+  ],
+  "ingredients": [
+    {
+      "name": "tuna, canned",
+      "qty_g": 100
+    },
+    {
+      "name": "new potatoes, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "green beans, cooked",
+      "qty_g": 70
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "black olives",
+      "qty_g": 20
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

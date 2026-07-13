@@ -1,0 +1,43 @@
+{
+  "id": "gen2-quick15-08",
+  "name": "Pork and cabbage quick noodles",
+  "cuisine": "Asian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Cook the noodles until just tender, then drain.",
+    "Brown the ground pork in a hot pan, breaking it up as it cooks.",
+    "Add the shredded cabbage and stir-fry until wilted.",
+    "Pour in the soy sauce and toss in the drained noodles.",
+    "Finish with the sliced spring onion and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "ground pork",
+      "qty_g": 130
+    },
+    {
+      "name": "egg noodles, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 100
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

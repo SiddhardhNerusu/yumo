@@ -1,0 +1,43 @@
+{
+  "id": "gen2-student-01",
+  "name": "Tuna & white bean smash",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "no-cook"
+  ],
+  "steps": [
+    "Drain and flake the tinned tuna into a bowl.",
+    "Mash in the cannellini beans with a fork, leaving some texture.",
+    "Stir through the olive oil, lemon juice and a pinch of salt.",
+    "Fold in the chopped onion and serve on toast or as is."
+  ],
+  "ingredients": [
+    {
+      "name": "tuna, canned",
+      "qty_g": 100
+    },
+    {
+      "name": "white beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 10
+    },
+    {
+      "name": "onion",
+      "qty_g": 25
+    }
+  ]
+}

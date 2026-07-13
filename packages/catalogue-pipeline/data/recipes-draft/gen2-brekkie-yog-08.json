@@ -1,0 +1,44 @@
+{
+  "id": "gen2-brekkie-yog-08",
+  "name": "Kiwi pistachio yogurt bowl",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the Greek yogurt into a bowl.",
+    "Arrange the sliced kiwi over the yogurt.",
+    "Scatter the pistachios and pumpkin seeds on top.",
+    "Drizzle with honey and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 170
+    },
+    {
+      "name": "kiwi",
+      "qty_g": 100
+    },
+    {
+      "name": "pistachios",
+      "qty_g": 15
+    },
+    {
+      "name": "pumpkin seeds",
+      "qty_g": 10
+    },
+    {
+      "name": "honey",
+      "qty_g": 10
+    }
+  ]
+}

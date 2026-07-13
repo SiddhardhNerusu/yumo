@@ -1,0 +1,53 @@
+{
+  "id": "gen2-carib2-06",
+  "name": "Curry goat",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot",
+    "dairy-free"
+  ],
+  "steps": [
+    "Toast the curry powder in oil until aromatic.",
+    "Brown the goat pieces with the onion and garlic.",
+    "Add the thyme and enough water to just cover.",
+    "Simmer gently for around an hour until the meat is tender.",
+    "Add the diced potato and cook until soft and the sauce thickens.",
+    "Season and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "goat meat",
+      "qty_g": 180
+    },
+    {
+      "name": "curry powder",
+      "qty_g": 8
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "potato",
+      "qty_g": 100
+    },
+    {
+      "name": "thyme",
+      "qty_g": 2
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

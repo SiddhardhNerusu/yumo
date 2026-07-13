@@ -1,0 +1,46 @@
+{
+  "id": "gen2-brekkie-yog-05",
+  "name": "Cherry chocolate protein smoothie bowl",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Blend the cherries, banana, whey protein powder, cocoa powder and almond milk until thick.",
+    "Pour into a bowl and level the top.",
+    "Scatter the almonds over the surface.",
+    "Serve straight away."
+  ],
+  "ingredients": [
+    {
+      "name": "cherries",
+      "qty_g": 120
+    },
+    {
+      "name": "banana",
+      "qty_g": 80
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 30
+    },
+    {
+      "name": "cocoa powder",
+      "qty_g": 6
+    },
+    {
+      "name": "almond milk",
+      "qty_g": 150
+    },
+    {
+      "name": "almonds",
+      "qty_g": 12
+    }
+  ]
+}

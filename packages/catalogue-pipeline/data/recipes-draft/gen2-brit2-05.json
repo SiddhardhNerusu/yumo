@@ -1,0 +1,43 @@
+{
+  "id": "gen2-brit2-05",
+  "name": "Toad-in-the-hole-lite",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "comfort-food"
+  ],
+  "steps": [
+    "Whisk the flour, egg and milk into a smooth batter and rest it.",
+    "Brown the sausages in a hot ovenproof dish with a little oil.",
+    "Pour the batter around the sizzling sausages.",
+    "Bake at 220C for twenty-five minutes until risen and golden.",
+    "Serve straight from the dish while puffed up."
+  ],
+  "ingredients": [
+    {
+      "name": "pork sausage",
+      "qty_g": 100
+    },
+    {
+      "name": "all-purpose flour",
+      "qty_g": 50
+    },
+    {
+      "name": "egg",
+      "qty_g": 55
+    },
+    {
+      "name": "milk",
+      "qty_g": 90
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

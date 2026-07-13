@@ -1,0 +1,49 @@
+{
+  "id": "gen2-batch-03",
+  "name": "Turkey spaghetti bolognese",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "batch-cook",
+    "reheatable"
+  ],
+  "steps": [
+    "Brown the turkey mince in a little olive oil.",
+    "Add the diced onion and carrot and cook until soft.",
+    "Pour in the tinned tomatoes and simmer for 30 minutes.",
+    "Season well and stir through the cooked pasta.",
+    "Cool and portion, or serve straight away."
+  ],
+  "ingredients": [
+    {
+      "name": "turkey mince, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "pasta, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

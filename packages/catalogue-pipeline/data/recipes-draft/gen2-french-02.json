@@ -1,0 +1,57 @@
+{
+  "id": "gen2-french-02",
+  "name": "Salade nicoise with tuna",
+  "cuisine": "French",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Boil the baby potatoes and green beans until just tender, then cool.",
+    "Halve the boiled eggs and cherry tomatoes.",
+    "Arrange the lettuce, potatoes and beans in a bowl.",
+    "Flake the tuna over the top and scatter the olives.",
+    "Add the egg halves and tomatoes around the bowl.",
+    "Whisk olive oil with a squeeze of lemon and drizzle over."
+  ],
+  "ingredients": [
+    {
+      "name": "tuna, canned",
+      "qty_g": 100
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "potato, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "green beans",
+      "qty_g": 70
+    },
+    {
+      "name": "cherry tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "lettuce",
+      "qty_g": 40
+    },
+    {
+      "name": "black olives",
+      "qty_g": 20
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

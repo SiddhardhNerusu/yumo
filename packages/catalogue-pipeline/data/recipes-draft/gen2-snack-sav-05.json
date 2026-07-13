@@ -1,0 +1,35 @@
+{
+  "id": "gen2-snack-sav-05",
+  "name": "Spiced roasted chickpeas",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre",
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oven to 200C and pat the chickpeas dry.",
+    "Toss the chickpeas with the olive oil, paprika and a pinch of salt.",
+    "Spread them on a tray in a single layer.",
+    "Roast for 30 minutes until crisp, shaking halfway."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 140
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "paprika",
+      "qty_g": 2
+    }
+  ]
+}

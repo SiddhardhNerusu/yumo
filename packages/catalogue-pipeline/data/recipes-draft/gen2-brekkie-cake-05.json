@@ -1,0 +1,40 @@
+{
+  "id": "gen2-brekkie-cake-05",
+  "name": "Classic egg french toast",
+  "cuisine": "French",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "quick"
+  ],
+  "steps": [
+    "Whisk the eggs, milk and a pinch of cinnamon in a shallow dish.",
+    "Soak each slice of bread in the custard for a few seconds per side.",
+    "Melt the butter in a pan over medium heat.",
+    "Fry the soaked bread until golden on both sides.",
+    "Transfer to a plate.",
+    "Serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "bread",
+      "qty_g": 90
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "milk",
+      "qty_g": 60
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    }
+  ]
+}

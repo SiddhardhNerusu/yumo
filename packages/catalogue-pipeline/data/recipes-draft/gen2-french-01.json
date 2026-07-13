@@ -1,0 +1,57 @@
+{
+  "id": "gen2-french-01",
+  "name": "Ratatouille with grilled chicken",
+  "cuisine": "French",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Dice the aubergine, courgette, pepper and onion into small cubes.",
+    "Soften the onion and garlic in olive oil, then add the pepper.",
+    "Stir in the aubergine and courgette and cook until they collapse.",
+    "Pour in the tinned tomatoes with a pinch of thyme and simmer 15 minutes.",
+    "Season the sliced chicken breast and grill until golden.",
+    "Spoon the ratatouille onto a plate and lay the chicken over it."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "aubergine",
+      "qty_g": 100
+    },
+    {
+      "name": "courgette",
+      "qty_g": 100
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

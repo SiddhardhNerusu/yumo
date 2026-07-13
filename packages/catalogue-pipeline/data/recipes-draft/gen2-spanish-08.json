@@ -1,0 +1,44 @@
+{
+  "id": "gen2-spanish-08",
+  "name": "Lentil & vegetable Spanish stew",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the onion, carrot, and garlic in olive oil.",
+    "Stir in the smoked paprika and cook until fragrant.",
+    "Add the tomatoes and a splash of stock and simmer briefly.",
+    "Fold in the cooked lentils and heat through gently.",
+    "Simmer until thick, then season and serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 45
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 70
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

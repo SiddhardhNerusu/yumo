@@ -1,0 +1,53 @@
+{
+  "id": "gen2-comfort-03",
+  "name": "Prawn & pea risotto",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "seafood",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the onion in olive oil until translucent.",
+    "Add the arborio rice and stir for a minute to coat.",
+    "Add the warm broth a ladle at a time, stirring until absorbed.",
+    "When the rice is nearly tender, stir in the prawns and peas.",
+    "Cook until the prawns are pink and the rice is creamy.",
+    "Stir through the parmesan and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "arborio rice",
+      "qty_g": 75
+    },
+    {
+      "name": "shrimp",
+      "qty_g": 110
+    },
+    {
+      "name": "peas",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "vegetable broth",
+      "qty_g": 250
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    }
+  ]
+}

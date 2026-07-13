@@ -1,0 +1,57 @@
+{
+  "id": "gen2-thai2-04",
+  "name": "Chicken pho-lite",
+  "cuisine": "Vietnamese",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "broth",
+    "noodle-bowl",
+    "high-protein"
+  ],
+  "steps": [
+    "Warm the chicken broth and season it with fish sauce.",
+    "Divide the cooked rice noodles into a deep bowl.",
+    "Top with the sliced cooked chicken breast.",
+    "Ladle the hot broth over to heat everything through.",
+    "Finish with bean sprouts, scallions, cilantro, and a squeeze of lime."
+  ],
+  "ingredients": [
+    {
+      "name": "rice noodles, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "chicken broth",
+      "qty_g": 300
+    },
+    {
+      "name": "bean sprouts",
+      "qty_g": 40
+    },
+    {
+      "name": "scallions",
+      "qty_g": 15
+    },
+    {
+      "name": "cilantro",
+      "qty_g": 6
+    },
+    {
+      "name": "fish sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "lime juice",
+      "qty_g": 6
+    }
+  ]
+}

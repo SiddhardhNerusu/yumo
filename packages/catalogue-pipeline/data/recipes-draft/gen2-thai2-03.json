@@ -1,0 +1,47 @@
+{
+  "id": "gen2-thai2-03",
+  "name": "Thai green curry with cod",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "curry",
+    "pescatarian"
+  ],
+  "steps": [
+    "Fry the green curry paste in a little oil until fragrant.",
+    "Pour in the coconut milk and bring to a gentle simmer.",
+    "Add the green beans and eggplant and cook until just tender.",
+    "Slide in the cod chunks and poach until they flake.",
+    "Serve the curry over the cooked white rice."
+  ],
+  "ingredients": [
+    {
+      "name": "cod",
+      "qty_g": 150
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 100
+    },
+    {
+      "name": "green curry paste",
+      "qty_g": 25
+    },
+    {
+      "name": "green beans",
+      "qty_g": 50
+    },
+    {
+      "name": "eggplant",
+      "qty_g": 50
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

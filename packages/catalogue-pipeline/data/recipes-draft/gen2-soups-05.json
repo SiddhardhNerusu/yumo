@@ -1,0 +1,47 @@
+{
+  "id": "gen2-soups-05",
+  "name": "Beef and barley stew",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot"
+  ],
+  "steps": [
+    "Brown the diced beef in a pot with a little oil.",
+    "Add chopped onion and carrot and cook until softened.",
+    "Pour in the beef stock and add the cooked pearl barley.",
+    "Simmer gently for fifteen minutes until thickened.",
+    "Season with salt, pepper and a little thyme."
+  ],
+  "ingredients": [
+    {
+      "name": "beef, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "pearl barley, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "beef stock",
+      "qty_g": 320
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 7
+    }
+  ]
+}

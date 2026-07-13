@@ -1,0 +1,48 @@
+{
+  "id": "gen2-chinese2-02",
+  "name": "Sweet and sour pork",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Cube the pork and stir-fry in hot oil until browned and cooked.",
+    "Add the diced pepper and pineapple and stir-fry for two minutes.",
+    "Stir the ketchup, vinegar and sugar together into a sauce.",
+    "Pour the sauce into the pan and toss until thick and glossy.",
+    "Serve over the hot cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "pork loin",
+      "qty_g": 130
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 70
+    },
+    {
+      "name": "pineapple",
+      "qty_g": 60
+    },
+    {
+      "name": "ketchup",
+      "qty_g": 25
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

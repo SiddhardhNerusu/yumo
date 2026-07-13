@@ -1,0 +1,42 @@
+{
+  "id": "gen2-brekkie-oats-02",
+  "name": "Classic cinnamon apple porridge",
+  "cuisine": "British",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "comfort"
+  ],
+  "steps": [
+    "Combine the oats and milk in a saucepan over medium heat.",
+    "Stir constantly until thick and creamy, about 5 minutes.",
+    "Grate in the apple and stir through the cinnamon.",
+    "Drizzle with honey to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 60
+    },
+    {
+      "name": "milk",
+      "qty_g": 250
+    },
+    {
+      "name": "apple",
+      "qty_g": 100
+    },
+    {
+      "name": "honey",
+      "qty_g": 15
+    },
+    {
+      "name": "cinnamon",
+      "qty_g": 2
+    }
+  ]
+}

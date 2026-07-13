@@ -1,0 +1,50 @@
+{
+  "id": "gen2-carib2-03",
+  "name": "Rice and peas",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "vegan",
+    "dairy-free"
+  ],
+  "steps": [
+    "Warm the coconut milk with the garlic, thyme and spring onion.",
+    "Stir in the drained kidney beans and heat through.",
+    "Fold in the cooked white rice until evenly coated and warmed.",
+    "Loosen with a splash of water if needed.",
+    "Season with salt and a little pepper.",
+    "Fluff and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "kidney beans, cooked",
+      "qty_g": 80
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 50
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "garlic",
+      "qty_g": 4
+    },
+    {
+      "name": "thyme",
+      "qty_g": 2
+    }
+  ]
+}

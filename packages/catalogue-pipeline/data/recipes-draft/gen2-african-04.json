@@ -1,0 +1,44 @@
+{
+  "id": "gen2-african-04",
+  "name": "Ethiopian berbere lentils",
+  "cuisine": "East African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the diced onion and garlic in oil until golden.",
+    "Stir in the berbere spice and tomato paste until fragrant.",
+    "Add the red lentils and pour in water to cover.",
+    "Simmer, stirring, until the lentils break down into a thick stew.",
+    "Season with salt and a squeeze of lemon to finish."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tomato paste",
+      "qty_g": 15
+    },
+    {
+      "name": "garlic",
+      "qty_g": 8
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

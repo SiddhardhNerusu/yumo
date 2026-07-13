@@ -1,0 +1,38 @@
+{
+  "id": "gen2-snack-prot-02",
+  "name": "Soy & sesame edamame bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegan",
+    "gluten-free"
+  ],
+  "steps": [
+    "Steam or microwave the edamame until hot and tender.",
+    "Tip into a bowl and drizzle with soy sauce and sesame oil.",
+    "Sprinkle with sesame seeds and a pinch of sea salt."
+  ],
+  "ingredients": [
+    {
+      "name": "edamame",
+      "qty_g": 150
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 4
+    },
+    {
+      "name": "sesame seeds",
+      "qty_g": 5
+    }
+  ]
+}

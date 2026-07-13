@@ -1,0 +1,47 @@
+{
+  "id": "gen2-japanese-03",
+  "name": "Chicken teriyaki bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Sear the chicken thigh skin-side down until crisp and golden.",
+    "Flip and cook through, then push to one side of the pan.",
+    "Add soy sauce, mirin, and a little sugar and let it bubble into a glaze.",
+    "Turn the chicken to coat, then slice.",
+    "Serve over rice with the pan sauce spooned on top."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh",
+      "qty_g": 170
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 20
+    },
+    {
+      "name": "mirin",
+      "qty_g": 15
+    },
+    {
+      "name": "sugar",
+      "qty_g": 6
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    }
+  ]
+}

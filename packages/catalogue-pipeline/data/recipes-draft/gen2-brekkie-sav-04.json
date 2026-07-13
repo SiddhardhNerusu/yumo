@@ -1,0 +1,43 @@
+{
+  "id": "gen2-brekkie-sav-04",
+  "name": "Smoky cannellini beans on toast",
+  "cuisine": "British",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Warm the olive oil and stir in the smoked paprika.",
+    "Add the tinned tomatoes and simmer for five minutes.",
+    "Tip in the cannellini beans and heat through until glossy.",
+    "Toast the bread until crisp.",
+    "Spoon the smoky beans over the toast and season to taste."
+  ],
+  "ingredients": [
+    {
+      "name": "cannellini beans, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    },
+    {
+      "name": "smoked paprika",
+      "qty_g": 1
+    }
+  ]
+}

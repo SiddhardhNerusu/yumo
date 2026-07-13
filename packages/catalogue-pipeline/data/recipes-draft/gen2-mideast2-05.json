@@ -1,0 +1,45 @@
+{
+  "id": "gen2-mideast2-05",
+  "name": "Red lentil soup",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the onion and carrot in olive oil.",
+    "Stir in the cumin until fragrant.",
+    "Add the lentils and vegetable stock and simmer until soft.",
+    "Blend the soup until smooth.",
+    "Season with salt and a squeeze of lemon.",
+    "Serve hot with a drizzle of olive oil."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "vegetable stock",
+      "qty_g": 250
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

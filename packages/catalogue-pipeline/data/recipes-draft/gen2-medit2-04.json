@@ -1,0 +1,45 @@
+{
+  "id": "gen2-medit2-04",
+  "name": "Gigantes baked butter beans",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "baked",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the onion and garlic in olive oil.",
+    "Add the tinned tomatoes, oregano, and a pinch of sugar.",
+    "Stir in the butter beans and simmer to coat.",
+    "Transfer to a dish and bake until the top caramelises.",
+    "Scatter with chopped parsley before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "butter beans, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

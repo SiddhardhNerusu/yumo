@@ -1,0 +1,44 @@
+{
+  "id": "gen2-brekkie-sav-07",
+  "name": "Classic shakshuka",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Soften the chopped onion and bell pepper in olive oil.",
+    "Pour in the tinned tomatoes and simmer until thickened.",
+    "Make two wells in the sauce and crack in the eggs.",
+    "Cover and cook gently until the whites are just set.",
+    "Season with salt and pepper and serve straight from the pan."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 200
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

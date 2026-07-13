@@ -1,0 +1,40 @@
+{
+  "id": "gen2-smoothie-02",
+  "name": "Green spinach mango smoothie",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook",
+    "blended"
+  ],
+  "steps": [
+    "Pile the spinach, mango and greek yogurt into a blender.",
+    "Pour in the milk to help it turn over.",
+    "Blend until bright green and smooth, adding a splash more milk if thick."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 150
+    },
+    {
+      "name": "spinach",
+      "qty_g": 40
+    },
+    {
+      "name": "mango",
+      "qty_g": 120
+    },
+    {
+      "name": "milk",
+      "qty_g": 150
+    }
+  ]
+}

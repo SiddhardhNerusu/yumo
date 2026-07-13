@@ -1,0 +1,43 @@
+{
+  "id": "gen2-quick5-02",
+  "name": "Chicken & hummus wrap",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "assemble-only"
+  ],
+  "steps": [
+    "Warm the tortilla for a few seconds to make it pliable.",
+    "Spread the hummus across the middle of the wrap.",
+    "Lay on the sliced cooked chicken and cucumber.",
+    "Scatter the spinach, then roll up tightly and slice in half."
+  ],
+  "ingredients": [
+    {
+      "name": "tortilla",
+      "qty_g": 60
+    },
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "hummus",
+      "qty_g": 40
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 50
+    },
+    {
+      "name": "spinach",
+      "qty_g": 20
+    }
+  ]
+}

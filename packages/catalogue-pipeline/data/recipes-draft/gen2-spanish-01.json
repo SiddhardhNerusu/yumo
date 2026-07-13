@@ -1,0 +1,48 @@
+{
+  "id": "gen2-spanish-01",
+  "name": "Paella-lite chicken & prawn rice",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pan"
+  ],
+  "steps": [
+    "Brown the diced chicken in olive oil with the smoked paprika.",
+    "Stir in the rice, tomatoes, and a pinch of saffron until coated.",
+    "Pour in hot stock and simmer gently without stirring for fifteen minutes.",
+    "Nestle the prawns and peas on top and cook until the prawns turn pink.",
+    "Rest off the heat for five minutes, then serve with lemon."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "shrimp",
+      "qty_g": 70
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 60
+    },
+    {
+      "name": "green peas",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

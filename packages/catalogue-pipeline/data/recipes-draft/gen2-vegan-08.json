@@ -1,0 +1,51 @@
+{
+  "id": "gen2-vegan-08",
+  "name": "Lentil bolognese with pasta",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein"
+  ],
+  "steps": [
+    "Soften the diced onion, carrot, and garlic in the olive oil.",
+    "Add the cooked lentils and tinned tomatoes with a splash of water.",
+    "Simmer for twenty minutes until rich and thickened.",
+    "Season the sauce well with salt and pepper.",
+    "Toss through the cooked pasta and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "pasta, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "lentils, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    }
+  ]
+}

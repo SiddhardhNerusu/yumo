@@ -1,0 +1,48 @@
+{
+  "id": "gen2-chinese2-05",
+  "name": "Shrimp egg foo young",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "pan-fried"
+  ],
+  "steps": [
+    "Whisk the eggs with a pinch of salt in a bowl.",
+    "Stir in the shrimp, bean sprouts and spring onion.",
+    "Heat the oil in a pan and pour in the egg mixture.",
+    "Cook until set underneath, then flip and cook the other side.",
+    "Slide onto a plate and drizzle with soy sauce."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "shrimp",
+      "qty_g": 90
+    },
+    {
+      "name": "bean sprouts",
+      "qty_g": 60
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 20
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "gen2-batch-08",
+  "name": "Moroccan chickpea & lamb stew",
+  "cuisine": "Moroccan",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "batch-cook",
+    "reheatable"
+  ],
+  "steps": [
+    "Brown the diced lamb in oil until coloured all over.",
+    "Add the onion and cook, then stir in cumin and cinnamon.",
+    "Tip in the chickpeas, tinned tomatoes and a little stock.",
+    "Simmer for 45 minutes until the lamb is tender.",
+    "Serve over couscous or cool for later."
+  ],
+  "ingredients": [
+    {
+      "name": "lamb, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 140
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "couscous, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    }
+  ]
+}

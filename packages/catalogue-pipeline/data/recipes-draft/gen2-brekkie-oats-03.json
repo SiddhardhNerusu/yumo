@@ -1,0 +1,43 @@
+{
+  "id": "gen2-brekkie-oats-03",
+  "name": "Protein baked oats with blueberries",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "baked"
+  ],
+  "steps": [
+    "Heat the oven to 180C and grease a small ramekin.",
+    "Blend the oats, egg, milk and whey protein into a smooth batter.",
+    "Fold in the blueberries and pour into the ramekin.",
+    "Bake for 25 minutes until set and golden."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 50
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "milk",
+      "qty_g": 120
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 30
+    },
+    {
+      "name": "blueberries",
+      "qty_g": 70
+    }
+  ]
+}

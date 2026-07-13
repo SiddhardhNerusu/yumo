@@ -1,0 +1,49 @@
+{
+  "id": "gen2-lowcal-04",
+  "name": "Turkey & cabbage soup",
+  "cuisine": "American",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-calorie",
+    "broth"
+  ],
+  "steps": [
+    "Warm the olive oil in a pot and soften the sliced carrot.",
+    "Add the shredded cabbage and cook for three minutes.",
+    "Pour in the tinned tomatoes and chicken broth and bring to a simmer.",
+    "Stir in the cooked turkey and simmer for ten minutes.",
+    "Season to taste and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "turkey breast, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "cabbage",
+      "qty_g": 130
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 6
+    },
+    {
+      "name": "chicken broth",
+      "qty_g": 300
+    }
+  ]
+}

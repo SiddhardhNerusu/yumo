@@ -1,0 +1,47 @@
+{
+  "id": "gen2-curry-07",
+  "name": "Japanese beef curry",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil and brown the diced onion, carrot and potato.",
+    "Add the cooked beef and a spoonful of curry roux or spices.",
+    "Pour in enough water to cover and simmer for fifteen minutes.",
+    "Cook until the potato is tender and the sauce thickens.",
+    "Serve over the hot cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "beef, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "potato",
+      "qty_g": 80
+    },
+    {
+      "name": "carrot",
+      "qty_g": 50
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

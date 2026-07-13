@@ -1,0 +1,39 @@
+{
+  "id": "gen2-quick15-03",
+  "name": "Black bean and sweetcorn quesadilla",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "one-pan"
+  ],
+  "steps": [
+    "Mash half the black beans lightly with a fork.",
+    "Spread the beans and sweetcorn over one tortilla.",
+    "Scatter the cheddar on top and cover with the second tortilla.",
+    "Toast in a dry pan until golden, then flip and toast the other side.",
+    "Cut into wedges and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "tortilla",
+      "qty_g": 100
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "corn",
+      "qty_g": 60
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 45
+    }
+  ]
+}

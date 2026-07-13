@@ -1,0 +1,40 @@
+{
+  "id": "gen2-wraps-04",
+  "name": "Egg salad sandwich",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-protein"
+  ],
+  "steps": [
+    "Peel the hard-boiled eggs and chop them roughly.",
+    "Mash with the mayonnaise, salt and pepper.",
+    "Pile the egg mixture onto one slice of bread.",
+    "Lay the lettuce over the top and close the sandwich.",
+    "Cut in half and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "mayonnaise",
+      "qty_g": 15
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "lettuce",
+      "qty_g": 15
+    }
+  ]
+}

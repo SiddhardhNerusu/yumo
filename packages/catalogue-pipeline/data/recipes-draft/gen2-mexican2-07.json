@@ -1,0 +1,49 @@
+{
+  "id": "gen2-mexican2-07",
+  "name": "Sweet potato & black bean tacos",
+  "cuisine": "Mexican",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre"
+  ],
+  "steps": [
+    "Dice the sweet potato and toss with the olive oil, cumin and salt.",
+    "Roast at 210C for 25 minutes until soft and caramelised.",
+    "Warm the black beans through in a small pan.",
+    "Heat the corn tortillas until pliable.",
+    "Fill each tortilla with sweet potato and black beans.",
+    "Top with sliced avocado and crumbled feta."
+  ],
+  "ingredients": [
+    {
+      "name": "sweet potato",
+      "qty_g": 150
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 100
+    },
+    {
+      "name": "corn tortilla",
+      "qty_g": 60
+    },
+    {
+      "name": "avocado",
+      "qty_g": 40
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 7
+    }
+  ]
+}

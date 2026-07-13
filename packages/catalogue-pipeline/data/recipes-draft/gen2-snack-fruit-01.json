@@ -1,0 +1,29 @@
+{
+  "id": "gen2-snack-fruit-01",
+  "name": "Apple slices with peanut butter",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Core the apple and cut it into thin wedges.",
+    "Spoon the peanut butter into a small bowl.",
+    "Dip the apple wedges into the peanut butter and eat."
+  ],
+  "ingredients": [
+    {
+      "name": "apple",
+      "qty_g": 180
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 30
+    }
+  ]
+}

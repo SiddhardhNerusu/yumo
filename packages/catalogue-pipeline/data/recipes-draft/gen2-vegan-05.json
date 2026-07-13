@@ -1,0 +1,53 @@
+{
+  "id": "gen2-vegan-05",
+  "name": "Peanut tempeh stir-fry",
+  "cuisine": "Indonesian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Cube the tempeh and brown in the sesame oil on all sides.",
+    "Add the broccoli and garlic and stir-fry until bright green.",
+    "Whisk the peanut butter with the soy sauce and a splash of water.",
+    "Pour the sauce over and toss until everything is coated.",
+    "Serve over the warm cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "tempeh",
+      "qty_g": 150
+    },
+    {
+      "name": "broccoli",
+      "qty_g": 100
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 20
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    }
+  ]
+}

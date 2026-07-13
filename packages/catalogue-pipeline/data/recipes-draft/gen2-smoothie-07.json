@@ -1,0 +1,40 @@
+{
+  "id": "gen2-smoothie-07",
+  "name": "Strawberry kefir chia smoothie",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook",
+    "blended"
+  ],
+  "steps": [
+    "Add the kefir, strawberries, protein powder and chia seeds to a blender.",
+    "Blend until smooth and pale pink.",
+    "Let it sit for a minute so the chia softens, then drink."
+  ],
+  "ingredients": [
+    {
+      "name": "kefir",
+      "qty_g": 250
+    },
+    {
+      "name": "strawberries",
+      "qty_g": 120
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 25
+    },
+    {
+      "name": "chia seeds",
+      "qty_g": 15
+    }
+  ]
+}

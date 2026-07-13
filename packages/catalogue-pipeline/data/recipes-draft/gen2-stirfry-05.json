@@ -1,0 +1,48 @@
+{
+  "id": "gen2-stirfry-05",
+  "name": "Black-bean beef stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Marinate the sliced beef in half the soy sauce for twenty minutes.",
+    "Sear the beef in a hot oiled wok until browned, then set aside.",
+    "Stir-fry the onion and green pepper for two minutes.",
+    "Mash in the black beans with the remaining soy sauce and return the beef.",
+    "Toss until glossy and serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "beef sirloin, cooked",
+      "qty_g": 110
+    },
+    {
+      "name": "black beans, cooked",
+      "qty_g": 40
+    },
+    {
+      "name": "green bell pepper",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

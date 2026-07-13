@@ -1,0 +1,40 @@
+{
+  "id": "gen2-smoothie-05",
+  "name": "Tropical coconut smoothie",
+  "cuisine": "Caribbean",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "no-cook",
+    "blended",
+    "fruit"
+  ],
+  "steps": [
+    "Add the pineapple, mango and banana to a blender.",
+    "Pour over the coconut milk.",
+    "Blend until silky, adding a little water if you like it thinner."
+  ],
+  "ingredients": [
+    {
+      "name": "pineapple",
+      "qty_g": 120
+    },
+    {
+      "name": "mango",
+      "qty_g": 100
+    },
+    {
+      "name": "banana",
+      "qty_g": 80
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 150
+    }
+  ]
+}

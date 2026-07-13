@@ -1,0 +1,40 @@
+{
+  "id": "gen2-brekkie-cake-02",
+  "name": "Banana oat pancakes",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "quick"
+  ],
+  "steps": [
+    "Mash the banana in a bowl until mostly smooth.",
+    "Whisk in the egg and rolled oats.",
+    "Heat a non-stick pan with a little oil over medium heat.",
+    "Spoon in small pancakes and cook until the edges set.",
+    "Flip and cook until golden on both sides.",
+    "Serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "banana",
+      "qty_g": 120
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

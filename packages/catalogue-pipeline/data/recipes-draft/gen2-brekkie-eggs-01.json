@@ -1,0 +1,36 @@
+{
+  "id": "gen2-brekkie-eggs-01",
+  "name": "Classic three-egg cheese omelette",
+  "cuisine": "French",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "gluten-free"
+  ],
+  "steps": [
+    "Whisk the eggs with a pinch of salt until fully blended.",
+    "Melt the butter in a nonstick pan over medium heat.",
+    "Pour in the eggs and swirl gently as they begin to set.",
+    "Scatter the grated cheddar across one half.",
+    "Fold the omelette over and slide onto a plate."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    }
+  ]
+}

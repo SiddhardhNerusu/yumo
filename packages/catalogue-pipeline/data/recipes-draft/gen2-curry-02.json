@@ -1,0 +1,48 @@
+{
+  "id": "gen2-curry-02",
+  "name": "Chicken tikka masala",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil and soften the chopped onion until golden.",
+    "Add your tikka spices and cook for a minute until fragrant.",
+    "Pour in the tinned tomatoes and simmer for eight minutes.",
+    "Stir in the cooked chicken and warm through.",
+    "Take off the heat and swirl in the greek yogurt.",
+    "Serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken breast, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "greek yogurt",
+      "qty_g": 40
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 6
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    }
+  ]
+}

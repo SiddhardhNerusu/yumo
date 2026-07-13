@@ -1,0 +1,43 @@
+{
+  "id": "gen2-brekkie-oats-07",
+  "name": "Savory egg and cheddar oats",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "savory"
+  ],
+  "steps": [
+    "Simmer the oats in water until creamy, about 5 minutes.",
+    "Stir the grated cheddar through until melted.",
+    "Fry the egg in a little butter to your liking.",
+    "Top the oats with the egg and sliced spring onion."
+  ],
+  "ingredients": [
+    {
+      "name": "rolled oats",
+      "qty_g": 50
+    },
+    {
+      "name": "water",
+      "qty_g": 250
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "egg",
+      "qty_g": 50
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

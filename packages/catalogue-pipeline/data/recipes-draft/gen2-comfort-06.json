@@ -1,0 +1,53 @@
+{
+  "id": "gen2-comfort-06",
+  "name": "Red lentil dhal",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the onion and garlic in oil.",
+    "Stir in the curry powder and cook until fragrant.",
+    "Add the tinned tomatoes and cooked lentils with a splash of water.",
+    "Pour in the coconut milk and simmer until thick.",
+    "Season and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 200
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 45
+    },
+    {
+      "name": "curry powder",
+      "qty_g": 5
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

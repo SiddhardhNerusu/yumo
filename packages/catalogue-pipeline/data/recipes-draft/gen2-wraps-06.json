@@ -1,0 +1,43 @@
+{
+  "id": "gen2-wraps-06",
+  "name": "Roast beef & mustard sub",
+  "cuisine": "American",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Split the bread roll lengthways.",
+    "Spread mustard along the inside.",
+    "Layer in the roast beef and provolone.",
+    "Scatter over the thinly sliced onion.",
+    "Close the roll and press to serve."
+  ],
+  "ingredients": [
+    {
+      "name": "roast beef",
+      "qty_g": 100
+    },
+    {
+      "name": "provolone cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "bread roll",
+      "qty_g": 80
+    },
+    {
+      "name": "onion",
+      "qty_g": 20
+    },
+    {
+      "name": "mustard",
+      "qty_g": 10
+    }
+  ]
+}

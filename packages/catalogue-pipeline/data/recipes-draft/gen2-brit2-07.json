@@ -1,0 +1,46 @@
+{
+  "id": "gen2-brit2-07",
+  "name": "Bangers & mash with onion gravy",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "comfort-food"
+  ],
+  "steps": [
+    "Fry the sausages slowly until browned all over.",
+    "Boil the potatoes and mash them with milk and butter.",
+    "Soften the sliced onion in the sausage pan until golden.",
+    "Sprinkle over the flour and pour in the stock to make gravy.",
+    "Serve the sausages over the mash with onion gravy poured on top."
+  ],
+  "ingredients": [
+    {
+      "name": "pork sausage",
+      "qty_g": 120
+    },
+    {
+      "name": "potato",
+      "qty_g": 200
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "milk",
+      "qty_g": 50
+    },
+    {
+      "name": "butter",
+      "qty_g": 12
+    },
+    {
+      "name": "all-purpose flour",
+      "qty_g": 8
+    }
+  ]
+}

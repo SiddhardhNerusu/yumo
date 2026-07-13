@@ -1,0 +1,61 @@
+{
+  "id": "gen2-indian2-07",
+  "name": "Aloo gobi",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "gluten-free"
+  ],
+  "steps": [
+    "Fry the onion in oil until soft.",
+    "Add the garlic, turmeric, cumin and garam masala and cook until fragrant.",
+    "Stir in the chopped tomato and cook to a paste.",
+    "Add the potato and cauliflower and toss to coat in the spices.",
+    "Cover and cook gently, stirring now and then, until tender.",
+    "Season and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "potato, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "cauliflower",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 40
+    },
+    {
+      "name": "tomato",
+      "qty_g": 60
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "garlic",
+      "qty_g": 4
+    },
+    {
+      "name": "ground turmeric",
+      "qty_g": 2
+    },
+    {
+      "name": "ground cumin",
+      "qty_g": 2
+    },
+    {
+      "name": "garam masala",
+      "qty_g": 2
+    }
+  ]
+}

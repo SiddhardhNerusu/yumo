@@ -1,0 +1,44 @@
+{
+  "id": "gen2-spanish-04",
+  "name": "Grilled hake with garlic",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-carb"
+  ],
+  "steps": [
+    "Pat the hake dry and season with salt and smoked paprika.",
+    "Grill the fish for a few minutes each side until it flakes.",
+    "Warm the olive oil and sliced garlic in a small pan.",
+    "Steam the green beans until tender-crisp.",
+    "Spoon the garlic oil over the fish and beans and finish with lemon."
+  ],
+  "ingredients": [
+    {
+      "name": "hake",
+      "qty_g": 170
+    },
+    {
+      "name": "green beans",
+      "qty_g": 100
+    },
+    {
+      "name": "garlic",
+      "qty_g": 8
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "lemon",
+      "qty_g": 15
+    }
+  ]
+}

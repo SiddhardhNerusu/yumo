@@ -1,0 +1,43 @@
+{
+  "id": "gen2-curry-05",
+  "name": "Thai red prawn curry",
+  "cuisine": "Thai",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Heat the oil and stir a spoonful of red curry paste until fragrant.",
+    "Pour in the coconut milk and bring to a simmer.",
+    "Add the sliced red pepper and cook for three minutes.",
+    "Drop in the prawns and cook until pink and opaque.",
+    "Serve over the hot cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp",
+      "qty_g": 140
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 120
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 50
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 5
+    }
+  ]
+}

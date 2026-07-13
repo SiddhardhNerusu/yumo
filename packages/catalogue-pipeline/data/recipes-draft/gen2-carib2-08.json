@@ -1,0 +1,51 @@
+{
+  "id": "gen2-carib2-08",
+  "name": "Ital chickpea and pumpkin stew",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "vegetarian",
+    "dairy-free",
+    "high-fibre"
+  ],
+  "steps": [
+    "Soften the onion and garlic in a pot.",
+    "Stir in the curry powder and cook until fragrant.",
+    "Add the diced pumpkin and coat in the spices.",
+    "Pour in the coconut milk with a splash of water.",
+    "Add the chickpeas and simmer until the pumpkin is tender.",
+    "Season and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "pumpkin",
+      "qty_g": 120
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "curry powder",
+      "qty_g": 6
+    }
+  ]
+}

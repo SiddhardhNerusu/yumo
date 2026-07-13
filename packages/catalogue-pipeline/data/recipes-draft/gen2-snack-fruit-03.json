@@ -1,0 +1,43 @@
+{
+  "id": "gen2-snack-fruit-03",
+  "name": "Handful trail mix",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Roughly chop the dark chocolate.",
+    "Tip the almonds, cashews and pumpkin seeds into a bowl.",
+    "Add the raisins and chopped chocolate.",
+    "Toss everything together and eat by the handful."
+  ],
+  "ingredients": [
+    {
+      "name": "almonds",
+      "qty_g": 20
+    },
+    {
+      "name": "cashews",
+      "qty_g": 15
+    },
+    {
+      "name": "pumpkin seeds",
+      "qty_g": 10
+    },
+    {
+      "name": "raisins",
+      "qty_g": 20
+    },
+    {
+      "name": "dark chocolate",
+      "qty_g": 10
+    }
+  ]
+}

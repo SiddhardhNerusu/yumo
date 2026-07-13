@@ -1,0 +1,52 @@
+{
+  "id": "gen2-bowls-05",
+  "name": "Farro & roasted vegetable bowl",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "high-fibre"
+  ],
+  "steps": [
+    "Toss the courgette and pepper in olive oil and roast until tender.",
+    "Spoon the cooked farro into a bowl.",
+    "Add the roasted vegetables and baby spinach.",
+    "Crumble over the feta cheese.",
+    "Drizzle with the balsamic vinegar and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "farro, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "courgette",
+      "qty_g": 80
+    },
+    {
+      "name": "red bell pepper",
+      "qty_g": 70
+    },
+    {
+      "name": "spinach",
+      "qty_g": 40
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "balsamic vinegar",
+      "qty_g": 8
+    }
+  ]
+}

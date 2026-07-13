@@ -1,0 +1,62 @@
+{
+  "id": "gen2-indian2-06",
+  "name": "Egg curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "gluten-free"
+  ],
+  "steps": [
+    "Hard-boil the eggs, then peel and halve them.",
+    "Fry the onion in oil until soft and golden.",
+    "Add the garlic, ginger, garam masala, turmeric and chilli powder and cook until fragrant.",
+    "Stir in the tomatoes and simmer to a thick sauce.",
+    "Slip in the eggs and spoon the sauce over them.",
+    "Warm through gently and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 10
+    },
+    {
+      "name": "garlic",
+      "qty_g": 5
+    },
+    {
+      "name": "fresh ginger",
+      "qty_g": 5
+    },
+    {
+      "name": "garam masala",
+      "qty_g": 2
+    },
+    {
+      "name": "ground turmeric",
+      "qty_g": 2
+    },
+    {
+      "name": "chili powder",
+      "qty_g": 1
+    }
+  ]
+}

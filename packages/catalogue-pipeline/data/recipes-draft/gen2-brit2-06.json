@@ -1,0 +1,48 @@
+{
+  "id": "gen2-brit2-06",
+  "name": "Cottage pie with lentils",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Soften the onion and carrot in a pan with a little oil.",
+    "Stir in the cooked lentils and tinned tomatoes and simmer.",
+    "Season well and let the mixture thicken for ten minutes.",
+    "Boil and mash the potatoes with a knob of butter.",
+    "Spread the mash over the lentils and bake at 200C for twenty minutes."
+  ],
+  "ingredients": [
+    {
+      "name": "lentils, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "potato",
+      "qty_g": 200
+    },
+    {
+      "name": "carrot",
+      "qty_g": 60
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 80
+    },
+    {
+      "name": "butter",
+      "qty_g": 10
+    }
+  ]
+}

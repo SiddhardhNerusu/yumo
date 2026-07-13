@@ -1,0 +1,43 @@
+{
+  "id": "gen2-brekkie-sav-01",
+  "name": "Smashed avocado & poached egg toast",
+  "cuisine": "Cafe",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "quick"
+  ],
+  "steps": [
+    "Toast the bread until golden and crisp.",
+    "Mash the avocado with lemon juice and a pinch of salt.",
+    "Poach the egg in gently simmering water for three minutes.",
+    "Spread the avocado over the toast and drizzle with olive oil.",
+    "Top with the poached egg and season with black pepper."
+  ],
+  "ingredients": [
+    {
+      "name": "avocado",
+      "qty_g": 80
+    },
+    {
+      "name": "egg",
+      "qty_g": 55
+    },
+    {
+      "name": "whole wheat bread",
+      "qty_g": 60
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    },
+    {
+      "name": "lemon juice",
+      "qty_g": 5
+    }
+  ]
+}

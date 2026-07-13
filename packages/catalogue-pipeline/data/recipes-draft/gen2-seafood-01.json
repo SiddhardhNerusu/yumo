@@ -1,0 +1,41 @@
+{
+  "id": "gen2-seafood-01",
+  "name": "Lemon garlic baked salmon",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "baked",
+    "gluten-free"
+  ],
+  "steps": [
+    "Heat the oven to 200C and line a small tray.",
+    "Place the salmon fillet skin-side down on the tray.",
+    "Rub with olive oil, crushed garlic, salt and a squeeze of lemon.",
+    "Bake for 14 to 16 minutes until just flaking.",
+    "Rest for two minutes and serve with the pan juices."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon",
+      "qty_g": 170
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "lemon",
+      "qty_g": 20
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "gen2-seafood-02",
+  "name": "Garlic butter prawns with rice",
+  "cuisine": "Spanish",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "pan-fried"
+  ],
+  "steps": [
+    "Melt the butter in a hot pan.",
+    "Add the crushed garlic and cook until fragrant.",
+    "Toss in the prawns and fry for two to three minutes until pink.",
+    "Season with salt, parsley and a squeeze of lemon.",
+    "Spoon over the warm cooked rice and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "shrimp",
+      "qty_g": 150
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "butter",
+      "qty_g": 14
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "lemon",
+      "qty_g": 15
+    }
+  ]
+}

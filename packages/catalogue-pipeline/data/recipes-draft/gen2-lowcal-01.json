@@ -1,0 +1,51 @@
+{
+  "id": "gen2-lowcal-01",
+  "name": "Miso salmon & bok choy broth",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-calorie",
+    "broth",
+    "pescatarian"
+  ],
+  "steps": [
+    "Bring the vegetable broth to a gentle simmer in a small pot.",
+    "Add the sliced shiitake and simmer for three minutes.",
+    "Add the bok choy and cook until just tender.",
+    "Stir the miso paste into a ladle of broth off the heat, then return it to the pot.",
+    "Flake in the cooked salmon and warm through.",
+    "Scatter with sliced spring onion and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "bok choy",
+      "qty_g": 120
+    },
+    {
+      "name": "shiitake mushrooms",
+      "qty_g": 50
+    },
+    {
+      "name": "miso paste",
+      "qty_g": 18
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable broth",
+      "qty_g": 300
+    }
+  ]
+}

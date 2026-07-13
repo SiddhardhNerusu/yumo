@@ -1,0 +1,48 @@
+{
+  "id": "gen2-brit2-01",
+  "name": "Salmon & cod fish pie",
+  "cuisine": "British",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "comfort-food"
+  ],
+  "steps": [
+    "Boil the potatoes until tender, then mash with milk and butter.",
+    "Poach the salmon and cod gently in a splash of milk for four minutes.",
+    "Flake the fish into an ovenproof dish and stir through the peas.",
+    "Spoon over the mash and rough up the top with a fork.",
+    "Bake at 200C for twenty minutes until golden and bubbling."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon",
+      "qty_g": 90
+    },
+    {
+      "name": "cod",
+      "qty_g": 90
+    },
+    {
+      "name": "potato",
+      "qty_g": 200
+    },
+    {
+      "name": "green peas",
+      "qty_g": 50
+    },
+    {
+      "name": "milk",
+      "qty_g": 60
+    },
+    {
+      "name": "butter",
+      "qty_g": 12
+    }
+  ]
+}

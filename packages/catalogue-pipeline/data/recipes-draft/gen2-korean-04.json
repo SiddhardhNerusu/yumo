@@ -1,0 +1,63 @@
+{
+  "id": "gen2-korean-04",
+  "name": "Beef japchae noodles",
+  "cuisine": "Korean",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "comfort"
+  ],
+  "steps": [
+    "Brown the beef strips in a hot pan with a little sesame oil.",
+    "Add the onion, carrot and mushrooms and stir-fry until softened.",
+    "Toss in the cooked glass noodles and wilted spinach.",
+    "Pour over the soy sauce and sugar and toss until everything is glossy.",
+    "Scatter with sesame seeds before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "glass noodles, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "beef sirloin",
+      "qty_g": 80
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "carrot",
+      "qty_g": 30
+    },
+    {
+      "name": "onion",
+      "qty_g": 30
+    },
+    {
+      "name": "shiitake mushrooms",
+      "qty_g": 30
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 6
+    },
+    {
+      "name": "sugar",
+      "qty_g": 5
+    },
+    {
+      "name": "sesame seeds",
+      "qty_g": 3
+    }
+  ]
+}

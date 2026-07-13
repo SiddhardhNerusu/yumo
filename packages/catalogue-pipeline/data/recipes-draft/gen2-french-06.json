@@ -1,0 +1,56 @@
+{
+  "id": "gen2-french-06",
+  "name": "Ratatouille with baked cod",
+  "cuisine": "French",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "gluten-free"
+  ],
+  "steps": [
+    "Soften the onion, garlic and pepper in olive oil.",
+    "Add the diced aubergine and courgette and cook until tender.",
+    "Pour in the tinned tomatoes with thyme and simmer 15 minutes.",
+    "Season the cod fillet with salt and lemon.",
+    "Nestle the cod into the ratatouille and bake 12 minutes.",
+    "Serve the cod topped with the vegetables and pan juices."
+  ],
+  "ingredients": [
+    {
+      "name": "cod, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "aubergine",
+      "qty_g": 90
+    },
+    {
+      "name": "courgette",
+      "qty_g": 90
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 70
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 10
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    }
+  ]
+}

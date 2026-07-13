@@ -1,0 +1,47 @@
+{
+  "id": "gen2-brit2-04",
+  "name": "Smoked haddock kedgeree",
+  "cuisine": "British",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Poach the smoked haddock in milk for five minutes, then flake it.",
+    "Fry the onion with curry powder until soft and fragrant.",
+    "Stir the cooked rice through the spiced onion to warm.",
+    "Fold in the flaked haddock and quartered boiled egg.",
+    "Finish with a squeeze of lemon and chopped parsley."
+  ],
+  "ingredients": [
+    {
+      "name": "haddock",
+      "qty_g": 120
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "egg",
+      "qty_g": 55
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "curry powder",
+      "qty_g": 4
+    },
+    {
+      "name": "milk",
+      "qty_g": 50
+    }
+  ]
+}

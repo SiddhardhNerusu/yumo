@@ -1,0 +1,40 @@
+{
+  "id": "gen2-brekkie-cake-03",
+  "name": "Greek yogurt protein waffle",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Whisk the eggs and greek yogurt together until smooth.",
+    "Stir in the flour and baking powder to form a thick batter.",
+    "Heat and lightly grease a waffle iron.",
+    "Pour in the batter and close the lid.",
+    "Cook until deep golden and crisp.",
+    "Lift out and serve immediately."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt",
+      "qty_g": 100
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "all-purpose flour",
+      "qty_g": 60
+    },
+    {
+      "name": "baking powder",
+      "qty_g": 4
+    }
+  ]
+}

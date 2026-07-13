@@ -1,0 +1,38 @@
+{
+  "id": "gen2-snack-sav-04",
+  "name": "Feta, olive & cucumber plate",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Cut the feta into small cubes.",
+    "Slice the cucumber into thick half-moons.",
+    "Arrange the feta, cucumber and olives on a plate.",
+    "Drizzle with olive oil before serving."
+  ],
+  "ingredients": [
+    {
+      "name": "feta cheese",
+      "qty_g": 50
+    },
+    {
+      "name": "black olives",
+      "qty_g": 30
+    },
+    {
+      "name": "cucumber",
+      "qty_g": 80
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 5
+    }
+  ]
+}

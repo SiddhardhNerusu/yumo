@@ -1,0 +1,47 @@
+{
+  "id": "gen2-japanese-04",
+  "name": "Teriyaki salmon rice bowl",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Pat the salmon dry and season lightly with salt.",
+    "Sear in a hot oiled pan until crisp on both sides.",
+    "Add soy sauce and mirin and glaze the fillet, spooning sauce over.",
+    "Flake or leave whole and set over the warm rice.",
+    "Scatter with sliced spring onion to finish."
+  ],
+  "ingredients": [
+    {
+      "name": "salmon",
+      "qty_g": 150
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 15
+    },
+    {
+      "name": "mirin",
+      "qty_g": 12
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 180
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 6
+    }
+  ]
+}

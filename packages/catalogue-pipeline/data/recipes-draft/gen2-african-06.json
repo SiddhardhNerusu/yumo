@@ -1,0 +1,49 @@
+{
+  "id": "gen2-african-06",
+  "name": "Ghanaian black-eyed pea and plantain red red",
+  "cuisine": "West African",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "high-fibre"
+  ],
+  "steps": [
+    "Fry the onion in red palm oil until soft.",
+    "Stir in the tomato paste, ginger, and a pinch of chilli.",
+    "Add the tinned tomatoes and cook down into a thick sauce.",
+    "Fold in the black-eyed peas and simmer to warm through.",
+    "Pan-fry the ripe plantain slices in oil until golden.",
+    "Serve the bean stew topped with the fried plantain."
+  ],
+  "ingredients": [
+    {
+      "name": "black-eyed peas, cooked",
+      "qty_g": 160
+    },
+    {
+      "name": "plantain",
+      "qty_g": 120
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tomato paste",
+      "qty_g": 15
+    },
+    {
+      "name": "palm oil",
+      "qty_g": 12
+    }
+  ]
+}

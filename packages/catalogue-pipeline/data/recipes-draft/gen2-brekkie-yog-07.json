@@ -1,0 +1,46 @@
+{
+  "id": "gen2-brekkie-yog-07",
+  "name": "Green avocado protein smoothie bowl",
+  "cuisine": "Californian",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Blend the spinach, banana, avocado, whey protein powder and almond milk until smooth.",
+    "Pour the mixture into a bowl.",
+    "Sprinkle the hemp seeds across the top.",
+    "Serve immediately while cold."
+  ],
+  "ingredients": [
+    {
+      "name": "spinach",
+      "qty_g": 40
+    },
+    {
+      "name": "banana",
+      "qty_g": 120
+    },
+    {
+      "name": "avocado",
+      "qty_g": 40
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 25
+    },
+    {
+      "name": "almond milk",
+      "qty_g": 150
+    },
+    {
+      "name": "hemp seeds",
+      "qty_g": 10
+    }
+  ]
+}

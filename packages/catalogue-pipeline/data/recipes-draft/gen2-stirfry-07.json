@@ -1,0 +1,47 @@
+{
+  "id": "gen2-stirfry-07",
+  "name": "Pork & green bean stir-fry",
+  "cuisine": "Chinese",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "stir-fry"
+  ],
+  "steps": [
+    "Sear the sliced pork in a hot oiled wok until browned.",
+    "Add the green beans and garlic and stir-fry for three minutes.",
+    "Splash in the soy sauce and sesame oil and toss to coat.",
+    "Serve over the cooked white rice."
+  ],
+  "ingredients": [
+    {
+      "name": "pork loin, cooked",
+      "qty_g": 120
+    },
+    {
+      "name": "green beans",
+      "qty_g": 80
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 12
+    },
+    {
+      "name": "sesame oil",
+      "qty_g": 5
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

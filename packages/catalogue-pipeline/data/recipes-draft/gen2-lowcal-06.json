@@ -1,0 +1,50 @@
+{
+  "id": "gen2-lowcal-06",
+  "name": "Tofu & mushroom miso soup",
+  "cuisine": "Japanese",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "vegan",
+    "low-calorie",
+    "broth"
+  ],
+  "steps": [
+    "Bring the vegetable broth to a gentle simmer.",
+    "Add the sliced mushrooms and cook for three minutes.",
+    "Add the cubed tofu and the spinach and warm through.",
+    "Stir the miso paste into a ladle of broth off the heat, then return it to the pot.",
+    "Top with sliced spring onion and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "tofu",
+      "qty_g": 160
+    },
+    {
+      "name": "mushrooms",
+      "qty_g": 70
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "miso paste",
+      "qty_g": 18
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    },
+    {
+      "name": "vegetable broth",
+      "qty_g": 350
+    }
+  ]
+}

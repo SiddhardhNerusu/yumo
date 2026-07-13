@@ -1,0 +1,29 @@
+{
+  "id": "gen2-snack-sav-02",
+  "name": "Mature cheddar & oatcakes",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Lay the oatcakes out on a plate.",
+    "Slice the cheddar into thin pieces.",
+    "Top each oatcake with a slice of cheese."
+  ],
+  "ingredients": [
+    {
+      "name": "oatcakes",
+      "qty_g": 40
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 40
+    }
+  ]
+}

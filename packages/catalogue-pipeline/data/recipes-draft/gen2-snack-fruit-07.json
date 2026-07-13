@@ -1,0 +1,39 @@
+{
+  "id": "gen2-snack-fruit-07",
+  "name": "Ricotta with pear and walnuts",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Spoon the ricotta into a shallow bowl.",
+    "Slice the pear into thin wedges.",
+    "Arrange the pear over the ricotta and scatter with walnuts.",
+    "Drizzle with honey to finish."
+  ],
+  "ingredients": [
+    {
+      "name": "ricotta cheese",
+      "qty_g": 80
+    },
+    {
+      "name": "pear",
+      "qty_g": 150
+    },
+    {
+      "name": "walnuts",
+      "qty_g": 15
+    },
+    {
+      "name": "honey",
+      "qty_g": 8
+    }
+  ]
+}

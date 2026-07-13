@@ -1,0 +1,44 @@
+{
+  "id": "gen2-mideast2-07",
+  "name": "Lamb and lentil stew",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "high-fibre"
+  ],
+  "steps": [
+    "Brown the lamb in olive oil until seared on all sides.",
+    "Add the onion and cook until soft.",
+    "Stir in cumin, cinnamon and the tinned tomatoes.",
+    "Add the lentils and a splash of stock and simmer until tender.",
+    "Season with salt and pepper to taste.",
+    "Finish with chopped parsley."
+  ],
+  "ingredients": [
+    {
+      "name": "lamb, cooked",
+      "qty_g": 130
+    },
+    {
+      "name": "lentils, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 8
+    }
+  ]
+}

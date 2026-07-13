@@ -1,0 +1,48 @@
+{
+  "id": "gen2-curry-04",
+  "name": "Coconut chickpea curry",
+  "cuisine": "Indian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "vegetarian"
+  ],
+  "steps": [
+    "Heat the oil and fry your curry spices for a minute until fragrant.",
+    "Add the tinned tomatoes and coconut milk, then simmer for five minutes.",
+    "Stir in the chickpeas and cook for another five minutes.",
+    "Fold through the spinach until wilted.",
+    "Serve over the cooked rice."
+  ],
+  "ingredients": [
+    {
+      "name": "chickpeas, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 100
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 100
+    },
+    {
+      "name": "spinach, cooked",
+      "qty_g": 50
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 6
+    },
+    {
+      "name": "white rice, cooked",
+      "qty_g": 150
+    }
+  ]
+}

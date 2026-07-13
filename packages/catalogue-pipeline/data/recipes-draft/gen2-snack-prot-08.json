@@ -1,0 +1,44 @@
+{
+  "id": "gen2-snack-prot-08",
+  "name": "Spicy edamame & tuna protein bowl",
+  "cuisine": "Asian",
+  "slotAffinity": [
+    "snack",
+    "lunch"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "low-carb",
+    "gluten-free"
+  ],
+  "steps": [
+    "Steam the edamame until hot, then tip into a bowl.",
+    "Drain the tuna and add it on top.",
+    "Whisk the soy sauce with sriracha and drizzle over.",
+    "Scatter with sliced spring onion and toss lightly."
+  ],
+  "ingredients": [
+    {
+      "name": "edamame",
+      "qty_g": 120
+    },
+    {
+      "name": "canned tuna",
+      "qty_g": 80
+    },
+    {
+      "name": "soy sauce",
+      "qty_g": 8
+    },
+    {
+      "name": "sriracha",
+      "qty_g": 6
+    },
+    {
+      "name": "spring onion",
+      "qty_g": 15
+    }
+  ]
+}

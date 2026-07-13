@@ -1,0 +1,61 @@
+{
+  "id": "gen2-soups-03",
+  "name": "Minestrone with beans",
+  "cuisine": "Italian",
+  "slotAffinity": [
+    "lunch",
+    "dinner"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "one-pot"
+  ],
+  "steps": [
+    "Sweat diced onion, carrot and celery in olive oil.",
+    "Add tinned tomatoes and vegetable stock and bring to a simmer.",
+    "Stir in the cooked cannellini beans and small pasta.",
+    "Simmer for eight minutes until the vegetables are tender.",
+    "Season well and top with grated parmesan."
+  ],
+  "ingredients": [
+    {
+      "name": "cannellini beans, cooked",
+      "qty_g": 150
+    },
+    {
+      "name": "pasta, cooked",
+      "qty_g": 90
+    },
+    {
+      "name": "tinned tomatoes",
+      "qty_g": 120
+    },
+    {
+      "name": "carrot",
+      "qty_g": 40
+    },
+    {
+      "name": "celery",
+      "qty_g": 30
+    },
+    {
+      "name": "onion",
+      "qty_g": 50
+    },
+    {
+      "name": "vegetable stock",
+      "qty_g": 300
+    },
+    {
+      "name": "parmesan cheese",
+      "qty_g": 15
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 7
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "gen2-batch-05",
+  "name": "Mediterranean chicken traybake",
+  "cuisine": "Mediterranean",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "batch-cook",
+    "reheatable"
+  ],
+  "steps": [
+    "Heat the oven to 200C and oil a roasting tray.",
+    "Toss the chicken thighs with the chopped peppers and courgette.",
+    "Scatter over olive oil, salt and dried oregano.",
+    "Roast for 35 minutes until the chicken is cooked through.",
+    "Crumble over feta and serve or portion out."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh, cooked",
+      "qty_g": 170
+    },
+    {
+      "name": "bell pepper",
+      "qty_g": 90
+    },
+    {
+      "name": "courgette",
+      "qty_g": 80
+    },
+    {
+      "name": "feta cheese",
+      "qty_g": 40
+    },
+    {
+      "name": "olive oil",
+      "qty_g": 12
+    }
+  ]
+}

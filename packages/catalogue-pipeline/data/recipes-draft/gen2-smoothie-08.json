@@ -1,0 +1,48 @@
+{
+  "id": "gen2-smoothie-08",
+  "name": "Mocha oat protein shake",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast",
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian",
+    "no-cook",
+    "blended"
+  ],
+  "steps": [
+    "Brew the coffee and let it cool, or use leftover cold coffee.",
+    "Add the coffee, milk, protein powder, rolled oats, banana and cocoa powder to a blender.",
+    "Blend until smooth, then pour over ice."
+  ],
+  "ingredients": [
+    {
+      "name": "coffee",
+      "qty_g": 150
+    },
+    {
+      "name": "milk",
+      "qty_g": 150
+    },
+    {
+      "name": "whey protein powder",
+      "qty_g": 30
+    },
+    {
+      "name": "rolled oats",
+      "qty_g": 30
+    },
+    {
+      "name": "banana",
+      "qty_g": 80
+    },
+    {
+      "name": "cocoa powder",
+      "qty_g": 5
+    }
+  ]
+}

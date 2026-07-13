@@ -1,0 +1,58 @@
+{
+  "id": "gen2-carib2-02",
+  "name": "Jamaican curry chicken",
+  "cuisine": "Jamaican",
+  "slotAffinity": [
+    "dinner",
+    "lunch"
+  ],
+  "effort": "30min+",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "one-pot",
+    "dairy-free"
+  ],
+  "steps": [
+    "Toast the curry powder in oil until fragrant.",
+    "Add the diced onion and garlic and soften for a few minutes.",
+    "Stir in the chicken thigh pieces and coat in the curry base.",
+    "Add the diced potato, thyme and coconut milk with a splash of water.",
+    "Simmer covered for 25 to 30 minutes until the chicken is tender.",
+    "Season and serve hot."
+  ],
+  "ingredients": [
+    {
+      "name": "chicken thigh",
+      "qty_g": 200
+    },
+    {
+      "name": "curry powder",
+      "qty_g": 8
+    },
+    {
+      "name": "onion",
+      "qty_g": 60
+    },
+    {
+      "name": "garlic",
+      "qty_g": 6
+    },
+    {
+      "name": "potato",
+      "qty_g": 100
+    },
+    {
+      "name": "coconut milk",
+      "qty_g": 60
+    },
+    {
+      "name": "thyme",
+      "qty_g": 2
+    },
+    {
+      "name": "vegetable oil",
+      "qty_g": 8
+    }
+  ]
+}

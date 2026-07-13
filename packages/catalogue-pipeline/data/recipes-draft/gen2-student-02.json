@@ -1,0 +1,43 @@
+{
+  "id": "gen2-student-02",
+  "name": "Cheesy scrambled egg beans on toast",
+  "cuisine": "British",
+  "slotAffinity": [
+    "breakfast",
+    "lunch"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein",
+    "vegetarian"
+  ],
+  "steps": [
+    "Warm the baked beans in a small pan.",
+    "Whisk the eggs and scramble them softly in a little butter.",
+    "Stir the grated cheddar into the eggs as they set.",
+    "Toast the bread and pile on the eggs and beans."
+  ],
+  "ingredients": [
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "baked beans, canned",
+      "qty_g": 150
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "bread, white",
+      "qty_g": 60
+    },
+    {
+      "name": "butter",
+      "qty_g": 8
+    }
+  ]
+}

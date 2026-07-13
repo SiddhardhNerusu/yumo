@@ -1,0 +1,39 @@
+{
+  "id": "gen2-brekkie-cake-06",
+  "name": "High-protein cottage cheese french toast",
+  "cuisine": "American",
+  "slotAffinity": [
+    "breakfast"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "high-protein"
+  ],
+  "steps": [
+    "Blend the eggs, cottage cheese and a pinch of cinnamon until smooth.",
+    "Pour the custard into a shallow dish.",
+    "Soak the bread slices for a few seconds on each side.",
+    "Melt the butter in a pan over medium heat.",
+    "Fry the bread until golden and set on both sides.",
+    "Serve warm."
+  ],
+  "ingredients": [
+    {
+      "name": "bread",
+      "qty_g": 80
+    },
+    {
+      "name": "egg",
+      "qty_g": 100
+    },
+    {
+      "name": "cottage cheese",
+      "qty_g": 80
+    },
+    {
+      "name": "butter",
+      "qty_g": 8
+    }
+  ]
+}

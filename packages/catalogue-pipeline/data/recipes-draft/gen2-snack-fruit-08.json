@@ -1,0 +1,35 @@
+{
+  "id": "gen2-snack-fruit-08",
+  "name": "Dates stuffed with almond butter",
+  "cuisine": "Middle Eastern",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "vegan",
+    "vegetarian",
+    "no-cook"
+  ],
+  "steps": [
+    "Slit each date lengthways and remove the stone.",
+    "Roughly chop the almonds.",
+    "Spoon almond butter into each date.",
+    "Press the chopped almonds on top."
+  ],
+  "ingredients": [
+    {
+      "name": "medjool dates",
+      "qty_g": 45
+    },
+    {
+      "name": "almond butter",
+      "qty_g": 20
+    },
+    {
+      "name": "almonds",
+      "qty_g": 10
+    }
+  ]
+}
