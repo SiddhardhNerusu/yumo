@@ -18,6 +18,7 @@ import { KitchenVoiceSheet, type VoiceAddItem } from '../components/kitchen/Kitc
 import { buildFoodVocab } from '../data/foodVocab';
 import { TonightSheet } from '../components/kitchen/TonightSheet';
 import { ShoppingListSheet } from '../components/kitchen/ShoppingListSheet';
+import type { ShopPick } from '../data/shopping';
 import { Serif, Kicker, TextLink, OutlineButton, ACCENT_BORDER } from '../components/kit';
 import { freshnessOf, ZONE_LABEL, type KitchenItem, type Zone, type Freshness } from '../data/kitchen-model';
 import { track } from '../analytics';
@@ -62,11 +63,12 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
   const [scanned, setScanned] = useState(false);
   const [openZones, setOpenZones] = useState<Set<Zone>>(new Set());
   const [tossingIds, setTossingIds] = useState<Set<string>>(new Set());
-  const [menuRecipes, setMenuRecipes] = useState<MenuRecipe[]>([]);
+  const [menuPicks, setMenuPicks] = useState<ShopPick[]>([]);
+  const menuRecipes = useMemo(() => menuPicks.map((p) => p.recipe), [menuPicks]);
 
   useEffect(() => {
     track('kitchen_opened', {});
-    getMenu(profile).then((r) => setMenuRecipes(r.plan.days.flatMap((d) => d.picks.map((p) => p.recipe)))).catch(() => {});
+    getMenu(profile).then((r) => setMenuPicks(r.plan.days.flatMap((d) => d.picks.map((p) => ({ recipe: p.recipe, portionScale: p.portionScale }))))).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -243,7 +245,7 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
         <KitchenAddSheet zone={addZone} onClose={() => setAddZone(null)} onAdd={(name, zone) => { kitchen.addItem(name, { label: name, zone }); track('item_added', { source: 'manual', zone }); }} />
         <KitchenVoiceSheet visible={showVoice} vocab={voiceVocab} onClose={() => setShowVoice(false)} onAdd={addByVoice} />
         <TonightSheet visible={showTonight} items={kitchen.items} remaining={remaining} now={now} onLog={logDinner} onClose={() => setShowTonight(false)} />
-        <ShoppingListSheet visible={showShopping} recipes={menuRecipes} haveTokens={have} paused={kitchen.emptyMode} onClose={() => setShowShopping(false)} onBought={(tokens) => { kitchen.restock(tokens.map((t) => ({ token: t }))); tokens.forEach(() => track('item_added', { source: 'shopping' })); }} />
+        <ShoppingListSheet visible={showShopping} picks={menuPicks} haveTokens={have} paused={kitchen.emptyMode} onClose={() => setShowShopping(false)} onBought={(tokens) => { kitchen.restock(tokens.map((t) => ({ token: t }))); tokens.forEach(() => track('item_added', { source: 'shopping' })); }} />
       </View>
     </Modal>
   );
