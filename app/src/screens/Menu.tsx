@@ -56,7 +56,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
     return set;
   }, [events, now]);
   const isLoggedNow = (slot: MealSlot, recipeId: string) => loggedToday.has(`${slot}:${recipeId}`);
-  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[] } | null>(null);
+  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[] } | null>(null);
   const [regenerating, setRegenerating] = useState(false);
   const [showKitchen, setShowKitchen] = useState(false);
   const [fromKitchen, setFromKitchen] = useState(false);
@@ -172,7 +172,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
     track('menu_accepted', { recipeId: cur.recipe.id, slot });
   };
   const openRecipe = (cur: Cur) =>
-    getRecipeDetail(cur.recipe).then((d) => setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients }));
+    getRecipeDetail(cur.recipe).then((d) => setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods }));
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>

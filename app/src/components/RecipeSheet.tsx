@@ -9,7 +9,7 @@ export function RecipeSheet({
   recipe,
   onClose,
 }: {
-  recipe: { name: string; kcal?: number; steps: string[]; ingredients: RecipeIngredientLine[] } | null;
+  recipe: { name: string; kcal?: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[] } | null;
   onClose: () => void;
 }) {
   const { c } = useTheme();
@@ -36,6 +36,23 @@ export function RecipeSheet({
                   {ing.qty ? <Text style={{ color: c('textSecondary'), fontSize: 14, marginLeft: 12, fontVariant: ['tabular-nums'] }}>{ing.qty}</Text> : null}
                 </View>
               ))}
+            </View>
+          </View>
+        ) : null}
+
+        {recipe?.methods?.length ? (
+          <View style={{ marginBottom: 22 }}>
+            <Kicker>Cook it</Kicker>
+            <View style={{ marginTop: 10, gap: 8 }}>
+              {recipe.methods.map((m, i) => {
+                const [appliance, detail] = m.split(/\s*—\s*|\s*-\s*/, 2);
+                return (
+                  <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: c('surfaceSunken'), borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14 }}>
+                    <Text style={{ color: c('textPrimary'), fontSize: 14, fontWeight: '600' }}>{appliance}</Text>
+                    {detail ? <Text style={{ color: c('textSecondary'), fontSize: 14, fontVariant: ['tabular-nums'] }}>{detail}</Text> : null}
+                  </View>
+                );
+              })}
             </View>
           </View>
         ) : null}

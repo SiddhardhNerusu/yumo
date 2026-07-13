@@ -13,6 +13,8 @@ export interface MenuSeedRecipe extends MenuRecipe {
   /** exact ingredient quantities for the recipe sheet (§4.2). Present on the
    * generated catalogue; hand-authored seeds use POOL_INGREDIENTS instead. */
   ingredients?: { name: string; qty_g: number }[];
+  /** compact cook-method lines ("Oven — 200°C, 25 min"), empty for no-cook. */
+  methods?: string[];
 }
 
 function r(
@@ -82,6 +84,11 @@ export const POOL_STEPS: Map<string, string[]> = new Map(POOL.map((x) => [x.id, 
 /** id → structured ingredient quantities (the generated catalogue carries these). */
 export const POOL_INGREDIENTS_MAP: Map<string, { name: string; qty_g: number }[]> = new Map(
   POOL.filter((x) => x.ingredients && x.ingredients.length).map((x) => [x.id, x.ingredients!]),
+);
+
+/** id → compact cook-method lines (generated catalogue only). */
+export const POOL_METHODS_MAP: Map<string, string[]> = new Map(
+  POOL.filter((x) => x.methods && x.methods.length).map((x) => [x.id, x.methods!]),
 );
 
 /**

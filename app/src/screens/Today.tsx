@@ -44,7 +44,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   const [mix, setMix] = useState<{ slot: MealSlot; recipe: MenuRecipe } | null>(null);
   const [mixOptions, setMixOptions] = useState<MixOption[]>([]);
   const [mixLoading, setMixLoading] = useState(false);
-  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[] } | null>(null);
+  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[] } | null>(null);
 
   const likes = tokens ?? [];
   const boostIds = useMemo(() => menuBoostIds(events), [events]);
@@ -144,7 +144,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
     setFeaturedOverride((o) => ({ ...o, [mix.slot]: alt })); // swaps the suggestion; does NOT log
     setMix(null);
   };
-  const openRecipe = (p: Planned) => getRecipeDetail(p.recipe).then((detail) => setSheet({ name: p.recipe.name, kcal: p.kcal, steps: detail.steps, ingredients: detail.ingredients }));
+  const openRecipe = (p: Planned) => getRecipeDetail(p.recipe).then((detail) => setSheet({ name: p.recipe.name, kcal: p.kcal, steps: detail.steps, ingredients: detail.ingredients, methods: detail.methods }));
   const addPlanned = (slot: MealSlot): AddItem | null => {
     const p = plannedFor(slot);
     return p ? { id: p.recipe.id, name: p.recipe.name, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, source: 'menu' } : null;

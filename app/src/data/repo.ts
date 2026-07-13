@@ -7,7 +7,7 @@ import {
   type MenuRecipe,
 } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
-import { POOL, POOL_STEPS, POOL_INGREDIENTS, POOL_INGREDIENTS_MAP } from './menu-seed';
+import { POOL, POOL_STEPS, POOL_INGREDIENTS, POOL_INGREDIENTS_MAP, POOL_METHODS_MAP } from './menu-seed';
 import { BUBBLE_FOODS, CUISINES } from './onboarding-seed';
 import { FOODS } from './seed';
 import { setCoachPack } from '../coach/pack';
@@ -111,6 +111,23 @@ export interface RecipeDetail {
   steps: string[];
   /** ingredients split name/quantity for the two-column recipe layout (§4.2). */
   ingredients: RecipeIngredientLine[];
+  /** compact cook-method lines: "Oven — 200°C, 25 min" · "Air fryer — 190°C, 18 min". */
+  methods?: string[];
+}
+
+const LIQUID = /\b(milk|stock|broth|water|juice|cream|passata)\b/i;
+const SPOONABLE = /\b(oil|butter|honey|syrup|sauce|vinegar|mayonnaise|ketchup|mustard|paste|tahini)\b/i;
+/** Human-friendly quantity: grams for solids, ml for liquids, tsp/tbsp for oils/condiments. */
+function formatQty(name: string, g: number): string {
+  if (g <= 0) return '';
+  if (SPOONABLE.test(name) && g <= 45) {
+    if (g <= 7) return '1 tsp';
+    const tbsp = g / 15;
+    if (Math.abs(tbsp - Math.round(tbsp)) <= 0.34) return `${Math.round(tbsp)} tbsp`;
+    return `${g}g`;
+  }
+  if (LIQUID.test(name)) return `${g}ml`;
+  return `${g}g`;
 }
 
 /** Split an offline "Rolled oats — 50g" seed line into { name, qty }. */
@@ -122,14 +139,14 @@ function splitIngredient(line: string): RecipeIngredientLine {
 export async function getRecipeDetail(recipe: MenuRecipe): Promise<RecipeDetail> {
   try {
     const r = await api.recipe(recipe.id);
-    const ingredients = (r.ingredients ?? []).map((i) => ({ name: titleCase(i.name), qty: i.qty_g > 0 ? `${i.qty_g}g` : '' }));
-    return { steps: r.steps ?? [], ingredients };
+    const ingredients = (r.ingredients ?? []).map((i) => ({ name: titleCase(i.name), qty: formatQty(i.name, i.qty_g) }));
+    return { steps: r.steps ?? [], ingredients, methods: POOL_METHODS_MAP.get(recipe.id) };
   } catch {
     const structured = POOL_INGREDIENTS_MAP.get(recipe.id);
     const ingredients = structured
-      ? structured.map((i) => ({ name: titleCase(i.name), qty: i.qty_g > 0 ? `${i.qty_g}g` : '' }))
+      ? structured.map((i) => ({ name: titleCase(i.name), qty: formatQty(i.name, i.qty_g) }))
       : (POOL_INGREDIENTS.get(recipe.id) ?? []).map(splitIngredient);
-    return { steps: POOL_STEPS.get(recipe.id) ?? [], ingredients };
+    return { steps: POOL_STEPS.get(recipe.id) ?? [], ingredients, methods: POOL_METHODS_MAP.get(recipe.id) };
   }
 }
 
