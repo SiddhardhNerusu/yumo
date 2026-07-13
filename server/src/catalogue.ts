@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
@@ -49,6 +49,19 @@ const catDir = join(here, '..', '..', 'packages', 'catalogue-pipeline');
  * this is replaced by a DB read; here it reuses the offline pipeline directly. */
 export function loadCatalogue(): Catalogue {
   const foods = loadStore(join(catDir, 'data', 'fdc-cache', 'foods.json'));
+
+  // Fast path: load the precomputed catalogue (macros already resolved) so boot is
+  // O(read) not O(resolve every draft × FDC) — matters as the catalogue grows.
+  const builtPath = join(catDir, 'data', 'catalogue.built.json');
+  if (existsSync(builtPath)) {
+    const built = JSON.parse(readFileSync(builtPath, 'utf8')) as { details: RecipeDetail[]; poolIds: string[] };
+    const details = new Map(built.details.map((d) => [d.id, d]));
+    const poolSet = new Set(built.poolIds);
+    const pool: MenuRecipe[] = built.details.filter((d) => poolSet.has(d.id));
+    return { foods, pool, details };
+  }
+
+  // Dev fallback: resolve the drafts live through the pipeline.
   const byId = indexById(foods);
   const config: PipelineConfig = {
     hazardDenylist: loadHazardDenylist(join(catDir, 'data', 'hazard-denylist.json')),
