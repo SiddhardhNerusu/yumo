@@ -1,7 +1,7 @@
 import type { Allergen, EnergyMacros } from '@yumo/shared';
 import { roundEnergyMacros } from '@yumo/shared';
 import type { FdcFood, FdcStore } from './fdc/store';
-import { resolveIngredient, type Resolution } from './fdc/resolve';
+import { resolveIngredient, isStateMismatch, type Resolution } from './fdc/resolve';
 import { validateRecipeDraft } from './schema';
 import { computeMacros, type RecipeMacroResult } from './macros';
 import { verifyEnergyConsistency, type Verification } from './verify';
@@ -133,6 +133,14 @@ export function runRecipe(
   if (lowConf.length > 0) {
     reviewReasons.push(
       `low-confidence match(es): ${lowConf.map((r) => `${r.query} (${r.confidence.toFixed(2)})`).join(', ')}`,
+    );
+  }
+  // §6.3 cooked-weight guard: a "cooked" ingredient must not resolve to a dry/raw
+  // entry (dry chickpeas for cooked = ~2.5x kcal). Flags residuals for review.
+  const stateMismatches = resolutions.filter((r) => r.matchedDescription && isStateMismatch(r.query, r.matchedDescription));
+  if (stateMismatches.length > 0) {
+    reviewReasons.push(
+      `cooked/raw state mismatch: ${stateMismatches.map((r) => `${r.query} → ${r.matchedDescription}`).join('; ')}`,
     );
   }
   if (!verification.passes) {

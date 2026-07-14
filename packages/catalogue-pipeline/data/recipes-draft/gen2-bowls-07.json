@@ -25,7 +25,8 @@
     },
     {
       "name": "farro, cooked",
-      "qty_g": 150
+      "qty_g": 150,
+      "fdcId": 170285
     },
     {
       "name": "sweet potato, cooked",

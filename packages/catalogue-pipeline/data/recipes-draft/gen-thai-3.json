@@ -30,7 +30,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 30
+      "qty_g": 30,
+      "fdcId": 170173
     },
     {
       "name": "cucumber, raw",

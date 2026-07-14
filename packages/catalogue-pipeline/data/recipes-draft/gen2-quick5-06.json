@@ -30,7 +30,8 @@
     },
     {
       "name": "granola",
-      "qty_g": 35
+      "qty_g": 35,
+      "fdcId": 171646
     },
     {
       "name": "almonds",

@@ -43,7 +43,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 120
+      "qty_g": 120,
+      "fdcId": 170173
     },
     {
       "name": "fish sauce",

@@ -32,7 +32,8 @@
     },
     {
       "name": "granola",
-      "qty_g": 30
+      "qty_g": 30,
+      "fdcId": 171646
     },
     {
       "name": "honey",

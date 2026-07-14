@@ -22,7 +22,8 @@
   "ingredients": [
     {
       "name": "paneer",
-      "qty_g": 100
+      "qty_g": 100,
+      "fdcId": 170845
     },
     {
       "name": "spinach, cooked",

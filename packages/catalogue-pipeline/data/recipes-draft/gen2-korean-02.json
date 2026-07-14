@@ -53,7 +53,8 @@
     },
     {
       "name": "sesame seeds",
-      "qty_g": 3
+      "qty_g": 3,
+      "fdcId": 170150
     }
   ]
 }

@@ -22,7 +22,8 @@
   "ingredients": [
     {
       "name": "farro, cooked",
-      "qty_g": 160
+      "qty_g": 160,
+      "fdcId": 170285
     },
     {
       "name": "courgette",

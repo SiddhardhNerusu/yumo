@@ -32,7 +32,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 50
+      "qty_g": 50,
+      "fdcId": 170173
     },
     {
       "name": "spring onion",

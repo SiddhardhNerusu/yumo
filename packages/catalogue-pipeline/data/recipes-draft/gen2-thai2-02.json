@@ -38,7 +38,8 @@
     },
     {
       "name": "mint",
-      "qty_g": 8
+      "qty_g": 8,
+      "fdcId": 173475
     },
     {
       "name": "cilantro",

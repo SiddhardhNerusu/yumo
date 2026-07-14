@@ -44,7 +44,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 60
+      "qty_g": 60,
+      "fdcId": 170173
     },
     {
       "name": "thyme",

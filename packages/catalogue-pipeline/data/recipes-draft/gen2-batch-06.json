@@ -39,7 +39,8 @@
     },
     {
       "name": "beef broth",
-      "qty_g": 200
+      "qty_g": 200,
+      "fdcId": 171538
     },
     {
       "name": "olive oil",

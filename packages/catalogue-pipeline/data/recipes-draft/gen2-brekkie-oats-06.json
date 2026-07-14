@@ -30,7 +30,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 180
+      "qty_g": 180,
+      "fdcId": 170173
     },
     {
       "name": "mango",

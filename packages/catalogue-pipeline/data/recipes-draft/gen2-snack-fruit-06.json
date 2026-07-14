@@ -26,7 +26,8 @@
     },
     {
       "name": "granola",
-      "qty_g": 40
+      "qty_g": 40,
+      "fdcId": 171646
     },
     {
       "name": "raspberries",

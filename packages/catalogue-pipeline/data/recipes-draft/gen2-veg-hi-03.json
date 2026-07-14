@@ -21,7 +21,8 @@
   "ingredients": [
     {
       "name": "paneer",
-      "qty_g": 150
+      "qty_g": 150,
+      "fdcId": 170845
     },
     {
       "name": "tinned tomatoes",

@@ -25,7 +25,8 @@
     },
     {
       "name": "paneer",
-      "qty_g": 120
+      "qty_g": 120,
+      "fdcId": 170845
     },
     {
       "name": "white rice, cooked",

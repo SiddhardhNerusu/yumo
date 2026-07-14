@@ -37,7 +37,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 150
+      "qty_g": 150,
+      "fdcId": 170173
     },
     {
       "name": "onion, raw",

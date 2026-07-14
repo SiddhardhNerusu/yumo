@@ -25,7 +25,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 100
+      "qty_g": 100,
+      "fdcId": 170173
     },
     {
       "name": "tinned tomatoes",

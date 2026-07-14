@@ -37,7 +37,8 @@
     },
     {
       "name": "beef stock",
-      "qty_g": 320
+      "qty_g": 320,
+      "fdcId": 172883
     },
     {
       "name": "olive oil",

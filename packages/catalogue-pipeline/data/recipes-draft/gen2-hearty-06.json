@@ -33,7 +33,8 @@
     },
     {
       "name": "coconut milk",
-      "qty_g": 80
+      "qty_g": 80,
+      "fdcId": 170173
     },
     {
       "name": "white rice, cooked",
