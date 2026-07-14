@@ -1,0 +1,28 @@
+{
+  "id": "snack-cottage-pineapple",
+  "name": "Cottage cheese & pineapple",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Spoon 150g cottage cheese into a bowl.",
+    "Top with 80g chopped pineapple and serve."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 150
+    },
+    {
+      "name": "pineapple, raw",
+      "qty_g": 80
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "snack-rice-cakes-pb",
+  "name": "Rice cakes & peanut butter",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Spread 20g peanut butter across 2 rice cakes (18g).",
+    "Eat straight away while crisp."
+  ],
+  "ingredients": [
+    {
+      "name": "rice cakes",
+      "qty_g": 18
+    },
+    {
+      "name": "peanut butter",
+      "qty_g": 20
+    }
+  ]
+}

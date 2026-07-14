@@ -1,0 +1,28 @@
+{
+  "id": "snack-ham-cheese",
+  "name": "Ham & cheese",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Roll 50g sliced ham around 30g cheddar cheese.",
+    "Eat straight away."
+  ],
+  "ingredients": [
+    {
+      "name": "ham, sliced",
+      "qty_g": 50
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    }
+  ]
+}

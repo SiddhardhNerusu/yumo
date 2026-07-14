@@ -1,0 +1,28 @@
+{
+  "id": "snack-turkey-cheese",
+  "name": "Turkey & cheese roll-ups",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Lay out 60g sliced turkey breast.",
+    "Roll each slice around 30g cheddar cheese."
+  ],
+  "ingredients": [
+    {
+      "name": "turkey breast, roasted",
+      "qty_g": 60
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    }
+  ]
+}

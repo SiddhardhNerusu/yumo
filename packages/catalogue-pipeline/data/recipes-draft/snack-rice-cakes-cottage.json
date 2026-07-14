@@ -1,0 +1,28 @@
+{
+  "id": "snack-rice-cakes-cottage",
+  "name": "Rice cakes & cottage cheese",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Top 2 rice cakes (18g) with 100g cottage cheese.",
+    "Season with black pepper."
+  ],
+  "ingredients": [
+    {
+      "name": "rice cakes",
+      "qty_g": 18
+    },
+    {
+      "name": "cottage cheese",
+      "qty_g": 100
+    }
+  ]
+}

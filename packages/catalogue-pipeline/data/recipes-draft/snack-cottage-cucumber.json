@@ -1,0 +1,28 @@
+{
+  "id": "snack-cottage-cucumber",
+  "name": "Cottage cheese & cucumber",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Spoon 150g cottage cheese into a bowl.",
+    "Add 100g sliced cucumber and a pinch of salt."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 150
+    },
+    {
+      "name": "cucumber, raw",
+      "qty_g": 100
+    }
+  ]
+}

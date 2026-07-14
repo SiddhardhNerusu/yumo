@@ -1,0 +1,24 @@
+{
+  "id": "snack-boiled-eggs",
+  "name": "Boiled eggs",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "15min",
+  "servings": 1,
+  "methodTags": [
+    "snack"
+  ],
+  "steps": [
+    "Bring a small pan of water to the boil.",
+    "Lower in 2 eggs (100g) and boil for 8 minutes.",
+    "Cool under cold water, peel and season with salt."
+  ],
+  "ingredients": [
+    {
+      "name": "egg, whole, cooked, boiled",
+      "qty_g": 100
+    }
+  ]
+}

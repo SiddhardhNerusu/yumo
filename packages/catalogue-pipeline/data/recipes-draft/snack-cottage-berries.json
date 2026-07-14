@@ -1,0 +1,28 @@
+{
+  "id": "snack-cottage-berries",
+  "name": "Cottage cheese & berries",
+  "cuisine": "American",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Spoon 150g cottage cheese into a bowl.",
+    "Top with 80g strawberries, sliced."
+  ],
+  "ingredients": [
+    {
+      "name": "cottage cheese",
+      "qty_g": 150
+    },
+    {
+      "name": "strawberries, raw",
+      "qty_g": 80
+    }
+  ]
+}

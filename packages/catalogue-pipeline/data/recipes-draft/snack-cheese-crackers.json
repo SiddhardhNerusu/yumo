@@ -1,0 +1,28 @@
+{
+  "id": "snack-cheese-crackers",
+  "name": "Cheese & crackers",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Slice 30g cheddar cheese.",
+    "Serve with 30g wholewheat crackers."
+  ],
+  "ingredients": [
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "whole wheat crackers",
+      "qty_g": 30
+    }
+  ]
+}

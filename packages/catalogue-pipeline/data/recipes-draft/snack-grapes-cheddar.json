@@ -1,0 +1,28 @@
+{
+  "id": "snack-grapes-cheddar",
+  "name": "Grapes & cheddar",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Cube 30g cheddar cheese.",
+    "Serve with 100g grapes."
+  ],
+  "ingredients": [
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    },
+    {
+      "name": "grapes, raw",
+      "qty_g": 100
+    }
+  ]
+}

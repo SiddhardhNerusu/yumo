@@ -1,0 +1,28 @@
+{
+  "id": "snack-greek-yogurt-honey",
+  "name": "Greek yogurt & honey",
+  "cuisine": "Greek",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Spoon 170g Greek yogurt into a bowl.",
+    "Drizzle 15g honey over the top."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt, plain",
+      "qty_g": 170
+    },
+    {
+      "name": "honey",
+      "qty_g": 15
+    }
+  ]
+}

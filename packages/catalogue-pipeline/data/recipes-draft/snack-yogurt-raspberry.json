@@ -1,0 +1,28 @@
+{
+  "id": "snack-yogurt-raspberry",
+  "name": "Greek yogurt & raspberries",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Spoon 170g Greek yogurt into a bowl.",
+    "Scatter 80g raspberries over the top."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt, plain",
+      "qty_g": 170
+    },
+    {
+      "name": "raspberries, raw",
+      "qty_g": 80
+    }
+  ]
+}

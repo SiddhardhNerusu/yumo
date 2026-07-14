@@ -1,0 +1,28 @@
+{
+  "id": "snack-cheddar-apple",
+  "name": "Cheddar & apple",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Slice 1 apple (150g) into wedges.",
+    "Serve with 30g sliced cheddar cheese."
+  ],
+  "ingredients": [
+    {
+      "name": "apple, raw",
+      "qty_g": 150
+    },
+    {
+      "name": "cheddar cheese",
+      "qty_g": 30
+    }
+  ]
+}

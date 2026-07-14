@@ -1,0 +1,28 @@
+{
+  "id": "snack-berries-yogurt",
+  "name": "Berries & Greek yogurt",
+  "cuisine": "British",
+  "slotAffinity": [
+    "snack"
+  ],
+  "effort": "5min",
+  "servings": 1,
+  "methodTags": [
+    "no-cook",
+    "snack"
+  ],
+  "steps": [
+    "Spoon 150g Greek yogurt into a bowl.",
+    "Scatter 80g blueberries over the top."
+  ],
+  "ingredients": [
+    {
+      "name": "greek yogurt, plain",
+      "qty_g": 150
+    },
+    {
+      "name": "blueberries, raw",
+      "qty_g": 80
+    }
+  ]
+}
