@@ -24,7 +24,8 @@
     {
       "name": "mung beans, cooked",
       "qty_g": 160,
-      "prep": "soaked and blended into batter"
+      "prep": "soaked and blended into batter",
+      "fdcId": 172427
     },
     {
       "name": "onion, raw",
