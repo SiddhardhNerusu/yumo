@@ -25,7 +25,7 @@ export const AISLE_LABEL: Record<Aisle, string> = {
 };
 /** aisles whose items are bought by weight/count (vs. spices/world = buy a jar). */
 const QTY_AISLES = new Set<Aisle>(['produce', 'meat', 'dairy', 'dry', 'frozen']);
-const LIQUID = /\b(milk|stock|broth|cream|juice|passata|wine|kefir)\b/i;
+const LIQUID = /\b(milk|stock|broth|cream(?!\s+cheese)|juice|passata|wine|kefir)\b/i; // "cream cheese" is a solid → g
 
 const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const headToken = (name: string) => name.split(',')[0]!.trim().toLowerCase();

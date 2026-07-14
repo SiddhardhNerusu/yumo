@@ -8,6 +8,7 @@ import {
   type PantryFit,
 } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
+import { localParts } from '@yumo/brain';
 import { cookability } from './cookability';
 import { POOL, POOL_STEPS, POOL_INGREDIENTS, POOL_INGREDIENTS_MAP, POOL_METHODS_MAP } from './menu-seed';
 import { BUBBLE_FOODS, CUISINES } from './onboarding-seed';
@@ -89,6 +90,15 @@ export function makePantryFit(haveTokens: Set<string>): PantryFit | undefined {
   };
 }
 
+/** §4.3 the "fresh week" ritual, client side: the default menu seed is anchored
+ * to a Monday-aligned week bucket, so the plan stays stable within a week but
+ * regenerates on its own each Monday (no server cron needed). The "New week"
+ * button still passes an explicit seed to reshuffle on demand. */
+export function currentWeekSeed(nowMs = Date.now()): string {
+  const epochDay = localParts(nowMs, 0).epochDay;
+  return `week-${Math.floor((epochDay + 3) / 7)}`; // epoch day 4 = 1970-01-05 = Monday
+}
+
 export async function getMenu(
   profile: UserProfile,
   seed?: string,
@@ -96,11 +106,12 @@ export async function getMenu(
   pantryFit?: PantryFit,
   userWeights?: Map<string, number>,
 ): Promise<{ plan: WeekMenuPlan; source: Source }> {
+  const weekSeed = seed ?? currentWeekSeed();
   try {
-    const { plan } = await api.generateMenu(seed, boostIds);
+    const { plan } = await api.generateMenu(weekSeed, boostIds);
     return { plan, source: 'server' };
   } catch {
-    return { plan: generateWeekMenu(POOL, profile, { seed: seed ?? 'app-week', days: 7, boostIds, pantryFit, userWeights }), source: 'local' };
+    return { plan: generateWeekMenu(POOL, profile, { seed: weekSeed, days: 7, boostIds, pantryFit, userWeights }), source: 'local' };
   }
 }
 
@@ -130,7 +141,7 @@ export interface RecipeDetail {
   methods?: string[];
 }
 
-const LIQUID = /\b(milk|stock|broth|water|juice|cream|passata)\b/i;
+const LIQUID = /\b(milk|stock|broth|water|juice|cream(?!\s+cheese)|passata)\b/i; // "cream cheese" is a solid → g, not ml
 const SPOONABLE = /\b(oil|butter|honey|syrup|sauce|vinegar|mayonnaise|ketchup|mustard|paste|tahini)\b/i;
 /** Human-friendly quantity: grams for solids, ml for liquids, tsp/tbsp for oils/condiments. */
 function formatQty(name: string, g: number): string {
