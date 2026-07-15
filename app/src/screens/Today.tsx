@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import { ScrollView, View, Text, Pressable, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { localParts, portionChips } from '@yumo/brain';
 import type { MealSlot } from '@yumo/shared';
@@ -22,6 +22,7 @@ import { AddSheet, type AddItem } from '../components/AddSheet';
 import { Serif, Kicker, Card, PrimaryButton, MixButton, OutlineButton, TextLink } from '../components/kit';
 import { SwipeRow } from '../components/SwipeRow';
 import { track } from '../analytics';
+import { coach } from '../coach/pack';
 
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 const num = { fontVariant: ['tabular-nums' as const] };
@@ -229,6 +230,19 @@ export function Today({ profile }: { profile: UserProfile }) {
         {showWaste && wasteLine ? (
           <View style={{ marginBottom: 20, backgroundColor: 'rgba(237,163,59,0.13)', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 14 }}>
             <Text style={{ color: '#EDA33B', fontSize: 13.5, fontWeight: '600', lineHeight: 19 }}>🍃 Your {wasteLine.item.toLowerCase()} wants to be dinner — {wasteLine.recipe}{wasteLine.fits ? ' fits your budget' : ' tonight'}.</Text>
+          </View>
+        ) : null}
+
+        {/* §7.4 ED guardrail: a gentle, non-punitive check-in when logged intake has
+            run very low for ~5 days. Support links, never a red state. */}
+        {state.signpost ? (
+          <View style={{ marginBottom: 20, backgroundColor: c('surface'), borderRadius: 16, borderWidth: 1, borderColor: c('border'), padding: 16 }}>
+            <Serif size={17} color={c('textPrimary')} style={{ marginBottom: 6 }}>{coach('signpostTitle')}</Serif>
+            <Text style={{ color: c('textSecondary'), fontSize: 13.5, lineHeight: 20 }}>{coach('signpostBody')}</Text>
+            <View style={{ flexDirection: 'row', gap: 20, marginTop: 12 }}>
+              <TextLink label="Beat (UK)" onPress={() => Linking.openURL('https://www.beateatingdisorders.org.uk')} />
+              <TextLink label="NEDA (US)" onPress={() => Linking.openURL('https://www.nationaleatingdisorders.org')} />
+            </View>
           </View>
         ) : null}
 

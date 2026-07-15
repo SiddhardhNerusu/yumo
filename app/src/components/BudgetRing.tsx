@@ -7,7 +7,8 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 /** §5 hero budget ring: 196px, gradient accent progress from 12 o'clock. The arc
  * AND the centre number animate together over 600ms (count-up), a soft bloom sits
- * behind the arc, and going over budget flips to a warning state + overflow read. */
+ * behind the arc. Over-budget is a NEUTRAL informational read — never a red/amber
+ * "danger" state (ED guardrail: overage is not a failure, §7 / owner hard rule). */
 export function BudgetRing({ eaten, budget }: { eaten: number; budget: number }) {
   const { c } = useTheme();
   const size = 196;
@@ -16,8 +17,6 @@ export function BudgetRing({ eaten, budget }: { eaten: number; budget: number })
   const circ = 2 * Math.PI * r;
   const ratio = budget > 0 ? eaten / budget : 0;
   const over = eaten > budget;
-  const near = !over && ratio >= 0.92;
-  const ringColor = over ? c('danger') : near ? c('warning') : c('accent');
 
   const anim = useRef(new Animated.Value(0)).current;
   const [shown, setShown] = useState(() => Math.round(budget - eaten));
@@ -40,12 +39,12 @@ export function BudgetRing({ eaten, budget }: { eaten: number; budget: number })
         </Defs>
         <Circle cx={size / 2} cy={size / 2} r={r} stroke={c('ringTrack')} strokeWidth={stroke} fill="none" />
         {/* soft bloom behind the arc — reads as lit, not printed */}
-        <AnimatedCircle cx={size / 2} cy={size / 2} r={r} stroke={ringColor} strokeOpacity={0.18} strokeWidth={stroke + 10} fill="none" strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+        <AnimatedCircle cx={size / 2} cy={size / 2} r={r} stroke={c('accent')} strokeOpacity={0.18} strokeWidth={stroke + 10} fill="none" strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
         <AnimatedCircle
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke={over || near ? ringColor : 'url(#ringGrad)'}
+          stroke="url(#ringGrad)"
           strokeWidth={stroke}
           fill="none"
           strokeDasharray={circ}
@@ -55,10 +54,10 @@ export function BudgetRing({ eaten, budget }: { eaten: number; budget: number })
         />
       </Svg>
       <View style={{ position: 'absolute', alignItems: 'center' }}>
-        <Text style={{ fontSize: 42, fontWeight: '800', color: over ? c('danger') : c('textPrimary'), letterSpacing: -1.2, fontVariant: ['tabular-nums'] }}>
-          {over && shown < 0 ? '−' : ''}{Math.abs(shown).toLocaleString()}
+        <Text style={{ fontSize: 42, fontWeight: '800', color: c('textPrimary'), letterSpacing: -1.2, fontVariant: ['tabular-nums'] }}>
+          {Math.abs(shown).toLocaleString()}
         </Text>
-        <Text style={{ fontSize: 13, color: over ? c('danger') : c('textMuted'), marginTop: 2 }}>{over ? 'kcal over' : 'kcal left'}</Text>
+        <Text style={{ fontSize: 13, color: c('textMuted'), marginTop: 2 }}>{over ? 'kcal over' : 'kcal left'}</Text>
       </View>
     </View>
   );
