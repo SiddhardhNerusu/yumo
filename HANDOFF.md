@@ -1,6 +1,28 @@
-# Yumo — Session Handoff (2026-07-14)
+# Yumo — Session Handoff (2026-07-14, updated 2026-07-15)
 
-**Read this first in a new session.** Everything below is committed + pushed to `main` (github.com/SiddhardhNerusu/yumo). Working tree is clean.
+**Read this first in a new session.** Everything is committed + pushed to `main` (github.com/SiddhardhNerusu/yumo). Working tree clean. **HEAD `45cae2a`.**
+
+---
+
+## 0. Session 2026-07-15 — audit + P0 + WS-1→9 (all pushed, verified with REAL data)
+
+A 45-finding adversarial audit (`docs/plans/` + code) drove this session. **Gates: `npm run typecheck` + `npm test` → 165 green.** Verified the production experience end-to-end in the browser with `DEMO_DATA` forced off (honest empty first-run → log → Brain ladder → Progress/Kitchen); no bugs found.
+
+| Commit | What |
+|---|---|
+| `ee5e708` | Six user-reported UX fixes: scroll indicators off app-wide · RecipeSheet/Settings/etc **empty-pill** button fix (`flex`-in-column → `full`) · **swipe-to-delete** on Today logs (`SwipeRow`) + reverse fridge · **AddSheet full-screen while typing** · **barcode** functional (`expo-camera` scanner + web fallback, mirrors Goyo) · **local-first FDC ingredient search** (bundled `app/src/data/fdc-foods.json`, 8092 CC0 foods) + portion stepper. Plus the allergen extractor plural fix + Today using the REAL profile (allergy gate). |
+| `f034991` | **P0**: server served a STALE allergen artifact (`catalogue.built.json`) — the app fix never reached it, so online menus could serve peanuts to a peanut-allergic user. Fixed reproducibly: `npm run build:allergens` (`packages/catalogue-pipeline/scripts/sync-allergens.ts`) re-extracts over BOTH artifacts; drift guard now covers the server file. Also finished pantry reversal (decrementForRecipe returns exact ids → `meta.decrementedIds` → `restoreDecrement`). |
+| `58771d7` | **WS-1 (the moat)**: wired the Brain to Today — §3.4 ladder (high "the usual?" portion-chip card / medium Quick-log tiles / menu fallback) + §3.9 "learns you" line + `brain_learned_visible`. Was fully computed in `useToday` and rendered nowhere. |
+| `a35f40c` | **WS-2**: shared `useNow()` — fixes frozen-`now` midnight corruption (Today/Menu/Progress/Kitchen). |
+| `6271330` | **WS-3**: budget ring no longer flips red over-budget (ED rule) + renders the dormant ED signpost card. |
+| `65709c2` | **WS-4**: inline confirm before "Start over" wipes profile+logs. |
+| `1e69d6c` | **WS-5**: barcode kcal fallback (kJ/Atwater, never silent-0) + 8s client timeout ≥ server. |
+| `87bb891` | **WS-6**: `DEMO_DATA` flag (`__DEV__`) gates seeded history / starter fridge / weight trend; production ships an **honest empty first-run**. Receipt tile stops faking a scan → opens the real add flow. ⚠️ **Open decision**: flip `app/src/data/demo.ts` if a populated on-device demo is wanted. |
+| `84a221d` | **WS-7 (partial)**: honest sim asserts (95/95/0-overused/≥4 cuisines) + engineVersion stamp. **Repetition floor was built, MEASURED a real protein-attainment regression, and REVERTED** (don't re-add as a hard constraint). **Deferred**: `FIXED_WHEN_SCALED` regex (owner-rule breach, display-only) + carb/fat targets — both need a catalogue authoring pass / new UI. |
+| `b28a22d` | **WS-8**: a11y sweep (tab roles/selected, labels, 44px hitSlop targets). |
+| `45cae2a` | **WS-9**: token/spec fidelity (grabber, backdrop, meal-name w500, New-week pill, `warningFaint` token, emoji removed). |
+
+**Still open:** new **EAS build** needed to get all this on device (barcode camera + honest first-run are build-only). Deferred: real receipt OCR (Phase C), the WS-7 regex/carb-fat items, tab-bar blur (needs expo-blur), the high-tier "the usual?" card is now confirmed rendering (was masked by the demo seed).
 
 ---
 
@@ -12,8 +34,8 @@
 | **Packages** | `tokens`, `shared`, `brain`, `menu`, `catalogue-pipeline`, `server`, `app` (`@yumo/*`) |
 | **App** | React Native / Expo SDK 57. Offline-first (server optional). |
 | **Server** | Render — `usual-server.onrender.com` (name is legacy, don't rename; `eas.json` points at it) |
-| **HEAD** | `ad644eb` |
-| **Gates (ALWAYS run both)** | `npm run typecheck` (per-package, has `noUncheckedIndexedAccess`) **and** `npm test` → **158 green** |
+| **HEAD** | `45cae2a` |
+| **Gates (ALWAYS run both)** | `npm run typecheck` (per-package, has `noUncheckedIndexedAccess`) **and** `npm test` → **165 green** |
 
 ⚠️ **The app-only `tsc` is NOT enough.** Run root `npm run typecheck` — it catches errors the app tsc misses (this bit me twice).
 
