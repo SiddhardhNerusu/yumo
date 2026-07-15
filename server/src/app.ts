@@ -142,11 +142,23 @@ export function createApp(store: Store, now: () => number = () => Date.now()): E
       const n = j.product.nutriments ?? {};
       const num = (k: string) => Number(n[k] ?? 0) || 0;
       const name = [j.product.brands, j.product.product_name].filter(Boolean).join(' — ') || `Barcode ${ean}`;
+      const protein_g = num('proteins_100g');
+      const carbs_g = num('carbohydrates_100g');
+      const fat_g = num('fat_100g');
+      // A large share of OFF products carry energy only in kJ. Reading kcal alone
+      // logged a silent 0-kcal food beside grams of macros. Fall back: kcal → kJ÷4.184
+      // → Atwater from macros; never 0-kcal-with-macros.
+      let kcal = num('energy-kcal_100g');
+      if (!kcal) {
+        const kj = num('energy-kj_100g') || num('energy_100g'); // OFF's energy_100g is kJ
+        if (kj) kcal = Math.round(kj / 4.184);
+      }
+      if (!kcal && (protein_g || carbs_g || fat_g)) kcal = Math.round(4 * protein_g + 4 * carbs_g + 9 * fat_g);
       return res.json({
         food: {
           fdcId: -Number(ean.slice(-9)), // synthetic negative id (not an FDC id)
           description: name,
-          per100g: { kcal: num('energy-kcal_100g'), protein_g: num('proteins_100g'), carbs_g: num('carbohydrates_100g'), fat_g: num('fat_100g') },
+          per100g: { kcal, protein_g, carbs_g, fat_g },
           source: 'openfoodfacts',
         },
       });

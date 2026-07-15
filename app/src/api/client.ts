@@ -74,8 +74,12 @@ export const api = {
       `/api/foods/search?q=${encodeURIComponent(q)}&limit=${limit}`,
     ),
   barcode: (ean: string) =>
+    // 8s: the server waits up to 6s on the OpenFoodFacts upstream, so the default
+    // 4s client abort reported valid-but-slow barcodes as "not found".
     req<{ food: { fdcId: number; description: string; per100g: Record<string, number>; source: string } }>(
       `/api/foods/barcode/${encodeURIComponent(ean)}`,
+      undefined,
+      8000,
     ),
   syncEvents: (blob: string, count: number) =>
     req<{ ok: boolean; id: string }>('/api/sync/events', {
