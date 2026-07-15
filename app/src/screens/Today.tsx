@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { localParts } from '@yumo/brain';
+import { localParts, portionChips } from '@yumo/brain';
 import type { MealSlot } from '@yumo/shared';
 import type { MenuDay, MenuRecipe, UserProfile } from '@yumo/menu';
 import { useTheme } from '../theme';
@@ -28,6 +28,18 @@ const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 type Planned = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number; portionScale: number };
+
+/** §3.5 portion confirm-chip — one tap logs at this portion. The `usual` chip is
+ * the accent hero; `bit less`/`bit more` are the ±25% quiet alternatives. */
+function PortionChip({ label, kcal, primary, onPress }: { label: string; kcal: number; primary?: boolean; onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => ({ flex: primary ? 1.4 : 1, borderRadius: 16, paddingVertical: 12, alignItems: 'center', backgroundColor: primary ? c('accent') : c('surfaceSunken'), borderWidth: 1, borderColor: primary ? c('accent') : 'rgba(247,242,234,0.09)', opacity: pressed ? 0.7 : 1 })}>
+      <Text style={{ color: primary ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: primary ? '700' : '600' }}>{label}</Text>
+      <Text style={{ color: primary ? c('accentText') : c('textMuted'), fontSize: 12, marginTop: 2, fontVariant: ['tabular-nums'] }}>{kcal} kcal</Text>
+    </Pressable>
+  );
+}
 
 export function Today({ profile }: { profile: UserProfile }) {
   const { c } = useTheme();
@@ -143,6 +155,19 @@ export function Today({ profile }: { profile: UserProfile }) {
     if (Array.isArray(ids) && ids.length) kitchen.restoreDecrement(ids as string[]);
     deleteLog(eventId);
   };
+
+  // §3.4 confidence ladder — the "the usual?" one-tap log (Moat #1). Logs the
+  // predicted food at the chosen portion; source 'usual' is the nudge-accept signal.
+  const logUsual = (slot: MealSlot, portionG: number) => {
+    const u = state.usual;
+    if (!u) return;
+    const kcal = u.portionG > 0 ? Math.round((u.kcal * portionG) / u.portionG) : u.kcal;
+    logFood(u.foodId, { slot, kcal, portionG, name: u.name, source: 'usual', taps: 1 });
+  };
+  // §3.4 medium tier — top-3 predicted tiles, one tap each.
+  const logTile = (slot: MealSlot, t: { foodId: string; name: string; kcal: number; portionG: number }) => {
+    logFood(t.foodId, { slot, kcal: t.kcal, portionG: t.portionG, name: t.name, source: 'tile', taps: 2 });
+  };
   const openMix = (slot: MealSlot, recipe: MenuRecipe) => {
     setMix({ slot, recipe });
     setMixOptions([]);
@@ -167,6 +192,11 @@ export function Today({ profile }: { profile: UserProfile }) {
     return p ? { id: p.recipe.id, name: p.recipe.name, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, source: 'menu' } : null;
   };
 
+  // §3.9 the "learns you" magic moment — fire its analytics once per newly-learned
+  // pattern (the go-to-market clip §12) and surface the coach line below.
+  const learnedNote = state.learned?.note ?? null;
+  useEffect(() => { if (learnedNote) track('brain_learned_visible', { note: learnedNote }); }, [learnedNote]);
+
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
       <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40 }}>
@@ -185,9 +215,15 @@ export function Today({ profile }: { profile: UserProfile }) {
           </Text>
         </View>
 
-        <View style={{ marginTop: 20, marginBottom: showWaste ? 12 : 20 }}>
+        <View style={{ marginTop: 20, marginBottom: (showWaste || learnedNote) ? 12 : 20 }}>
           <CoachLine text={coachText} />
         </View>
+
+        {learnedNote ? (
+          <View style={{ marginBottom: showWaste ? 12 : 20, flexDirection: 'row', justifyContent: 'center' }}>
+            <Text style={{ color: c('accentSoft'), fontSize: 13.5, fontWeight: '600' }}>✨ Got it — {learnedNote.toLowerCase()}</Text>
+          </View>
+        ) : null}
 
         {showWaste && wasteLine ? (
           <View style={{ marginBottom: 20, backgroundColor: 'rgba(237,163,59,0.13)', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 14 }}>
@@ -198,7 +234,14 @@ export function Today({ profile }: { profile: UserProfile }) {
         <View style={{ gap: 10 }}>
           {state.slots.map((s) => {
             const planned = plannedFor(s.slot);
-            const showFeatured = s.isCurrent && s.items.length === 0 && !s.skipped && !!planned;
+            // §3.4 confidence ladder for the current, unlogged slot: the Brain's
+            // "usual?" prediction wins; then its top-3 tiles; the menu pick is only
+            // the fallback when the Brain has nothing (cold start / low confidence).
+            const open = s.isCurrent && s.items.length === 0 && !s.skipped;
+            const usual = open ? state.usual : null;
+            const tiles = open && !usual ? state.tiles.slice(0, 3) : [];
+            const showFeatured = open && !usual && tiles.length === 0 && !!planned;
+            const showLadder = !!usual || tiles.length > 0;
             return (
               <Card key={s.slot} current={s.isCurrent}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -221,7 +264,50 @@ export function Today({ profile }: { profile: UserProfile }) {
                   </SwipeRow>
                 ))}
 
-                {showFeatured && planned ? (
+                {usual ? (() => {
+                  const chips = portionChips(usual.portionG);
+                  const kAt = (g: number) => (usual.portionG > 0 ? Math.round((usual.kcal * g) / usual.portionG) : usual.kcal);
+                  const confident = state.usualFraming === 'confident';
+                  return (
+                    <View style={{ marginTop: 10 }}>
+                      <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6 }}>{confident ? 'The usual?' : 'From your menu'}</Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <Serif size={23} color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{usual.name}</Serif>
+                        <Text style={{ marginLeft: 10 }}>
+                          <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{usual.kcal.toLocaleString()}</Text>
+                          <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
+                        </Text>
+                      </View>
+                      <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 3 }}>{confident ? 'One tap to log — I learned this one.' : 'Did you have your planned meal?'}</Text>
+                      <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+                        <PortionChip label="bit less" kcal={kAt(chips.less)} onPress={() => logUsual(s.slot, chips.less)} />
+                        <PortionChip label="✓ the usual" kcal={kAt(chips.usual)} primary onPress={() => logUsual(s.slot, chips.usual)} />
+                        <PortionChip label="bit more" kcal={kAt(chips.more)} onPress={() => logUsual(s.slot, chips.more)} />
+                      </View>
+                      <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 16 }} />
+                      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
+                        <TextLink label="Something else →" onPress={() => setAddSlot(s.slot)} />
+                        <TextLink label="Skip this meal" onPress={() => skipMeal(s.slot)} tone="neutral" />
+                      </View>
+                    </View>
+                  );
+                })() : tiles.length ? (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>Quick log</Text>
+                    {tiles.map((t, i) => (
+                      <Pressable key={t.foodId} onPress={() => logTile(s.slot, t)} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', paddingVertical: 11, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), opacity: pressed ? 0.6 : 1 })}>
+                        <Text style={{ color: c('textPrimary'), fontSize: 16, flex: 1 }} numberOfLines={1}>{t.name}</Text>
+                        <Text style={[{ color: c('textSecondary'), fontSize: 14, marginRight: 12 }, num]}>{t.kcal} kcal</Text>
+                        <Text style={{ color: c('accentSoft'), fontSize: 20, fontWeight: '600' }}>＋</Text>
+                      </Pressable>
+                    ))}
+                    <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 10 }} />
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
+                      <TextLink label="＋ More" onPress={() => setAddSlot(s.slot)} />
+                      <TextLink label="Skip this meal" onPress={() => skipMeal(s.slot)} tone="neutral" />
+                    </View>
+                  </View>
+                ) : showFeatured && planned ? (
                   <View style={{ marginTop: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <Serif size={23} color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{planned.recipe.name}</Serif>
@@ -251,7 +337,7 @@ export function Today({ profile }: { profile: UserProfile }) {
                   </View>
                 ) : null}
 
-                {!showFeatured && !s.skipped && (s.items.length === 0 || !s.isCurrent) ? (
+                {!showFeatured && !showLadder && !s.skipped && (s.items.length === 0 || !s.isCurrent) ? (
                   <View style={{ marginTop: s.items.length ? 10 : 8, alignItems: 'flex-start' }}>
                     <OutlineButton label="＋ Add" onPress={() => setAddSlot(s.slot)} />
                   </View>

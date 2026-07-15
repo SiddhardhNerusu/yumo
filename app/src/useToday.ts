@@ -47,7 +47,7 @@ export interface TodayState {
   budget: number;
   eaten: number;
   remaining: number;
-  usual: { foodId: string; name: string; portionG: number } | null;
+  usual: { foodId: string; name: string; portionG: number; kcal: number } | null;
   /** how a fired nudge is framed: 'confident' ("the usual?") vs 'menu'
    * (cold-start "your menu says … — did you have it?", §3.8). */
   usualFraming: 'confident' | 'menu' | null;
@@ -124,7 +124,7 @@ function compute(events: BrainEvent[], now: number, budget: number, tokens: stri
 
   const usual =
     nudge.fire && nudge.prediction
-      ? { foodId: nudge.prediction.foodId, name: foodName(nudge.prediction.foodId), portionG: nudge.prediction.portionG }
+      ? { foodId: nudge.prediction.foodId, name: foodName(nudge.prediction.foodId), portionG: nudge.prediction.portionG, kcal: foodKcal(nudge.prediction.foodId) }
       : null;
   const usualFraming = usual ? nudge.framing : null;
 
