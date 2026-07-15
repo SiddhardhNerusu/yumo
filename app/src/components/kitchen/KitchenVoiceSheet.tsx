@@ -134,7 +134,7 @@ export function KitchenVoiceSheet({ visible, vocab, onClose, onAdd }: {
               </View>
             ))}
           </View>
-          <PrimaryButton label={`Add ${draft.length} to kitchen`} flex onPress={confirm} />
+          <PrimaryButton label={`Add ${draft.length} to kitchen`} full onPress={confirm} />
         </>
       ) : null}
     </Sheet>

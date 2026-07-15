@@ -82,7 +82,7 @@ export function AppShell({
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
       <Animated.View style={{ flex: 1, opacity: screenOp }}>
-        {tab === 'today' ? <Today budget={profile.budgetKcal} tokens={[...profile.needs, ...profile.likes]} /> : null}
+        {tab === 'today' ? <Today profile={profile} /> : null}
         {tab === 'menu' ? <Menu profile={profile} /> : null}
         {tab === 'progress' ? <Progress profile={profile} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
       </Animated.View>

@@ -16,7 +16,7 @@ export function Screen({
   const { c } = useTheme();
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
-      <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 72, paddingBottom: 24, gap: 8 }}>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 24, paddingTop: 72, paddingBottom: 24, gap: 8 }}>
         {title ? (
           <Text style={{ color: c('textPrimary'), fontSize: 28, fontWeight: '800', letterSpacing: -0.5 }}>{title}</Text>
         ) : null}

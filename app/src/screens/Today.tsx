@@ -19,6 +19,7 @@ import { MixSheet, type MixOption } from '../components/MixSheet';
 import { RecipeSheet } from '../components/RecipeSheet';
 import { AddSheet, type AddItem } from '../components/AddSheet';
 import { Serif, Kicker, Card, PrimaryButton, MixButton, OutlineButton, TextLink } from '../components/kit';
+import { SwipeRow } from '../components/SwipeRow';
 import { track } from '../analytics';
 
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
@@ -28,14 +29,16 @@ const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct
 
 type Planned = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number; portionScale: number };
 
-/** Build a throwaway profile for menu/mix calls (Today only knows budget + tokens). */
-const profileFor = (budget: number, likes: string[]): UserProfile => ({ budgetKcal: budget, targetWeightKg: 75, allergies: [], hates: [], needs: [], likes, pantry: [], variation: 'balanced' });
-
-export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }) {
+export function Today({ profile }: { profile: UserProfile }) {
   const { c } = useTheme();
   const { events, logFood, skipMeal, deleteLog } = useEventStore();
   const kitchen = useKitchen();
   const [now] = useState(() => Date.now());
+  // The REAL profile drives menu/mix generation — allergies + hates are hard
+  // constraints (§4.3). A prior stub passed allergies:[], which meant an allergic
+  // user could be shown and one-tap-log a meal containing their allergen.
+  const budget = profile.budgetKcal;
+  const tokens = useMemo(() => [...profile.needs, ...profile.likes], [profile.needs, profile.likes]);
   const state = useToday(events, now, budget, tokens);
 
   const [day, setDay] = useState<MenuDay | null>(null);
@@ -46,7 +49,6 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   const [mixLoading, setMixLoading] = useState(false);
   const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null>(null);
 
-  const likes = tokens ?? [];
   const userWeights = useMemo(() => learnedWeights(events, now), [events, now]); // §8 learned taste
 
   // §8 gentle waste-saver line — one expiring item paired with a cook-now dinner that fits the budget.
@@ -75,7 +77,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   useEffect(() => {
     let alive = true;
     const todayDow = new Date().getDay();
-    getMenu(profileFor(budget ?? 2200, likes), undefined, undefined, undefined, userWeights).then((r) => {
+    getMenu(profile, undefined, undefined, undefined, userWeights).then((r) => {
       if (!alive) return;
       setDay(r.plan.days.find((dd) => dd.dayOfWeek === todayDow) ?? r.plan.days[0] ?? null);
     });
@@ -125,9 +127,23 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
   const greeting = hour < 12 ? 'GOOD MORNING' : hour < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
 
   const logPlanned = (slot: MealSlot, p: Planned) => {
-    logFood(p.recipe.id, { slot, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, name: p.recipe.name, source: 'menu', taps: 1 });
+    // meta.pantry flags that this log drew down the fridge, so deleting it can
+    // reverse exactly the logs that decremented (AddSheet menu-logs never do).
+    logFood(p.recipe.id, { slot, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, name: p.recipe.name, source: 'menu', taps: 1, meta: { pantry: 'decremented' } });
     kitchen.decrementForRecipe(p.recipe); // §6 auto-decrement the pantry
     track('menu_accepted', { recipeId: p.recipe.id, slot });
+  };
+
+  // Delete a logged row (§ swipe-to-delete). Reverses the fridge decrement iff
+  // this exact log drew it down — resolved from the event's meta, so an
+  // AddSheet menu-log (which never decremented) can't wrongly inflate the fridge.
+  const removeLog = (eventId: string) => {
+    const ev = events.find((e) => e.id === eventId);
+    if (ev?.meta?.['pantry'] === 'decremented' && ev.foodId) {
+      const recipe = POOL.find((r) => r.id === ev.foodId);
+      if (recipe) kitchen.incrementForRecipe(recipe);
+    }
+    deleteLog(eventId);
   };
   const openMix = (slot: MealSlot, recipe: MenuRecipe) => {
     setMix({ slot, recipe });
@@ -135,8 +151,8 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
     setMixLoading(true);
     track('mixup_opened');
     const planRecipeIds = day ? day.picks.map((p) => p.recipe.id) : [];
-    getMixup(recipe, slot, profileFor(budget ?? 2200, likes), { recentlyUsed: planRecipeIds, userWeights })
-      .then((alts) => setMixOptions(alts.map((r) => ({ recipe: r, reason: mixReason(r, profileFor(budget ?? 2200, likes)) }))))
+    getMixup(recipe, slot, profile, { recentlyUsed: planRecipeIds, userWeights })
+      .then((alts) => setMixOptions(alts.map((r) => ({ recipe: r, reason: mixReason(r, profile) }))))
       .finally(() => setMixLoading(false));
   };
   const pickMix = (alt: MenuRecipe) => {
@@ -155,7 +171,7 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40 }}>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View>
             <Kicker>{greeting}</Kicker>
@@ -198,11 +214,13 @@ export function Today({ budget, tokens }: { budget?: number; tokens?: string[] }
                 </View>
 
                 {s.items.map((item, i) => (
-                  <Pressable key={item.id} onLongPress={() => deleteLog(item.id)} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), marginTop: i === 0 ? 8 : 0 }}>
-                    <Text style={{ color: c('success'), fontSize: 12, marginRight: 8 }}>✓</Text>
-                    <Text style={{ color: c('textLogged'), fontSize: 15, fontWeight: '500', flex: 1 }}>{item.name}</Text>
-                    <Text style={[{ color: c('textMuted'), fontSize: 13 }, num]}>{item.kcal} kcal</Text>
-                  </Pressable>
+                  <SwipeRow key={item.id} onDelete={() => removeLog(item.id)}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), marginTop: i === 0 ? 8 : 0 }}>
+                      <Text style={{ color: c('success'), fontSize: 12, marginRight: 8 }}>✓</Text>
+                      <Text style={{ color: c('textLogged'), fontSize: 15, fontWeight: '500', flex: 1 }} numberOfLines={1}>{item.name}</Text>
+                      <Text style={[{ color: c('textMuted'), fontSize: 13 }, num]}>{item.kcal} kcal</Text>
+                    </View>
+                  </SwipeRow>
                 ))}
 
                 {showFeatured && planned ? (

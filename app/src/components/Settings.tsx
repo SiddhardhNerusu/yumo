@@ -151,7 +151,7 @@ export function Settings({
       </ScrollView>
 
       <View style={{ marginTop: 14 }}>
-        <PrimaryButton label="Save changes" onPress={save} flex />
+        <PrimaryButton label="Save changes" onPress={save} full />
       </View>
 
       {showPaywall ? <Paywall onClose={() => setShowPaywall(false)} /> : null}

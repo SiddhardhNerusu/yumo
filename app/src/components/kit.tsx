@@ -30,11 +30,14 @@ export function Serif({ children, size, weight = 'regular', italic, color, style
 }
 
 // ── Buttons (the §2.4 vocabulary) ────────────────────────────────────────────
-export function PrimaryButton({ label, onPress, flex, disabled }: { label: string; onPress?: () => void; flex?: boolean; disabled?: boolean }) {
+// `flex` = fill a ROW (e.g. [Log it] beside Mix/Recipe). `full` = stretch to the
+// full width of a COLUMN (sheet footers). Never use `flex` in a column: flexBasis:0
+// on the vertical axis collapses the pill to ~0 height and clips the label.
+export function PrimaryButton({ label, onPress, flex, full, disabled }: { label: string; onPress?: () => void; flex?: boolean; full?: boolean; disabled?: boolean }) {
   const { c } = useTheme();
   const p = usePress();
   return (
-    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} disabled={disabled} style={{ flex: flex ? 1 : undefined, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 11, paddingHorizontal: 20, alignItems: 'center', opacity: disabled ? 0.5 : 1, transform: [{ scale: p.scale }] }}>
+    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} disabled={disabled} style={{ flex: flex ? 1 : undefined, alignSelf: full ? 'stretch' : undefined, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 13, paddingHorizontal: 20, alignItems: 'center', opacity: disabled ? 0.5 : 1, transform: [{ scale: p.scale }] }}>
       <Text style={{ color: c('accentText'), fontWeight: '700', fontSize: 14 }}>{label}</Text>
     </AnimatedPressable>
   );
@@ -115,7 +118,11 @@ export function Kicker({ children, color }: { children: ReactNode; color?: strin
 }
 
 // ── Bottom sheet ─────────────────────────────────────────────────────────────
-export function Sheet({ visible, onClose, children, maxHeight = '88%' }: { visible: boolean; onClose: () => void; children: ReactNode; maxHeight?: number | `${number}%` }) {
+// `expanded` lifts the sheet to near-full height with its content anchored at the
+// TOP — so when a keyboard opens (search), it only overlays the bottom of a
+// scrollable list (normal) instead of covering the input + results (the old half-sheet
+// bug). A child ScrollView with flex:1 fills the space in this mode.
+export function Sheet({ visible, onClose, children, maxHeight = '88%', expanded }: { visible: boolean; onClose: () => void; children: ReactNode; maxHeight?: number | `${number}%`; expanded?: boolean }) {
   const { c } = useTheme();
   const t = useRef(new Animated.Value(0)).current; // 0 hidden → 1 shown
   useEffect(() => {
@@ -130,9 +137,9 @@ export function Sheet({ visible, onClose, children, maxHeight = '88%' }: { visib
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <Animated.View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.62)', opacity: backdrop }} />
       <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'flex-end' }}>
-        <Pressable style={{ flex: 1 }} onPress={onClose} />
-        <Animated.View style={{ transform: [{ translateY }] }}>
-          <View style={{ backgroundColor: c('sheet'), borderTopLeftRadius: 26, borderTopRightRadius: 26, borderTopWidth: 1, borderTopColor: HAIRLINE_TOP, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 36, maxHeight, shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 40, shadowOffset: { width: 0, height: -12 } }}>
+        {expanded ? null : <Pressable style={{ flex: 1 }} onPress={onClose} />}
+        <Animated.View style={[{ transform: [{ translateY }] }, expanded ? { flex: 1, marginTop: 52 } : null]}>
+          <View style={{ flex: expanded ? 1 : undefined, backgroundColor: c('sheet'), borderTopLeftRadius: 26, borderTopRightRadius: 26, borderTopWidth: 1, borderTopColor: HAIRLINE_TOP, paddingHorizontal: 20, paddingTop: 12, paddingBottom: expanded ? 0 : 36, ...(expanded ? {} : { maxHeight }), shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 40, shadowOffset: { width: 0, height: -12 } }}>
             <View style={{ alignSelf: 'center', width: 36, height: 4, borderRadius: 2, backgroundColor: GRABBER, marginBottom: 16 }} />
             {children}
           </View>

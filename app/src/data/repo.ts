@@ -13,6 +13,7 @@ import { cookability } from './cookability';
 import { POOL, POOL_STEPS, POOL_INGREDIENTS, POOL_INGREDIENTS_MAP, POOL_METHODS_MAP } from './menu-seed';
 import { BUBBLE_FOODS, CUISINES } from './onboarding-seed';
 import { FOODS } from './seed';
+import { searchLocalFoods } from './fdc-foods';
 import { setCoachPack } from '../coach/pack';
 import { setBrainConfig } from './brainConfig';
 
@@ -238,24 +239,14 @@ export interface FoodHit {
 export async function searchFoods(q: string): Promise<FoodHit[]> {
   const trimmed = q.trim();
   if (/^\d{8,14}$/.test(trimmed)) {
-    try {
-      const { food } = await api.barcode(trimmed);
-      return [
-        {
-          fdcId: food.fdcId,
-          description: food.description,
-          per100g: {
-            kcal: food.per100g['kcal'] ?? 0,
-            protein_g: food.per100g['protein_g'] ?? 0,
-            carbs_g: food.per100g['carbs_g'] ?? 0,
-            fat_g: food.per100g['fat_g'] ?? 0,
-          },
-        },
-      ];
-    } catch {
-      return [];
-    }
+    const food = await lookupBarcode(trimmed);
+    return food ? [food] : [];
   }
+  // Local-first: the bundled FDC index is instant and works offline, so single
+  // ingredients always appear regardless of server state. Server search is only a
+  // fallback if the local index somehow returns nothing.
+  const local = searchLocalFoods(trimmed, 20);
+  if (local.length) return local.map((f) => ({ fdcId: f.fdcId, description: f.description, per100g: f.per100g }));
   try {
     const { foods } = await api.foodsSearch(q, 15);
     return foods.map((f) => ({
@@ -277,5 +268,25 @@ export async function searchFoods(q: string): Promise<FoodHit[]> {
         description: m.name,
         per100g: { kcal: Math.round((m.kcal / m.portionG) * 100), protein_g: 0, carbs_g: 0, fat_g: 0 },
       }));
+  }
+}
+
+/** Single food by barcode (EAN) → OpenFoodFacts via the server; null offline/unknown.
+ * Separate from searchFoods so the scanner can await exactly one result. */
+export async function lookupBarcode(ean: string): Promise<FoodHit | null> {
+  try {
+    const { food } = await api.barcode(ean);
+    return {
+      fdcId: food.fdcId,
+      description: food.description,
+      per100g: {
+        kcal: food.per100g['kcal'] ?? 0,
+        protein_g: food.per100g['protein_g'] ?? 0,
+        carbs_g: food.per100g['carbs_g'] ?? 0,
+        fat_g: food.per100g['fat_g'] ?? 0,
+      },
+    };
+  } catch {
+    return null;
   }
 }

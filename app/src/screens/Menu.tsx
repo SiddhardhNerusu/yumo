@@ -114,7 +114,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
   if (!plan) {
     return (
       <View style={{ flex: 1, backgroundColor: c('bg') }}>
-        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64 }}>
+        <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64 }}>
           <Kicker>This week</Kicker>
           <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2, marginBottom: 20 }}>Menu</Serif>
           <View style={{ flexDirection: 'row', gap: 6, marginBottom: 22 }}>
@@ -185,7 +185,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40 }}>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40 }}>
         {/* header */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View>

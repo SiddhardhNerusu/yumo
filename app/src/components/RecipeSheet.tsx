@@ -25,7 +25,7 @@ export function RecipeSheet({
         <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '600', marginBottom: 18 }}>Amounts for {recipe.portion}</Text>
       ) : null}
 
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
         {recipe?.ingredients?.length ? (
           <View style={{ marginBottom: 22 }}>
             <Kicker>You'll need</Kicker>
@@ -74,7 +74,7 @@ export function RecipeSheet({
       </ScrollView>
 
       <View style={{ marginTop: 16 }}>
-        <PrimaryButton label="Done" onPress={onClose} flex />
+        <PrimaryButton label="Done" onPress={onClose} full />
       </View>
     </Sheet>
   );

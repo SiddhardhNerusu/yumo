@@ -28,7 +28,12 @@ export function extractAllergens(texts: string[], keywords: AllergenKeywordMap):
   const haystack = texts.join(' | ').toLowerCase();
   for (const allergen of ALLERGENS) {
     for (const kw of keywords[allergen]) {
-      const re = new RegExp(`(^|[^a-z])${escapeRegExp(kw)}([^a-z]|$)`, 'i');
+      // Whole-word match, but tolerate a trailing plural: `peanut` MUST match
+      // `peanuts`, `egg` → `eggs`, `walnut` → `walnuts`, `noodle` → `noodles`.
+      // The old boundary `([^a-z]|$)` rejected the following `s` and silently
+      // let plurals through undeclared — a safety hole. `(?:s|es)?` before the
+      // boundary is strictly additive (over-flagging is the safe direction).
+      const re = new RegExp(`(^|[^a-z])${escapeRegExp(kw)}(?:s|es)?([^a-z]|$)`, 'i');
       if (re.test(haystack)) {
         found.add(allergen);
         break;

@@ -34,7 +34,7 @@ export function ShoppingListSheet({ visible, picks, haveTokens, paused = false, 
         <Text style={{ color: c('textSecondary'), fontSize: 15, paddingVertical: 24, textAlign: 'center' }}>You've got everything for this week. 🙌</Text>
       ) : (
         <>
-          <ScrollView style={{ maxHeight: 420 }}>
+          <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} style={{ maxHeight: 420 }}>
             {groups.map((group) => (
               <View key={group.aisle} style={{ marginBottom: 18 }}>
                 <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.1, textTransform: 'uppercase', marginBottom: 4 }}>{group.label}</Text>
@@ -57,7 +57,7 @@ export function ShoppingListSheet({ visible, picks, haveTokens, paused = false, 
             ))}
           </ScrollView>
           <View style={{ marginTop: 8 }}>
-            <PrimaryButton label={checked.size ? `Add ${checked.size} to kitchen` : 'Add ticked to kitchen'} flex onPress={() => { if (checked.size) { track('shopping_list_checked', { count: checked.size }); onBought([...checked]); onClose(); } }} />
+            <PrimaryButton label={checked.size ? `Add ${checked.size} to kitchen` : 'Add ticked to kitchen'} full onPress={() => { if (checked.size) { track('shopping_list_checked', { count: checked.size }); onBought([...checked]); onClose(); } }} />
           </View>
         </>
       )}

@@ -43,6 +43,8 @@ interface KitchenStore {
   wasteItem: (id: string) => void;
   /** step down every in-stock item a recipe uses (auto-decrement on a logged meal). */
   decrementForRecipe: (recipe: MenuRecipe) => void;
+  /** step matching items back up when that logged meal is deleted (reverse decrement). */
+  incrementForRecipe: (recipe: MenuRecipe) => void;
   /** in-stock tokens, for cookability. */
   availableTokens: () => Set<string>;
 }
@@ -112,7 +114,13 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
 
   const bumpStats = useCallback((d: Partial<KitchenStats>) => {
     setStats((prev) => {
-      const next = { stocked: prev.stocked + (d.stocked ?? 0), wasted: prev.wasted + (d.wasted ?? 0), cooked: prev.cooked + (d.cooked ?? 0) };
+      // clamp ≥0 — a reversed decrement (§ delete-a-log) must never drive a
+      // lifetime tally negative and corrupt the used-% / money counters.
+      const next = {
+        stocked: Math.max(0, prev.stocked + (d.stocked ?? 0)),
+        wasted: Math.max(0, prev.wasted + (d.wasted ?? 0)),
+        cooked: Math.max(0, prev.cooked + (d.cooked ?? 0)),
+      };
       AsyncStorage.setItem(STATS_KEY, JSON.stringify(next)).catch(() => {});
       return next;
     });
@@ -201,11 +209,25 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
     if (touched) bumpStats({ cooked: 1 }); // §8 a meal cooked from the kitchen
   }, [update, bumpStats]);
 
+  // Reverse a decrement when its log is deleted (§ delete-a-log): step matching
+  // items back up so deleting a mis-logged meal doesn't permanently eat the
+  // fridge. Fuzzy by design — 'out' items come back to 'low', not exact grams.
+  const incrementForRecipe = useCallback<KitchenStore['incrementForRecipe']>((recipe) => {
+    const tokens = recipe.foodTokens.map((t) => t.toLowerCase());
+    let touched = false;
+    update((prev) => prev.map((p) => {
+      const used = tokens.some((t) => tokenMatch(t, p.token));
+      if (used) touched = true;
+      return used ? { ...p, level: stepUp(p.level) } : p;
+    }));
+    if (touched) bumpStats({ cooked: -1 });
+  }, [update, bumpStats]);
+
   const availableTokens = useCallback(() => new Set(items.filter((p) => inStock(p.level)).map((p) => p.token)), [items]);
 
   const usedPct = stats.stocked > 0 ? Math.max(0, Math.min(1, (stats.stocked - stats.wasted) / stats.stocked)) : null;
 
-  const value = useMemo<KitchenStore>(() => ({ items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, availableTokens }), [items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, availableTokens]);
+  const value = useMemo<KitchenStore>(() => ({ items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, incrementForRecipe, availableTokens }), [items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, incrementForRecipe, availableTokens]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

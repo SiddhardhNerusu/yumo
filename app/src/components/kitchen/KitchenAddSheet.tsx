@@ -43,7 +43,7 @@ export function KitchenAddSheet({ zone, onClose, onAdd }: { zone: Zone | null; o
         style={{ backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: c('border'), borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, color: c('textPrimary'), fontSize: 15, marginBottom: 12 }}
       />
 
-      <ScrollView style={{ maxHeight: 380 }} keyboardShouldPersistTaps="handled">
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} style={{ maxHeight: 380 }} keyboardShouldPersistTaps="handled">
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {q.trim().length > 0 && !exact ? (
             <Pressable onPress={() => add(q.trim())} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 9, paddingHorizontal: 14 }}>

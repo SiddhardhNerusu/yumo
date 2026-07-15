@@ -70,7 +70,7 @@ export function Progress({
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40, gap: 12 }}>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40, gap: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View>
             <Kicker>Last 3 weeks</Kicker>

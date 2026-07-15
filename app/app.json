@@ -35,7 +35,13 @@
     },
     "owner": "siddu69420",
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Yumo uses the camera to scan food barcodes so you can log packaged foods in one tap."
+        }
+      ]
     ]
   }
 }

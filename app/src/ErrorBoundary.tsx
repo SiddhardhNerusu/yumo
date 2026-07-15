@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
           <Text style={{ color: '#C7BBAA', fontSize: 14, marginTop: 8 }}>
             This screen hit an error — screenshot this and it gets fixed:
           </Text>
-          <ScrollView style={{ marginTop: 16, maxHeight: 420 }}>
+          <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} style={{ marginTop: 16, maxHeight: 420 }}>
             <Text selectable style={{ color: '#F7F2EA', fontSize: 12 }}>
               {error.message}
               {'\n\n'}

@@ -139,7 +139,7 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: c('bg') }}>
-        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
+        <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View>
               <Kicker>Your kitchen</Kicker>
