@@ -6,6 +6,7 @@ import type { MealSlot } from '@yumo/shared';
 import type { MenuDay, MenuRecipe, UserProfile } from '@yumo/menu';
 import { useTheme } from '../theme';
 import { useToday } from '../useToday';
+import { useNow } from '../useNow';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
 import { getMenu, getMixup, getRecipeDetail, portionLabel, type RecipeIngredientLine } from '../data/repo';
@@ -45,7 +46,7 @@ export function Today({ profile }: { profile: UserProfile }) {
   const { c } = useTheme();
   const { events, logFood, skipMeal, deleteLog } = useEventStore();
   const kitchen = useKitchen();
-  const [now] = useState(() => Date.now());
+  const now = useNow();
   // The REAL profile drives menu/mix generation — allergies + hates are hard
   // constraints (§4.3). A prior stub passed allergies:[], which meant an allergic
   // user could be shown and one-tap-log a meal containing their allergen.

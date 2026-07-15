@@ -4,6 +4,7 @@ import type { UserProfile, WeekMenuPlan, MenuRecipe } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
 import { logEvents, localParts } from '@yumo/brain';
 import { useTheme } from '../theme';
+import { useNow } from '../useNow';
 import { getMenu, getMixup, getRecipeDetail, portionLabel, makePantryFit, type Source, type RecipeIngredientLine } from '../data/repo';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
@@ -50,7 +51,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
   const [, setSource] = useState<Source>('local');
   const [dayIdx, setDayIdx] = useState(0);
   const [overrides, setOverrides] = useState<Record<string, MenuRecipe>>({});
-  const [now] = useState(() => Date.now());
+  const now = useNow();
   // "Logged" is derived from the persisted event log (by recipe+slot, today), NOT
   // local state — so it survives the tab-switch remount and never double-logs.
   const loggedToday = useMemo(() => {

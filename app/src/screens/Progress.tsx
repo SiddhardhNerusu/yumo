@@ -10,6 +10,7 @@ import { useKitchen } from '../data/kitchenStore';
 import { computeStreak, weeklyLogged } from '../data/streak';
 import { MEAL_OUT_BASELINE, TYPICAL_MEAL_COST, gbp } from '../data/kitchenMoney';
 import { Serif, Kicker, Card } from '../components/kit';
+import { useNow } from '../useNow';
 import { WEIGHTS } from '../data/progress-seed';
 
 const num = { fontVariant: ['tabular-nums' as const] };
@@ -27,7 +28,7 @@ export function Progress({
   const { events } = useEventStore();
   const kitchen = useKitchen();
   const [showSettings, setShowSettings] = useState(false);
-  const [now] = useState(() => Date.now());
+  const now = useNow();
 
   // §8 "from your kitchen" recap (money stays on Progress, off Today).
   const kUsedPct = kitchen.usedPct != null ? Math.round(kitchen.usedPct * 100) : null;

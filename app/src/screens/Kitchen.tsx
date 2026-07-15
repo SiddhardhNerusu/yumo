@@ -4,6 +4,7 @@ import Svg, { Rect } from 'react-native-svg';
 import type { UserProfile, MenuRecipe } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
 import { useTheme } from '../theme';
+import { useNow } from '../useNow';
 import { useKitchen } from '../data/kitchenStore';
 import { useEventStore } from '../data/eventStore';
 import { getMenu } from '../data/repo';
@@ -52,7 +53,7 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
   const { c } = useTheme();
   const kitchen = useKitchen();
   const { events, logFood } = useEventStore();
-  const [now] = useState(() => Date.now());
+  const now = useNow();
 
   const [focused, setFocused] = useState<Zone | null>(null);
   const [selected, setSelected] = useState<KitchenItem | null>(null);
