@@ -35,6 +35,7 @@ export function Settings({
   const { c } = useTheme();
   const { isPremium } = useEntitlement();
   const [showPaywall, setShowPaywall] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const [budget, setBudget] = useState<number>(profile.budgetKcal);
   const [proteinTarget, setProteinTarget] = useState<number>(profile.proteinTargetG ?? Math.round(1.6 * profile.targetWeightKg));
   const [variation, setVariation] = useState<VariationDial>(profile.variation);
@@ -143,11 +144,27 @@ export function Settings({
           </View>
         </View>
 
-        <Pressable onPress={onReset} style={({ pressed }) => ({ alignItems: 'center', paddingVertical: 18, marginTop: 8 })}>
-          {({ pressed }) => (
-            <Text style={{ color: pressed ? c('danger') : c('textMuted'), fontSize: 14, fontWeight: '600' }}>Start over — clear profile &amp; logs</Text>
-          )}
-        </Pressable>
+        {confirmReset ? (
+          <View style={{ marginTop: 10, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 16 }}>
+            <Text style={{ color: c('textSecondary'), fontSize: 13.5, lineHeight: 20, textAlign: 'center', marginBottom: 14 }}>
+              This deletes your profile and every logged meal. It can't be undone.
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable onPress={() => setConfirmReset(false)} style={{ flex: 1, borderWidth: 1, borderColor: c('borderStrong'), borderRadius: 999, paddingVertical: 12, alignItems: 'center' }}>
+                <Text style={{ color: c('textSecondary'), fontSize: 14, fontWeight: '600' }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={onReset} style={({ pressed }) => ({ flex: 1, backgroundColor: c('danger'), opacity: pressed ? 0.85 : 1, borderRadius: 999, paddingVertical: 12, alignItems: 'center' })}>
+                <Text style={{ color: c('bg'), fontSize: 14, fontWeight: '700' }}>Delete everything</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <Pressable onPress={() => setConfirmReset(true)} style={{ alignItems: 'center', paddingVertical: 18, marginTop: 8 }}>
+            {({ pressed }) => (
+              <Text style={{ color: pressed ? c('danger') : c('textMuted'), fontSize: 14, fontWeight: '600' }}>Start over — clear profile &amp; logs</Text>
+            )}
+          </Pressable>
+        )}
       </ScrollView>
 
       <View style={{ marginTop: 14 }}>
