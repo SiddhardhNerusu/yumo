@@ -7,7 +7,20 @@ import { extractAllergens, loadAllergenKeywords } from '../src/lints/allergens';
 const here = dirname(fileURLToPath(import.meta.url));
 const KEYWORDS = resolve(here, '../data/allergen-keywords.json');
 const CATALOGUE = resolve(here, '../../../app/src/data/catalogue.generated.ts');
+const BUILT = resolve(here, '../data/catalogue.built.json'); // the SERVER artifact
 const kw = loadAllergenKeywords(KEYWORDS);
+
+interface PoolRecipe { id: string; name: string; allergens: string[]; foodTokens: string[]; ingredients?: Array<{ name: string }> }
+/** Assert every extractable allergen is declared, for a whole pool. Returns drift lines. */
+function allergenDrift(pool: PoolRecipe[]): string[] {
+  const drift: string[] = [];
+  for (const r of pool) {
+    const texts = [...(r.foodTokens ?? []), ...((r.ingredients ?? []).map((i) => i.name))];
+    const missing = extractAllergens(texts, kw).filter((a) => !new Set(r.allergens ?? []).has(a));
+    if (missing.length) drift.push(`${r.id} (${r.name}) missing [${missing.join(', ')}]`);
+  }
+  return drift;
+}
 
 describe('allergen extractor', () => {
   // The regression: the whole-word boundary rejected a trailing plural `s`, so
@@ -51,14 +64,25 @@ describe('shipped catalogue allergen integrity (build-failing guard)', () => {
   // ingredients MUST be present in its declared `allergens[]`. If this fails, a
   // recipe would be served to a user who is allergic to something in it.
   it('declares every extractable allergen for every recipe', () => {
-    const drift: string[] = [];
-    for (const r of pool) {
-      const texts = [...(r.foodTokens ?? []), ...((r.ingredients ?? []).map((i) => i.name))];
-      const extracted = extractAllergens(texts, kw);
-      const declared = new Set(r.allergens ?? []);
-      const missing = extracted.filter((a) => !declared.has(a));
-      if (missing.length) drift.push(`${r.id} (${r.name}) missing [${missing.join(', ')}]`);
-    }
+    const drift = allergenDrift(pool as PoolRecipe[]);
     expect(drift, `Allergen drift — these recipes under-declare:\n${drift.join('\n')}`).toEqual([]);
+  });
+});
+
+// The server serves catalogue.built.json verbatim through isAllowed — the same safety
+// gate, a DIFFERENT artifact. It drifted from the extractor once (15 recipes under-
+// declared peanuts/tree-nuts on the server while the app was correct); this guards it.
+describe('SERVER catalogue.built.json allergen integrity (build-failing guard)', () => {
+  const built = JSON.parse(readFileSync(BUILT, 'utf8')) as { details: PoolRecipe[]; poolIds: string[] };
+  const poolSet = new Set(built.poolIds);
+  const pool = built.details.filter((d) => poolSet.has(d.id));
+
+  it('has a live pool', () => {
+    expect(pool.length).toBeGreaterThan(400);
+  });
+
+  it('declares every extractable allergen for every served recipe', () => {
+    const drift = allergenDrift(pool);
+    expect(drift, `SERVER allergen drift (run \`npm run build:allergens\`):\n${drift.join('\n')}`).toEqual([]);
   });
 });

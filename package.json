@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "fetch:fdc": "npm run fetch:fdc -w @yumo/catalogue-pipeline",
     "spike": "npm run spike -w @yumo/catalogue-pipeline",
+    "build:allergens": "npm run build:allergens -w @yumo/catalogue-pipeline",
     "brain:demo": "npm run demo -w @yumo/brain",
     "menu:demo": "npm run demo -w @yumo/menu",
     "server:dev": "npm run dev -w @yumo/server"

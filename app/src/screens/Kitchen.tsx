@@ -128,8 +128,8 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
   };
   const logDinner = (r: MenuRecipe) => {
     // §11 north star: 'cooknow' source distinguishes cook-from-kitchen logs from ordinary menu logs.
-    logFood(r.id, { slot: 'dinner', kcal: Math.round(r.perServing.kcal), proteinG: Math.round(r.perServing.protein_g), name: r.name, source: 'cooknow', taps: 1 });
-    kitchen.decrementForRecipe(r);
+    const decrementedIds = kitchen.decrementForRecipe(r);
+    logFood(r.id, { slot: 'dinner', kcal: Math.round(r.perServing.kcal), proteinG: Math.round(r.perServing.protein_g), name: r.name, source: 'cooknow', taps: 1, meta: { decrementedIds } });
     track('tonight_accepted', {});
     setShowTonight(false);
   };

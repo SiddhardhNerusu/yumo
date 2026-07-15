@@ -127,22 +127,20 @@ export function Today({ profile }: { profile: UserProfile }) {
   const greeting = hour < 12 ? 'GOOD MORNING' : hour < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
 
   const logPlanned = (slot: MealSlot, p: Planned) => {
-    // meta.pantry flags that this log drew down the fridge, so deleting it can
-    // reverse exactly the logs that decremented (AddSheet menu-logs never do).
-    logFood(p.recipe.id, { slot, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, name: p.recipe.name, source: 'menu', taps: 1, meta: { pantry: 'decremented' } });
-    kitchen.decrementForRecipe(p.recipe); // §6 auto-decrement the pantry
+    // §6 decrement first, then persist the exact ids drawn down on the log — so
+    // deleting this row reverses precisely those items (and nothing else).
+    const decrementedIds = kitchen.decrementForRecipe(p.recipe);
+    logFood(p.recipe.id, { slot, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, name: p.recipe.name, source: 'menu', taps: 1, meta: { decrementedIds } });
     track('menu_accepted', { recipeId: p.recipe.id, slot });
   };
 
-  // Delete a logged row (§ swipe-to-delete). Reverses the fridge decrement iff
-  // this exact log drew it down — resolved from the event's meta, so an
-  // AddSheet menu-log (which never decremented) can't wrongly inflate the fridge.
+  // Delete a logged row (§ swipe-to-delete). Reverses exactly the fridge items this
+  // log drew down, from the ids stored on the event — works for logs made from
+  // any surface (Today/Menu/Kitchen), and never invents stock.
   const removeLog = (eventId: string) => {
     const ev = events.find((e) => e.id === eventId);
-    if (ev?.meta?.['pantry'] === 'decremented' && ev.foodId) {
-      const recipe = POOL.find((r) => r.id === ev.foodId);
-      if (recipe) kitchen.incrementForRecipe(recipe);
-    }
+    const ids = ev?.meta?.['decrementedIds'];
+    if (Array.isArray(ids) && ids.length) kitchen.restoreDecrement(ids as string[]);
     deleteLog(eventId);
   };
   const openMix = (slot: MealSlot, recipe: MenuRecipe) => {

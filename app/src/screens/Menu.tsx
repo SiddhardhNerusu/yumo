@@ -173,8 +173,8 @@ export function Menu({ profile }: { profile: UserProfile }) {
 
   const logMeal = (slot: MealSlot, cur: Cur) => {
     if (isLoggedNow(slot, cur.recipe.id)) return; // already logged today — guard against double-log
-    logFood(cur.recipe.id, { slot, kcal: cur.kcal, proteinG: cur.protein, carbsG: cur.carbs, fatG: cur.fat, name: cur.recipe.name, source: 'menu', taps: 1 });
-    kitchen.decrementForRecipe(cur.recipe); // §6 auto-decrement the pantry
+    const decrementedIds = kitchen.decrementForRecipe(cur.recipe); // §6 auto-decrement the pantry
+    logFood(cur.recipe.id, { slot, kcal: cur.kcal, proteinG: cur.protein, carbsG: cur.carbs, fatG: cur.fat, name: cur.recipe.name, source: 'menu', taps: 1, meta: { decrementedIds } });
     track('menu_accepted', { recipeId: cur.recipe.id, slot });
   };
   const openRecipe = (cur: Cur) => {

@@ -41,10 +41,11 @@ interface KitchenStore {
   setFreshness: (id: string, state: Freshness) => void;
   moveZone: (id: string, zone: Zone) => void;
   wasteItem: (id: string) => void;
-  /** step down every in-stock item a recipe uses (auto-decrement on a logged meal). */
-  decrementForRecipe: (recipe: MenuRecipe) => void;
-  /** step matching items back up when that logged meal is deleted (reverse decrement). */
-  incrementForRecipe: (recipe: MenuRecipe) => void;
+  /** step down every in-stock item a recipe uses; returns the ids stepped down so
+   * the caller can persist them on the log event for exact reversal on delete. */
+  decrementForRecipe: (recipe: MenuRecipe) => string[];
+  /** step the given items back up (reverse of a decrement) when its log is deleted. */
+  restoreDecrement: (ids: string[]) => void;
   /** in-stock tokens, for cookability. */
   availableTokens: () => Set<string>;
 }
@@ -197,28 +198,32 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
     }));
   }, [update]);
 
+  // Returns the EXACT item ids it stepped down, so the caller can persist them on
+  // the log event and reverse precisely those on delete. Coupling the draw-down to
+  // its reversal in one value means no log site can forget to tag (the old
+  // per-call-site meta flag drifted — Menu/Kitchen logs decremented but never
+  // reversed, permanently draining the fridge).
   const decrementForRecipe = useCallback<KitchenStore['decrementForRecipe']>((recipe) => {
     const tokens = recipe.foodTokens.map((t) => t.toLowerCase());
-    let touched = false;
-    update((prev) => prev.map((p) => {
-      if (!inStock(p.level)) return p;
-      const used = tokens.some((t) => tokenMatch(t, p.token)); // whole-word, no 'egg'↔'eggplant'
-      if (used) touched = true;
-      return used ? { ...p, level: stepDown(p.level) } : p;
-    }));
-    if (touched) bumpStats({ cooked: 1 }); // §8 a meal cooked from the kitchen
+    const hit = itemsRef.current.filter((p) => inStock(p.level) && tokens.some((t) => tokenMatch(t, p.token)));
+    const ids = new Set(hit.map((p) => p.id));
+    if (!ids.size) return [];
+    update((prev) => prev.map((p) => (ids.has(p.id) ? { ...p, level: stepDown(p.level) } : p)));
+    bumpStats({ cooked: 1 }); // §8 a meal cooked from the kitchen
+    return [...ids];
   }, [update, bumpStats]);
 
-  // Reverse a decrement when its log is deleted (§ delete-a-log): step matching
-  // items back up so deleting a mis-logged meal doesn't permanently eat the
-  // fridge. Fuzzy by design — 'out' items come back to 'low', not exact grams.
-  const incrementForRecipe = useCallback<KitchenStore['incrementForRecipe']>((recipe) => {
-    const tokens = recipe.foodTokens.map((t) => t.toLowerCase());
+  // Reverse a decrement when its log is deleted (§ delete-a-log): step back up ONLY
+  // the exact items this log stepped down, so a delete never invents stock that
+  // wasn't there. Fuzzy by design — an item now 'out' comes back to 'low'.
+  const restoreDecrement = useCallback<KitchenStore['restoreDecrement']>((ids) => {
+    if (!ids?.length) return;
+    const idSet = new Set(ids);
     let touched = false;
     update((prev) => prev.map((p) => {
-      const used = tokens.some((t) => tokenMatch(t, p.token));
-      if (used) touched = true;
-      return used ? { ...p, level: stepUp(p.level) } : p;
+      if (!idSet.has(p.id)) return p;
+      touched = true;
+      return { ...p, level: stepUp(p.level) };
     }));
     if (touched) bumpStats({ cooked: -1 });
   }, [update, bumpStats]);
@@ -227,7 +232,7 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
 
   const usedPct = stats.stocked > 0 ? Math.max(0, Math.min(1, (stats.stocked - stats.wasted) / stats.stocked)) : null;
 
-  const value = useMemo<KitchenStore>(() => ({ items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, incrementForRecipe, availableTokens }), [items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, incrementForRecipe, availableTokens]);
+  const value = useMemo<KitchenStore>(() => ({ items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, restoreDecrement, availableTokens }), [items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, restoreDecrement, availableTokens]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

@@ -9,7 +9,8 @@
   },
   "scripts": {
     "fetch:fdc": "node --max-old-space-size=4096 --import tsx scripts/fetch-fdc.ts",
-    "spike": "tsx scripts/run-spike.ts"
+    "spike": "tsx scripts/run-spike.ts",
+    "build:allergens": "tsx scripts/sync-allergens.ts"
   },
   "dependencies": {
     "@yumo/shared": "*",
