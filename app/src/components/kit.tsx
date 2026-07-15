@@ -6,7 +6,7 @@ import { haptics } from '../haptics';
 /** Precomputed alpha borders (RN has no color-mix). Dark-first. */
 export const ACCENT_BORDER = 'rgba(255,106,61,0.55)';
 export const LOGGED_BORDER = 'rgba(95,196,140,0.25)';
-const GRABBER = 'rgba(247,242,234,0.28)';
+const GRABBER = 'rgba(247,242,234,0.15)'; // brief §2: grabber 36×4 at 0.15
 export const HAIRLINE_TOP = 'rgba(247,242,234,0.14)'; // directional top highlight — light reads from above
 
 const num = { fontVariant: ['tabular-nums' as const] };
@@ -37,7 +37,7 @@ export function PrimaryButton({ label, onPress, flex, full, disabled }: { label:
   const { c } = useTheme();
   const p = usePress();
   return (
-    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} disabled={disabled} style={{ flex: flex ? 1 : undefined, alignSelf: full ? 'stretch' : undefined, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 13, paddingHorizontal: 20, alignItems: 'center', opacity: disabled ? 0.5 : 1, transform: [{ scale: p.scale }] }}>
+    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} disabled={disabled} style={{ flex: flex ? 1 : undefined, alignSelf: full ? 'stretch' : undefined, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 12, paddingHorizontal: 20, alignItems: 'center', opacity: disabled ? 0.5 : 1, transform: [{ scale: p.scale }] }}>
       <Text style={{ color: c('accentText'), fontWeight: '700', fontSize: 14 }}>{label}</Text>
     </AnimatedPressable>
   );
@@ -135,7 +135,7 @@ export function Sheet({ visible, onClose, children, maxHeight = '88%', expanded 
   const backdrop = t.interpolate({ inputRange: [0, 1], outputRange: [0, 1] });
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <Animated.View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.62)', opacity: backdrop }} />
+      <Animated.View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', opacity: backdrop }} />
       <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'flex-end' }}>
         {expanded ? null : <Pressable style={{ flex: 1 }} onPress={onClose} />}
         <Animated.View style={[{ transform: [{ translateY }] }, expanded ? { flex: 1, marginTop: 52 } : null]}>

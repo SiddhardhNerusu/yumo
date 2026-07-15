@@ -197,8 +197,8 @@ export function Menu({ profile }: { profile: UserProfile }) {
             <Pressable onPress={() => setShowKitchen(true)} style={{ paddingVertical: 9, paddingHorizontal: 15, borderRadius: 999, backgroundColor: c('accentFaint'), borderWidth: 1, borderColor: c('border') }}>
               <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '700' }}>Kitchen</Text>
             </Pressable>
-            <Pressable onPress={planNextWeek} disabled={regenerating} hitSlop={6} accessibilityRole="button" accessibilityLabel="New week" style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border'), alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: c('textSecondary'), fontSize: 16, fontWeight: '600' }}>{regenerating ? '…' : '↻'}</Text>
+            <Pressable onPress={planNextWeek} disabled={regenerating} accessibilityRole="button" accessibilityLabel="New week" style={{ paddingVertical: 9, paddingHorizontal: 15, borderRadius: 999, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border') }}>
+              <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{regenerating ? 'New week…' : '↻ New week'}</Text>
             </Pressable>
           </View>
         </View>
@@ -249,7 +249,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
                   <Text style={{ color: c('textMuted'), fontSize: 12 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6 }}>
-                  <Serif size={23} color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{cur.recipe.name}</Serif>
+                  <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{cur.recipe.name}</Serif>
                   <Text style={{ marginLeft: 10 }}>
                     <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{cur.kcal.toLocaleString()}</Text>
                     <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>

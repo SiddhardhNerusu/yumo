@@ -223,13 +223,13 @@ export function Today({ profile }: { profile: UserProfile }) {
 
         {learnedNote ? (
           <View style={{ marginBottom: showWaste ? 12 : 20, flexDirection: 'row', justifyContent: 'center' }}>
-            <Text style={{ color: c('accentSoft'), fontSize: 13.5, fontWeight: '600' }}>✨ Got it — {learnedNote.toLowerCase()}</Text>
+            <Text style={{ color: c('accentSoft'), fontSize: 13.5, fontWeight: '600' }}>Got it — {learnedNote.toLowerCase()}</Text>
           </View>
         ) : null}
 
         {showWaste && wasteLine ? (
-          <View style={{ marginBottom: 20, backgroundColor: 'rgba(237,163,59,0.13)', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 14 }}>
-            <Text style={{ color: '#EDA33B', fontSize: 13.5, fontWeight: '600', lineHeight: 19 }}>🍃 Your {wasteLine.item.toLowerCase()} wants to be dinner — {wasteLine.recipe}{wasteLine.fits ? ' fits your budget' : ' tonight'}.</Text>
+          <View style={{ marginBottom: 20, backgroundColor: c('warningFaint'), borderRadius: 14, paddingVertical: 11, paddingHorizontal: 14 }}>
+            <Text style={{ color: c('warning'), fontSize: 13.5, fontWeight: '600', lineHeight: 19 }}>Your {wasteLine.item.toLowerCase()} wants to be dinner — {wasteLine.recipe}{wasteLine.fits ? ' fits your budget' : ' tonight'}.</Text>
           </View>
         ) : null}
 
@@ -287,7 +287,7 @@ export function Today({ profile }: { profile: UserProfile }) {
                     <View style={{ marginTop: 10 }}>
                       <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6 }}>{confident ? 'The usual?' : 'From your menu'}</Text>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <Serif size={23} color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{usual.name}</Serif>
+                        <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{usual.name}</Serif>
                         <Text style={{ marginLeft: 10 }}>
                           <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{usual.kcal.toLocaleString()}</Text>
                           <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
@@ -325,7 +325,7 @@ export function Today({ profile }: { profile: UserProfile }) {
                 ) : showFeatured && planned ? (
                   <View style={{ marginTop: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <Serif size={23} color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{planned.recipe.name}</Serif>
+                      <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{planned.recipe.name}</Serif>
                       <Text style={{ marginLeft: 10 }}>
                         <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{planned.kcal.toLocaleString()}</Text>
                         <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
