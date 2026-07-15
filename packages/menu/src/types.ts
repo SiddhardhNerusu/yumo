@@ -70,4 +70,6 @@ export interface MenuDay {
 export interface WeekMenuPlan {
   days: MenuDay[];
   warnings: string[];
+  /** engine version that produced this plan (§5.8 reproducibility/traceability). */
+  engineVersion?: string;
 }

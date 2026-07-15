@@ -87,11 +87,13 @@ describe('§11.2 plan-quality regression net (500 users)', () => {
   let allergyViolations = 0, hateViolations = 0, slotViolations = 0, boundViolations = 0;
   let dayCount = 0, kcalHit = 0, proteinHit = 0;
   let overusedWeeks = 0; // weeks where some recipe appears >3×
+  const cuisineCounts: number[] = []; // distinct cuisines per user-week
 
   for (let u = 0; u < N; u++) {
     const user = makeUser(userRng);
     const plan = generateWeekMenu(pool, user, { seed: `sim-user-${u}` });
     const weekUse = new Map<string, number>();
+    const weekCuisines = new Set<string>();
     for (const day of plan.days) {
       dayCount++;
       if (Math.abs(day.totalKcal - user.budgetKcal) / user.budgetKcal <= 0.05) kcalHit++;
@@ -107,15 +109,18 @@ describe('§11.2 plan-quality regression net (500 users)', () => {
           boundViolations++;
         }
         weekUse.set(pick.recipe.id, (weekUse.get(pick.recipe.id) ?? 0) + 1);
+        weekCuisines.add(pick.recipe.cuisine);
       }
     }
     if ([...weekUse.values()].some((n) => n > 3)) overusedWeeks++;
+    cuisineCounts.push(weekCuisines.size);
   }
 
   const kcalRate = kcalHit / dayCount;
   const proteinRate = proteinHit / dayCount;
+  const avgCuisines = cuisineCounts.reduce((a, b) => a + b, 0) / cuisineCounts.length;
   // eslint-disable-next-line no-console
-  console.log(`sim: ${N} users · kcal±5% ${(kcalRate * 100).toFixed(1)}% · protein≥90% ${(proteinRate * 100).toFixed(1)}% · overused weeks ${overusedWeeks}/${N}`);
+  console.log(`sim: ${N} users · kcal±5% ${(kcalRate * 100).toFixed(1)}% · protein≥90% ${(proteinRate * 100).toFixed(1)}% · overused weeks ${overusedWeeks}/${N} · avg cuisines/wk ${avgCuisines.toFixed(1)}`);
 
   it('NEVER serves an allergen the user declared (build-failing invariant)', () => {
     expect(allergyViolations).toBe(0);
@@ -125,14 +130,16 @@ describe('§11.2 plan-quality regression net (500 users)', () => {
     expect(slotViolations).toBe(0);
     expect(boundViolations).toBe(0);
   });
-  // ~98% via clean-portion snap + snack-absorb + one-step residual correction (§5.4).
-  it('lands ≥90% of days within ±5% of the calorie budget (regression floor)', () => {
-    expect(kcalRate).toBeGreaterThanOrEqual(0.9);
+  // Achieves ~98% (clean-portion snap + snack-absorb + one-step residual, §5.4). Asserted
+  // at 95% — a real regression guard, not a rubber stamp. (Plan aspiration is 98%.)
+  it('lands ≥95% of days within ±5% of the calorie budget', () => {
+    expect(kcalRate).toBeGreaterThanOrEqual(0.95);
   });
-  it('hits ≥90% of the protein target on ≥85% of days (given a rich-enough pool)', () => {
-    expect(proteinRate).toBeGreaterThanOrEqual(0.85);
+  it('hits ≥90% of the protein target on ≥95% of days (plan bar)', () => {
+    expect(proteinRate).toBeGreaterThanOrEqual(0.95);
   });
-  it('keeps variety — <5% of weeks over-use any single recipe', () => {
-    expect(overusedWeeks / N).toBeLessThan(0.05);
+  it('keeps variety — no week over-uses any single recipe (>3×) and ≥4 cuisines/week', () => {
+    expect(overusedWeeks).toBe(0);
+    expect(avgCuisines).toBeGreaterThanOrEqual(4);
   });
 });

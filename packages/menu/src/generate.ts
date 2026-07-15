@@ -12,6 +12,7 @@ import {
   PORTION_SCALE_RANGE,
   CLEAN_PORTION_STEPS,
   SNACK_SCALE_RANGE,
+  ENGINE_VERSION,
 } from './config';
 
 const SLOTS = MEAL_SLOTS;
@@ -277,5 +278,5 @@ export function generateWeekMenu(
     days.push({ dayOfWeek: d % 7, picks: finalPicks, totalKcal, totalProtein_g: totalProtein });
   }
 
-  return { days, warnings };
+  return { days, warnings, engineVersion: ENGINE_VERSION };
 }

@@ -34,6 +34,10 @@ export const NOVELTY_WEIGHT: Record<VariationDial, number> = {
 /** ≤2 "30min+" dinners per week (§4.3 effort mix). */
 export const MAX_HARD_DINNERS_PER_WEEK = 2;
 
+/** Bumped when generation logic changes; stamped on each plan so a past menu is
+ * traceable to the engine version that produced it (§5.8). */
+export const ENGINE_VERSION = '1.1.0';
+
 /** Clamp portion scaling so a recipe is never stretched absurdly to hit a slot. */
 export const PORTION_SCALE_RANGE: readonly [number, number] = [0.6, 1.6];
 
