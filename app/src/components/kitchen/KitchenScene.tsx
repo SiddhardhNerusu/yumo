@@ -236,7 +236,7 @@ function Tile({ item, slotCenterX, shelfY, now, labelV, isOpen, justAdded, tossi
   return (
     <>
       <Animated.View style={{ position: 'absolute', left, top, width: w, height: h, opacity, transform: transform as never }}>
-        <Pressable onPress={onPress} hitSlop={6} style={{ opacity: low ? 0.6 : 1 }}>
+        <Pressable onPress={onPress} hitSlop={8} accessibilityRole="button" accessibilityLabel={item.label} style={{ opacity: low ? 0.6 : 1 }}>
           <GlyphTile kind={kind} w={w} h={h} color={col} />
         </Pressable>
       </Animated.View>
@@ -410,10 +410,10 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
             <View style={{ position: 'absolute', top: 24, bottom: 24, right: 8, width: 5, borderRadius: 3, backgroundColor: handleCol }} />
             {/* magnets */}
             <View style={{ position: 'absolute', top: 10, left: 9, gap: 5 }}>
-              <Pressable onPress={onTonight} hitSlop={6} style={{ transform: [{ rotate: '-2deg' }], backgroundColor: '#F3E9D8', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 7, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(58,48,38,0.25)' }}>
+              <Pressable onPress={onTonight} hitSlop={12} accessibilityRole="button" accessibilityLabel="Tonight you can make" style={{ transform: [{ rotate: '-2deg' }], backgroundColor: '#F3E9D8', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 7, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(58,48,38,0.25)' }}>
                 <Serif italic size={9.5} color="#3A2E1E">Tonight you can make…</Serif>
               </Pressable>
-              <Pressable onPress={onShopping} hitSlop={6} style={{ transform: [{ rotate: '1.5deg' }], backgroundColor: '#E9EFE6', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 7, flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(46,58,42,0.25)' }}>
+              <Pressable onPress={onShopping} hitSlop={12} accessibilityRole="button" accessibilityLabel={shoppingCount > 0 ? `Shopping list, ${shoppingCount} items` : 'Shopping list'} style={{ transform: [{ rotate: '1.5deg' }], backgroundColor: '#E9EFE6', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 7, flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', borderWidth: 0.5, borderColor: 'rgba(46,58,42,0.25)' }}>
                 <Text style={{ color: '#2E3A2A', fontSize: 9, fontWeight: '700' }}>Shopping list</Text>
                 {shoppingCount > 0 ? <View style={{ backgroundColor: c('accent'), borderRadius: 999, minWidth: 13, height: 13, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Text style={{ color: c('accentText'), fontSize: 8, fontWeight: '700' }}>{shoppingCount}</Text></View> : null}
               </Pressable>

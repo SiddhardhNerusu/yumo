@@ -84,10 +84,10 @@ export function BarcodeScanner({ visible, onClose, onScanned }: { visible: boole
       {/* overlay: scan frame + controls, outside the camera surface */}
       <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 56, paddingHorizontal: 20 }}>
-          <Pressable onPress={onClose} hitSlop={12} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
+          <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Close scanner" style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: '#F7F2EA', fontSize: 20, fontWeight: '600' }}>✕</Text>
           </Pressable>
-          <Pressable onPress={() => setTorch((t) => !t)} hitSlop={12} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: torch ? c('accent') : 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
+          <Pressable onPress={() => setTorch((t) => !t)} hitSlop={12} accessibilityRole="button" accessibilityLabel="Toggle torch" accessibilityState={{ selected: torch }} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: torch ? c('accent') : 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ fontSize: 18 }}>🔦</Text>
           </Pressable>
         </View>

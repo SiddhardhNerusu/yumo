@@ -197,7 +197,7 @@ export function Menu({ profile }: { profile: UserProfile }) {
             <Pressable onPress={() => setShowKitchen(true)} style={{ paddingVertical: 9, paddingHorizontal: 15, borderRadius: 999, backgroundColor: c('accentFaint'), borderWidth: 1, borderColor: c('border') }}>
               <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '700' }}>Kitchen</Text>
             </Pressable>
-            <Pressable onPress={planNextWeek} disabled={regenerating} accessibilityRole="button" accessibilityLabel="New week" style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border'), alignItems: 'center', justifyContent: 'center' }}>
+            <Pressable onPress={planNextWeek} disabled={regenerating} hitSlop={6} accessibilityRole="button" accessibilityLabel="New week" style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border'), alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: c('textSecondary'), fontSize: 16, fontWeight: '600' }}>{regenerating ? '…' : '↻'}</Text>
             </Pressable>
           </View>
@@ -309,8 +309,10 @@ function ThumbsRow({ thumb, onThumb }: { thumb?: 'up' | 'down'; onThumb: (d: 'up
     return (
       <Pressable
         onPress={() => onThumb(dir)}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         accessibilityRole="button"
         accessibilityLabel={dir === 'up' ? 'I liked this' : 'Not for me'}
+        accessibilityState={{ selected: on }}
         style={{ width: 34, height: 30, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c('surfaceSunken') : c('chipSurface'), borderWidth: 1, borderColor: on ? tone : 'transparent' }}
       >
         <Text style={{ fontSize: 14, color: on ? tone : c('textMuted') }}>{glyph}</Text>

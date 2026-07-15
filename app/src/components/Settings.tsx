@@ -58,8 +58,8 @@ export function Settings({
     onClose();
   };
 
-  const StepBtn = ({ label, onPress }: { label: string; onPress: () => void }) => (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 999, borderWidth: 1, borderColor: c('borderStrong'), alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
+  const StepBtn = ({ label, onPress, a11yLabel }: { label: string; onPress: () => void; a11yLabel: string }) => (
+    <Pressable onPress={onPress} hitSlop={6} accessibilityRole="button" accessibilityLabel={a11yLabel} style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 999, borderWidth: 1, borderColor: c('borderStrong'), alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
       <Text style={{ color: c('textPrimary'), fontSize: 20, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
@@ -85,12 +85,12 @@ export function Settings({
         <View style={{ marginTop: 20 }}>
           <Kicker>Daily budget</Kicker>
           <View style={{ marginTop: 8, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <StepBtn label="−" onPress={() => setBudget((b) => clampBudget(b - 50))} />
+            <StepBtn label="−" a11yLabel="Decrease daily budget" onPress={() => setBudget((b) => clampBudget(b - 50))} />
             <Text>
               <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{Math.round(budget).toLocaleString()}</Text>
               <Text style={{ color: c('textMuted'), fontSize: 14 }}> kcal</Text>
             </Text>
-            <StepBtn label="＋" onPress={() => setBudget((b) => clampBudget(b + 50))} />
+            <StepBtn label="＋" a11yLabel="Increase daily budget" onPress={() => setBudget((b) => clampBudget(b + 50))} />
           </View>
         </View>
 
@@ -98,12 +98,12 @@ export function Settings({
         <View style={{ marginTop: 16 }}>
           <Kicker>Protein target</Kicker>
           <View style={{ marginTop: 8, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <StepBtn label="−" onPress={() => setProteinTarget((p) => clampProtein(p - 5))} />
+            <StepBtn label="−" a11yLabel="Decrease protein target" onPress={() => setProteinTarget((p) => clampProtein(p - 5))} />
             <Text>
               <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{Math.round(proteinTarget)}</Text>
               <Text style={{ color: c('textMuted'), fontSize: 14 }}> g protein</Text>
             </Text>
-            <StepBtn label="＋" onPress={() => setProteinTarget((p) => clampProtein(p + 5))} />
+            <StepBtn label="＋" a11yLabel="Increase protein target" onPress={() => setProteinTarget((p) => clampProtein(p + 5))} />
           </View>
           <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>Plans aim to hit this — dinners carry the most.</Text>
         </View>
