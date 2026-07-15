@@ -12,6 +12,7 @@ import { MEAL_OUT_BASELINE, TYPICAL_MEAL_COST, gbp } from '../data/kitchenMoney'
 import { Serif, Kicker, Card } from '../components/kit';
 import { useNow } from '../useNow';
 import { WEIGHTS } from '../data/progress-seed';
+import { DEMO_DATA } from '../data/demo';
 
 const num = { fontVariant: ['tabular-nums' as const] };
 
@@ -35,10 +36,14 @@ export function Progress({
   const kSaved = Math.round(kitchen.stats.cooked * Math.max(0, MEAL_OUT_BASELINE - TYPICAL_MEAL_COST));
   const showKitchenRecap = kitchen.stats.cooked > 0 || kitchen.stats.wasted > 0;
 
-  const current = WEIGHTS[WEIGHTS.length - 1]!;
-  const start = WEIGHTS[0]!;
+  // The weight trend is DEMO-ONLY (there's no weigh-in input yet); real users see
+  // no weight card rather than a fabricated line. Wire this to real weigh-ins later.
+  const weights = DEMO_DATA ? WEIGHTS : [];
+  const hasWeight = weights.length > 1;
+  const current = weights[weights.length - 1] ?? 0;
+  const start = weights[0] ?? 0;
   const change = current - start; // negative = loss
-  const kgThisWeek = current - (WEIGHTS[Math.max(0, WEIGHTS.length - 8)] ?? start);
+  const kgThisWeek = current - (weights[Math.max(0, weights.length - 8)] ?? start);
 
   const streak = useMemo(() => computeStreak(events, now), [events, now]);
   const week = useMemo(() => weeklyLogged(events, now), [events, now]);
@@ -104,21 +109,23 @@ export function Progress({
           <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 14 }}>{loggedCount} of 7 days logged — the habit's what counts.</Text>
         </Card>
 
-        {/* Card 2 — weight */}
-        <Card>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Kicker>Weight</Kicker>
-            <View style={{ backgroundColor: c('successFaint'), borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
-              <Text style={[{ color: c('success'), fontSize: 13, fontWeight: '700' }, num]}>{change <= 0 ? '▾' : '▴'} {Math.abs(change).toFixed(1)} kg</Text>
+        {/* Card 2 — weight (shown only when there are real weigh-ins) */}
+        {hasWeight ? (
+          <Card>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Kicker>Weight</Kicker>
+              <View style={{ backgroundColor: c('successFaint'), borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
+                <Text style={[{ color: c('success'), fontSize: 13, fontWeight: '700' }, num]}>{change <= 0 ? '▾' : '▴'} {Math.abs(change).toFixed(1)} kg</Text>
+              </View>
             </View>
-          </View>
-          <Text style={{ marginTop: 8, marginBottom: 6 }}>
-            <Text style={[{ color: c('textPrimary'), fontSize: 30, fontWeight: '800' }, num]}>{current.toFixed(1)}</Text>
-            <Text style={{ color: c('textMuted'), fontSize: 14 }}> kg</Text>
-          </Text>
-          <WeightChart data={WEIGHTS} />
-          <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>7-day trend · daily weigh-ins ghosted</Text>
-        </Card>
+            <Text style={{ marginTop: 8, marginBottom: 6 }}>
+              <Text style={[{ color: c('textPrimary'), fontSize: 30, fontWeight: '800' }, num]}>{current.toFixed(1)}</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 14 }}> kg</Text>
+            </Text>
+            <WeightChart data={weights} />
+            <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>7-day trend · daily weigh-ins ghosted</Text>
+          </Card>
+        ) : null}
 
         {/* Card 3 — weekly recap */}
         <Card>
@@ -127,7 +134,7 @@ export function Progress({
             <View style={{ width: 1, height: 40, backgroundColor: c('divider') }} />
             {cardStat(`${daysOnTarget} of 7`, 'days on target')}
             <View style={{ width: 1, height: 40, backgroundColor: c('divider') }} />
-            {cardStat(`${kgThisWeek <= 0 ? '−' : '+'}${Math.abs(kgThisWeek).toFixed(1)}`, 'kg this week', true)}
+            {cardStat(hasWeight ? `${kgThisWeek <= 0 ? '−' : '+'}${Math.abs(kgThisWeek).toFixed(1)}` : '—', 'kg this week', hasWeight)}
           </View>
         </Card>
 
@@ -145,11 +152,13 @@ export function Progress({
           </Card>
         ) : null}
 
-        <View style={{ paddingHorizontal: 12, marginTop: 8 }}>
-          <Serif italic size={16} color={c('textSecondary')} style={{ textAlign: 'center', lineHeight: 23 }}>
-            Down {Math.abs(change).toFixed(1)} kg over three weeks — steady as you like.
-          </Serif>
-        </View>
+        {hasWeight ? (
+          <View style={{ paddingHorizontal: 12, marginTop: 8 }}>
+            <Serif italic size={16} color={c('textSecondary')} style={{ textAlign: 'center', lineHeight: 23 }}>
+              Down {Math.abs(change).toFixed(1)} kg over three weeks — steady as you like.
+            </Serif>
+          </View>
+        ) : null}
       </ScrollView>
 
       {showSettings ? (

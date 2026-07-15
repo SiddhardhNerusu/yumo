@@ -14,6 +14,7 @@ import {
 } from './kitchen-model';
 import { shelfLifeDays, defaultZone } from './shelf-life';
 import { STARTER_KITCHEN } from './kitchen-seed';
+import { DEMO_DATA } from './demo';
 
 const KEY = 'yumo.kitchen.v1';
 const STATS_KEY = 'yumo.kitchen.stats.v1';
@@ -91,12 +92,14 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
           } catch { /* ignore corrupt */ }
         }
         const now = Date.now();
-        // §4 starter kitchen, then any onboarding-pantry tokens it doesn't already cover.
-        const seeded: KitchenItem[] = STARTER_KITCHEN.map((s) => ({
+        // §4 starter kitchen is DEMO-ONLY (an example fridge for the preview); real
+        // users start from their onboarding-pantry tokens, not someone else's food.
+        const starter = DEMO_DATA ? STARTER_KITCHEN : [];
+        const seeded: KitchenItem[] = starter.map((s) => ({
           id: `k${idc++}`, token: s.token, label: s.label, zone: s.zone, level: s.level,
           addedAt: now, freshUntil: freshUntilSeed(s.token, s.zone, now, s.fresh), ...(s.price != null ? { price: s.price } : {}), source: 'seed' as const,
         }));
-        const covered = new Set(STARTER_KITCHEN.map((s) => s.token));
+        const covered = new Set(starter.map((s) => s.token));
         for (const t of seedTokens) {
           const token = t.toLowerCase();
           if (covered.has(token)) continue;

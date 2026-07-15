@@ -13,6 +13,7 @@ import { haptics } from '../haptics';
 import { inferSlot, type BrainEvent, type EventKind } from '@yumo/brain';
 import type { MealSlot } from '@yumo/shared';
 import { FOODS, buildSeedHistory } from './seed';
+import { DEMO_DATA } from './demo';
 import { api } from '../api/client';
 import { track } from '../analytics';
 
@@ -78,7 +79,9 @@ let idc = 0;
  */
 export function EventStoreProvider({ children }: { children: ReactNode }) {
   const [initNow] = useState(() => Date.now());
-  const seed = useMemo(() => buildSeedHistory(initNow), [initNow]);
+  // Demo history populates the dev preview only — real users start with an empty
+  // log so the ring/streak/Brain reflect their own eating, never a fake persona.
+  const seed = useMemo(() => (DEMO_DATA ? buildSeedHistory(initNow) : []), [initNow]);
   const [userLogs, setUserLogs] = useState<BrainEvent[]>([]);
 
   useEffect(() => {

@@ -5,6 +5,7 @@ import type { UserProfile, MenuRecipe } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
 import { useTheme } from '../theme';
 import { useNow } from '../useNow';
+import { DEMO_DATA } from '../data/demo';
 import { useKitchen } from '../data/kitchenStore';
 import { useEventStore } from '../data/eventStore';
 import { getMenu } from '../data/repo';
@@ -155,10 +156,13 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
               <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>‹ Back to kitchen</Text>
             </Pressable>
           ) : (
-            <Pressable onPress={scanned ? undefined : scan} style={{ marginTop: 16, marginBottom: 18, backgroundColor: c('accentFaint'), borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Pressable onPress={scanned ? undefined : (DEMO_DATA ? scan : () => setAddZone('fridge'))} style={{ marginTop: 16, marginBottom: 18, backgroundColor: c('accentFaint'), borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: c('accentSoft'), fontSize: 15, fontWeight: '700' }}>Scan a receipt</Text>
-                <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 2 }}>{scanned ? 'Scanned — the shopping flew in ✓' : 'Watch the shopping fly into your fridge'}</Text>
+                {/* Real receipt OCR (Kitchen plan Phase C) isn't built yet, so production
+                    opens the real add flow instead of faking a scan. The canned fly-in
+                    stays for the dev showcase only. */}
+                <Text style={{ color: c('accentSoft'), fontSize: 15, fontWeight: '700' }}>{DEMO_DATA ? 'Scan a receipt' : 'Add groceries'}</Text>
+                <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 2 }}>{DEMO_DATA ? (scanned ? 'Scanned — the shopping flew in ✓' : 'Watch the shopping fly into your fridge') : 'Add what you bought to your kitchen'}</Text>
               </View>
               <ReceiptGlyph />
             </Pressable>
