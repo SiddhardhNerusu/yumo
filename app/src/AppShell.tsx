@@ -7,13 +7,13 @@ import { useTheme } from './theme';
 import { HAIRLINE_TOP } from './components/kit';
 import { haptics } from './haptics';
 import { useEntitlement } from './data/entitlement';
-import { Today } from './screens/Today';
-import { Menu } from './screens/Menu';
+import { Day } from './screens/Day';
+import { Kitchen } from './screens/Kitchen';
 import { Progress } from './screens/Progress';
 import { Paywall } from './components/Paywall';
 
-type Tab = 'today' | 'menu' | 'progress';
-const TABS: Tab[] = ['today', 'menu', 'progress'];
+type Tab = 'today' | 'kitchen' | 'progress';
+const TABS: Tab[] = ['today', 'kitchen', 'progress'];
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 
 const PAYWALL_SEEN_KEY = 'usual.paywallSeen.v1';
@@ -27,12 +27,14 @@ function TabIcon({ name, color }: { name: Tab; color: string }) {
       </Svg>
     );
   }
-  if (name === 'menu') {
+  if (name === 'kitchen') {
+    // a little fridge: tall body, split door line, two handles
     return (
       <Svg width={22} height={22} viewBox="0 0 24 24">
-        <Rect x={4} y={7} width={16} height={2.6} rx={1.3} fill={color} />
-        <Rect x={4} y={11.7} width={16} height={2.6} rx={1.3} fill={color} />
-        <Rect x={4} y={16.4} width={10} height={2.6} rx={1.3} fill={color} />
+        <Rect x={6} y={3} width={12} height={18} rx={2.4} stroke={color} strokeWidth={2} fill="none" />
+        <Rect x={6.8} y={10} width={10.4} height={2} fill={color} />
+        <Rect x={8.6} y={5.6} width={1.8} height={3} rx={0.9} fill={color} />
+        <Rect x={8.6} y={13.6} width={1.8} height={4} rx={0.9} fill={color} />
       </Svg>
     );
   }
@@ -82,8 +84,8 @@ export function AppShell({
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
       <Animated.View style={{ flex: 1, opacity: screenOp }}>
-        {tab === 'today' ? <Today profile={profile} /> : null}
-        {tab === 'menu' ? <Menu profile={profile} /> : null}
+        {tab === 'today' ? <Day profile={profile} /> : null}
+        {tab === 'kitchen' ? <Kitchen profile={profile} /> : null}
         {tab === 'progress' ? <Progress profile={profile} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
       </Animated.View>
       <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: HAIRLINE_TOP, backgroundColor: c('surface'), paddingBottom: 26, paddingTop: 8, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: -8 }, elevation: 12 }}>

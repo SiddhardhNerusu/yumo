@@ -58,11 +58,20 @@ const FRESH_COL: Record<Freshness, string> = { fresh: '#5FC48C', soon: '#EDA33B'
 const hashOf = (id: string) => (id.charCodeAt(0) || 0) + (id.charCodeAt(1) || 0);
 
 // ── camera transform for a focus target ───────────────────────────────────────
-// Zoom REMOVED: scaling the SVG scene up (transform: scale) rasterises the layer
-// on iOS → the whole focused view goes blurry. Focus now opens the unit's doors +
-// dims the rest in place at native resolution; the crisp item list carries detail.
-function camFor(_zone: Zone | null): { tx: number; ty: number; s: number } {
-  return { tx: 0, ty: 0, s: 1 };
+// The springy zoom (§3.1). iOS rasterises a transform-scaled layer at its
+// original size, so the zoomed ROOM goes soft mid-flight — that's fine in motion.
+// At rest, a full-resolution FocusedUnit overlay cross-fades in over the unit
+// (see below), so what the user READS is always crisp. Never leave a scaled-up
+// layer as the resting state.
+function camFor(zone: Zone | null): { tx: number; ty: number; s: number } {
+  if (!zone) return { tx: 0, ty: 0, s: 1 };
+  const u = UNITS[zone];
+  const s = Math.min((DW * 0.92) / u.w, (DH * 0.9) / u.h);
+  const ucx = u.x + u.w / 2;
+  const ucy = u.y + u.h / 2;
+  // transform order [translate, scale] with scale about the view centre C:
+  // p → C + s(p−C) + t. Solving unit-centre ↦ C gives t = −s(uc − C).
+  return { tx: -s * (ucx - DW / 2), ty: -s * (ucy - DH / 2), s };
 }
 
 // ── appliance / cabinet faces ─────────────────────────────────────────────────
@@ -320,6 +329,92 @@ function Interior({ zone, items, now, labelV, openV, isOpen, recentlyAdded, toss
   );
 }
 
+/** One tile in the crisp focused layer — full-res GlyphTile + a springy settle. */
+function FocusedTile({ item, now, z, x, shelfY, index, onPress }: {
+  item: KitchenItem; now: number; z: number; x: number; shelfY: number; index: number; onPress: () => void;
+}) {
+  const size = 30 * z;
+  const labelW = 45 * z;
+  const fresh = freshnessOf(item, now);
+  const settle = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(settle, { toValue: 1, duration: 420, delay: index * 45, easing: SPRING, useNativeDriver: true }).start();
+  }, [settle, index]);
+  return (
+    <Animated.View style={{ position: 'absolute', left: x - labelW / 2, top: shelfY - 11 * z - size, width: labelW, alignItems: 'center', opacity: settle, transform: [{ translateY: settle.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }, { scale: settle.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) }] }}>
+      <Pressable onPress={onPress} hitSlop={8} accessibilityRole="button" accessibilityLabel={item.label} style={{ opacity: item.level === 'low' ? 0.6 : 1 }}>
+        <GlyphTile kind={kindOf(item.token)} w={size} h={size} color={tileColor(item.token)} />
+      </Pressable>
+      <View pointerEvents="none" style={{ position: 'absolute', right: labelW / 2 - size / 2 - 5, top: -4, width: 11, height: 11, borderRadius: 6, backgroundColor: FRESH_COL[fresh], shadowColor: '#000', shadowOpacity: 0.55, shadowRadius: 2.5, shadowOffset: { width: 0, height: 1 } }} />
+      <Text numberOfLines={1} style={{ marginTop: 5, width: labelW, textAlign: 'center', color: '#D8CDBB', fontSize: Math.max(11, Math.round(6 * z)), fontWeight: '600' }}>{item.label}</Text>
+    </Animated.View>
+  );
+}
+
+/**
+ * The crisp zoomed unit. The camera zoom transform-scales the room (soft, fine in
+ * motion); this layer re-renders the SAME interior at full native resolution at
+ * the camera's resting size, so the focused fridge is sharp — readable labels,
+ * real tap targets. Cross-faded in by KitchenRoom once the camera lands.
+ */
+function FocusedUnit({ zone, items, now, z, w, h, onItemPress }: {
+  zone: Zone; items: KitchenItem[]; now: number; z: number; w: number; h: number; onItemPress: (i: KitchenItem) => void;
+}) {
+  const frost = zone === 'freezer';
+  const gid = useRef(`fu${gidc++}`).current;
+  const inset = 5 * z;
+  const innerW = w - inset * 2;
+  const innerH = h - inset * 2;
+  const n = items.length;
+  const nRows = Math.max(1, Math.ceil(n / 3));
+  const rowStep = (innerH - 16 * z) / nRows;
+  const bg1 = frost ? '#12161A' : '#100D0A';
+  const bg2 = frost ? '#1A2129' : '#1A130C';
+  const shelfCol = frost ? 'rgba(159,199,224,0.3)' : 'rgba(247,242,234,0.22)';
+  const slotW = 45 * z;
+  const title = zone === 'counter' ? 'On the counter' : frost ? '❄ Freezer' : zone;
+  return (
+    <View style={{ width: w, height: h, borderRadius: 16, backgroundColor: '#0E0B08', borderWidth: 1.5, borderColor: 'rgba(247,242,234,0.14)', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 30, shadowOffset: { width: 0, height: 14 } }}>
+      {/* interior light bloom */}
+      <View pointerEvents="none" style={{ position: 'absolute', left: inset, top: -h * 0.3, width: innerW, height: h * 0.7, borderRadius: w, backgroundColor: frost ? 'rgba(120,180,220,0.12)' : 'rgba(255,106,61,0.13)' }} />
+      <View style={{ position: 'absolute', left: inset, top: inset, width: innerW, height: innerH, borderRadius: 12, overflow: 'hidden' }}>
+        <Svg width={innerW} height={innerH} style={{ position: 'absolute', top: 0, left: 0 }}>
+          <Defs>
+            <LinearGradient id={`${gid}b`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={bg1} /><Stop offset="1" stopColor={bg2} /></LinearGradient>
+            <LinearGradient id={`${gid}t`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#000000" stopOpacity={0.55} /><Stop offset="1" stopColor="#000000" stopOpacity={0} /></LinearGradient>
+          </Defs>
+          <Rect x={0} y={0} width={innerW} height={innerH} fill={`url(#${gid}b)`} />
+          <Rect x={0} y={0} width={innerW} height={18 * z} fill={`url(#${gid}t)`} />
+        </Svg>
+        <Text style={{ position: 'absolute', top: 8, left: 12, color: frost ? '#9FC7E0' : '#9C8F7C', fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', opacity: 0.8 }}>{title}</Text>
+        {Array.from({ length: nRows }).map((_, r) => {
+          const y = 14 * z + (r + 1) * rowStep;
+          return (
+            <View key={r} pointerEvents="none" style={{ position: 'absolute', left: 6 * z, right: 6 * z, top: y }}>
+              <View style={{ height: Math.max(3.5, 3.5 * z), borderRadius: 2, backgroundColor: shelfCol }} />
+              <View style={{ height: 3 * z, backgroundColor: 'rgba(0,0,0,0.28)', opacity: 0.6 }} />
+            </View>
+          );
+        })}
+        {items.map((it, idx) => {
+          const row = Math.floor(idx / 3);
+          const col = idx % 3;
+          const itemsInRow = Math.min(3, n - row * 3);
+          const xStart = (innerW - itemsInRow * slotW) / 2;
+          const x = xStart + col * slotW + slotW / 2;
+          const shelfY = 14 * z + (row + 1) * rowStep;
+          return <FocusedTile key={it.id} item={it} now={now} z={z} x={x} shelfY={shelfY} index={idx} onPress={() => onItemPress(it)} />;
+        })}
+        {n === 0 ? (
+          <View style={{ position: 'absolute', left: 0, right: 0, top: innerH / 2 - 10, alignItems: 'center' }}>
+            <Text style={{ color: '#9C8F7C', fontSize: 13 }}>Nothing in here yet</Text>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZones, onFocus, onItemPress, streak, shoppingCount, onTonight, onShopping }: {
   items: KitchenItem[];
   now: number;
@@ -337,7 +432,9 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
   const { c } = useTheme();
   const { width: winW } = useWindowDimensions();
   const contentW = winW - 40;
-  const sf = contentW / DW;
+  // NEVER upscale via transform: on wide devices (Pro Max) sf > 1 rasterised the
+  // whole room slightly blurry at rest. Cap at 1 and letterbox instead — crisp.
+  const sf = Math.min(1, contentW / DW);
   const boxH = DH * sf;
   const byZone = (z: Zone) => items.filter((it) => it.zone === z && it.level !== 'out');
   const isOpenZone = (z: Zone) => focused === z || openZones.has(z);
@@ -349,6 +446,9 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
   const dimV = useRef<Record<Zone, Animated.Value>>({ cupboard: new Animated.Value(1), fridge: new Animated.Value(1), freezer: new Animated.Value(1), counter: new Animated.Value(1) }).current;
   const pressV = useRef<Record<Zone, Animated.Value>>({ cupboard: new Animated.Value(1), fridge: new Animated.Value(1), freezer: new Animated.Value(1), counter: new Animated.Value(1) }).current;
   const chromeV = useRef(new Animated.Value(1)).current;
+  // crisp focused layer: which zone it shows (held through the fade-out) + its fade.
+  const [crispZone, setCrispZone] = useState<Zone | null>(null);
+  const crispFade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const cam = camFor(focused);
@@ -361,6 +461,16 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
       ...ALL_ZONES.map((z) => Animated.timing(openV[z], { toValue: isOpenZone(z) ? 1 : 0, duration: z === 'counter' ? 500 : 800, easing: Easing.bezier(0.45, 0, 0.2, 1), useNativeDriver: true })),
       ...ALL_ZONES.map((z) => Animated.timing(dimV[z], { toValue: focused && focused !== z ? 0.12 : 1, duration: 600, easing: Easing.out(Easing.cubic), useNativeDriver: true })),
     ]).start();
+    // crisp layer: fade in as the camera lands (blurry only in motion, never at rest);
+    // on unfocus fade out fast, then drop the layer so the room shows through.
+    if (focused) {
+      setCrispZone(focused);
+      Animated.timing(crispFade, { toValue: 1, delay: 520, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    } else {
+      Animated.timing(crispFade, { toValue: 0, duration: 160, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(({ finished }) => {
+        if (finished) setCrispZone(null);
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focused, openZones]);
 
@@ -555,6 +665,23 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
         </Animated.View>
       </View>
 
+      {/* focused mode: tap anywhere outside the crisp unit to zoom back out */}
+      {focused ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Back to the room" onPress={() => onFocus(null)} style={{ position: 'absolute', left: 0, top: 0, width: contentW, height: boxH }} />
+      ) : null}
+
+      {/* the crisp zoomed unit — full-resolution re-render over the camera's resting spot */}
+      {crispZone ? (() => {
+        const u = UNITS[crispZone];
+        const z = sf * camFor(crispZone).s;
+        const w = u.w * z;
+        const h = u.h * z;
+        return (
+          <Animated.View pointerEvents={focused ? 'auto' : 'none'} style={{ position: 'absolute', left: (contentW - w) / 2, top: (boxH - h) / 2, opacity: crispFade }}>
+            <FocusedUnit zone={crispZone} items={byZone(crispZone)} now={now} z={z} w={w} h={h} onItemPress={onItemPress} />
+          </Animated.View>
+        );
+      })() : null}
     </View>
   );
 }

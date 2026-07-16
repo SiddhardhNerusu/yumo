@@ -50,7 +50,8 @@ function ReceiptGlyph() {
   );
 }
 
-export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: () => void }) {
+// As a TAB (no onClose) it renders inline; with onClose it's the legacy slide-up modal.
+export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose?: () => void }) {
   const { c } = useTheme();
   const kitchen = useKitchen();
   const { events, logFood } = useEventStore();
@@ -138,8 +139,7 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
 
   const focusedItems = focused ? kitchen.items.filter((i) => i.zone === focused && i.level !== 'out') : [];
 
-  return (
-    <Modal visible animationType="slide" onRequestClose={onClose}>
+  const body = (
       <View style={{ flex: 1, backgroundColor: c('bg') }}>
         <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -147,7 +147,7 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
               <Kicker>Your kitchen</Kicker>
               <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Kitchen</Serif>
             </View>
-            <Pressable onPress={onClose} hitSlop={8} style={{ marginTop: 8 }}><Text style={{ color: c('textSecondary'), fontSize: 15, fontWeight: '600' }}>Close</Text></Pressable>
+            {onClose ? <Pressable onPress={onClose} hitSlop={8} style={{ marginTop: 8 }}><Text style={{ color: c('textSecondary'), fontSize: 15, fontWeight: '600' }}>Close</Text></Pressable> : null}
           </View>
 
           {/* room-view banner / focused back-chip */}
@@ -252,6 +252,12 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose: (
         <TonightSheet visible={showTonight} items={kitchen.items} remaining={remaining} now={now} onLog={logDinner} onClose={() => setShowTonight(false)} />
         <ShoppingListSheet visible={showShopping} picks={menuPicks} haveTokens={have} paused={kitchen.emptyMode} onClose={() => setShowShopping(false)} onBought={(tokens) => { kitchen.restock(tokens.map((t) => ({ token: t }))); tokens.forEach(() => track('item_added', { source: 'shopping' })); }} />
       </View>
+  );
+
+  if (!onClose) return body; // tab mode: inline, no modal chrome
+  return (
+    <Modal visible animationType="slide" onRequestClose={onClose}>
+      {body}
     </Modal>
   );
 }
