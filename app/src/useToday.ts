@@ -28,6 +28,9 @@ export interface TimelineItem {
   name: string;
   slot: string;
   kcal: number;
+  proteinG: number | null;
+  carbsG: number | null;
+  fatG: number | null;
   portionG: number | null;
   minutesOfDay: number;
 }
@@ -144,6 +147,9 @@ function compute(events: BrainEvent[], now: number, budget: number, tokens: stri
         name: metaName ?? (e.foodId ? foodName(e.foodId) : 'meal'),
         slot: e.slot ?? '',
         kcal: e.kcal ?? 0,
+        proteinG: e.proteinG ?? null,
+        carbsG: e.carbsG ?? null,
+        fatG: e.fatG ?? null,
         portionG: e.portionG ?? null,
         minutesOfDay: localParts(e.ts, 0).minutesOfDay,
       };
