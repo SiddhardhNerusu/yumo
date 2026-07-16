@@ -265,6 +265,20 @@ export function Day({ profile }: { profile: UserProfile }) {
     return getRecipeDetail(cur.recipe, s).then((d) =>
       setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s) }));
   };
+  // Resolve a logged row / quick-log tile back to its recipe so tapping the NAME
+  // opens "how to make it" (id first, then name — search adds have synthetic ids).
+  const recipeFor = (foodId: string | null | undefined, name: string): MenuRecipe | null => {
+    if (foodId) { const byId = POOL.find((r) => r.id === foodId); if (byId) return byId; }
+    const n = name.trim().toLowerCase();
+    return POOL.find((r) => r.name.trim().toLowerCase() === n) ?? null;
+  };
+  const openRecipeByRef = (foodId: string | null | undefined, name: string, kcal: number) => {
+    const r = recipeFor(foodId, name);
+    if (!r) return;
+    const s = r.perServing.kcal > 0 ? Math.max(0.5, Math.round((kcal / r.perServing.kcal) * 2) / 2) : 1;
+    getRecipeDetail(r, s).then((d) =>
+      setSheet({ name: r.name, kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s) }));
+  };
   const addPlanned = (slot: MealSlot): AddItem | null => {
     const p = currentForToday(slot);
     return p ? { id: p.recipe.id, name: p.recipe.name, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, source: 'menu' } : null;
@@ -434,20 +448,28 @@ export function Day({ profile }: { profile: UserProfile }) {
                       <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{s.kcal.toLocaleString()}</Text>
                       <Text style={{ color: c('textMuted'), fontSize: 11 }}> kcal</Text>
                     </Text>
-                  ) : (
+                  ) : showPlanned ? (
+                    // the cuisine·effort meta belongs to the PLANNED meal — only show it
+                    // when the planned block is what's underneath (not over tiles/usual).
                     <Text style={{ color: c('textMuted'), fontSize: 12 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
-                  )}
+                  ) : null}
                 </View>
 
-                {s.items.map((item, i) => (
-                  <SwipeRow key={item.id} onDelete={() => removeLog(item.id)}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), marginTop: i === 0 ? 8 : 0 }}>
-                      <Text style={{ color: c('success'), fontSize: 12, marginRight: 8 }}>✓</Text>
-                      <Text style={{ color: c('textLogged'), fontSize: 15, fontWeight: '500', flex: 1 }} numberOfLines={1}>{item.name}</Text>
-                      <Text style={[{ color: c('textMuted'), fontSize: 13 }, num]}>{item.kcal} kcal</Text>
-                    </View>
-                  </SwipeRow>
-                ))}
+                {s.items.map((item, i) => {
+                  const hasRecipe = recipeFor(item.foodId, item.name) != null;
+                  return (
+                    <SwipeRow key={item.id} onDelete={() => removeLog(item.id)}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), marginTop: i === 0 ? 8 : 0 }}>
+                        <Text style={{ color: c('success'), fontSize: 12, marginRight: 8 }}>✓</Text>
+                        <Pressable disabled={!hasRecipe} onPress={() => openRecipeByRef(item.foodId, item.name, item.kcal)} accessibilityRole={hasRecipe ? 'button' : undefined} accessibilityLabel={hasRecipe ? `${item.name}, view recipe` : undefined} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
+                          <Text style={{ color: c('textLogged'), fontSize: 15, fontWeight: '500', flexShrink: 1 }} numberOfLines={1}>{item.name}</Text>
+                          {hasRecipe ? <Text style={{ color: c('textMuted'), fontSize: 14, marginLeft: 5 }}>›</Text> : null}
+                        </Pressable>
+                        <Text style={[{ color: c('textMuted'), fontSize: 13 }, num]}>{item.kcal} kcal</Text>
+                      </View>
+                    </SwipeRow>
+                  );
+                })}
                 {s.items.length ? (
                   <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <OutlineButton label="＋ Add" onPress={() => setAddSlot(slot)} />
@@ -459,11 +481,15 @@ export function Day({ profile }: { profile: UserProfile }) {
                   const chips = portionChips(usual.portionG);
                   const kAt = (g: number) => (usual.portionG > 0 ? Math.round((usual.kcal * g) / usual.portionG) : usual.kcal);
                   const confident = state.usualFraming === 'confident';
+                  const usualHasRecipe = recipeFor(usual.foodId, usual.name) != null;
                   return (
                     <View style={{ marginTop: 10 }}>
                       <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6 }}>{confident ? 'The usual?' : 'From your menu'}</Text>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flex: 1, lineHeight: 26 }}>{usual.name}</Serif>
+                        <Pressable disabled={!usualHasRecipe} onPress={() => openRecipeByRef(usual.foodId, usual.name, usual.kcal)} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'baseline', opacity: pressed ? 0.6 : 1 })}>
+                          <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flexShrink: 1, lineHeight: 26 }}>{usual.name}</Serif>
+                          {usualHasRecipe ? <Text style={{ color: c('textMuted'), fontSize: 17, marginLeft: 6 }}>›</Text> : null}
+                        </Pressable>
                         <Text style={{ marginLeft: 10 }}>
                           <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{usual.kcal.toLocaleString()}</Text>
                           <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
@@ -486,15 +512,35 @@ export function Day({ profile }: { profile: UserProfile }) {
 
                 {tiles.length ? (
                   <View style={{ marginTop: 10 }}>
-                    <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>Quick log</Text>
-                    {tiles.map((t, i) => (
-                      <Pressable key={t.foodId} onPress={() => logTile(slot, t)} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', paddingVertical: 11, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), opacity: pressed ? 0.6 : 1 })}>
-                        <Text style={{ color: c('textPrimary'), fontSize: 16, flex: 1 }} numberOfLines={1}>{t.name}</Text>
-                        <Text style={[{ color: c('textSecondary'), fontSize: 14, marginRight: 12 }, num]}>{t.kcal} kcal</Text>
-                        <Text style={{ color: c('accentSoft'), fontSize: 20, fontWeight: '600' }}>＋</Text>
+                    {/* quiet kicker — the slot label above is the only accent voice */}
+                    <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>Quick log</Text>
+                    {tiles.map((t, i) => {
+                      const hasRecipe = recipeFor(t.foodId, t.name) != null;
+                      return (
+                        <View key={t.foodId} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 11, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider') }}>
+                          <Pressable disabled={!hasRecipe} onPress={() => openRecipeByRef(t.foodId, t.name, t.kcal)} accessibilityRole={hasRecipe ? 'button' : undefined} accessibilityLabel={hasRecipe ? `${t.name}, view recipe` : undefined} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
+                            <Text style={{ color: c('textPrimary'), fontSize: 16, flexShrink: 1 }} numberOfLines={1}>{t.name}</Text>
+                            {hasRecipe ? <Text style={{ color: c('textMuted'), fontSize: 15, marginLeft: 6 }}>›</Text> : null}
+                          </Pressable>
+                          <Text style={[{ color: c('textSecondary'), fontSize: 14, marginRight: 6 }, num]}>{t.kcal} kcal</Text>
+                          <Pressable onPress={() => logTile(slot, t)} hitSlop={10} accessibilityRole="button" accessibilityLabel={`Log ${t.name}`} style={({ pressed }) => ({ paddingHorizontal: 8, paddingVertical: 4, opacity: pressed ? 0.6 : 1 })}>
+                            <Text style={{ color: c('accentSoft'), fontSize: 20, fontWeight: '600' }}>＋</Text>
+                          </Pressable>
+                        </View>
+                      );
+                    })}
+                    {/* the planned meal stays reachable: see it, read it, mix it */}
+                    <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 6 }} />
+                    <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: 12 }}>On the menu</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 10 }}>
+                      <Pressable onPress={() => openRecipe(cur)} accessibilityRole="button" accessibilityLabel={`${cur.recipe.name}, view recipe`} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
+                        <Serif size={17} color={c('textPrimary')} style={{ flexShrink: 1, lineHeight: 21 }}>{cur.recipe.name}</Serif>
+                        <Text style={{ color: c('textMuted'), fontSize: 15, marginLeft: 6 }}>›</Text>
                       </Pressable>
-                    ))}
-                    <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 10 }} />
+                      <Text style={[{ color: c('textSecondary'), fontSize: 13 }, num]}>{cur.kcal.toLocaleString()} kcal</Text>
+                      <MixButton label="Mix" onPress={() => openMix(`${dayIdx}:${slot}`, cur.recipe, slot)} />
+                    </View>
+                    <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 12 }} />
                     <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
                       <TextLink label="＋ More" onPress={() => setAddSlot(slot)} />
                       <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
