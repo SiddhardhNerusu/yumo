@@ -28,6 +28,20 @@ export function BudgetRing({ eaten, budget }: { eaten: number; budget: number })
   }, [ratio, budget, anim]);
   const offset = anim.interpolate({ inputRange: [0, 1], outputRange: [circ, 0], extrapolateRight: 'clamp' });
 
+  // gentle breathing on the bloom — the arc reads as softly lit, never blinking.
+  // Slow (5.6s round trip) + a narrow opacity band keeps it felt, not watched.
+  const glow = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(Animated.sequence([
+      Animated.timing(glow, { toValue: 1, duration: 2800, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      Animated.timing(glow, { toValue: 0, duration: 2800, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+    ]));
+    loop.start();
+    return () => loop.stop();
+  }, [glow]);
+  const glowInner = glow.interpolate({ inputRange: [0, 1], outputRange: [0.13, 0.24] });
+  const glowOuter = glow.interpolate({ inputRange: [0, 1], outputRange: [0.05, 0.11] });
+
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size}>
@@ -38,8 +52,10 @@ export function BudgetRing({ eaten, budget }: { eaten: number; budget: number })
           </LinearGradient>
         </Defs>
         <Circle cx={size / 2} cy={size / 2} r={r} stroke={c('ringTrack')} strokeWidth={stroke} fill="none" />
-        {/* soft bloom behind the arc — reads as lit, not printed */}
-        <AnimatedCircle cx={size / 2} cy={size / 2} r={r} stroke={c('accent')} strokeOpacity={0.18} strokeWidth={stroke + 10} fill="none" strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+        {/* feathered two-layer bloom behind the arc — reads as lit, not printed;
+            the layers breathe slowly via `glow` for a live, subtle shimmer */}
+        <AnimatedCircle cx={size / 2} cy={size / 2} r={r} stroke={c('accent')} strokeOpacity={glowOuter} strokeWidth={stroke + 22} fill="none" strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+        <AnimatedCircle cx={size / 2} cy={size / 2} r={r} stroke={c('accent')} strokeOpacity={glowInner} strokeWidth={stroke + 10} fill="none" strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
         <AnimatedCircle
           cx={size / 2}
           cy={size / 2}
