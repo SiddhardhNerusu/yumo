@@ -12,9 +12,11 @@ import { useKitchen } from '../data/kitchenStore';
 import { getMenu, getMixup, getRecipeDetail, portionLabel, makePantryFit, type Source, type RecipeIngredientLine } from '../data/repo';
 import { learnedWeights, mixReason } from '../data/menuPrefs';
 import { weekMenuFor } from '../data/menuBridge';
+import { resolveFoodMeta } from '../data/resolveFoodMeta';
 import { cookability, type Cookability } from '../data/cookability';
 import { expiringItems, expiringUsedBy, recipesUsingExpiring } from '../data/expiring';
 import { POOL } from '../data/menu-seed';
+import { SLOT_TIME } from '../data/seed';
 import { BudgetRing } from '../components/BudgetRing';
 import { CoachLine } from '../components/CoachLine';
 import { MacroBar } from '../components/MacroBar';
@@ -91,7 +93,11 @@ export function Day({ profile }: { profile: UserProfile }) {
   const brainMenu = useMemo(() => (plan ? weekMenuFor(plan) : undefined), [plan]);
   const state = useToday(events, now, budget, tokens, brainMenu);
 
-  const todayDow = new Date(now).getDay();
+  // ONE time frame: the app's day is UTC everywhere (tzOffsetMin:0), so derive
+  // today's day-of-week the same way (was device-local getDay(), which drifted
+  // against the UTC epochDay near midnight for non-UTC users). isToday / dayIdx
+  // / the day strip / M2's isPast all key off this.
+  const todayDow = localParts(now, 0).dayOfWeek;
 
   useEffect(() => {
     let alive = true;
@@ -133,7 +139,8 @@ export function Day({ profile }: { profile: UserProfile }) {
 
   // ── sheets ──────────────────────────────────────────────────────────────────
   const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null>(null);
-  const [addSlot, setAddSlot] = useState<MealSlot | null>(null);
+  // carries the day (M2): AddSheet can target today or a past day of this week.
+  const [addSlot, setAddSlot] = useState<{ slot: MealSlot; epochDay: number } | null>(null);
   const [mix, setMix] = useState<{ key: string; slot: MealSlot; recipe: MenuRecipe } | null>(null);
   const [mixOptions, setMixOptions] = useState<MixOption[]>([]);
   const [mixLoading, setMixLoading] = useState(false);
@@ -192,6 +199,36 @@ export function Day({ profile }: { profile: UserProfile }) {
 
   const day = plan.days[dayIdx]!;
   const isToday = day.dayOfWeek === todayDow;
+  const isPast = day.dayOfWeek < todayDow;
+  const isFuture = day.dayOfWeek > todayDow;
+  // plan.days[i].dayOfWeek === i (fixed Sun…Sat week), so the selected day's
+  // epochDay derives in ONE UTC frame — no week-wrap.
+  const epochOf = (i: number) => todayEpoch - todayDow + i;
+  const selectedEpoch = epochOf(dayIdx);
+  // UTC ts pinned to a day's slot hour; round-trips localParts(ts,0).epochDay.
+  const tsFor = (epochDay: number, slot: MealSlot) => epochDay * 86_400_000 + SLOT_TIME[slot] * 3_600_000;
+  const dateLabelFor = (epochDay: number) => {
+    const dt = new Date(epochDay * 86_400_000);
+    return `${DOW[dt.getUTCDay()]} ${dt.getUTCDate()} ${MON[dt.getUTCMonth()]}`;
+  };
+  // logged items for a given epochDay, grouped by slot (state.slots is today-only,
+  // so backfilled past days need their own builder). meta.name is always set by
+  // every log call site, so names resolve without the Brain resolver.
+  const foodMeta = resolveFoodMeta(events);
+  const itemsOn = (epochDay: number) => {
+    const out: Record<MealSlot, Array<{ id: string; name: string; kcal: number; proteinG: number | null; carbsG: number | null; fatG: number | null }>> = { breakfast: [], lunch: [], dinner: [], snack: [] };
+    for (const e of logEvents(events)) {
+      if (localParts(e.ts, 0).epochDay !== epochDay) continue;
+      const sl = (e.slot ?? 'snack') as MealSlot;
+      if (!out[sl]) continue;
+      const metaName = typeof e.meta?.['name'] === 'string' ? (e.meta['name'] as string) : null;
+      const name = metaName ?? (e.foodId ? foodMeta.name(e.foodId) : 'meal');
+      out[sl].push({ id: e.id, name, kcal: e.kcal ?? 0, proteinG: e.proteinG ?? null, carbsG: e.carbsG ?? null, fatG: e.fatG ?? null });
+    }
+    return out;
+  };
+  const pastDayItems = isPast ? itemsOn(selectedEpoch) : null;
+  const pastEaten = pastDayItems ? Object.values(pastDayItems).flat().reduce((s, it) => s + it.kcal, 0) : 0;
 
   const macrosFor = (recipe: MenuRecipe, kcal: number) => {
     const f = recipe.perServing.kcal > 0 ? kcal / recipe.perServing.kcal : 1;
@@ -241,11 +278,27 @@ export function Day({ profile }: { profile: UserProfile }) {
     return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal), portionScale: pick.portionScale };
   }
 
+  // per-day "already logged this (slot, food)?" keyset — generalizes loggedToday
+  // so the double-log guard holds for backfilled days too (M2).
+  const loggedKeysOn = (epochDay: number) => {
+    const set = new Set<string>();
+    for (const e of logEvents(events)) {
+      if (e.foodId && e.slot && localParts(e.ts, 0).epochDay === epochDay) set.add(`${e.slot}:${e.foodId}`);
+    }
+    return set;
+  };
+
   // ── actions ─────────────────────────────────────────────────────────────────
-  const logMeal = (slot: MealSlot, cur: Cur) => {
-    if (isLoggedNow(slot, cur.recipe.id)) return; // guard against double-log
-    const decrementedIds = kitchen.decrementForRecipe(cur.recipe); // §6 pantry draw-down
-    logFood(cur.recipe.id, { slot, kcal: cur.kcal, proteinG: cur.protein, carbsG: cur.carbs, fatG: cur.fat, name: cur.recipe.name, source: 'menu', taps: 1, meta: { decrementedIds } });
+  // `targetEpoch` is the day being logged into. Today → normal (Date.now() ts +
+  // pantry draw-down). A PAST day (M2) → a UTC ts pinned to that day's slot hour
+  // and NO pantry decrement (D6: backfilling Tuesday must not eat today's stock;
+  // meta.decrementedIds stays [] so swipe-delete's reversal is a coherent no-op).
+  const logMeal = (slot: MealSlot, cur: Cur, targetEpoch: number) => {
+    const isPastDay = targetEpoch < todayEpoch;
+    const guard = isPastDay ? loggedKeysOn(targetEpoch) : loggedToday;
+    if (guard.has(`${slot}:${cur.recipe.id}`)) return; // guard against double-log
+    const decrementedIds = isPastDay ? [] : kitchen.decrementForRecipe(cur.recipe); // §6 pantry draw-down (today only)
+    logFood(cur.recipe.id, { slot, kcal: cur.kcal, proteinG: cur.protein, carbsG: cur.carbs, fatG: cur.fat, name: cur.recipe.name, source: 'menu', taps: 1, meta: { decrementedIds }, ...(isPastDay ? { ts: tsFor(targetEpoch, slot) } : {}) });
     track('menu_accepted', { recipeId: cur.recipe.id, slot });
   };
   const removeLog = (eventId: string) => {
@@ -307,7 +360,7 @@ export function Day({ profile }: { profile: UserProfile }) {
 
 
   // ── the planned-meal block (Menu card anatomy) — shared today/other-days ────
-  const plannedBlock = (slot: MealSlot, cur: Cur, opts: { loggable: boolean; addLinks: boolean }) => {
+  const plannedBlock = (slot: MealSlot, cur: Cur, opts: { loggable: boolean; addLink: boolean; skipLink: boolean }) => {
     const key = `${dayIdx}:${slot}`;
     const cook = have.size ? cookability(cur.recipe, have) : null;
     const macros: Array<[string, number]> = [['protein', cur.protein], ['carbs', cur.carbs], ['fat', cur.fat]];
@@ -330,17 +383,17 @@ export function Day({ profile }: { profile: UserProfile }) {
         </View>
         <PantryLine cook={cook} showReady={fromKitchen} />
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, alignItems: 'center' }}>
-          {opts.loggable ? <PrimaryButton label="Log it" flex onPress={() => logMeal(slot, cur)} /> : null}
+          {opts.loggable ? <PrimaryButton label="Log it" flex onPress={() => logMeal(slot, cur, epochOf(dayIdx))} /> : null}
           <MixButton onPress={() => openMix(key, cur.recipe, slot)} />
           <OutlineButton label="Recipe" onPress={() => openRecipe(cur)} />
           {!opts.loggable ? <View style={{ flex: 1 }} /> : null}
         </View>
-        {opts.addLinks ? (
+        {opts.addLink || opts.skipLink ? (
           <>
             <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 16 }} />
             <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
-              <TextLink label="＋ Add more" onPress={() => setAddSlot(slot)} />
-              <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
+              {opts.addLink ? <TextLink label="＋ Add more" onPress={() => setAddSlot({ slot, epochDay: epochOf(dayIdx) })} /> : null}
+              {opts.skipLink ? <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" /> : null}
             </View>
           </>
         ) : null}
@@ -414,18 +467,34 @@ export function Day({ profile }: { profile: UserProfile }) {
             return (
               <Pressable key={i} onPress={() => { setDayIdx(i); setMix(null); }} accessibilityRole="button" accessibilityLabel={`${DOW[dd.dayOfWeek]}${isTd ? ', today' : ''}`} accessibilityState={{ selected: on }} style={{ flex: 1, borderRadius: 14, paddingVertical: 8, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
                 <Text style={{ color: on ? c('accentText') : isTd ? c('accentSoft') : c('textMuted'), fontSize: 11, fontWeight: '600', opacity: on ? 0.7 : 1 }}>{DOW[dd.dayOfWeek]}</Text>
-                <Text style={[{ color: on ? c('accentText') : c('textPrimary'), fontSize: 16, fontWeight: '700', marginTop: 2 }, num]}>{i + 1}</Text>
+                <Text style={[{ color: on ? c('accentText') : c('textPrimary'), fontSize: 16, fontWeight: '700', marginTop: 2 }, num]}>{new Date(epochOf(i) * 86_400_000).getUTCDate()}</Text>
               </Pressable>
             );
           })}
         </View>
 
+        {/* M2: logging-onto-a-past-day notice */}
+        {isPast ? (
+          <View style={{ marginTop: 10, backgroundColor: c('accentFaint'), borderRadius: 12, paddingVertical: 8, paddingHorizontal: 12 }}>
+            <Text style={{ color: c('accentSoft'), fontSize: 12.5, fontWeight: '600' }}>Logging for {dateLabelFor(selectedEpoch)} — counts toward that day.</Text>
+          </View>
+        ) : null}
+
         {/* summary */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 16, marginBottom: 12 }}>
-          <Text>
-            <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{dayTotal.toLocaleString()}</Text>
-            <Text style={{ color: c('textMuted'), fontSize: 13 }}> kcal planned</Text>
-          </Text>
+          {isPast ? (
+            <Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{pastEaten.toLocaleString()}</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 13 }}> eaten · </Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{dayTotal.toLocaleString()}</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 13 }}> planned</Text>
+            </Text>
+          ) : (
+            <Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{dayTotal.toLocaleString()}</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 13 }}> kcal planned</Text>
+            </Text>
+          )}
           {isToday && loggedCount > 0 ? <Text style={{ color: c('success'), fontSize: 13, fontWeight: '600' }}>{loggedCount} logged ✓</Text> : null}
         </View>
 
@@ -443,15 +512,73 @@ export function Day({ profile }: { profile: UserProfile }) {
             const cur = currentFor(slot);
             if (!cur) return null;
 
-            // ── planning view for any other day: no logging, no ladder ─────────
-            if (!isToday) {
+            // ── future day: planning only, no logging (you can't eat it yet) ──
+            if (isFuture) {
               return (
                 <Card key={slot}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>{cap(slot)}</Text>
                     <Text style={{ color: c('textMuted'), fontSize: 12 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
                   </View>
-                  {plannedBlock(slot, cur, { loggable: false, addLinks: false })}
+                  {plannedBlock(slot, cur, { loggable: false, addLink: false, skipLink: false })}
+                </Card>
+              );
+            }
+
+            // ── past day (M2): log a forgotten meal onto it — Log it + Add, but
+            //    NO ladder and NO skip. Already-logged items show with swipe-
+            //    delete (pantry reversal is a no-op since backfill never drew it).
+            if (isPast) {
+              const pastItems = pastDayItems![slot];
+              return (
+                <Card key={slot} logged={pastItems.length > 0}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>{cap(slot)}</Text>
+                    {pastItems.length ? (
+                      <Text>
+                        <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{pastItems.reduce((s, it) => s + it.kcal, 0).toLocaleString()}</Text>
+                        <Text style={{ color: c('textMuted'), fontSize: 11 }}> kcal</Text>
+                      </Text>
+                    ) : (
+                      <Text style={{ color: c('textMuted'), fontSize: 12 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
+                    )}
+                  </View>
+                  {pastItems.length ? (
+                    <>
+                      {pastItems.map((item, i) => (
+                        <SwipeRow key={item.id} onDelete={() => removeLog(item.id)}>
+                          <View style={{ paddingTop: 6, paddingBottom: 4, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), marginTop: i === 0 ? 0 : 8 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                              <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flexShrink: 1, lineHeight: 26 }}>{item.name}</Serif>
+                              <Text style={{ marginLeft: 10 }}>
+                                <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{item.kcal.toLocaleString()}</Text>
+                                <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
+                              </Text>
+                            </View>
+                            {item.proteinG != null ? (
+                              <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
+                                {([['protein', Math.round(item.proteinG)], ['carbs', Math.round(item.carbsG ?? 0)], ['fat', Math.round(item.fatG ?? 0)]] as Array<[string, number]>).map(([label, v]) => (
+                                  <Text key={label}>
+                                    <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{v}g</Text>
+                                    <Text style={{ color: c('textMuted'), fontSize: 13 }}> {label}</Text>
+                                  </Text>
+                                ))}
+                              </View>
+                            ) : null}
+                          </View>
+                        </SwipeRow>
+                      ))}
+                      <View style={{ backgroundColor: c('successFaint'), borderRadius: 999, paddingVertical: 11, alignItems: 'center', marginTop: 16 }}>
+                        <Text style={{ color: c('success'), fontWeight: '700', fontSize: 14 }}>✓ Logged</Text>
+                      </View>
+                      <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 14 }} />
+                      <View style={{ marginTop: 12 }}>
+                        <TextLink label="＋ Add more" onPress={() => setAddSlot({ slot, epochDay: selectedEpoch })} />
+                      </View>
+                    </>
+                  ) : (
+                    plannedBlock(slot, cur, { loggable: true, addLink: true, skipLink: false })
+                  )}
                 </Card>
               );
             }
@@ -524,7 +651,7 @@ export function Day({ profile }: { profile: UserProfile }) {
                       </View>
                       <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 14 }} />
                       <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <TextLink label="＋ Add more" onPress={() => setAddSlot(slot)} />
+                        <TextLink label="＋ Add more" onPress={() => setAddSlot({ slot, epochDay: todayEpoch })} />
                         {rateable ? <ThumbsRow thumb={thumbs.get(rateable.id)} onThumb={(dir) => thumbRecipe(rateable.id, dir)} /> : null}
                       </View>
                     </>
@@ -557,7 +684,7 @@ export function Day({ profile }: { profile: UserProfile }) {
                       </View>
                       <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 16 }} />
                       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
-                        <TextLink label="Something else →" onPress={() => setAddSlot(slot)} />
+                        <TextLink label="Something else →" onPress={() => setAddSlot({ slot, epochDay: todayEpoch })} />
                         <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
                       </View>
                     </View>
@@ -596,13 +723,13 @@ export function Day({ profile }: { profile: UserProfile }) {
                     </View>
                     <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 12 }} />
                     <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
-                      <TextLink label="＋ More" onPress={() => setAddSlot(slot)} />
+                      <TextLink label="＋ More" onPress={() => setAddSlot({ slot, epochDay: todayEpoch })} />
                       <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
                     </View>
                   </View>
                 ) : null}
 
-                {showPlanned ? plannedBlock(slot, cur, { loggable: true, addLinks: true }) : null}
+                {showPlanned ? plannedBlock(slot, cur, { loggable: true, addLink: true, skipLink: true }) : null}
 
                 {s.skipped ? (
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
@@ -621,10 +748,13 @@ export function Day({ profile }: { profile: UserProfile }) {
       <Overview visible={showOverview} onClose={() => setShowOverview(false)} profile={profile} />
       <AddSheet
         visible={addSlot !== null}
-        slotLabel={addSlot ? cap(addSlot) : ''}
-        planned={addSlot ? addPlanned(addSlot) : null}
+        slotLabel={addSlot ? cap(addSlot.slot) : ''}
+        planned={addSlot ? addPlanned(addSlot.slot) : null}
         onLog={(it) => {
-          if (addSlot) logFood(it.id, { slot: addSlot, kcal: it.kcal, proteinG: it.proteinG, carbsG: it.carbsG, fatG: it.fatG, name: it.name, source: it.source, taps: 2 });
+          if (addSlot) {
+            const past = addSlot.epochDay < todayEpoch;
+            logFood(it.id, { slot: addSlot.slot, kcal: it.kcal, proteinG: it.proteinG, carbsG: it.carbsG, fatG: it.fatG, name: it.name, source: it.source, taps: 2, ...(past ? { ts: tsFor(addSlot.epochDay, addSlot.slot) } : {}) });
+          }
           setAddSlot(null);
         }}
         onClose={() => setAddSlot(null)}

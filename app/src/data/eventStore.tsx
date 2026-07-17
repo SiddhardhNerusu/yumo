@@ -44,6 +44,9 @@ interface LogOpts {
   name?: string;
   source?: string;
   taps?: number;
+  /** M2 backfill: pin the event's `ts` to a past day (id uniqueness stays on the
+   * real Date.now(), so re-logging the same past (day,slot) never collides). */
+  ts?: number;
   /** ms from surface-open to log, for §10 log_completed{ms}. */
   tookMs?: number;
   /** extra event meta (e.g. cuisine, swapFrom) merged into the event. */
@@ -106,18 +109,24 @@ export function EventStoreProvider({ children }: { children: ReactNode }) {
 
   const logFood = useCallback(
     (foodId: string, opts: LogOpts = {}) => {
-      const now = Date.now();
+      // nowReal drives id uniqueness (and resets to 0 with idc on reload, so the
+      // real clock is what keeps ids distinct); ts is what the event is dated to,
+      // which M2 backfill can pin to a past day. They MUST stay separate — a single
+      // `now = opts.ts ?? Date.now()` would make backfilled ids deterministic and
+      // collide across reloads (one deleteLog would soft-delete both rows).
+      const nowReal = Date.now();
+      const ts = opts.ts ?? nowReal;
       const meta = FOODS[foodId];
       const name = opts.name ?? meta?.name;
       const source = opts.source ?? 'unknown';
       const evMeta = { ...(name ? { name } : {}), ...(opts.meta ?? {}) };
       const ev: BrainEvent = {
-        id: `log-${idc++}-${now}`,
-        ts: now,
+        id: `log-${idc++}-${nowReal}`,
+        ts,
         tzOffsetMin: 0,
         kind: SOURCE_KIND[source] ?? 'log',
         foodId,
-        slot: opts.slot ?? inferSlot(now, 0),
+        slot: opts.slot ?? inferSlot(nowReal, 0),
         portionG: opts.portionG ?? meta?.portionG,
         kcal: opts.kcal ?? meta?.kcal,
         ...(opts.proteinG != null ? { proteinG: opts.proteinG } : {}),

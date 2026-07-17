@@ -24,7 +24,9 @@ export const FOODS: Record<string, FoodMeta> = {
 
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
-const SLOT_TIME: Record<MealSlot, number> = { breakfast: 8, lunch: 12, dinner: 19, snack: 16 };
+/** Canonical per-slot hour (UTC frame, matching the app's tzOffsetMin:0). The
+ * ONE slot-hour table — used by the demo seed AND M2's backfill `tsFor`. */
+export const SLOT_TIME: Record<MealSlot, number> = { breakfast: 8, lunch: 12, dinner: 19, snack: 16 };
 const HABIT: Record<MealSlot, string> = {
   breakfast: 'greek_yogurt',
   lunch: 'chicken_rice',
