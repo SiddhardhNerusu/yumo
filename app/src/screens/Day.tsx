@@ -11,6 +11,7 @@ import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
 import { getMenu, getMixup, getRecipeDetail, portionLabel, makePantryFit, type Source, type RecipeIngredientLine } from '../data/repo';
 import { learnedWeights, mixReason } from '../data/menuPrefs';
+import { weekMenuFor } from '../data/menuBridge';
 import { cookability, type Cookability } from '../data/cookability';
 import { expiringItems, expiringUsedBy, recipesUsingExpiring } from '../data/expiring';
 import { POOL } from '../data/menu-seed';
@@ -60,7 +61,6 @@ export function Day({ profile }: { profile: UserProfile }) {
   const now = useNow();
   const budget = profile.budgetKcal;
   const tokens = useMemo(() => [...profile.needs, ...profile.likes], [profile.needs, profile.likes]);
-  const state = useToday(events, now, budget, tokens);
 
   // ── week plan (Menu's engine wiring, kitchen boosts included) ───────────────
   const have = useMemo(() => kitchen.availableTokens(), [kitchen.items]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -84,6 +84,12 @@ export function Day({ profile }: { profile: UserProfile }) {
   const [regenerating, setRegenerating] = useState(false);
   const [fromKitchen, setFromKitchen] = useState(false);
   const userWeights = useMemo(() => learnedWeights(events, now), [events, now]);
+
+  // Feed the REAL generated menu into the Brain so a real user's own foods can
+  // earn menuPrior (§3.3) — replaces the demo-only SEED_MENU. null until the
+  // async plan resolves, which is the correct "no menu yet" state for the Brain.
+  const brainMenu = useMemo(() => (plan ? weekMenuFor(plan) : undefined), [plan]);
+  const state = useToday(events, now, budget, tokens, brainMenu);
 
   const todayDow = new Date(now).getDay();
 

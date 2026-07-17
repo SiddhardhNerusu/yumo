@@ -80,7 +80,9 @@ export function buildSeedHistory(now: number): BrainEvent[] {
   return events;
 }
 
-/** Menu covers every day so menuPrior fires whatever today is (static). */
+/** DEMO-ONLY menu: covers every day so menuPrior fires whatever today is
+ * (static). Real users get the actual generated menu via `weekMenuFor`; this is
+ * only ever used behind the DEMO_DATA flag (useToday / widgetPayload). */
 export const SEED_MENU: WeekMenu = (() => {
   const menu: WeekMenu = [];
   for (let dow = 0; dow < 7; dow++) {

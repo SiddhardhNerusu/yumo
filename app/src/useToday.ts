@@ -9,11 +9,14 @@ import {
   firstEventTs,
   type PredictInput,
   type BrainEvent,
+  type WeekMenu,
 } from '@yumo/brain';
 import type { MealSlot } from '@yumo/shared';
 import { FOODS, SEED_MENU, PORTION_FALLBACK } from './data/seed';
 import { buildCandidates } from './data/candidates';
 import { getBrainConfig } from './data/brainConfig';
+import { resolveFoodMeta } from './data/resolveFoodMeta';
+import { DEMO_DATA } from './data/demo';
 import { coach } from './coach/pack';
 
 export interface Tile {
@@ -83,43 +86,32 @@ const WEEKDAY = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday
  * genuinely very-low intake and never false-alarms a normal cut. */
 const SIGNPOST_FLOOR_KCAL = 1200;
 
-/** Resolve a food's display name/kcal: seed FOODS first, then the event log's
- * own meta (so menu-accepted recipes / search hits — whose ids aren't in FOODS —
- * still show their real name + kcal instead of a raw id at 0 kcal). */
-function resolver(events: BrainEvent[]): { name: (id: string) => string; kcal: (id: string) => number } {
-  const fromLog = new Map<string, { name?: string; kcal?: number }>();
-  for (const e of logEvents(events)) {
-    if (!e.foodId) continue;
-    const nm = typeof e.meta?.['name'] === 'string' ? (e.meta['name'] as string) : undefined;
-    fromLog.set(e.foodId, { name: nm, kcal: e.kcal }); // last write wins = most recent
-  }
-  return {
-    name: (id) => FOODS[id]?.name ?? fromLog.get(id)?.name ?? id,
-    kcal: (id) => FOODS[id]?.kcal ?? fromLog.get(id)?.kcal ?? 0,
-  };
-}
-
-export function useToday(events: BrainEvent[], nowMs: number, budget = 2200, tokens: string[] = []): TodayState {
+export function useToday(events: BrainEvent[], nowMs: number, budget = 2200, tokens: string[] = [], menu?: WeekMenu): TodayState {
   const tokenKey = tokens.join('|');
+  const menuKey = menu ? menu.map((m) => `${m.dayOfWeek}:${m.slot}:${m.foodId}`).join('|') : '';
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => compute(events, nowMs, budget, tokens), [events, nowMs, budget, tokenKey]);
+  return useMemo(() => compute(events, nowMs, budget, tokens, menu), [events, nowMs, budget, tokenKey, menuKey]);
 }
 
-function compute(events: BrainEvent[], now: number, budget: number, tokens: string[]): TodayState {
+function compute(events: BrainEvent[], now: number, budget: number, tokens: string[], menu?: WeekMenu): TodayState {
   const slot = inferSlot(now, 0);
+  // The REAL generated menu (via weekMenuFor) feeds menuPrior for a real user's
+  // own foods. SEED_MENU is a DEMO-only fallback — for a production user with no
+  // menu yet the Brain simply has no menu (menuPrior 0), never the demo foods.
+  const effectiveMenu = menu ?? (DEMO_DATA ? SEED_MENU : undefined);
   const input: PredictInput = {
     events,
-    candidates: buildCandidates(events, SEED_MENU, tokens),
+    candidates: buildCandidates(events, effectiveMenu ?? [], tokens),
     slot,
     now,
     tzOffsetMin: 0,
-    menu: SEED_MENU,
+    menu: effectiveMenu,
     config: getBrainConfig(),
     portionFallback: PORTION_FALLBACK,
   };
 
   const nudge = nextNudge(input);
-  const { name: foodName, kcal: foodKcal } = resolver(events);
+  const { name: foodName, kcal: foodKcal } = resolveFoodMeta(events);
   // Only surface tiles we can actually render (known name + kcal) — never a raw id.
   const ranked = rankSlot(input)
     .filter((p) => FOODS[p.foodId] != null || foodKcal(p.foodId) > 0)
