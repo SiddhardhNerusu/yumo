@@ -102,7 +102,10 @@ export function useWeights(nowMs: number) {
   }, []);
 
   /** §M7: merge Apple Health bodyMass samples in (D15 rules via mergeHealthEntries).
-   * The pure merge is photo-agnostic, so re-attach progress photos by day here. */
+   * The pure merge is photo-agnostic, so re-attach progress photos by day here.
+   * ⚠️ No caller yet — this store seam intentionally precedes the deferred M7
+   * device UI (the Settings "Apple Health" toggle + health.ts wrapper), which is
+   * a native/EAS-build task. Not dead code; the consumer lands with that build. */
   const importEntries = useCallback((samples: { kg: number; ts: number }[]) => {
     if (!samples.length) return;
     setEntries((prev) => {

@@ -1,5 +1,5 @@
 {
-  "$description": "Food vocabulary for recipe scaling (§5.4) — versioned DATA, not code, per the no-hardcoded-food-lists rule. fixedWhenScaled = seasonings/aromatics that do NOT scale with a portion (you don't double the salt). liquid/spoonable = unit-choice hints (ml vs g vs tsp/tbsp). A {word, notFollowedBy} entry encodes a negative lookahead — 'cream' but not 'cream cheese'. Each list builds ONE case-insensitive word-boundary regex at module load; transcribed verbatim from repo.ts's former inline regexes (order preserved). NOTE: shopping.ts keeps its own DIVERGENT liquid list (has wine/kefir, lacks water) — do not merge, it changes shopping-list units.",
+  "$description": "Food vocabulary for recipe scaling (§5.4) — versioned DATA, not code, per the no-hardcoded-food-lists rule. fixedWhenScaled = seasonings/aromatics that do NOT scale with a portion (you don't double the salt). liquid/spoonable = unit-choice hints (ml vs g vs tsp/tbsp). countable = whole-unit foods that DO scale in step prose ('2 eggs' -> '3'); built as (?:egg|tortilla|slice)s? to reproduce the former inline regex. A {word, notFollowedBy} entry encodes a negative lookahead — 'cream' but not 'cream cheese'. Each list builds ONE case-insensitive regex at module load; transcribed verbatim from repo.ts's former inline regexes (order preserved). NOTE: shopping.ts keeps its own DIVERGENT liquid list (has wine/kefir, lacks water) — do not merge, it changes shopping-list units.",
   "fixedWhenScaled": [
     "salt", "pepper", "oil", "butter", "ghee", "margarine", "spice", "spices",
     "turmeric", "cumin", "paprika", "masala", "chilli powder", "chili powder",
@@ -15,5 +15,6 @@
   "spoonable": [
     "oil", "butter", "honey", "syrup", "sauce", "vinegar", "mayonnaise",
     "ketchup", "mustard", "paste", "tahini"
-  ]
+  ],
+  "countable": ["egg", "tortilla", "slice"]
 }

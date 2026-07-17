@@ -138,7 +138,6 @@ export function Day({ profile }: { profile: UserProfile }) {
     }
     return set;
   }, [events, now]);
-  const isLoggedNow = (slot: MealSlot, recipeId: string) => loggedToday.has(`${slot}:${recipeId}`);
 
   // ── sheets ──────────────────────────────────────────────────────────────────
   const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null>(null);
@@ -353,13 +352,17 @@ export function Day({ profile }: { profile: UserProfile }) {
     getRecipeDetail(r, s).then((d) =>
       setSheet({ name: r.name, kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s) }));
   };
-  const addPlanned = (slot: MealSlot): AddItem | null => {
-    const p = currentForToday(slot);
+  // The AddSheet's "from your menu" suggestion for the day being added to — the
+  // SELECTED day's pick on a past day, today's otherwise (so the chip matches
+  // that card's own "Log it" instead of suggesting today's meal onto a past day).
+  const addPlanned = (slot: MealSlot, forEpoch: number): AddItem | null => {
+    const p = forEpoch < todayEpoch ? currentFor(slot) : currentForToday(slot);
     return p ? { id: p.recipe.id, name: p.recipe.name, kcal: p.kcal, proteinG: p.protein, carbsG: p.carbs, fatG: p.fat, source: 'menu' } : null;
   };
 
-  const d = new Date(now);
-  const dateStr = `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
+  // header date — same UTC frame as the day strip (was device-local getDay(),
+  // which disagreed with the strip near midnight for non-UTC users).
+  const dateStr = dateLabelFor(todayEpoch);
 
 
   // ── the planned-meal block (Menu card anatomy) — shared today/other-days ────
@@ -652,7 +655,7 @@ export function Day({ profile }: { profile: UserProfile }) {
                                   <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 8 }}>Saved ✓</Text>
                                 ) : (
                                   <View style={{ marginTop: 8, alignSelf: 'flex-start' }}>
-                                    <TextLink label="Save to my meals" size={13} onPress={() => { saveMeal({ name: item.name, kcal: item.kcal, proteinG: item.proteinG ?? undefined, carbsG: item.carbsG ?? undefined, fatG: item.fatG ?? undefined, portion: item.portionG != null ? `${item.portionG} g` : undefined }); haptics.success(); }} />
+                                    <TextLink label="Save to my meals" size={13} onPress={() => { saveMeal({ name: item.name, kcal: item.kcal, proteinG: item.proteinG ?? undefined, carbsG: item.carbsG ?? undefined, fatG: item.fatG ?? undefined, portionG: item.portionG ?? undefined, portion: item.portionG != null ? `${item.portionG} g` : undefined }); haptics.success(); }} />
                                   </View>
                                 )
                               ) : null}
@@ -763,7 +766,7 @@ export function Day({ profile }: { profile: UserProfile }) {
       <AddSheet
         visible={addSlot !== null}
         slotLabel={addSlot ? cap(addSlot.slot) : ''}
-        planned={addSlot ? addPlanned(addSlot.slot) : null}
+        planned={addSlot ? addPlanned(addSlot.slot, addSlot.epochDay) : null}
         onLog={(it) => {
           if (addSlot) {
             const past = addSlot.epochDay < todayEpoch;

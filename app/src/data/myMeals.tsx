@@ -18,6 +18,8 @@ export interface SavedMeal {
   proteinG?: number;
   carbsG?: number;
   fatG?: number;
+  /** numeric grams (drives portion learning on re-log); `portion` is its display form. */
+  portionG?: number;
   portion?: string;
   createdAt: number;
 }

@@ -49,12 +49,18 @@ export function Settings({
   // stepper shows the real default. `*Touched` gates the write (D4): we only
   // pin a field when the user actually moves it — leaving it undefined keeps it
   // tracking the derived default instead of freezing it on the first Save.
+  const clampProtein = (v: number) => Math.max(40, Math.min(300, v));
+  const clampCarbs = (v: number) => Math.max(50, Math.min(600, v));
+  const clampFat = (v: number) => Math.max(20, Math.min(200, v));
   const derivedProtein = Math.round(PROTEIN_FLOOR_PER_KG * profile.targetWeightKg);
   const derivedFat = Math.round((profile.budgetKcal * 0.3) / 9);
   const derivedCarbs = Math.max(1, Math.round((profile.budgetKcal - (profile.proteinTargetG ?? derivedProtein) * 4 - (profile.fatTargetG ?? derivedFat) * 9) / 4));
-  const [proteinTarget, setProteinTarget] = useState<number>(profile.proteinTargetG ?? derivedProtein);
-  const [carbTarget, setCarbTarget] = useState<number>(profile.carbTargetG ?? derivedCarbs);
-  const [fatTarget, setFatTarget] = useState<number>(profile.fatTargetG ?? derivedFat);
+  // Seed each stepper IN RANGE so the displayed value matches what a ± press or
+  // Save will actually produce (an unclamped derived value could sit above the
+  // ceiling and DROP on an increase press).
+  const [proteinTarget, setProteinTarget] = useState<number>(clampProtein(profile.proteinTargetG ?? derivedProtein));
+  const [carbTarget, setCarbTarget] = useState<number>(clampCarbs(profile.carbTargetG ?? derivedCarbs));
+  const [fatTarget, setFatTarget] = useState<number>(clampFat(profile.fatTargetG ?? derivedFat));
   const [proteinTouched, setProteinTouched] = useState(false);
   const [carbsTouched, setCarbsTouched] = useState(false);
   const [fatTouched, setFatTouched] = useState(false);
@@ -62,13 +68,10 @@ export function Settings({
   const [variation, setVariation] = useState<VariationDial>(profile.variation);
   const [allergies, setAllergies] = useState<Allergen[]>(profile.allergies);
   const [pantry, setPantry] = useState<string[]>(profile.pantry);
-  const clampProtein = (v: number) => Math.max(40, Math.min(300, v));
-  const clampCarbs = (v: number) => Math.max(50, Math.min(600, v));
-  const clampFat = (v: number) => Math.max(20, Math.min(200, v));
-  // Non-punitive guard for the carbs collapse: when protein + fat alone already
-  // reach the budget, macroTargets() floors carbs at 1 (bar reads "/1g"). Just
-  // tell the user calmly — never block, never a red state.
-  const targetsOverBudget = proteinTarget * 4 + fatTarget * 9 >= budget;
+  // Non-punitive note for the carbs collapse: macroTargets() floors carbs at 1
+  // ONLY on the DERIVED path (carbTargetG unset), so only warn then — an explicit
+  // carb target never collapses. Calm copy, never a red state.
+  const targetsOverBudget = !carbsTouched && profile.carbTargetG === undefined && proteinTarget * 4 + fatTarget * 9 >= budget;
 
   const clampBudget = (v: number) => Math.max(1400, Math.min(4000, v)); // ED floor guardrail
   const toggleAllergen = (a: Allergen) => setAllergies((xs) => (xs.includes(a) ? xs.filter((x) => x !== a) : [...xs, a]));

@@ -125,7 +125,7 @@ export function AddSheet({
 
   const { meals: savedMeals, remove: removeMeal } = useMyMeals();
   const myMealItems = useMemo<AddItem[]>(
-    () => savedMeals.map((m) => ({ id: m.id, name: m.name, kcal: m.kcal, proteinG: m.proteinG, carbsG: m.carbsG, fatG: m.fatG, portion: m.portion, source: 'mymeal' })),
+    () => savedMeals.map((m) => ({ id: m.id, name: m.name, kcal: m.kcal, proteinG: m.proteinG, carbsG: m.carbsG, fatG: m.fatG, portionG: m.portionG, portion: m.portion, source: 'mymeal' })),
     [savedMeals],
   );
 

@@ -41,6 +41,38 @@ describe('scaling: FIXED_WHEN_SCALED data == original regex', () => {
   });
 });
 
+describe('scaling: LIQUID / SPOONABLE / countable data == original regexes', () => {
+  // verbatim originals from repo.ts @ 4a29136 (before M8 moved them to data)
+  const ORIGINAL_LIQUID = /\b(milk|stock|broth|water|juice|cream(?!\s+cheese)|passata)\b/i;
+  const ORIGINAL_SPOONABLE = /\b(oil|butter|honey|syrup|sauce|vinegar|mayonnaise|ketchup|mustard|paste|tahini)\b/i;
+  // probes that isolate each data-built regex through formatQty's observable behaviour:
+  // at 100g the spoonable branch (g<=45) is skipped, so only LIQUID decides ml-vs-g.
+  const dataLiquid = (name: string) => formatQty(name, 100) === '100ml';
+  const dataSpoonable = (name: string) => formatQty(name, 5) === '1 tsp';
+
+  const liquidMembers = ['milk', 'stock', 'broth', 'water', 'juice', 'cream', 'passata', 'double cream'];
+  const spoonableMembers = ['oil', 'butter', 'honey', 'syrup', 'sauce', 'vinegar', 'mayonnaise', 'ketchup', 'mustard', 'paste', 'tahini', 'olive oil'];
+  const nonMembers = ['chicken', 'rice', 'tomato', 'cream cheese', 'flour', 'sugar', 'creamer'];
+
+  for (const t of [...liquidMembers, ...spoonableMembers, ...nonMembers]) {
+    it(`LIQUID "${t}": data == original`, () => expect(dataLiquid(t)).toBe(ORIGINAL_LIQUID.test(t)));
+  }
+  for (const t of [...spoonableMembers, ...liquidMembers, ...nonMembers]) {
+    it(`SPOONABLE "${t}": data == original`, () => expect(dataSpoonable(t)).toBe(ORIGINAL_SPOONABLE.test(t)));
+  }
+
+  it('countable list scales whole-unit counts (and only those)', () => {
+    // former inline (eggs?|tortillas?|slices?), now built from vocab.countable
+    expect(scaleStepText('add 2 eggs and 3 bananas', 2)).toBe('add 4 eggs and 3 bananas'); // bananas NOT countable
+    expect(scaleStepText('use 1 tortilla', 3)).toBe('use 3 tortillas');
+    expect(scaleStepText('cut 2 slices', 0.5)).toBe('cut 1 slice');
+    // range branch fires (1-2 → 2-4), then the single-count pass re-catches the
+    // trailing "4 slices" and scales it again → "2-8". A pre-existing quirk of
+    // repo.ts's two-pass replace, preserved verbatim (byte-identity, not "fixed").
+    expect(scaleStepText('serve 1-2 slices', 2)).toBe('serve 2-8 slices');
+  });
+});
+
 describe('scaling: byte-identity behaviours', () => {
   it('returns the SAME object reference on the fixed/1× path', () => {
     const o = { name: 'salt', qty_g: 5 };
