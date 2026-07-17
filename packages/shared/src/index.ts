@@ -5,3 +5,4 @@ export * from './budget';
 export * from './voiceAdd';
 export * from './units';
 export * from './scaling';
+export * from './receipt';
