@@ -233,7 +233,7 @@ export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose?: 
                 </Pressable>
               </View>
               {kitchen.emptyMode ? <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>Menu leans on what's in — shopping suggestions paused.</Text> : null}
-              <Text style={{ color: c('textMuted'), fontSize: 13, textAlign: 'center', marginTop: 14 }}>Tap a unit or the counter to look inside · the fridge notes are tappable</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 13, textAlign: 'center', marginTop: 14 }}>Tap a unit to look inside · the fridge notes are tappable</Text>
             </>
           )}
         </ScrollView>

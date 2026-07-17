@@ -38,8 +38,8 @@ export const STARTER_KITCHEN: SeedItem[] = [
   { token: 'peanut butter', label: 'Peanut butter', zone: 'cupboard', level: 'some', price: 2.5 },
   { token: 'chickpeas', label: 'Chickpeas', zone: 'cupboard', level: 'plenty', price: 0.5 },
   // counter
-  { token: 'oranges', label: 'Oranges', zone: 'counter', level: 'some', price: 2 },
-  { token: 'apples', label: 'Apples', zone: 'counter', level: 'plenty', price: 2 },
-  { token: 'bananas', label: 'Bananas', zone: 'counter', level: 'low', fresh: 'soon', price: 1 },
-  { token: 'sourdough loaf', label: 'Sourdough loaf', zone: 'counter', level: 'some', fresh: 'soon', price: 2.5 },
+  { token: 'oranges', label: 'Oranges', zone: 'cupboard', level: 'some', price: 2 },
+  { token: 'apples', label: 'Apples', zone: 'cupboard', level: 'plenty', price: 2 },
+  { token: 'bananas', label: 'Bananas', zone: 'cupboard', level: 'low', fresh: 'soon', price: 1 },
+  { token: 'sourdough loaf', label: 'Sourdough loaf', zone: 'cupboard', level: 'some', fresh: 'soon', price: 2.5 },
 ];

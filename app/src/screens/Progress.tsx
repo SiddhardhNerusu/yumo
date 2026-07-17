@@ -1,20 +1,58 @@
-import { useMemo, useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { View, Text, ScrollView, Pressable, Animated, Easing, Image, Modal } from 'react-native';
+import Svg, { Circle, Rect, G } from 'react-native-svg';
 import type { UserProfile } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
 import { useTheme } from '../theme';
 import { WeightChart } from '../components/WeightChart';
 import { Settings } from '../components/Settings';
+import { WeightSheet } from '../components/WeightSheet';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
+import { useWeights, persistPhoto, type WeightEntry } from '../data/weightStore';
 import { computeStreak, weeklyLogged } from '../data/streak';
 import { MEAL_OUT_BASELINE, TYPICAL_MEAL_COST, gbp } from '../data/kitchenMoney';
-import { Serif, Kicker, Card } from '../components/kit';
+import { Serif, Kicker, Card, PrimaryButton, TextLink } from '../components/kit';
 import { useNow } from '../useNow';
-import { WEIGHTS } from '../data/progress-seed';
-import { DEMO_DATA } from '../data/demo';
+import { track } from '../analytics';
+import { haptics } from '../haptics';
 
 const num = { fontVariant: ['tabular-nums' as const] };
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function dateLabel(epochDay: number): string {
+  const d = new Date(epochDay * 86400000);
+  return `${DOW[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`;
+}
+
+/** Settings cog — a real gear that turns when tapped, then opens the sheet. */
+function CogButton({ onOpen }: { onOpen: () => void }) {
+  const { c } = useTheme();
+  const turn = useRef(new Animated.Value(0)).current;
+  const press = () => {
+    haptics.tap();
+    turn.setValue(0);
+    Animated.timing(turn, { toValue: 1, duration: 420, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    setTimeout(onOpen, 230); // the sheet rises while the cog is still turning
+  };
+  const rotate = turn.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '150deg'] });
+  return (
+    <Pressable onPress={press} hitSlop={10} accessibilityRole="button" accessibilityLabel="Settings" style={({ pressed }) => ({ width: 40, height: 40, borderRadius: 20, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border'), alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.7 : 1 })}>
+      <Animated.View style={{ transform: [{ rotate }] }}>
+        <Svg width={20} height={20} viewBox="0 0 24 24">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <G key={i} rotation={i * 45} origin="12, 12">
+              <Rect x={10.5} y={1.6} width={3} height={4.6} rx={1.4} fill={c('textSecondary')} />
+            </G>
+          ))}
+          <Circle cx={12} cy={12} r={6.8} fill={c('textSecondary')} />
+          <Circle cx={12} cy={12} r={3} fill={c('chipSurface')} />
+        </Svg>
+      </Animated.View>
+    </Pressable>
+  );
+}
 
 export function Progress({
   profile,
@@ -28,22 +66,36 @@ export function Progress({
   const { c } = useTheme();
   const { events } = useEventStore();
   const kitchen = useKitchen();
-  const [showSettings, setShowSettings] = useState(false);
   const now = useNow();
+  const [showSettings, setShowSettings] = useState(false);
+  const [showLog, setShowLog] = useState(false);
+  const [viewer, setViewer] = useState<WeightEntry | null>(null);
+  const { entries, logWeight, removePhoto } = useWeights(now);
 
   // §8 "from your kitchen" recap (money stays on Progress, off Today).
   const kUsedPct = kitchen.usedPct != null ? Math.round(kitchen.usedPct * 100) : null;
   const kSaved = Math.round(kitchen.stats.cooked * Math.max(0, MEAL_OUT_BASELINE - TYPICAL_MEAL_COST));
   const showKitchenRecap = kitchen.stats.cooked > 0 || kitchen.stats.wasted > 0;
 
-  // The weight trend is DEMO-ONLY (there's no weigh-in input yet); real users see
-  // no weight card rather than a fabricated line. Wire this to real weigh-ins later.
-  const weights = DEMO_DATA ? WEIGHTS : [];
-  const hasWeight = weights.length > 1;
-  const current = weights[weights.length - 1] ?? 0;
-  const start = weights[0] ?? 0;
-  const change = current - start; // negative = loss
-  const kgThisWeek = current - (weights[Math.max(0, weights.length - 8)] ?? start);
+  // ── weight, from REAL weigh-ins ─────────────────────────────────────────────
+  const kgs = entries.map((e) => e.kg);
+  const latest = entries[entries.length - 1] ?? null;
+  const first = entries[0] ?? null;
+  const change = latest && first ? latest.kg - first.kg : 0;
+  const todayEpoch = localParts(now, 0).epochDay;
+  const weekAgo = entries.filter((e) => e.day <= todayEpoch - 7).pop();
+  const kgThisWeek = latest && weekAgo ? latest.kg - weekAgo.kg : null;
+  const spanDays = latest && first ? latest.day - first.day : 0;
+  const photos = useMemo(() => entries.filter((e) => e.photoUri).reverse(), [entries]);
+  const loggedTodayW = latest?.day === todayEpoch;
+
+  const saveWeight = async (kg: number, photoUri?: string) => {
+    const stored = photoUri ? await persistPhoto(photoUri) : undefined;
+    logWeight(kg, stored);
+    setShowLog(false);
+    haptics.success();
+    track('weight_logged', { withPhoto: !!stored });
+  };
 
   const streak = useMemo(() => computeStreak(events, now), [events, now]);
   const week = useMemo(() => weeklyLogged(events, now), [events, now]);
@@ -79,62 +131,97 @@ export function Progress({
       <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40, gap: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View>
-            <Kicker>Last 3 weeks</Kicker>
+            <Kicker>Your journey</Kicker>
             <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Progress</Serif>
           </View>
-          <Pressable onPress={() => setShowSettings(true)} style={{ marginTop: 6, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border') }}>
-            <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>Settings</Text>
-          </Pressable>
+          <View style={{ marginTop: 6 }}>
+            <CogButton onOpen={() => setShowSettings(true)} />
+          </View>
         </View>
 
-        {/* Card 1 — streak + this week */}
+        {/* ── Card 1 — WEIGHT, the hero ─────────────────────────────────────── */}
         <Card style={{ marginTop: 4 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Text>
-              <Text style={[{ color: c('textPrimary'), fontSize: 34, fontWeight: '800' }, num]}>{streak.current}</Text>
-              <Text style={{ color: c('textMuted'), fontSize: 14 }}> day streak</Text>
-            </Text>
-            {streak.frozen ? <Text style={{ color: c('textMuted'), fontSize: 13 }}>1 freeze banked</Text> : null}
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 18 }}>
-            {week.logged.map((on, i) => (
-              <View key={i} style={{ alignItems: 'center', gap: 6 }}>
-                <View style={{ width: 26, height: 26, borderRadius: 999, backgroundColor: on ? c('accent') : c('surfaceSunken'), borderWidth: on ? 0 : 1, borderColor: c('border'), alignItems: 'center', justifyContent: 'center' }}>
-                  {on ? <Text style={{ color: c('accentText'), fontSize: 12, fontWeight: '700' }}>✓</Text> : null}
-                </View>
-                <Text style={{ color: c('textMuted'), fontSize: 11 }}>{week.labels[i]}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Kicker>Weight</Kicker>
+            {latest && first && entries.length > 1 ? (
+              <View style={{ backgroundColor: change <= 0 ? c('successFaint') : c('surfaceSunken'), borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
+                <Text style={[{ color: change <= 0 ? c('success') : c('textSecondary'), fontSize: 13, fontWeight: '700' }, num]}>{change <= 0 ? '▾' : '▴'} {Math.abs(change).toFixed(1)} kg</Text>
               </View>
-            ))}
+            ) : null}
           </View>
-          <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 14 }}>{loggedCount} of 7 days logged — the habit's what counts.</Text>
+
+          {latest ? (
+            <>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 8, marginBottom: entries.length > 1 ? 8 : 2 }}>
+                <Text>
+                  <Text style={[{ color: c('textPrimary'), fontSize: 38, fontWeight: '800', letterSpacing: -0.8 }, num]}>{latest.kg.toFixed(1)}</Text>
+                  <Text style={{ color: c('textMuted'), fontSize: 15 }}> kg</Text>
+                </Text>
+                <Text style={{ color: c('textMuted'), fontSize: 12, marginBottom: 6 }}>{loggedTodayW ? 'logged today' : dateLabel(latest.day)}</Text>
+              </View>
+              {entries.length > 1 ? (
+                <>
+                  <WeightChart data={kgs} />
+                  <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>7-day trend · daily weigh-ins ghosted</Text>
+                </>
+              ) : (
+                <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 2 }}>Your trend line starts with the next weigh-in.</Text>
+              )}
+              <View style={{ marginTop: 14 }}>
+                <PrimaryButton label={loggedTodayW ? "Update today's weight" : 'Log weight'} full onPress={() => setShowLog(true)} />
+              </View>
+            </>
+          ) : (
+            <>
+              <Text style={{ marginTop: 10, marginBottom: 4 }}>
+                <Text style={{ color: c('textSecondary'), fontSize: 15, lineHeight: 22 }}>The scale tells the story the ring can't. Weigh in most mornings and Yumo draws the trend that matters — not the daily noise.</Text>
+              </Text>
+              <View style={{ marginTop: 12 }}>
+                <PrimaryButton label="Log your first weigh-in" full onPress={() => setShowLog(true)} />
+              </View>
+            </>
+          )}
+
+          {/* progress photos — attached to weigh-ins, newest first */}
+          {photos.length ? (
+            <View style={{ marginTop: 16 }}>
+              <Kicker>Progress photos</Kicker>
+              <ScrollView horizontal showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }} contentContainerStyle={{ gap: 8 }}>
+                {photos.map((e) => (
+                  <Pressable key={e.day} onPress={() => setViewer(e)} accessibilityRole="imagebutton" accessibilityLabel={`Progress photo, ${dateLabel(e.day)}`}>
+                    <Image source={{ uri: e.photoUri! }} style={{ width: 72, height: 96, borderRadius: 12, backgroundColor: c('surfaceSunken') }} />
+                    <Text style={[{ color: c('textMuted'), fontSize: 10.5, marginTop: 4, textAlign: 'center' }, num]}>{e.kg.toFixed(1)} kg</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
         </Card>
 
-        {/* Card 2 — weight (shown only when there are real weigh-ins) */}
-        {hasWeight ? (
-          <Card>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Kicker>Weight</Kicker>
-              <View style={{ backgroundColor: c('successFaint'), borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
-                <Text style={[{ color: c('success'), fontSize: 13, fontWeight: '700' }, num]}>{change <= 0 ? '▾' : '▴'} {Math.abs(change).toFixed(1)} kg</Text>
-              </View>
-            </View>
-            <Text style={{ marginTop: 8, marginBottom: 6 }}>
-              <Text style={[{ color: c('textPrimary'), fontSize: 30, fontWeight: '800' }, num]}>{current.toFixed(1)}</Text>
-              <Text style={{ color: c('textMuted'), fontSize: 14 }}> kg</Text>
+        {/* ── Card 2 — streak, compact ──────────────────────────────────────── */}
+        <Card>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 17, fontWeight: '800' }, num]}>{streak.current}</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 13 }}> day streak{streak.frozen ? ' · 1 freeze banked' : ''}</Text>
             </Text>
-            <WeightChart data={weights} />
-            <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>7-day trend · daily weigh-ins ghosted</Text>
-          </Card>
-        ) : null}
+            <View style={{ flexDirection: 'row', gap: 5 }}>
+              {week.logged.map((on, i) => (
+                <View key={i} style={{ width: 16, height: 16, borderRadius: 999, backgroundColor: on ? c('accent') : c('surfaceSunken'), borderWidth: on ? 0 : 1, borderColor: c('border') }} />
+              ))}
+            </View>
+          </View>
+          <Text style={{ color: c('textMuted'), fontSize: 12.5, marginTop: 10 }}>{loggedCount} of 7 days logged — the habit's what counts.</Text>
+        </Card>
 
-        {/* Card 3 — weekly recap */}
+        {/* ── Card 3 — weekly recap ─────────────────────────────────────────── */}
         <Card>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {cardStat(avgKcal.toLocaleString(), 'avg kcal per day')}
             <View style={{ width: 1, height: 40, backgroundColor: c('divider') }} />
             {cardStat(`${daysOnTarget} of 7`, 'days on target')}
             <View style={{ width: 1, height: 40, backgroundColor: c('divider') }} />
-            {cardStat(hasWeight ? `${kgThisWeek <= 0 ? '−' : '+'}${Math.abs(kgThisWeek).toFixed(1)}` : '—', 'kg this week', hasWeight)}
+            {cardStat(kgThisWeek != null ? `${kgThisWeek <= 0 ? '−' : '+'}${Math.abs(kgThisWeek).toFixed(1)}` : '—', 'kg this week', kgThisWeek != null && kgThisWeek <= 0)}
           </View>
         </Card>
 
@@ -152,14 +239,34 @@ export function Progress({
           </Card>
         ) : null}
 
-        {hasWeight ? (
+        {entries.length > 1 && change < 0 ? (
           <View style={{ paddingHorizontal: 12, marginTop: 8 }}>
             <Serif italic size={16} color={c('textSecondary')} style={{ textAlign: 'center', lineHeight: 23 }}>
-              Down {Math.abs(change).toFixed(1)} kg over three weeks — steady as you like.
+              Down {Math.abs(change).toFixed(1)} kg in {spanDays} days — steady as you like.
             </Serif>
           </View>
         ) : null}
       </ScrollView>
+
+      <WeightSheet visible={showLog} initialKg={latest?.kg ?? profile.targetWeightKg} onSave={saveWeight} onClose={() => setShowLog(false)} />
+
+      {/* full-screen photo viewer */}
+      <Modal visible={viewer !== null} transparent animationType="fade" onRequestClose={() => setViewer(null)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.92)', justifyContent: 'center' }}>
+          {viewer ? (
+            <>
+              <Image source={{ uri: viewer.photoUri! }} style={{ width: '100%', height: '70%' }} resizeMode="contain" />
+              <View style={{ alignItems: 'center', marginTop: 16, gap: 10 }}>
+                <Text style={[{ color: '#F7F2EA', fontSize: 15, fontWeight: '600' }, num]}>{viewer.kg.toFixed(1)} kg · {dateLabel(viewer.day)}</Text>
+                <View style={{ flexDirection: 'row', gap: 28 }}>
+                  <TextLink label="Remove photo" tone="neutral" onPress={() => { removePhoto(viewer.day); setViewer(null); }} />
+                  <TextLink label="Close" onPress={() => setViewer(null)} />
+                </View>
+              </View>
+            </>
+          ) : null}
+        </View>
+      </Modal>
 
       {showSettings ? (
         <Settings profile={profile} onClose={() => setShowSettings(false)} onSave={onUpdateProfile} onReset={onReset} />

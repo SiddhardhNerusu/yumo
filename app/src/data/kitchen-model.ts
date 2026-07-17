@@ -21,7 +21,9 @@ export interface KitchenItem {
   source: ItemSource;
 }
 
-export const ZONES: Zone[] = ['fridge', 'freezer', 'cupboard', 'counter'];
+// 'counter' stays in the Zone TYPE (old stored data), but the scene retired it —
+// counter items live in the big cupboard now, so the UI offers three zones.
+export const ZONES: Zone[] = ['fridge', 'freezer', 'cupboard'];
 export const ZONE_LABEL: Record<Zone, string> = { fridge: 'Fridge', freezer: 'Freezer', cupboard: 'Cupboard', counter: 'Counter' };
 
 /** Ordered low→high so we can step a level up/down on use/restock. */

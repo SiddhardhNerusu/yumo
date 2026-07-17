@@ -88,7 +88,14 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
         if (v) {
           try {
             const parsed = JSON.parse(v);
-            if (Array.isArray(parsed)) { setItems(parsed as KitchenItem[]); return; }
+            if (Array.isArray(parsed)) {
+              // migration: the counter zone was retired from the scene — anything
+              // stored there lives in the big cupboard now.
+              const migrated = (parsed as KitchenItem[]).map((p) => (p.zone === 'counter' ? { ...p, zone: 'cupboard' as const } : p));
+              if (migrated.some((p, i) => p !== (parsed as KitchenItem[])[i])) AsyncStorage.setItem(KEY, JSON.stringify(migrated)).catch(() => {});
+              setItems(migrated);
+              return;
+            }
           } catch { /* ignore corrupt */ }
         }
         const now = Date.now();

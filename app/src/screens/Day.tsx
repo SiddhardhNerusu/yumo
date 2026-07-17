@@ -16,6 +16,9 @@ import { expiringItems, expiringUsedBy, recipesUsingExpiring } from '../data/exp
 import { POOL } from '../data/menu-seed';
 import { BudgetRing } from '../components/BudgetRing';
 import { CoachLine } from '../components/CoachLine';
+import { MacroBar } from '../components/MacroBar';
+import { NutritionSheet, type MealBreakdown } from '../components/NutritionSheet';
+import { macroTargets } from '../data/macros';
 import { MixSheet, type MixOption } from '../components/MixSheet';
 import { RecipeSheet } from '../components/RecipeSheet';
 import { AddSheet, type AddItem } from '../components/AddSheet';
@@ -153,6 +156,24 @@ export function Day({ profile }: { profile: UserProfile }) {
   const learnedNote = state.learned?.note ?? null;
   useEffect(() => { if (learnedNote) track('brain_learned_visible', { note: learnedNote }); }, [learnedNote]);
 
+  // ── macros: eaten today (from the logged events) vs derived targets ─────────
+  const [showOverview, setShowOverview] = useState(false);
+  const targets = useMemo(() => macroTargets(profile), [profile]);
+  const macrosEaten = useMemo(() => {
+    let proteinG = 0, carbsG = 0, fatG = 0;
+    for (const sl of state.slots) for (const it of sl.items) { proteinG += it.proteinG ?? 0; carbsG += it.carbsG ?? 0; fatG += it.fatG ?? 0; }
+    return { proteinG, carbsG, fatG };
+  }, [state.slots]);
+  const mealBreakdown = useMemo<MealBreakdown[]>(() =>
+    state.slots.map((sl) => ({
+      slot: sl.slot,
+      kcal: sl.kcal,
+      proteinG: sl.items.reduce((a, it) => a + (it.proteinG ?? 0), 0),
+      carbsG: sl.items.reduce((a, it) => a + (it.carbsG ?? 0), 0),
+      fatG: sl.items.reduce((a, it) => a + (it.fatG ?? 0), 0),
+      items: sl.items.map((it) => ({ name: it.name, kcal: it.kcal })),
+    })), [state.slots]);
+
   // ── loading skeleton ────────────────────────────────────────────────────────
   if (!plan) {
     return (
@@ -287,6 +308,20 @@ export function Day({ profile }: { profile: UserProfile }) {
   const d = new Date(now);
   const dateStr = `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
 
+  // one plain-English overview line: protein to go vs what the remaining menu covers.
+  const proteinToGo = targets.proteinG - Math.round(macrosEaten.proteinG);
+  let plannedProteinLeft = 0;
+  for (const sl of state.slots) {
+    if (sl.items.length || sl.skipped) continue;
+    const p = currentForToday(sl.slot);
+    if (p) plannedProteinLeft += p.protein;
+  }
+  const overviewNote = proteinToGo <= 0
+    ? 'Protein target met — nicely done.'
+    : plannedProteinLeft > 0
+      ? `${proteinToGo}g protein to go — your remaining menu covers about ${plannedProteinLeft}g.`
+      : `${proteinToGo}g protein to go today.`;
+
   // ── the planned-meal block (Menu card anatomy) — shared today/other-days ────
   const plannedBlock = (slot: MealSlot, cur: Cur, opts: { loggable: boolean; addLinks: boolean }) => {
     const key = `${dayIdx}:${slot}`;
@@ -350,10 +385,16 @@ export function Day({ profile }: { profile: UserProfile }) {
         {isToday ? (
           <>
             <View style={{ alignItems: 'center', marginTop: 18 }}>
-              <BudgetRing eaten={state.eaten} budget={state.budget} />
-              <Text style={[{ color: c('textMuted'), fontSize: 13, marginTop: 12 }, num]}>
-                {Math.round(state.eaten).toLocaleString()} eaten · {state.budget.toLocaleString()} budget
-              </Text>
+              <Pressable onPress={() => setShowOverview(true)} accessibilityRole="button" accessibilityLabel="Open today's nutrition overview" style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, alignItems: 'center' })}>
+                <BudgetRing eaten={state.eaten} budget={state.budget} />
+                <Text style={[{ color: c('textMuted'), fontSize: 13, marginTop: 12 }, num]}>
+                  {Math.round(state.eaten).toLocaleString()} eaten · {state.budget.toLocaleString()} budget
+                  <Text style={{ color: c('accentSoft'), fontWeight: '600' }}>   Overview ›</Text>
+                </Text>
+              </Pressable>
+              <View style={{ alignSelf: 'stretch', marginTop: 14 }}>
+                <MacroBar eaten={macrosEaten} targets={targets} />
+              </View>
             </View>
             <View style={{ marginTop: 18, marginBottom: (showWaste || learnedNote) ? 10 : 4 }}>
               <CoachLine text={coachText} />
@@ -454,64 +495,53 @@ export function Day({ profile }: { profile: UserProfile }) {
                   ) : null}
                 </View>
 
-                {/* logged slot — SAME card anatomy as a planned meal (serif name ·
-                    kcal · macros), the buttons replaced by a green ✓ Logged pill.
-                    Whatever you logged IS the meal; extras list compactly below. */}
+                {/* logged slot — EVERY logged item gets the full meal-card anatomy
+                    (serif name · kcal · macros); one green ✓ Logged pill closes the
+                    tile at the END, exactly where "Log it" sits on unlogged cards. */}
                 {s.items.length ? (() => {
-                  const heroIdx = Math.max(0, s.items.findIndex((it) => it.foodId === cur.recipe.id));
-                  const hero = s.items[heroIdx]!;
-                  const rest = s.items.filter((_, i) => i !== heroIdx);
-                  const heroRecipe = recipeFor(hero.foodId, hero.name);
-                  const hm = hero.proteinG != null
-                    ? { protein: Math.round(hero.proteinG), carbs: Math.round(hero.carbsG ?? 0), fat: Math.round(hero.fatG ?? 0) }
-                    : heroRecipe ? macrosFor(heroRecipe, hero.kcal) : null;
+                  const ordered = [...s.items].sort((a, b) => Number(b.foodId === cur.recipe.id) - Number(a.foodId === cur.recipe.id));
+                  const rateable = ordered.map((it) => recipeFor(it.foodId, it.name)).find((r) => r != null) ?? null;
                   return (
                     <>
-                      <SwipeRow onDelete={() => removeLog(hero.id)}>
-                        <View style={{ paddingTop: 6, paddingBottom: 2 }}>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                            <Pressable disabled={!heroRecipe} onPress={() => openRecipeByRef(hero.foodId, hero.name, hero.kcal)} accessibilityRole={heroRecipe ? 'button' : undefined} accessibilityLabel={heroRecipe ? `${hero.name}, view recipe` : undefined} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'baseline', opacity: pressed ? 0.6 : 1 })}>
-                              <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flexShrink: 1, lineHeight: 26 }}>{hero.name}</Serif>
-                              {heroRecipe ? <Text style={{ color: c('textMuted'), fontSize: 16, marginLeft: 6 }}>›</Text> : null}
-                            </Pressable>
-                            <Text style={{ marginLeft: 10 }}>
-                              <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{hero.kcal.toLocaleString()}</Text>
-                              <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
-                            </Text>
-                          </View>
-                          {hm ? (
-                            <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
-                              {([['protein', hm.protein], ['carbs', hm.carbs], ['fat', hm.fat]] as Array<[string, number]>).map(([label, v]) => (
-                                <Text key={label}>
-                                  <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{v}g</Text>
-                                  <Text style={{ color: c('textMuted'), fontSize: 13 }}> {label}</Text>
-                                </Text>
-                              ))}
-                            </View>
-                          ) : null}
-                        </View>
-                      </SwipeRow>
-                      <View style={{ backgroundColor: c('successFaint'), borderRadius: 999, paddingVertical: 11, alignItems: 'center', marginTop: 14 }}>
-                        <Text style={{ color: c('success'), fontWeight: '700', fontSize: 14 }}>✓ Logged</Text>
-                      </View>
-                      {rest.map((item) => {
-                        const hasRecipe = recipeFor(item.foodId, item.name) != null;
+                      {ordered.map((item, i) => {
+                        const rec = recipeFor(item.foodId, item.name);
+                        const m = item.proteinG != null
+                          ? { protein: Math.round(item.proteinG), carbs: Math.round(item.carbsG ?? 0), fat: Math.round(item.fatG ?? 0) }
+                          : rec ? macrosFor(rec, item.kcal) : null;
                         return (
                           <SwipeRow key={item.id} onDelete={() => removeLog(item.id)}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: 1, borderTopColor: c('divider'), marginTop: 6 }}>
-                              <Text style={{ color: c('success'), fontSize: 12, marginRight: 8 }}>✓</Text>
-                              <Pressable disabled={!hasRecipe} onPress={() => openRecipeByRef(item.foodId, item.name, item.kcal)} accessibilityRole={hasRecipe ? 'button' : undefined} accessibilityLabel={hasRecipe ? `${item.name}, view recipe` : undefined} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
-                                <Text style={{ color: c('textLogged'), fontSize: 15, fontWeight: '500', flexShrink: 1 }} numberOfLines={1}>{item.name}</Text>
-                                {hasRecipe ? <Text style={{ color: c('textMuted'), fontSize: 14, marginLeft: 5 }}>›</Text> : null}
-                              </Pressable>
-                              <Text style={[{ color: c('textMuted'), fontSize: 13 }, num]}>{item.kcal} kcal</Text>
+                            <View style={{ paddingTop: 6, paddingBottom: 4, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider'), marginTop: i === 0 ? 0 : 8 }}>
+                              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                                <Pressable disabled={!rec} onPress={() => openRecipeByRef(item.foodId, item.name, item.kcal)} accessibilityRole={rec ? 'button' : undefined} accessibilityLabel={rec ? `${item.name}, view recipe` : undefined} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'baseline', opacity: pressed ? 0.6 : 1 })}>
+                                  <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flexShrink: 1, lineHeight: 26 }}>{item.name}</Serif>
+                                  {rec ? <Text style={{ color: c('textMuted'), fontSize: 16, marginLeft: 6 }}>›</Text> : null}
+                                </Pressable>
+                                <Text style={{ marginLeft: 10 }}>
+                                  <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '700' }, num]}>{item.kcal.toLocaleString()}</Text>
+                                  <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
+                                </Text>
+                              </View>
+                              {m ? (
+                                <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
+                                  {([['protein', m.protein], ['carbs', m.carbs], ['fat', m.fat]] as Array<[string, number]>).map(([label, v]) => (
+                                    <Text key={label}>
+                                      <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{v}g</Text>
+                                      <Text style={{ color: c('textMuted'), fontSize: 13 }}> {label}</Text>
+                                    </Text>
+                                  ))}
+                                </View>
+                              ) : null}
                             </View>
                           </SwipeRow>
                         );
                       })}
+                      <View style={{ backgroundColor: c('successFaint'), borderRadius: 999, paddingVertical: 11, alignItems: 'center', marginTop: 16 }}>
+                        <Text style={{ color: c('success'), fontWeight: '700', fontSize: 14 }}>✓ Logged</Text>
+                      </View>
+                      <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 14 }} />
                       <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <TextLink label="＋ Add more" onPress={() => setAddSlot(slot)} />
-                        {heroRecipe ? <ThumbsRow thumb={thumbs.get(heroRecipe.id)} onThumb={(dir) => thumbRecipe(heroRecipe.id, dir)} /> : null}
+                        {rateable ? <ThumbsRow thumb={thumbs.get(rateable.id)} onThumb={(dir) => thumbRecipe(rateable.id, dir)} /> : null}
                       </View>
                     </>
                   );
@@ -604,6 +634,7 @@ export function Day({ profile }: { profile: UserProfile }) {
 
       <MixSheet visible={mix !== null} currentName={mix?.recipe.name ?? ''} options={mixOptions} loading={mixLoading} onPick={pickMix} onClose={() => setMix(null)} />
       <RecipeSheet recipe={sheet} onClose={() => setSheet(null)} />
+      <NutritionSheet visible={showOverview} onClose={() => setShowOverview(false)} budget={state.budget} eatenKcal={state.eaten} eaten={macrosEaten} targets={targets} meals={mealBreakdown} note={overviewNote} />
       <AddSheet
         visible={addSlot !== null}
         slotLabel={addSlot ? cap(addSlot) : ''}

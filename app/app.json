@@ -41,6 +41,12 @@
         {
           "cameraPermission": "Yumo uses the camera to scan food barcodes so you can log packaged foods in one tap."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Yumo lets you attach progress photos to your weigh-ins. Photos stay on your device."
+        }
       ]
     ]
   }

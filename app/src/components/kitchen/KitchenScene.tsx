@@ -12,10 +12,13 @@ const DH = 436;
 const FLOOR_Y = 408;
 type Rectangle = { x: number; y: number; w: number; h: number };
 const UNITS: Record<Zone, Rectangle> = {
-  cupboard: { x: 8, y: 22, w: 150, h: 128 },
+  // one BIG pantry cupboard — spans the full fridge+freezer column height.
+  cupboard: { x: 8, y: 22, w: 172, h: 367 },
   fridge: { x: 196, y: 22, w: 146, h: 246 },
   freezer: { x: 196, y: 271, w: 146, h: 118 },
-  counter: { x: 0, y: 190, w: 170, h: 246 },
+  // retired from the scene (items migrate to the cupboard); kept for the
+  // Zone-keyed animated records so stored data never crashes the render.
+  counter: { x: 0, y: 0, w: 0, h: 0 },
 };
 const DOOR_ZONES: Zone[] = ['cupboard', 'fridge', 'freezer'];
 const ALL_ZONES: Zone[] = ['cupboard', 'fridge', 'freezer', 'counter'];
@@ -269,7 +272,9 @@ function Interior({ zone, items, now, labelV, openV, isOpen, recentlyAdded, toss
   const innerH = u.h - 10;
   const n = items.length;
   const nRows = Math.max(1, Math.ceil(n / 3));
-  const rowStep = (innerH - 16) / nRows;
+  // cap the shelf spacing so a lightly-stocked tall unit (the big pantry
+  // cupboard) reads as shelves from the top, not items floating in a void.
+  const rowStep = Math.min((innerH - 16) / nRows, 92);
   const bg1 = frost ? '#12161A' : '#100D0A';
   const bg2 = frost ? '#1A2129' : '#1A130C';
   const shelfCol = frost ? 'rgba(159,199,224,0.3)' : 'rgba(247,242,234,0.22)';
@@ -366,13 +371,18 @@ function FocusedUnit({ zone, items, now, z, w, h, onItemPress }: {
   const innerW = w - inset * 2;
   const innerH = h - inset * 2;
   const n = items.length;
-  const nRows = Math.max(1, Math.ceil(n / 3));
-  const rowStep = (innerH - 16 * z) / nRows;
+  // presentation scale — tiles/labels never shrink below readable even when the
+  // camera can barely zoom (the tall pantry cupboard is height-limited, z≈1.1);
+  // the column count adapts instead: a narrow unit gets 2 columns, not tiny tiles.
+  const tz = Math.max(z, 1.45);
+  const slotW = 45 * tz;
+  const cols = Math.max(2, Math.min(3, Math.floor(innerW / slotW)));
+  const nRows = Math.max(1, Math.ceil(n / cols));
+  const rowStep = Math.min((innerH - 16 * z) / nRows, 68 * tz);
   const bg1 = frost ? '#12161A' : '#100D0A';
   const bg2 = frost ? '#1A2129' : '#1A130C';
   const shelfCol = frost ? 'rgba(159,199,224,0.3)' : 'rgba(247,242,234,0.22)';
-  const slotW = 45 * z;
-  const title = zone === 'counter' ? 'On the counter' : frost ? '❄ Freezer' : zone;
+  const title = frost ? '❄ Freezer' : zone === 'counter' ? 'Cupboard' : zone;
   return (
     <View style={{ width: w, height: h, borderRadius: 16, backgroundColor: '#0E0B08', borderWidth: 1.5, borderColor: 'rgba(247,242,234,0.14)', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 30, shadowOffset: { width: 0, height: 14 } }}>
       {/* interior light bloom */}
@@ -397,13 +407,13 @@ function FocusedUnit({ zone, items, now, z, w, h, onItemPress }: {
           );
         })}
         {items.map((it, idx) => {
-          const row = Math.floor(idx / 3);
-          const col = idx % 3;
-          const itemsInRow = Math.min(3, n - row * 3);
+          const row = Math.floor(idx / cols);
+          const col = idx % cols;
+          const itemsInRow = Math.min(cols, n - row * cols);
           const xStart = (innerW - itemsInRow * slotW) / 2;
           const x = xStart + col * slotW + slotW / 2;
           const shelfY = 14 * z + (row + 1) * rowStep;
-          return <FocusedTile key={it.id} item={it} now={now} z={z} x={x} shelfY={shelfY} index={idx} onPress={() => onItemPress(it)} />;
+          return <FocusedTile key={it.id} item={it} now={now} z={tz} x={x} shelfY={shelfY} index={idx} onPress={() => onItemPress(it)} />;
         })}
         {n === 0 ? (
           <View style={{ position: 'absolute', left: 0, right: 0, top: innerH / 2 - 10, alignItems: 'center' }}>
@@ -546,99 +556,6 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
     );
   };
 
-  // ── the counter (composed worktop; items live on top, no doors) ──────────────
-  const counterUnit = () => {
-    const u = UNITS.counter;
-    const cItems = byZone('counter');
-    const hasSoon = cItems.some((it) => freshnessOf(it, now) !== 'fresh');
-    const fruits = cItems.filter((it) => it.token && kindOf(it.token) !== 'loaf').slice(0, 3);
-    const loaf = cItems.find((it) => kindOf(it.token) === 'loaf');
-    const FRUIT_SLOTS: Array<[number, number, number]> = [[24, 84, 15], [36, 81, 14], [30, 74, 13]];
-    const JAR_COLS = ['#E8A13C', '#D96248', '#6FB77F', '#E9DEC9', '#C57A55'];
-    const reveal = openV.counter;
-
-    return (
-      <Animated.View style={{ position: 'absolute', left: u.x, top: u.y, width: u.w, height: u.h, opacity: dimV.counter, transform: [{ scale: pressV.counter }] }}>
-        {/* open shelf + jars */}
-        <View style={{ position: 'absolute', left: 24, top: 6, width: 118, height: 26, borderRadius: 3 }}>
-          <FaceWood w={118} h={26} radius={3} />
-          <View style={{ position: 'absolute', bottom: 4, left: 8, right: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            {JAR_COLS.map((jc, i) => (
-              <View key={i} style={{ width: 14, height: 15 + (i % 3) * 2, borderRadius: 3, backgroundColor: jc, overflow: 'hidden' }}>
-                <View style={{ height: 3.5, backgroundColor: mix(jc, '#170D04', 0.6) }} />
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* lower cabinet */}
-        <View style={{ position: 'absolute', left: 8, top: 112, width: 150, height: 106, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, overflow: 'hidden' }}>
-          <FaceWood w={150} h={106} radius={0} />
-          <View style={{ position: 'absolute', top: 34, left: 12, right: 12, height: 1, backgroundColor: 'rgba(0,0,0,0.3)' }} />
-          <View style={{ position: 'absolute', top: 70, left: 12, right: 12, height: 1, backgroundColor: 'rgba(0,0,0,0.3)' }} />
-          <View style={{ position: 'absolute', top: 14, alignSelf: 'center', width: 34, height: 4, borderRadius: 2, backgroundColor: 'rgba(247,242,234,0.28)' }} />
-          <View style={{ position: 'absolute', top: 50, alignSelf: 'center', width: 34, height: 4, borderRadius: 2, backgroundColor: 'rgba(247,242,234,0.28)' }} />
-        </View>
-
-        {/* worktop slab */}
-        <View style={{ position: 'absolute', left: 2, top: 102, width: 162, height: 10, borderRadius: 2, backgroundColor: '#3B3630', shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 4, shadowOffset: { width: 0, height: 3 } }}>
-          <Svg width={162} height={10} style={{ position: 'absolute' }}>
-            <Defs><LinearGradient id="wtop" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#45403A" /><Stop offset="1" stopColor="#332F29" /></LinearGradient></Defs>
-            <Rect x={0} y={0} width={162} height={10} rx={2} fill="url(#wtop)" />
-          </Svg>
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, backgroundColor: 'rgba(247,242,234,0.14)' }} />
-        </View>
-
-        {/* decor: chopping board + potted plant */}
-        <View style={{ position: 'absolute', left: 78, top: 70, width: 36, height: 32, borderRadius: 4, transform: [{ rotate: '4deg' }], overflow: 'hidden' }}>
-          <FaceWood w={36} h={32} radius={4} />
-        </View>
-        <View style={{ position: 'absolute', left: 130, top: 72, alignItems: 'center' }}>
-          <View style={{ width: 18, height: 16, borderRadius: 9, backgroundColor: '#5FB07D' }} />
-          <View style={{ width: 13, height: 12, borderRadius: 3, backgroundColor: '#A85A38', marginTop: -2 }} />
-        </View>
-
-        {/* fruit bowl — dark rim reads as the opening */}
-        <View style={{ position: 'absolute', left: 18, top: 90, width: 44, height: 15, borderBottomLeftRadius: 16, borderBottomRightRadius: 16, backgroundColor: '#A85A38' }}>
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, borderRadius: 2, backgroundColor: 'rgba(0,0,0,0.22)' }} />
-        </View>
-
-        {/* live items on the worktop */}
-        {fruits.map((it, i) => {
-          const [x, y, r] = FRUIT_SLOTS[i]!;
-          const fresh = freshnessOf(it, now);
-          return (
-            <View key={it.id} style={{ position: 'absolute', left: x - r, top: y - r }}>
-              <Pressable onPress={() => onItemPress(it)} hitSlop={6} style={{ width: r * 2, height: r * 2, borderRadius: r, backgroundColor: tileColor(it.token), opacity: it.level === 'low' ? 0.7 : 1, shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 3, shadowOffset: { width: 0, height: 2 } }}>
-                <View style={{ position: 'absolute', top: r * 0.3, left: r * 0.35, width: r * 0.5, height: r * 0.4, borderRadius: r, backgroundColor: 'rgba(255,255,255,0.28)' }} />
-              </Pressable>
-              <Animated.View pointerEvents="none" style={{ position: 'absolute', right: -3, top: -3, width: 9, height: 9, borderRadius: 5, backgroundColor: FRESH_COL[fresh], opacity: reveal, shadowColor: '#000', shadowOpacity: 0.55, shadowRadius: 2.5, shadowOffset: { width: 0, height: 1 } }} />
-            </View>
-          );
-        })}
-        {loaf ? (
-          <View style={{ position: 'absolute', left: 54, top: 82 }}>
-            <Pressable onPress={() => onItemPress(loaf)} hitSlop={6} style={{ width: 18, height: 18, borderRadius: 6, overflow: 'hidden', opacity: loaf.level === 'low' ? 0.7 : 1 }}>
-              <GlyphTile kind="loaf" w={18} h={18} color={tileColor(loaf.token)} />
-            </Pressable>
-            <Animated.View pointerEvents="none" style={{ position: 'absolute', right: -3, top: -3, width: 9, height: 9, borderRadius: 5, backgroundColor: FRESH_COL[freshnessOf(loaf, now)], opacity: reveal, shadowColor: '#000', shadowOpacity: 0.55, shadowRadius: 2.5, shadowOffset: { width: 0, height: 1 } }} />
-          </View>
-        ) : null}
-
-        {/* §3.5 use-soon glow — pooled low, on the dark cabinet (not a bar) */}
-        {hasSoon ? <UseSoonGlow unitW={u.w} chromeV={chromeV} bottom={16} /> : null}
-
-        {/* tap target (room view) — covers the whole counter incl. the jar shelf */}
-        {focused !== 'counter' ? <Pressable onPress={() => onFocus('counter')} onPressIn={() => dip('counter', true)} onPressOut={() => dip('counter', false)} style={{ position: 'absolute', left: 0, top: 0, width: u.w, height: 218 }} /> : null}
-
-        {/* count badge — subtle dark chip */}
-        <Animated.View style={{ position: 'absolute', top: 54, right: 4, opacity: chromeV, backgroundColor: 'rgba(14,11,8,0.7)', borderWidth: 1, borderColor: 'rgba(247,242,234,0.14)', borderRadius: 999, minWidth: 17, height: 17, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }} pointerEvents="none">
-          <Text style={{ color: '#CDBFA9', fontSize: 9.5, fontWeight: '700' }}>{cItems.length}</Text>
-        </Animated.View>
-      </Animated.View>
-    );
-  };
-
   return (
     <View style={{ width: contentW, height: boxH, borderRadius: 20, overflow: 'hidden' }}>
       <View style={{ position: 'absolute', left: (contentW - DW) / 2, top: (boxH - DH) / 2, width: DW, height: DH, transform: [{ scale: sf }] }}>
@@ -658,7 +575,6 @@ export function KitchenRoom({ items, now, recentlyAdded, tossing, focused, openZ
           <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 20, top: 400, width: 150, height: 12, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.45)', opacity: chromeV, transform: [{ scaleY: 0.5 }] }} />
           <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 200, top: 400, width: 140, height: 12, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.45)', opacity: chromeV, transform: [{ scaleY: 0.5 }] }} />
 
-          {counterUnit()}
           {doorUnit('cupboard', 'french')}
           {doorUnit('fridge', 'door')}
           {doorUnit('freezer', 'drawer')}
