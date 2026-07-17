@@ -1,6 +1,30 @@
-# Yumo — Session Handoff (2026-07-14, updated 2026-07-15)
+# Yumo — Session Handoff (2026-07-14, updated 2026-07-17)
 
-**Read this first in a new session.** Everything is committed + pushed to `main` (github.com/SiddhardhNerusu/yumo). Working tree clean. **HEAD `45cae2a`.**
+**Read this first in a new session.**
+
+---
+
+## ⭐ Next-wave build in progress (2026-07-17) — committed to `main` LOCAL, NOT pushed
+
+`docs/plans/next_wave_master_plan.md` was found broken against the real code (48 findings, 26 blockers), **rewritten in place as v2 + adversarially self-reviewed**, then built milestone-by-milestone. Commits are **local only** (Sid pushes). Gates green throughout (root `npm run typecheck` + `cd app && npx tsc --noEmit` + `npm test` = **217 green**, was 165).
+
+| Commit | Milestone | What / verified |
+|---|---|---|
+| `d9f384a` | docs v2 | plan rewritten; 17 decisions (D1–D17), 4 resolved with Sid |
+| `b656cdb` | **M0** (new) | live day-0 nudge bug: gate demo `SEED_MENU`, `weekMenuFor` adapter feeds the REAL menu to the Brain, lift name/kcal resolver, widget on live path. Verified by engine execution |
+| `fdd02a7` | **M4** | `macroTargets` now honors `proteinTargetG` (was 1.6×kg while the engine used the target); Settings "Daily targets" + Advanced carbs/fat, write-on-divergence (D4). Browser-verified 115→150 |
+| `3347e4b` | **M3** | units kg/lb/st: `@yumo/shared/units` + `WeightUnitProvider` + 2dp storage + 15 surfaces. Browser-verified all three units |
+| `70c50d0` | **M2** | backfill onto past days: UTC `tsFor`, one time frame, split id/ts, real dates in strip. Verified write hit the right epochDay, today untouched |
+| `a5423c8` | **M5** | saved meals: `MyMealsProvider` (a hook desynced in-browser), Save-to-my-meals link, AddSheet "My meals" section. Verified full loop |
+| `<next>` | **M8** | recipe scaling moved to `@yumo/shared/scaling` + `scaling-vocab.json` (data, not code); 44-test byte-identity battery; `native-widget.md` superseded |
+
+**Remaining (native — device-verify, NOT started):** M1 (nudges + widget — `expo-notifications`), M6 (receipt OCR — ML Kit), M7 (Apple Health — `@kingstinct/react-native-healthkit` + `react-native-nitro-modules`). These add native deps and define the next EAS build; see the v2 plan's §10 device-verify list.
+
+⚠️ **Browser gotcha:** CI-mode Metro serves a STALE bundle after edits — restart with `--clear`, a hard-navigate is not enough.
+
+---
+
+## Prior session (2026-07-15) — everything pushed to `main` (github.com/SiddhardhNerusu/yumo). **HEAD was `45cae2a`.**
 
 ---
 

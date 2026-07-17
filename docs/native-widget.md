@@ -1,5 +1,14 @@
 # Native moat — lock-screen widget, notifications, HealthKit
 
+> ⚠️ **SUPERSEDED (2026-07-17) by `docs/plans/next_wave_master_plan.md` (v2), milestones M1/M6/M7.**
+> This doc predates the library decisions and now **contradicts** the approved plan:
+> it names **Notifee** for notifications (M1 uses **expo-notifications**, local-only)
+> and **react-native-health** for HealthKit (M7 uses **@kingstinct/react-native-healthkit**,
+> which needs the peer `react-native-nitro-modules` and a positional `saveQuantitySample`).
+> The App Group / `LogUsualIntent` / pending-log-drain architecture below is also beyond
+> M1 Phase B's scope (display + deep-link only). Follow the v2 plan for M1/M6/M7; keep this
+> file only for the historical data-contract sketch. Do not implement against it.
+
 This is the one part of the plan that **cannot be built or verified in a
 headless environment**: it needs Xcode, a physical device, and an Expo **dev
 build** (`expo-dev-client` — not Expo Go). This doc is the concrete plan; the
