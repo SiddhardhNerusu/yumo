@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { localParts } from '@yumo/brain';
+import { roundStorageKg } from '@yumo/shared';
 
 const KEY = 'yumo.weight.v1';
 
@@ -66,7 +67,7 @@ export function useWeights(nowMs: number) {
       const existing = prev.find((e) => e.day === day);
       const entry: WeightEntry = {
         day,
-        kg: Math.round(kg * 10) / 10,
+        kg: roundStorageKg(kg),
         ts: Date.now(),
         ...(photoUri ? { photoUri } : existing?.photoUri ? { photoUri: existing.photoUri } : {}),
       };

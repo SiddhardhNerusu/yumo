@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { ALLERGENS, type Allergen } from '@yumo/shared';
 import { PROTEIN_FLOOR_PER_KG, type UserProfile, type VariationDial } from '@yumo/menu';
+import type { WeightUnit } from '@yumo/shared';
 import { useTheme } from '../theme';
+import { useWeightUnit } from '../data/weightUnit';
 import { ALLERGEN_LABELS, PANTRY_STAPLES } from '../data/onboarding-seed';
 import { Sheet, Serif, Kicker, Chip, PrimaryButton, TextLink } from './kit';
 import { useEntitlement } from '../data/entitlement';
@@ -18,6 +20,11 @@ const VARIETY_HINT: Record<VariationDial, string> = {
   balanced: 'A steady mix of usuals and fresh ideas.',
   mixup: 'Something new most days — maximum variety.',
 };
+const WEIGHT_UNITS: { u: WeightUnit; label: string }[] = [
+  { u: 'kg', label: 'kg' },
+  { u: 'lb', label: 'lb' },
+  { u: 'st', label: 'st' },
+];
 const num = { fontVariant: ['tabular-nums' as const] };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -34,6 +41,7 @@ export function Settings({
 }) {
   const { c } = useTheme();
   const { isPremium } = useEntitlement();
+  const { unit, setUnit } = useWeightUnit();
   const [showPaywall, setShowPaywall] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [budget, setBudget] = useState<number>(profile.budgetKcal);
@@ -190,6 +198,21 @@ export function Settings({
             })}
           </View>
           <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 8 }}>{VARIETY_HINT[variation]}</Text>
+        </View>
+
+        {/* Weight unit segmented control — persists immediately (not part of Save) */}
+        <View style={{ marginTop: 20 }}>
+          <Kicker>Weight unit</Kicker>
+          <View style={{ marginTop: 8, flexDirection: 'row', backgroundColor: c('surfaceSunken'), borderRadius: 999, padding: 4 }}>
+            {WEIGHT_UNITS.map((wu) => {
+              const on = unit === wu.u;
+              return (
+                <Pressable key={wu.u} onPress={() => setUnit(wu.u)} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`Weight unit ${wu.label}`} style={{ flex: 1, borderRadius: 999, paddingVertical: 9, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
+                  <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{wu.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
         {/* Pantry */}

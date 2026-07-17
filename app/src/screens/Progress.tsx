@@ -3,7 +3,9 @@ import { View, Text, ScrollView, Pressable, Animated, Easing, Image, Modal } fro
 import Svg, { Circle, Rect, G } from 'react-native-svg';
 import type { UserProfile } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
+import { weightParts, weightDelta, kgToDisplay } from '@yumo/shared';
 import { useTheme } from '../theme';
+import { useWeightUnit } from '../data/weightUnit';
 import { WeightChart } from '../components/WeightChart';
 import { Settings } from '../components/Settings';
 import { WeightSheet } from '../components/WeightSheet';
@@ -64,6 +66,7 @@ export function Progress({
   onUpdateProfile: (p: UserProfile) => void;
 }) {
   const { c } = useTheme();
+  const { unit } = useWeightUnit();
   const { events } = useEventStore();
   const kitchen = useKitchen();
   const now = useNow();
@@ -145,7 +148,7 @@ export function Progress({
             <Kicker>Weight</Kicker>
             {latest && first && entries.length > 1 ? (
               <View style={{ backgroundColor: change <= 0 ? c('successFaint') : c('surfaceSunken'), borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
-                <Text style={[{ color: change <= 0 ? c('success') : c('textSecondary'), fontSize: 13, fontWeight: '700' }, num]}>{change <= 0 ? '▾' : '▴'} {Math.abs(change).toFixed(1)} kg</Text>
+                <Text style={[{ color: change <= 0 ? c('success') : c('textSecondary'), fontSize: 13, fontWeight: '700' }, num]}>{change <= 0 ? '▾' : '▴'} {weightDelta(change, unit).value} {weightDelta(change, unit).suffix}</Text>
               </View>
             ) : null}
           </View>
@@ -154,8 +157,8 @@ export function Progress({
             <>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 8, marginBottom: entries.length > 1 ? 8 : 2 }}>
                 <Text>
-                  <Text style={[{ color: c('textPrimary'), fontSize: 38, fontWeight: '800', letterSpacing: -0.8 }, num]}>{latest.kg.toFixed(1)}</Text>
-                  <Text style={{ color: c('textMuted'), fontSize: 15 }}> kg</Text>
+                  <Text style={[{ color: c('textPrimary'), fontSize: 38, fontWeight: '800', letterSpacing: -0.8 }, num]}>{weightParts(latest.kg, unit).value}</Text>
+                  <Text style={{ color: c('textMuted'), fontSize: 15 }}> {weightParts(latest.kg, unit).suffix}</Text>
                 </Text>
                 <Text style={{ color: c('textMuted'), fontSize: 12, marginBottom: 6 }}>{loggedTodayW ? 'logged today' : dateLabel(latest.day)}</Text>
               </View>
@@ -190,7 +193,7 @@ export function Progress({
                 {photos.map((e) => (
                   <Pressable key={e.day} onPress={() => setViewer(e)} accessibilityRole="imagebutton" accessibilityLabel={`Progress photo, ${dateLabel(e.day)}`}>
                     <Image source={{ uri: e.photoUri! }} style={{ width: 72, height: 96, borderRadius: 12, backgroundColor: c('surfaceSunken') }} />
-                    <Text style={[{ color: c('textMuted'), fontSize: 10.5, marginTop: 4, textAlign: 'center' }, num]}>{e.kg.toFixed(1)} kg</Text>
+                    <Text style={[{ color: c('textMuted'), fontSize: 10.5, marginTop: 4, textAlign: 'center' }, num]}>{kgToDisplay(e.kg, unit)}</Text>
                   </Pressable>
                 ))}
               </ScrollView>
@@ -221,7 +224,7 @@ export function Progress({
             <View style={{ width: 1, height: 40, backgroundColor: c('divider') }} />
             {cardStat(`${daysOnTarget} of 7`, 'days on target')}
             <View style={{ width: 1, height: 40, backgroundColor: c('divider') }} />
-            {cardStat(kgThisWeek != null ? `${kgThisWeek <= 0 ? '−' : '+'}${Math.abs(kgThisWeek).toFixed(1)}` : '—', 'kg this week', kgThisWeek != null && kgThisWeek <= 0)}
+            {cardStat(kgThisWeek != null ? `${kgThisWeek <= 0 ? '−' : '+'}${weightDelta(kgThisWeek, unit).value}` : '—', `${weightDelta(kgThisWeek ?? 0, unit).suffix} this week`, kgThisWeek != null && kgThisWeek <= 0)}
           </View>
         </Card>
 
@@ -242,7 +245,7 @@ export function Progress({
         {entries.length > 1 && change < 0 ? (
           <View style={{ paddingHorizontal: 12, marginTop: 8 }}>
             <Serif italic size={16} color={c('textSecondary')} style={{ textAlign: 'center', lineHeight: 23 }}>
-              Down {Math.abs(change).toFixed(1)} kg in {spanDays} days — steady as you like.
+              Down {weightDelta(change, unit).value} {weightDelta(change, unit).suffix} in {spanDays} days — steady as you like.
             </Serif>
           </View>
         ) : null}
@@ -257,7 +260,7 @@ export function Progress({
             <>
               <Image source={{ uri: viewer.photoUri! }} style={{ width: '100%', height: '70%' }} resizeMode="contain" />
               <View style={{ alignItems: 'center', marginTop: 16, gap: 10 }}>
-                <Text style={[{ color: '#F7F2EA', fontSize: 15, fontWeight: '600' }, num]}>{viewer.kg.toFixed(1)} kg · {dateLabel(viewer.day)}</Text>
+                <Text style={[{ color: '#F7F2EA', fontSize: 15, fontWeight: '600' }, num]}>{kgToDisplay(viewer.kg, unit)} · {dateLabel(viewer.day)}</Text>
                 <View style={{ flexDirection: 'row', gap: 28 }}>
                   <TextLink label="Remove photo" tone="neutral" onPress={() => { removePhoto(viewer.day); setViewer(null); }} />
                   <TextLink label="Close" onPress={() => setViewer(null)} />

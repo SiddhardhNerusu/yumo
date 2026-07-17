@@ -16,6 +16,7 @@ import { AppShell } from './src/AppShell';
 import { EventStoreProvider } from './src/data/eventStore';
 import { KitchenProvider } from './src/data/kitchenStore';
 import { EntitlementProvider } from './src/data/entitlement';
+import { WeightUnitProvider } from './src/data/weightUnit';
 import { ErrorBoundary } from './src/ErrorBoundary';
 import { bootstrapSession } from './src/data/repo';
 
@@ -91,6 +92,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <EntitlementProvider>
+        <WeightUnitProvider>
         {loading || !fontsLoaded ? (
           <Splash fontsLoaded={fontsLoaded} />
         ) : profile ? (
@@ -103,6 +105,7 @@ export default function App() {
           <OnboardingFlow onDone={handleDone} />
         )}
         <StatusBar style="auto" />
+        </WeightUnitProvider>
       </EntitlementProvider>
     </ErrorBoundary>
   );

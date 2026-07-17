@@ -3,7 +3,9 @@ import { Modal, View, Text, ScrollView, Pressable, useWindowDimensions } from 'r
 import Svg, { Rect, Line } from 'react-native-svg';
 import type { UserProfile } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
+import { weightDelta } from '@yumo/shared';
 import { useTheme } from '../theme';
+import { useWeightUnit } from '../data/weightUnit';
 import { useNow } from '../useNow';
 import { useToday } from '../useToday';
 import { useEventStore } from '../data/eventStore';
@@ -121,6 +123,7 @@ function Meter({ label, got, want, accent }: { label: string; got: number; want:
  */
 export function Overview({ visible, onClose, profile }: { visible: boolean; onClose: () => void; profile: UserProfile }) {
   const { c } = useTheme();
+  const { unit } = useWeightUnit();
   const { events } = useEventStore();
   const now = useNow();
   const tokens = useMemo(() => [...profile.needs, ...profile.likes], [profile.needs, profile.likes]);
@@ -155,7 +158,7 @@ export function Overview({ visible, onClose, profile }: { visible: boolean; onCl
       : `Averaging ${weekDelta.toLocaleString()} kcal over budget — Mix it up for lighter picks.`;
   const monthLine = !month.logged ? null
     : wDelta != null
-      ? `${month.logged} of 30 days logged · weight ${wDelta <= 0 ? 'down' : 'up'} ${Math.abs(wDelta).toFixed(1)} kg${wDelta <= 0 && month.avgKcal <= profile.budgetKcal ? ' — the maths is working' : ''}.`
+      ? `${month.logged} of 30 days logged · weight ${wDelta <= 0 ? 'down' : 'up'} ${weightDelta(wDelta, unit).value} ${weightDelta(wDelta, unit).suffix}${wDelta <= 0 && month.avgKcal <= profile.budgetKcal ? ' — the maths is working' : ''}.`
       : `${month.logged} of 30 days logged. Add weigh-ins on Progress to see intake and weight side by side.`;
 
   const statRow = (cols: Array<[string, string, boolean?]>) => (
@@ -257,7 +260,7 @@ export function Overview({ visible, onClose, profile }: { visible: boolean; onCl
                   {statRow([
                     [`${month.logged} of 30`, 'days logged', month.logged >= 21],
                     [month.avgKcal.toLocaleString(), 'avg kcal / day'],
-                    [wDelta != null ? `${wDelta <= 0 ? '−' : '+'}${Math.abs(wDelta).toFixed(1)}` : '—', 'kg change', wDelta != null && wDelta <= 0],
+                    [wDelta != null ? `${wDelta <= 0 ? '−' : '+'}${weightDelta(wDelta, unit).value}` : '—', `${weightDelta(wDelta ?? 0, unit).suffix} change`, wDelta != null && wDelta <= 0],
                   ])}
                 </View>
                 <Text style={[{ color: c('textMuted'), fontSize: 12.5, marginTop: 12 }, num]}>
