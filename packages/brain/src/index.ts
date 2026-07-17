@@ -28,6 +28,9 @@ export {
 // Time
 export { localParts, daysBetween, hoursBetween, minuteOfDayDistance, median, type LocalParts } from './time';
 
+// Nudge scheduling (§M1 pure core)
+export { medianLogMinute, nextFireTs } from './schedule';
+
 // Menu
 export { onMenu, menuFoodsForSlot, menuPortion, type MenuEntry, type WeekMenu } from './menu';
 
