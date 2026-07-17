@@ -32,6 +32,7 @@ const SOURCE_KIND: Record<string, EventKind> = {
   recent: 'log',
   quickadd: 'log',
   edit: 'log',
+  mymeal: 'log', // §M5 saved-meal one-tap (explicit; SOURCE_KIND[…] ?? 'log' already yields this)
 };
 
 interface LogOpts {

@@ -3,10 +3,12 @@ import { View, Text, TextInput, Pressable, ScrollView, ActivityIndicator } from 
 import Svg, { Rect } from 'react-native-svg';
 import { useTheme } from '../theme';
 import { Sheet, Serif, Kicker, TextLink, PrimaryButton } from './kit';
+import { SwipeRow } from './SwipeRow';
 import { BarcodeScanner } from './BarcodeScanner';
 import { searchFoods, lookupBarcode } from '../data/repo';
 import { POOL } from '../data/menu-seed';
 import { SINGLE_FOODS } from '../data/foods-seed';
+import { useMyMeals } from '../data/myMeals';
 
 export interface Macros { kcal: number; protein_g: number; carbs_g: number; fat_g: number }
 export interface AddItem {
@@ -18,6 +20,9 @@ export interface AddItem {
   fatG?: number;
   /** display portion for FOODS rows. */
   portion?: string;
+  /** numeric grams when this item came from the portion stepper — M5 needs it so
+   * "Save to my meals" can record the portion (the string `portion` is display). */
+  portionG?: number;
   /** per-100g macros — present on gram-based FDC ingredients → enables the portion stepper. */
   per100g?: Macros;
   source: string;
@@ -118,12 +123,19 @@ export function AddSheet({
     return () => clearTimeout(t);
   }, [q, visible]);
 
+  const { meals: savedMeals, remove: removeMeal } = useMyMeals();
+  const myMealItems = useMemo<AddItem[]>(
+    () => savedMeals.map((m) => ({ id: m.id, name: m.name, kcal: m.kcal, proteinG: m.proteinG, carbsG: m.carbsG, fatG: m.fatG, portion: m.portion, source: 'mymeal' })),
+    [savedMeals],
+  );
+
   const filtering = q.trim().length > 0 || band !== null;
   const expanded = focused || q.trim().length > 0;
   const match = (it: AddItem) => (q.trim().length < 2 || it.name.toLowerCase().includes(q.trim().toLowerCase())) && (band === null || nearestBand(it.kcal) === band);
+  const myMeals = useMemo(() => myMealItems.filter(match), [q, band, myMealItems]);
   const meals = useMemo(() => MEALS.filter(match), [q, band]);
   const foods = useMemo(() => [...FOODS.filter(match), ...hits.filter((h) => band === null || nearestBand(h.kcal) === band)], [q, band, hits]);
-  const nothing = filtering && meals.length === 0 && foods.length === 0 && !loading;
+  const nothing = filtering && myMeals.length === 0 && meals.length === 0 && foods.length === 0 && !loading;
 
   // A gram-based ingredient (has per100g) opens the portion stepper; curated foods
   // and per-serving meals log in a single tap.
@@ -141,7 +153,7 @@ export function AddSheet({
     <Pressable onPress={() => tap(it)} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', paddingVertical: 11, opacity: pressed ? 0.6 : 1 })}>
       <View style={{ flex: 1, marginRight: 10 }}>
         <Text style={{ color: c('textPrimary'), fontSize: 15, fontWeight: '500' }} numberOfLines={2}>{it.name}</Text>
-        {meal ? (
+        {meal && it.proteinG != null ? (
           <Text style={[{ color: c('textMuted'), fontSize: 12, marginTop: 2 }, num]}>{it.proteinG}P · {it.carbsG}C · {it.fatG}F</Text>
         ) : it.portion ? (
           <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 2 }}>{it.per100g ? `per ${it.portion} · tap to set amount` : it.portion}</Text>
@@ -196,7 +208,7 @@ export function AddSheet({
           ))}
         </View>
 
-        <PrimaryButton label={`Add ${m.kcal} kcal`} full onPress={() => onLog({ ...editing.item, kcal: m.kcal, proteinG: m.proteinG, carbsG: m.carbsG, fatG: m.fatG, portion: `${g} g` })} />
+        <PrimaryButton label={`Add ${m.kcal} kcal`} full onPress={() => onLog({ ...editing.item, kcal: m.kcal, proteinG: m.proteinG, carbsG: m.carbsG, fatG: m.fatG, portion: `${g} g`, portionG: g })} />
       </Sheet>
     );
   }
@@ -252,6 +264,19 @@ export function AddSheet({
                 <Serif size={18} color={c('textPrimary')} style={{ flex: 1 }}>{planned.name}</Serif>
                 <Text style={[{ color: c('accentSoft'), fontSize: 15, fontWeight: '700' }, num]}>{planned.kcal} kcal</Text>
               </Pressable>
+            </View>
+          ) : null}
+
+          {myMeals.length ? (
+            <View style={{ marginTop: 18 }}>
+              <Kicker>My meals</Kicker>
+              <View style={{ marginTop: 4 }}>
+                {myMeals.map((it) => (
+                  <SwipeRow key={it.id} onDelete={() => removeMeal(it.id)}>
+                    <Row it={it} meal />
+                  </SwipeRow>
+                ))}
+              </View>
             </View>
           ) : null}
 

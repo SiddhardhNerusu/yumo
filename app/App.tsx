@@ -17,6 +17,7 @@ import { EventStoreProvider } from './src/data/eventStore';
 import { KitchenProvider } from './src/data/kitchenStore';
 import { EntitlementProvider } from './src/data/entitlement';
 import { WeightUnitProvider } from './src/data/weightUnit';
+import { MyMealsProvider } from './src/data/myMeals';
 import { ErrorBoundary } from './src/ErrorBoundary';
 import { bootstrapSession } from './src/data/repo';
 
@@ -85,7 +86,7 @@ export default function App() {
   };
 
   const handleReset = async () => {
-    await AsyncStorage.multiRemove([PROFILE_KEY, EVENTLOG_KEY, 'usual.paywallSeen.v1', 'usual.entitlement.v1']).catch(() => {});
+    await AsyncStorage.multiRemove([PROFILE_KEY, EVENTLOG_KEY, 'usual.paywallSeen.v1', 'usual.entitlement.v1', 'yumo.mymeals.v1']).catch(() => {});
     setProfile(null);
   };
 
@@ -98,7 +99,9 @@ export default function App() {
         ) : profile ? (
           <EventStoreProvider>
             <KitchenProvider seedTokens={profile.pantry}>
-              <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+              <MyMealsProvider>
+                <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+              </MyMealsProvider>
             </KitchenProvider>
           </EventStoreProvider>
         ) : (

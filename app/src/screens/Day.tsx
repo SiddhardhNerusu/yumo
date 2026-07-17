@@ -13,6 +13,8 @@ import { getMenu, getMixup, getRecipeDetail, portionLabel, makePantryFit, type S
 import { learnedWeights, mixReason } from '../data/menuPrefs';
 import { weekMenuFor } from '../data/menuBridge';
 import { resolveFoodMeta } from '../data/resolveFoodMeta';
+import { useMyMeals, isMealSaved } from '../data/myMeals';
+import { haptics } from '../haptics';
 import { cookability, type Cookability } from '../data/cookability';
 import { expiringItems, expiringUsedBy, recipesUsingExpiring } from '../data/expiring';
 import { POOL } from '../data/menu-seed';
@@ -60,6 +62,7 @@ export function Day({ profile }: { profile: UserProfile }) {
   const { c } = useTheme();
   const { events, logFood, skipMeal, deleteLog, recordMixupPick, thumbRecipe, thumbs } = useEventStore();
   const kitchen = useKitchen();
+  const { meals: savedMeals, save: saveMeal } = useMyMeals();
   const now = useNow();
   const budget = profile.budgetKcal;
   const tokens = useMemo(() => [...profile.needs, ...profile.likes], [profile.needs, profile.likes]);
@@ -642,6 +645,17 @@ export function Day({ profile }: { profile: UserProfile }) {
                                   ))}
                                 </View>
                               ) : null}
+                              {/* M5: a custom/FDC/barcode food (no catalogue recipe) can be saved
+                                  as a one-tap "my meal". Catalogue recipes are already one-tap. */}
+                              {!rec ? (
+                                isMealSaved(savedMeals, item.name, item.kcal) ? (
+                                  <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 8 }}>Saved ✓</Text>
+                                ) : (
+                                  <View style={{ marginTop: 8, alignSelf: 'flex-start' }}>
+                                    <TextLink label="Save to my meals" size={13} onPress={() => { saveMeal({ name: item.name, kcal: item.kcal, proteinG: item.proteinG ?? undefined, carbsG: item.carbsG ?? undefined, fatG: item.fatG ?? undefined, portion: item.portionG != null ? `${item.portionG} g` : undefined }); haptics.success(); }} />
+                                  </View>
+                                )
+                              ) : null}
                             </View>
                           </SwipeRow>
                         );
@@ -753,7 +767,7 @@ export function Day({ profile }: { profile: UserProfile }) {
         onLog={(it) => {
           if (addSlot) {
             const past = addSlot.epochDay < todayEpoch;
-            logFood(it.id, { slot: addSlot.slot, kcal: it.kcal, proteinG: it.proteinG, carbsG: it.carbsG, fatG: it.fatG, name: it.name, source: it.source, taps: 2, ...(past ? { ts: tsFor(addSlot.epochDay, addSlot.slot) } : {}) });
+            logFood(it.id, { slot: addSlot.slot, kcal: it.kcal, portionG: it.portionG, proteinG: it.proteinG, carbsG: it.carbsG, fatG: it.fatG, name: it.name, source: it.source, taps: 2, ...(past ? { ts: tsFor(addSlot.epochDay, addSlot.slot) } : {}) });
           }
           setAddSlot(null);
         }}

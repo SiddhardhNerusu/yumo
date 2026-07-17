@@ -15,7 +15,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 /** Springy press feedback — snaps down fast, releases with a little bounce.
  * The difference between an instant style-swap and this is most of "premium touch". */
-function usePress(to = 0.96) {
+export function usePress(to = 0.96) {
   const s = useRef(new Animated.Value(1)).current;
   const onPressIn = () => { haptics.tap(); Animated.spring(s, { toValue: to, useNativeDriver: true, speed: 50, bounciness: 0 }).start(); };
   const onPressOut = () => Animated.spring(s, { toValue: 1, useNativeDriver: true, speed: 38, bounciness: 7 }).start();
@@ -64,11 +64,11 @@ export function OutlineButton({ label, onPress, flex, full }: { label: string; o
   );
 }
 
-export function TextLink({ label, onPress, tone = 'positive' }: { label: string; onPress?: () => void; tone?: 'positive' | 'neutral' }) {
+export function TextLink({ label, onPress, tone = 'positive', size = 14 }: { label: string; onPress?: () => void; tone?: 'positive' | 'neutral'; size?: number }) {
   const { c } = useTheme();
   return (
     <Pressable onPress={onPress} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
-      <Text style={{ color: tone === 'positive' ? c('accentSoft') : c('textMuted'), fontSize: 14, fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color: tone === 'positive' ? c('accentSoft') : c('textMuted'), fontSize: size, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 }
