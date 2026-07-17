@@ -22,7 +22,7 @@ A 45-finding adversarial audit (`docs/plans/` + code) drove this session. **Gate
 | `b28a22d` | **WS-8**: a11y sweep (tab roles/selected, labels, 44px hitSlop targets). |
 | `45cae2a` | **WS-9**: token/spec fidelity (grabber, backdrop, meal-name w500, New-week pill, `warningFaint` token, emoji removed). |
 
-**Still open:** new **EAS build** needed to get all this on device (barcode camera + honest first-run are build-only). Deferred: real receipt OCR (Phase C), the WS-7 regex/carb-fat items, tab-bar blur (needs expo-blur), the high-tier "the usual?" card is now confirmed rendering (was masked by the demo seed).
+**Still open:** new **EAS build** needed to get all this on device (barcode camera, honest first-run, image-picker are build-only). **Next work is planned and Sid-approved:** `docs/plans/next_wave_master_plan.md` (2026-07-17) — nudges+widget, backfill, units, targets, my meals, on-device receipt OCR, Apple Health, seasoning-list debt. Follow it milestone by milestone; it carries the UI language cheat-sheet and the browser-verify gotchas.
 
 ---
 

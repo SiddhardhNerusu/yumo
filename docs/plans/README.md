@@ -11,6 +11,7 @@ version-controlled, so they travel with the code.
 | **[kitchen_master_plan.md](kitchen_master_plan.md)** | "The Kitchen" moat — fridge/pantry inventory. Fuzzy levels (never a ledger), re-rank-never-restrict, computed expiry, deterministic depletion, receipts as the hero input, the animated fridge scene. Phases A–E. | ✅ **Built** (A–D). E (household) not started. |
 | **[kitchen_addendum_v1.1.md](kitchen_addendum_v1.1.md)** | Delta on the v1 fridge → the zoomable **room** (4th zone "the counter", wood/appliance materials, dynamic shelves, glyph tiles, receipt choreography). | ✅ **Built.** |
 | **[yumo_redesign_master_brief.md](yumo_redesign_master_brief.md)** | The dark-first serif UI redesign — token ladder, Newsreader serif, the shared `kit.tsx` component set, per-screen specs. | ✅ **Built.** |
+| **[next_wave_master_plan.md](next_wave_master_plan.md)** | Sid-approved 2026-07-17 wave: actionable nudges + iOS widget (the moat's delivery), backfill logging, weight units, editable macro targets, saved meals, on-device receipt OCR, Apple Health, seasoning-list debt. M1–M8 with binding UI specs. | 🔨 **Approved — for Opus to implement.** |
 
 ---
 
