@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { localParts } from '@yumo/brain';
-import { roundStorageKg } from '@yumo/shared';
+import { roundStorageKg, mergeHealthEntries } from '@yumo/shared';
 
 const KEY = 'yumo.weight.v1';
 
@@ -13,6 +13,9 @@ export interface WeightEntry {
   /** optional progress photo, persisted into the app's documents dir on native. */
   photoUri?: string;
   ts: number;
+  /** §M7 D15: 'manual' (hand-logged) vs 'health' (Apple Health import). Absent ==
+   * manual, so every pre-M7 row is treated as manual and never clobbered. */
+  source?: 'manual' | 'health';
 }
 
 /** Copy a picked photo out of the picker's temp cache so it survives (native);
@@ -69,6 +72,7 @@ export function useWeights(nowMs: number) {
         day,
         kg: roundStorageKg(kg),
         ts: Date.now(),
+        source: 'manual',
         ...(photoUri ? { photoUri } : existing?.photoUri ? { photoUri: existing.photoUri } : {}),
       };
       const next = [...prev.filter((e) => e.day !== day), entry].sort((a, b) => a.day - b.day);
@@ -97,5 +101,22 @@ export function useWeights(nowMs: number) {
     });
   }, []);
 
-  return { entries, logWeight, removePhoto, deleteEntry, write };
+  /** §M7: merge Apple Health bodyMass samples in (D15 rules via mergeHealthEntries).
+   * The pure merge is photo-agnostic, so re-attach progress photos by day here. */
+  const importEntries = useCallback((samples: { kg: number; ts: number }[]) => {
+    if (!samples.length) return;
+    setEntries((prev) => {
+      const withDay = samples.map((s) => ({ day: localParts(s.ts, 0).epochDay, kg: s.kg, ts: s.ts }));
+      const merged = mergeHealthEntries(prev, withDay);
+      const photoByDay = new Map(prev.filter((e) => e.photoUri).map((e) => [e.day, e.photoUri!] as const));
+      const next: WeightEntry[] = merged.map((m) => {
+        const photo = photoByDay.get(m.day);
+        return photo ? { ...m, photoUri: photo } : m;
+      });
+      AsyncStorage.setItem(KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  return { entries, logWeight, removePhoto, deleteEntry, write, importEntries };
 }
