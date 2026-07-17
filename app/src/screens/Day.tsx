@@ -17,7 +17,7 @@ import { POOL } from '../data/menu-seed';
 import { BudgetRing } from '../components/BudgetRing';
 import { CoachLine } from '../components/CoachLine';
 import { MacroBar } from '../components/MacroBar';
-import { NutritionSheet, type MealBreakdown } from '../components/NutritionSheet';
+import { Overview } from './Overview';
 import { macroTargets } from '../data/macros';
 import { MixSheet, type MixOption } from '../components/MixSheet';
 import { RecipeSheet } from '../components/RecipeSheet';
@@ -164,15 +164,6 @@ export function Day({ profile }: { profile: UserProfile }) {
     for (const sl of state.slots) for (const it of sl.items) { proteinG += it.proteinG ?? 0; carbsG += it.carbsG ?? 0; fatG += it.fatG ?? 0; }
     return { proteinG, carbsG, fatG };
   }, [state.slots]);
-  const mealBreakdown = useMemo<MealBreakdown[]>(() =>
-    state.slots.map((sl) => ({
-      slot: sl.slot,
-      kcal: sl.kcal,
-      proteinG: sl.items.reduce((a, it) => a + (it.proteinG ?? 0), 0),
-      carbsG: sl.items.reduce((a, it) => a + (it.carbsG ?? 0), 0),
-      fatG: sl.items.reduce((a, it) => a + (it.fatG ?? 0), 0),
-      items: sl.items.map((it) => ({ name: it.name, kcal: it.kcal })),
-    })), [state.slots]);
 
   // ── loading skeleton ────────────────────────────────────────────────────────
   if (!plan) {
@@ -308,19 +299,6 @@ export function Day({ profile }: { profile: UserProfile }) {
   const d = new Date(now);
   const dateStr = `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
 
-  // one plain-English overview line: protein to go vs what the remaining menu covers.
-  const proteinToGo = targets.proteinG - Math.round(macrosEaten.proteinG);
-  let plannedProteinLeft = 0;
-  for (const sl of state.slots) {
-    if (sl.items.length || sl.skipped) continue;
-    const p = currentForToday(sl.slot);
-    if (p) plannedProteinLeft += p.protein;
-  }
-  const overviewNote = proteinToGo <= 0
-    ? 'Protein target met — nicely done.'
-    : plannedProteinLeft > 0
-      ? `${proteinToGo}g protein to go — your remaining menu covers about ${plannedProteinLeft}g.`
-      : `${proteinToGo}g protein to go today.`;
 
   // ── the planned-meal block (Menu card anatomy) — shared today/other-days ────
   const plannedBlock = (slot: MealSlot, cur: Cur, opts: { loggable: boolean; addLinks: boolean }) => {
@@ -634,7 +612,7 @@ export function Day({ profile }: { profile: UserProfile }) {
 
       <MixSheet visible={mix !== null} currentName={mix?.recipe.name ?? ''} options={mixOptions} loading={mixLoading} onPick={pickMix} onClose={() => setMix(null)} />
       <RecipeSheet recipe={sheet} onClose={() => setSheet(null)} />
-      <NutritionSheet visible={showOverview} onClose={() => setShowOverview(false)} budget={state.budget} eatenKcal={state.eaten} eaten={macrosEaten} targets={targets} meals={mealBreakdown} note={overviewNote} />
+      <Overview visible={showOverview} onClose={() => setShowOverview(false)} profile={profile} />
       <AddSheet
         visible={addSlot !== null}
         slotLabel={addSlot ? cap(addSlot) : ''}
