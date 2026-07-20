@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { View, Text, ScrollView, Pressable, Animated, Easing, Image, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, Animated, Easing, Image } from 'react-native';
 import Svg, { Circle, Rect, G } from 'react-native-svg';
 import type { UserProfile } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
@@ -8,11 +8,12 @@ import type { GoalPrefs } from '../data/goalPrefs';
 import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
 import { WeightChart } from '../components/WeightChart';
+import { PhotoJourney } from './PhotoJourney';
 import { Settings } from '../components/Settings';
 import { WeightSheet } from '../components/WeightSheet';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
-import { useWeights, persistPhoto, type WeightEntry } from '../data/weightStore';
+import { useWeights, persistPhoto } from '../data/weightStore';
 import { computeStreak, weeklyLogged } from '../data/streak';
 import { MEAL_OUT_BASELINE, TYPICAL_MEAL_COST, gbp } from '../data/kitchenMoney';
 import { Serif, Kicker, Card, PrimaryButton, TextLink } from '../components/kit';
@@ -84,7 +85,7 @@ export function Progress({
   const now = useNow();
   const [showSettings, setShowSettings] = useState(false);
   const [showLog, setShowLog] = useState(false);
-  const [viewer, setViewer] = useState<WeightEntry | null>(null);
+  const [viewer, setViewer] = useState<number | null>(null); // the day whose photo opens the journey
   const [range, setRange] = useState<WeightRange>('m');
   const { entries, logWeight, removePhoto } = useWeights(now);
 
@@ -217,10 +218,13 @@ export function Progress({
           {/* progress photos — attached to weigh-ins, newest first */}
           {photos.length ? (
             <View style={{ marginTop: 16 }}>
-              <Kicker>Progress photos</Kicker>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Kicker>Progress photos</Kicker>
+                <TextLink label="See all ›" size={13} onPress={() => { const p = photos[0]; if (p) setViewer(p.day); }} />
+              </View>
               <ScrollView horizontal showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }} contentContainerStyle={{ gap: 8 }}>
                 {photos.map((e) => (
-                  <Pressable key={e.day} onPress={() => setViewer(e)} accessibilityRole="imagebutton" accessibilityLabel={`Progress photo, ${dateLabel(e.day)}`}>
+                  <Pressable key={e.day} onPress={() => setViewer(e.day)} accessibilityRole="imagebutton" accessibilityLabel={`Progress photo, ${dateLabel(e.day)}`}>
                     <Image source={{ uri: e.photoUri! }} style={{ width: 72, height: 96, borderRadius: 12, backgroundColor: c('surfaceSunken') }} />
                     <Text style={[{ color: c('textMuted'), fontSize: 10.5, marginTop: 4, textAlign: 'center' }, num]}>{kgToDisplay(e.kg, unit)}</Text>
                   </Pressable>
@@ -282,23 +286,17 @@ export function Progress({
 
       <WeightSheet visible={showLog} initialKg={latest?.kg ?? profile.targetWeightKg} onSave={saveWeight} onClose={() => setShowLog(false)} />
 
-      {/* full-screen photo viewer */}
-      <Modal visible={viewer !== null} transparent animationType="fade" onRequestClose={() => setViewer(null)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.92)', justifyContent: 'center' }}>
-          {viewer ? (
-            <>
-              <Image source={{ uri: viewer.photoUri! }} style={{ width: '100%', height: '70%' }} resizeMode="contain" />
-              <View style={{ alignItems: 'center', marginTop: 16, gap: 10 }}>
-                <Text style={[{ color: '#F7F2EA', fontSize: 15, fontWeight: '600' }, num]}>{kgToDisplay(viewer.kg, unit)} · {dateLabel(viewer.day)}</Text>
-                <View style={{ flexDirection: 'row', gap: 28 }}>
-                  <TextLink label="Remove photo" tone="neutral" onPress={() => { removePhoto(viewer.day); setViewer(null); }} />
-                  <TextLink label="Close" onPress={() => setViewer(null)} />
-                </View>
-              </View>
-            </>
-          ) : null}
-        </View>
-      </Modal>
+      {/* §R4 full-screen swipe-through photo journey (Goyo port) */}
+      {viewer != null ? (
+        <PhotoJourney
+          photos={photos.map((p) => ({ day: p.day, kg: p.kg, photoUri: p.photoUri! }))}
+          startIndex={Math.max(0, photos.findIndex((p) => p.day === viewer))}
+          unit={unit}
+          fmtDate={dateLabel}
+          onRemove={(day) => { if (photos.length <= 1) setViewer(null); removePhoto(day); }}
+          onClose={() => setViewer(null)}
+        />
+      ) : null}
 
       {showSettings ? (
         <Settings profile={profile} goal={goal} prefs={prefs} currentKg={latest?.kg ?? profile.targetWeightKg} onClose={() => setShowSettings(false)} onSave={onUpdateProfile} onReset={onReset} />
