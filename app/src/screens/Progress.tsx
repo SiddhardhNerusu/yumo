@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, Animated, Easing, Image, Modal } fro
 import Svg, { Circle, Rect, G } from 'react-native-svg';
 import type { UserProfile } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
-import { weightParts, weightDelta, kgToDisplay, type Goal } from '@yumo/shared';
+import { weightParts, weightDelta, kgToDisplay, windowWeights, type Goal, type WeightRange } from '@yumo/shared';
 import type { GoalPrefs } from '../data/goalPrefs';
 import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
@@ -21,6 +21,13 @@ import { track } from '../analytics';
 import { haptics } from '../haptics';
 
 const num = { fontVariant: ['tabular-nums' as const] };
+const RANGES: { v: WeightRange; label: string }[] = [
+  { v: 'w', label: 'W' },
+  { v: 'm', label: 'M' },
+  { v: 'y', label: 'Y' },
+  { v: 'all', label: 'All' },
+];
+const RANGE_CAPTION: Record<WeightRange, string> = { w: 'this week', m: 'this month', y: 'this year', all: 'all time' };
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -78,6 +85,7 @@ export function Progress({
   const [showSettings, setShowSettings] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [viewer, setViewer] = useState<WeightEntry | null>(null);
+  const [range, setRange] = useState<WeightRange>('m');
   const { entries, logWeight, removePhoto } = useWeights(now);
 
   // §8 "from your kitchen" recap (money stays on Progress, off Today).
@@ -86,11 +94,11 @@ export function Progress({
   const showKitchenRecap = kitchen.stats.cooked > 0 || kitchen.stats.wasted > 0;
 
   // ── weight, from REAL weigh-ins ─────────────────────────────────────────────
-  const kgs = entries.map((e) => e.kg);
   const latest = entries[entries.length - 1] ?? null;
   const first = entries[0] ?? null;
   const change = latest && first ? latest.kg - first.kg : 0;
   const todayEpoch = localParts(now, 0).epochDay;
+  const windowed = useMemo(() => windowWeights(entries, range, todayEpoch), [entries, range, todayEpoch]);
   const weekAgo = entries.filter((e) => e.day <= todayEpoch - 7).pop();
   const kgThisWeek = latest && weekAgo ? latest.kg - weekAgo.kg : null;
   const spanDays = latest && first ? latest.day - first.day : 0;
@@ -151,9 +159,9 @@ export function Progress({
         <Card style={{ marginTop: 4 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Kicker>Weight</Kicker>
-            {latest && first && entries.length > 1 ? (
-              <View style={{ backgroundColor: change <= 0 ? c('successFaint') : c('surfaceSunken'), borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
-                <Text style={[{ color: change <= 0 ? c('success') : c('textSecondary'), fontSize: 13, fontWeight: '700' }, num]}>{change <= 0 ? '▾' : '▴'} {weightDelta(change, unit).value} {weightDelta(change, unit).suffix}</Text>
+            {windowed.delta != null ? (
+              <View style={{ backgroundColor: windowed.delta <= 0 ? c('successFaint') : c('surfaceSunken'), borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
+                <Text style={[{ color: windowed.delta <= 0 ? c('success') : c('textSecondary'), fontSize: 13, fontWeight: '700' }, num]}>{windowed.delta <= 0 ? '▾' : '▴'} {weightDelta(windowed.delta, unit).value} {weightDelta(windowed.delta, unit).suffix}</Text>
               </View>
             ) : null}
           </View>
@@ -169,8 +177,24 @@ export function Progress({
               </View>
               {entries.length > 1 ? (
                 <>
-                  <WeightChart data={kgs} />
-                  <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>7-day trend · daily weigh-ins ghosted</Text>
+                  <View style={{ marginTop: 10, flexDirection: 'row', backgroundColor: c('surfaceSunken'), borderRadius: 999, padding: 4 }}>
+                    {RANGES.map((r) => {
+                      const on = range === r.v;
+                      return (
+                        <Pressable key={r.v} onPress={() => setRange(r.v)} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`Range ${r.label}`} style={{ flex: 1, borderRadius: 999, paddingVertical: 7, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
+                          <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 12.5, fontWeight: '600' }}>{r.label}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {windowed.points.length > 1 ? (
+                    <>
+                      <WeightChart data={windowed.points.map((p) => p.kg)} />
+                      <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>7-day trend · {RANGE_CAPTION[range]}</Text>
+                    </>
+                  ) : (
+                    <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 12 }}>No weigh-ins in this window yet.</Text>
+                  )}
                 </>
               ) : (
                 <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 2 }}>Your trend line starts with the next weigh-in.</Text>

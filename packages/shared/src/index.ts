@@ -8,3 +8,4 @@ export * from './scaling';
 export * from './receipt';
 export * from './healthMerge';
 export * from './macroSplit';
+export * from './weightWindows';
