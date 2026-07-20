@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { ALLERGENS, type Allergen } from '@yumo/shared';
+import { ALLERGENS, type Allergen, type Goal } from '@yumo/shared';
 import { PROTEIN_FLOOR_PER_KG, type UserProfile, type VariationDial } from '@yumo/menu';
 import type { WeightUnit } from '@yumo/shared';
+import type { GoalPrefs } from '../data/goalPrefs';
 import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
 import { ALLERGEN_LABELS, PANTRY_STAPLES } from '../data/onboarding-seed';
@@ -30,13 +31,20 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export function Settings({
   profile,
+  goal,
+  prefs,
+  currentKg,
   onClose,
   onSave,
   onReset,
 }: {
   profile: UserProfile;
+  goal: Goal;
+  prefs?: GoalPrefs;
+  /** latest weigh-in (falls back to onboarding weight) — the budget engine's weight input. */
+  currentKg: number;
   onClose: () => void;
-  onSave: (p: UserProfile) => void;
+  onSave: (p: UserProfile, goal?: Goal, prefs?: GoalPrefs) => void;
   onReset: () => void;
 }) {
   const { c } = useTheme();
@@ -96,7 +104,7 @@ export function Settings({
       variation,
       allergies,
       pantry,
-    });
+    }, goal, prefs);
     onClose();
   };
 

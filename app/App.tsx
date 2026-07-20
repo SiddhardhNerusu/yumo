@@ -10,6 +10,7 @@ import {
 } from '@expo-google-fonts/newsreader';
 import type { UserProfile } from '@yumo/menu';
 import type { Goal } from '@yumo/shared';
+import { parseProfileEnvelope, type GoalPrefs } from './src/data/goalPrefs';
 import { useTheme } from './src/theme';
 import { OnboardingFlow } from './src/onboarding/OnboardingFlow';
 import { AppShell } from './src/AppShell';
@@ -40,6 +41,7 @@ function Splash({ fontsLoaded }: { fontsLoaded: boolean }) {
 export default function App() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [goal, setGoal] = useState<Goal>('maintain');
+  const [prefs, setPrefs] = useState<GoalPrefs | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [fontsLoaded] = useFonts({
     Newsreader_400Regular,
@@ -52,15 +54,12 @@ export default function App() {
     let alive = true;
     AsyncStorage.getItem(PROFILE_KEY)
       .then((v) => {
-        if (v && alive) {
-          try {
-            const saved = JSON.parse(v) as { profile: UserProfile; goal: Goal };
-            setProfile(saved.profile);
-            setGoal(saved.goal);
-            void bootstrapSession(saved.profile, saved.goal).catch(() => {});
-          } catch {
-            // ignore corrupt profile
-          }
+        const saved = parseProfileEnvelope(v);
+        if (saved && alive) {
+          setProfile(saved.profile);
+          setGoal(saved.goal);
+          setPrefs(saved.prefs);
+          void bootstrapSession(saved.profile, saved.goal).catch(() => {});
         }
       })
       .catch(() => {})
@@ -72,16 +71,19 @@ export default function App() {
     };
   }, []);
 
-  const handleDone = async (p: UserProfile, g: Goal) => {
+  const handleDone = async (p: UserProfile, g: Goal, pr?: GoalPrefs) => {
     setGoal(g);
-    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile: p, goal: g })).catch(() => {});
+    setPrefs(pr);
+    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile: p, goal: g, prefs: pr })).catch(() => {});
     await bootstrapSession(p, g);
     setProfile(p);
   };
 
-  const handleUpdateProfile = async (p: UserProfile) => {
-    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile: p, goal })).catch(() => {});
-    await bootstrapSession(p, goal);
+  const handleUpdateProfile = async (p: UserProfile, g: Goal = goal, pr: GoalPrefs | undefined = prefs) => {
+    setGoal(g);
+    setPrefs(pr);
+    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile: p, goal: g, prefs: pr })).catch(() => {});
+    await bootstrapSession(p, g);
     setProfile(p);
   };
 
@@ -100,7 +102,7 @@ export default function App() {
           <EventStoreProvider>
             <KitchenProvider seedTokens={profile.pantry}>
               <MyMealsProvider>
-                <AppShell profile={profile} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+                <AppShell profile={profile} goal={goal} prefs={prefs} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
               </MyMealsProvider>
             </KitchenProvider>
           </EventStoreProvider>

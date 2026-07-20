@@ -3,7 +3,8 @@ import { View, Text, ScrollView, Pressable, Animated, Easing, Image, Modal } fro
 import Svg, { Circle, Rect, G } from 'react-native-svg';
 import type { UserProfile } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
-import { weightParts, weightDelta, kgToDisplay } from '@yumo/shared';
+import { weightParts, weightDelta, kgToDisplay, type Goal } from '@yumo/shared';
+import type { GoalPrefs } from '../data/goalPrefs';
 import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
 import { WeightChart } from '../components/WeightChart';
@@ -58,12 +59,16 @@ function CogButton({ onOpen }: { onOpen: () => void }) {
 
 export function Progress({
   profile,
+  goal,
+  prefs,
   onReset,
   onUpdateProfile,
 }: {
   profile: UserProfile;
+  goal: Goal;
+  prefs?: GoalPrefs;
   onReset: () => void;
-  onUpdateProfile: (p: UserProfile) => void;
+  onUpdateProfile: (p: UserProfile, goal?: Goal, prefs?: GoalPrefs) => void;
 }) {
   const { c } = useTheme();
   const { unit } = useWeightUnit();
@@ -272,7 +277,7 @@ export function Progress({
       </Modal>
 
       {showSettings ? (
-        <Settings profile={profile} onClose={() => setShowSettings(false)} onSave={onUpdateProfile} onReset={onReset} />
+        <Settings profile={profile} goal={goal} prefs={prefs} currentKg={latest?.kg ?? profile.targetWeightKg} onClose={() => setShowSettings(false)} onSave={onUpdateProfile} onReset={onReset} />
       ) : null}
     </View>
   );

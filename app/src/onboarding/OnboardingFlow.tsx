@@ -17,6 +17,7 @@ import { BubbleCloud } from './BubbleCloud';
 import { FOOD_PARENTS } from '../data/food-graph';
 import { BUBBLE_FOODS, CUISINES, PANTRY_STAPLES, ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { getCuisines } from '../data/repo';
+import { RATE_PRESETS, type GoalPrefs } from '../data/goalPrefs';
 import { coach } from '../coach/pack';
 import { track } from '../analytics';
 
@@ -64,13 +65,6 @@ const DEFAULT: OnbState = {
   healthOptIn: true,
 };
 
-const RATE_PRESETS: { rate: number; label: string }[] = [
-  { rate: 0.25, label: 'Gentle · 0.25 kg/wk' },
-  { rate: 0.5, label: 'Steady · 0.5 kg/wk' },
-  { rate: 0.75, label: 'Focused · 0.75 kg/wk' },
-  { rate: 1.0, label: 'Fast · 1 kg/wk' },
-];
-
 const GOALS: { goal: Goal; label: string; sub: string }[] = [
   { goal: 'lose', label: 'Lose weight', sub: 'A gentle, sustainable deficit' },
   { goal: 'maintain', label: 'Maintain', sub: 'Hold steady, eat well' },
@@ -103,7 +97,7 @@ function stepsFor(goal: Goal): string[] {
   ];
 }
 
-export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal: Goal) => void }) {
+export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal: Goal, prefs?: GoalPrefs) => void }) {
   const { c, radius } = useTheme();
   const [s, setS] = useState<OnbState>(DEFAULT);
   const [index, setIndex] = useState(0);
@@ -169,8 +163,15 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
       variation: s.variation,
       cuisineLean: s.cuisineLean,
     };
+    const prefs: GoalPrefs = {
+      heightCm: s.heightCm,
+      age: s.age,
+      sex: s.sex,
+      activity: s.activity,
+      rateKgPerWeek: s.rateKgPerWeek,
+    };
     track('onboard_completed');
-    onDone(profile, s.goal);
+    onDone(profile, s.goal, prefs);
   };
 
   const bodyValid = s.weightKg > 0 && s.heightCm > 0 && s.age > 0;

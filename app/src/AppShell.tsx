@@ -3,6 +3,8 @@ import { View, Text, Pressable, Animated } from 'react-native';
 import Svg, { Circle, Rect } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProfile } from '@yumo/menu';
+import type { Goal } from '@yumo/shared';
+import type { GoalPrefs } from './data/goalPrefs';
 import { useTheme } from './theme';
 import { HAIRLINE_TOP } from './components/kit';
 import { haptics } from './haptics';
@@ -49,12 +51,16 @@ function TabIcon({ name, color }: { name: Tab; color: string }) {
 
 export function AppShell({
   profile,
+  goal,
+  prefs,
   onReset,
   onUpdateProfile,
 }: {
   profile: UserProfile;
+  goal: Goal;
+  prefs?: GoalPrefs;
   onReset: () => void;
-  onUpdateProfile: (p: UserProfile) => void;
+  onUpdateProfile: (p: UserProfile, goal?: Goal, prefs?: GoalPrefs) => void;
 }) {
   const { c } = useTheme();
   const { isPremium } = useEntitlement();
@@ -86,7 +92,7 @@ export function AppShell({
       <Animated.View style={{ flex: 1, opacity: screenOp }}>
         {tab === 'today' ? <Day profile={profile} /> : null}
         {tab === 'kitchen' ? <Kitchen profile={profile} /> : null}
-        {tab === 'progress' ? <Progress profile={profile} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
+        {tab === 'progress' ? <Progress profile={profile} goal={goal} prefs={prefs} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
       </Animated.View>
       <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: HAIRLINE_TOP, backgroundColor: c('surface'), paddingBottom: 26, paddingTop: 8, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: -8 }, elevation: 12 }}>
         {TABS.map((t) => {
