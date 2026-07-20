@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, Pressable, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { localParts, logEvents, portionChips } from '@yumo/brain';
-import type { MealSlot } from '@yumo/shared';
-import type { MenuRecipe, UserProfile, WeekMenuPlan } from '@yumo/menu';
+import { SLOT_ENVELOPE, type MealSlot } from '@yumo/shared';
+import { softScore, isAllowed, type MenuRecipe, type UserProfile, type WeekMenuPlan, type ScoreContext } from '@yumo/menu';
 import { useTheme } from '../theme';
-import { useToday } from '../useToday';
+import { useToday, type Tile } from '../useToday';
 import { useNow } from '../useNow';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
@@ -27,6 +27,8 @@ import { macroTargets } from '../data/macros';
 import { MixSheet, type MixOption } from '../components/MixSheet';
 import { RecipeSheet } from '../components/RecipeSheet';
 import { AddSheet, type AddItem } from '../components/AddSheet';
+import { SuggestionBlock } from '../components/SuggestionBlock';
+import { suggestFor, budgetIsTight, type SuggestCtx, type SuggestCur } from '../data/suggest';
 import { Serif, Kicker, Card, PrimaryButton, MixButton, OutlineButton, TextLink, Skeleton, ACCENT_BORDER } from '../components/kit';
 import { SwipeRow } from '../components/SwipeRow';
 import { track } from '../analytics';
@@ -279,6 +281,32 @@ export function Day({ profile }: { profile: UserProfile }) {
     const kcal = Math.round(pick.kcal);
     return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal), portionScale: pick.portionScale };
   }
+
+  // ── §R2 slot suggestions: build a Cur for any pool recipe (at its authored
+  //    serving) + the injected ctx the pure suggestFor selects over. ────────────
+  const curFor = (r: MenuRecipe): SuggestCur => { const kcal = Math.round(r.perServing.kcal); return { recipe: r, kcal, ...macrosFor(r, kcal), portionScale: 1 }; };
+  const suggestCtx = (slot: MealSlot, plannedCur: Cur | null, tilesForSlot: Tile[], offset: number): SuggestCtx => {
+    const sctx: ScoreContext = {
+      slotTargetKcal: SLOT_ENVELOPE[slot],
+      recentlyUsed: new Set(planRecipeIds),
+      proteinPaceDeficit: 0,
+      boostIds: new Set(kitchenBoost(fromKitchen)),
+      userWeights,
+      pantryFit: fromKitchen ? makePantryFit(have) : undefined,
+    };
+    return {
+      slot,
+      tiles: tilesForSlot,
+      planned: plannedCur,
+      pool: POOL,
+      remaining: Math.max(0, state.remaining),
+      offset,
+      allowed: (r) => r.slotAffinity.includes(slot) && isAllowed(r, profile),
+      score: (r) => softScore(r, slot, profile, sctx).score,
+      cookTier: (r) => cookability(r, have).tier,
+      curFor,
+    };
+  };
 
   // per-day "already logged this (slot, food)?" keyset — generalizes loggedToday
   // so the double-log guard holds for backfilled days too (M2).
@@ -593,8 +621,6 @@ export function Day({ profile }: { profile: UserProfile }) {
             const s = state.slots.find((x) => x.slot === slot)!;
             const open = s.items.length === 0 && !s.skipped;
             const usual = open && s.isCurrent ? state.usual : null;
-            const tiles = open && s.isCurrent && !usual ? state.tiles.slice(0, 3) : [];
-            const showPlanned = open && !usual && tiles.length === 0;
 
             return (
               <Card key={slot} current={s.isCurrent} logged={s.items.length > 0}>
@@ -605,10 +631,6 @@ export function Day({ profile }: { profile: UserProfile }) {
                       <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{s.kcal.toLocaleString()}</Text>
                       <Text style={{ color: c('textMuted'), fontSize: 11 }}> kcal</Text>
                     </Text>
-                  ) : showPlanned ? (
-                    // the cuisine·effort meta belongs to the PLANNED meal — only show it
-                    // when the planned block is what's underneath (not over tiles/usual).
-                    <Text style={{ color: c('textMuted'), fontSize: 12 }}>{cur.recipe.cuisine} · {cur.recipe.effort}</Text>
                   ) : null}
                 </View>
 
@@ -708,45 +730,24 @@ export function Day({ profile }: { profile: UserProfile }) {
                   );
                 })() : null}
 
-                {tiles.length ? (
-                  <View style={{ marginTop: 10 }}>
-                    {/* quiet kicker — the slot label above is the only accent voice */}
-                    <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>Quick log</Text>
-                    {tiles.map((t, i) => {
-                      const hasRecipe = recipeFor(t.foodId, t.name) != null;
-                      return (
-                        <View key={t.foodId} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 11, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c('divider') }}>
-                          <Pressable disabled={!hasRecipe} onPress={() => openRecipeByRef(t.foodId, t.name, t.kcal)} accessibilityRole={hasRecipe ? 'button' : undefined} accessibilityLabel={hasRecipe ? `${t.name}, view recipe` : undefined} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
-                            <Text style={{ color: c('textPrimary'), fontSize: 16, flexShrink: 1 }} numberOfLines={1}>{t.name}</Text>
-                            {hasRecipe ? <Text style={{ color: c('textMuted'), fontSize: 15, marginLeft: 6 }}>›</Text> : null}
-                          </Pressable>
-                          <Text style={[{ color: c('textSecondary'), fontSize: 14, marginRight: 6 }, num]}>{t.kcal} kcal</Text>
-                          <Pressable onPress={() => logTile(slot, t)} hitSlop={10} accessibilityRole="button" accessibilityLabel={`Log ${t.name}`} style={({ pressed }) => ({ paddingHorizontal: 8, paddingVertical: 4, opacity: pressed ? 0.6 : 1 })}>
-                            <Text style={{ color: c('accentSoft'), fontSize: 20, fontWeight: '600' }}>＋</Text>
-                          </Pressable>
-                        </View>
-                      );
-                    })}
-                    {/* the planned meal stays reachable: see it, read it, mix it */}
-                    <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 6 }} />
-                    <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: 12 }}>On the menu</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 10 }}>
-                      <Pressable onPress={() => openRecipe(cur)} accessibilityRole="button" accessibilityLabel={`${cur.recipe.name}, view recipe`} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
-                        <Serif size={17} color={c('textPrimary')} style={{ flexShrink: 1, lineHeight: 21 }}>{cur.recipe.name}</Serif>
-                        <Text style={{ color: c('textMuted'), fontSize: 15, marginLeft: 6 }}>›</Text>
-                      </Pressable>
-                      <Text style={[{ color: c('textSecondary'), fontSize: 13 }, num]}>{cur.kcal.toLocaleString()} kcal</Text>
-                      <MixButton label="Mix" onPress={() => openMix(`${dayIdx}:${slot}`, cur.recipe, slot)} />
-                    </View>
-                    <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 12 }} />
-                    <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
-                      <TextLink label="＋ More" onPress={() => setAddSlot({ slot, epochDay: todayEpoch })} />
-                      <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
-                    </View>
-                  </View>
-                ) : null}
-
-                {showPlanned ? plannedBlock(slot, cur, { loggable: true, addLink: true, skipLink: true }) : null}
+                {/* §R2: one suggestion block — For you / In budget / Kitchen + Mix.
+                    Replaces the old Quick-log + On-the-menu split. The usual card
+                    (the moat) still wins the slot above when the Brain is sure. */}
+                {open && !usual ? (() => {
+                  const sctx = suggestCtx(slot, cur, s.isCurrent ? state.tiles : [], 0);
+                  return (
+                    <SuggestionBlock
+                      suggest={(source, offset) => suggestFor(source, { ...sctx, offset })}
+                      budgetTight={budgetIsTight(sctx)}
+                      kitchenAvailable={have.size > 0}
+                      canOpen={(it) => (it.kind === 'recipe' ? true : recipeFor(it.tile.foodId, it.tile.name) != null)}
+                      onOpen={(it) => { if (it.kind === 'recipe') openRecipe(it.cur); else openRecipeByRef(it.tile.foodId, it.tile.name, it.tile.kcal); }}
+                      onLog={(it) => { if (it.kind === 'recipe') logMeal(slot, it.cur, todayEpoch); else logTile(slot, it.tile); }}
+                      onAddMore={() => setAddSlot({ slot, epochDay: todayEpoch })}
+                      onSkip={() => skipMeal(slot)}
+                    />
+                  );
+                })() : null}
 
                 {s.skipped ? (
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
