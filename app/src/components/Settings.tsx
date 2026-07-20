@@ -1,13 +1,27 @@
-import { useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
-import { ALLERGENS, type Allergen, type Goal } from '@yumo/shared';
-import { PROTEIN_FLOOR_PER_KG, type UserProfile, type VariationDial } from '@yumo/menu';
-import type { WeightUnit } from '@yumo/shared';
-import type { GoalPrefs } from '../data/goalPrefs';
+import { useState } from 'react';
+import { View, Text, Pressable, ScrollView, Modal } from 'react-native';
+import {
+  ALLERGENS,
+  ACTIVITY_LABEL,
+  dailyBudget,
+  kgToDisplay,
+  defaultMacroPct,
+  rebalanceMacroPct,
+  pctToGrams,
+  type Allergen,
+  type Goal,
+  type Sex,
+  type ActivityTier,
+  type WeightUnit,
+  type MacroPct,
+} from '@yumo/shared';
+import type { UserProfile, VariationDial } from '@yumo/menu';
+import { RATE_PRESETS, type GoalPrefs } from '../data/goalPrefs';
 import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
 import { ALLERGEN_LABELS, PANTRY_STAPLES } from '../data/onboarding-seed';
-import { Sheet, Serif, Kicker, Chip, PrimaryButton, TextLink } from './kit';
+import { NumberField } from '../ui/primitives';
+import { Serif, Kicker, Chip, PrimaryButton, TextLink } from './kit';
 import { useEntitlement } from '../data/entitlement';
 import { Paywall } from './Paywall';
 
@@ -26,6 +40,16 @@ const WEIGHT_UNITS: { u: WeightUnit; label: string }[] = [
   { u: 'lb', label: 'lb' },
   { u: 'st', label: 'st' },
 ];
+const GOAL_OPTS: { v: Goal; label: string }[] = [
+  { v: 'lose', label: 'Lose' },
+  { v: 'maintain', label: 'Maintain' },
+  { v: 'gain', label: 'Gain' },
+];
+const SEX_OPTS: { v: Sex; label: string }[] = [
+  { v: 'male', label: 'Male' },
+  { v: 'female', label: 'Female' },
+];
+const ACTIVITIES: ActivityTier[] = ['desk', 'onfeet', 'active', 'veryactive'];
 const num = { fontVariant: ['tabular-nums' as const] };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -52,228 +76,277 @@ export function Settings({
   const { unit, setUnit } = useWeightUnit();
   const [showPaywall, setShowPaywall] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+
+  // ── goal engine state (seeded from prefs, else onboarding defaults) ─────────
+  const [goalV, setGoalV] = useState<Goal>(goal);
+  const [rate, setRate] = useState<number>(prefs?.rateKgPerWeek ?? 0.5);
+  const [activity, setActivity] = useState<ActivityTier>(prefs?.activity ?? 'onfeet');
+  const [heightCm, setHeightCm] = useState<number>(prefs?.heightCm ?? 175);
+  const [age, setAge] = useState<number>(prefs?.age ?? 30);
+  const [sex, setSex] = useState<Sex>(prefs?.sex ?? 'male');
+  // Old installs (no prefs) start in Custom so the existing budget number is
+  // preserved untouched — the "goal-based budget" link is the finish-setup path.
+  const [customBudget, setCustomBudget] = useState<boolean>(prefs?.customBudget ?? prefs == null);
   const [budget, setBudget] = useState<number>(profile.budgetKcal);
-  // Targets: derive the same values macroTargets() would, so an untouched
-  // stepper shows the real default. `*Touched` gates the write (D4): we only
-  // pin a field when the user actually moves it — leaving it undefined keeps it
-  // tracking the derived default instead of freezing it on the first Save.
-  const clampProtein = (v: number) => Math.max(40, Math.min(300, v));
-  const clampCarbs = (v: number) => Math.max(50, Math.min(600, v));
-  const clampFat = (v: number) => Math.max(20, Math.min(200, v));
-  const derivedProtein = Math.round(PROTEIN_FLOOR_PER_KG * profile.targetWeightKg);
-  const derivedFat = Math.round((profile.budgetKcal * 0.3) / 9);
-  const derivedCarbs = Math.max(1, Math.round((profile.budgetKcal - (profile.proteinTargetG ?? derivedProtein) * 4 - (profile.fatTargetG ?? derivedFat) * 9) / 4));
-  // Seed each stepper IN RANGE so the displayed value matches what a ± press or
-  // Save will actually produce (an unclamped derived value could sit above the
-  // ceiling and DROP on an increase press).
-  const [proteinTarget, setProteinTarget] = useState<number>(clampProtein(profile.proteinTargetG ?? derivedProtein));
-  const [carbTarget, setCarbTarget] = useState<number>(clampCarbs(profile.carbTargetG ?? derivedCarbs));
-  const [fatTarget, setFatTarget] = useState<number>(clampFat(profile.fatTargetG ?? derivedFat));
-  const [proteinTouched, setProteinTouched] = useState(false);
-  const [carbsTouched, setCarbsTouched] = useState(false);
-  const [fatTouched, setFatTouched] = useState(false);
-  const [showAdvancedTargets, setShowAdvancedTargets] = useState(false);
+  const [macroPct, setMacroPct] = useState<MacroPct>(
+    prefs?.macroPct ?? defaultMacroPct(profile.budgetKcal, profile.targetWeightKg, profile.proteinTargetG, profile.fatTargetG),
+  );
+
   const [variation, setVariation] = useState<VariationDial>(profile.variation);
   const [allergies, setAllergies] = useState<Allergen[]>(profile.allergies);
   const [pantry, setPantry] = useState<string[]>(profile.pantry);
-  // Non-punitive note for the carbs collapse: macroTargets() floors carbs at 1
-  // ONLY on the DERIVED path (carbTargetG unset), so only warn then — an explicit
-  // carb target never collapses. Calm copy, never a red state.
-  const targetsOverBudget = !carbsTouched && profile.carbTargetG === undefined && proteinTarget * 4 + fatTarget * 9 >= budget;
 
   const clampBudget = (v: number) => Math.max(1400, Math.min(4000, v)); // ED floor guardrail
+  const computed = dailyBudget({ weightKg: currentKg, heightCm, age, sex, activity, goal: goalV, rateKgPerWeek: rate });
+  // Budget recomputes only here (render), and lands on Save — no background drift.
+  const finalBudget = customBudget ? clampBudget(Math.round(budget)) : computed.target;
+  const grams = pctToGrams(macroPct, finalBudget);
+
   const toggleAllergen = (a: Allergen) => setAllergies((xs) => (xs.includes(a) ? xs.filter((x) => x !== a) : [...xs, a]));
   const togglePantry = (token: string) => setPantry((xs) => (xs.includes(token) ? xs.filter((x) => x !== token) : [...xs, token]));
-  const pantryOptions = useMemo(() => {
+  const pantryOptions = (() => {
     const labels = new Map<string, string>();
     for (const p of PANTRY_STAPLES) labels.set(p.toLowerCase(), p);
     for (const t of profile.pantry) if (!labels.has(t)) labels.set(t, cap(t));
     return [...labels.entries()].map(([token, label]) => ({ token, label }));
-  }, [profile.pantry]);
+  })();
 
   const save = () => {
-    // D4: write a target only when the user moved its stepper; otherwise carry
-    // the profile's existing value through (undefined stays undefined, so it
-    // keeps tracking targetWeightKg / budget instead of being pinned on Save).
-    onSave({
-      ...profile,
-      budgetKcal: clampBudget(Math.round(budget)) || profile.budgetKcal,
-      proteinTargetG: proteinTouched ? clampProtein(Math.round(proteinTarget)) : profile.proteinTargetG,
-      carbTargetG: carbsTouched ? clampCarbs(Math.round(carbTarget)) : profile.carbTargetG,
-      fatTargetG: fatTouched ? clampFat(Math.round(fatTarget)) : profile.fatTargetG,
-      variation,
-      allergies,
-      pantry,
-    }, goal, prefs);
+    const newPrefs: GoalPrefs = { heightCm, age, sex, activity, rateKgPerWeek: rate, macroPct, customBudget };
+    onSave(
+      {
+        ...profile,
+        budgetKcal: finalBudget || profile.budgetKcal,
+        proteinTargetG: grams.proteinG,
+        carbTargetG: grams.carbsG,
+        fatTargetG: grams.fatG,
+        variation,
+        allergies,
+        pantry,
+      },
+      goalV,
+      newPrefs,
+    );
     onClose();
   };
 
+  // ── small building blocks ───────────────────────────────────────────────────
   const StepBtn = ({ label, onPress, a11yLabel }: { label: string; onPress: () => void; a11yLabel: string }) => (
     <Pressable onPress={onPress} hitSlop={6} accessibilityRole="button" accessibilityLabel={a11yLabel} style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 999, borderWidth: 1, borderColor: c('borderStrong'), alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
       <Text style={{ color: c('textPrimary'), fontSize: 20, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 
-  const targetRow = (value: number, unit: string, dec: () => void, inc: () => void, a11y: string) => (
+  function Seg<T extends string>({ items, value, onChange, a11y }: { items: { v: T; label: string }[]; value: T; onChange: (v: T) => void; a11y: string }) {
+    return (
+      <View style={{ marginTop: 8, flexDirection: 'row', backgroundColor: c('surfaceSunken'), borderRadius: 999, padding: 4 }}>
+        {items.map((it) => {
+          const on = value === it.v;
+          return (
+            <Pressable key={it.v} onPress={() => onChange(it.v)} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${a11y} ${it.label}`} style={{ flex: 1, borderRadius: 999, paddingVertical: 9, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
+              <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{it.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    );
+  }
+
+  const selectChip = (label: string, on: boolean, onPress: () => void, k: string) => (
+    <Pressable key={k} onPress={onPress} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={label} style={{ backgroundColor: on ? c('accent') : c('surface'), borderColor: on ? c('accent') : c('border'), borderWidth: 1, borderRadius: 999, paddingVertical: 9, paddingHorizontal: 14 }}>
+      <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{label}</Text>
+    </Pressable>
+  );
+
+  const subLabel = (t: string) => <Text style={{ color: c('textMuted'), fontSize: 12, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase', marginTop: 14 }}>{t}</Text>;
+
+  const macroRow = (key: keyof MacroPct, label: string, gramsVal: number) => (
     <View style={{ marginTop: 8, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-      <StepBtn label="−" a11yLabel={`Decrease ${a11y}`} onPress={dec} />
-      <Text>
-        <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{Math.round(value)}</Text>
-        <Text style={{ color: c('textMuted'), fontSize: 14 }}> {unit}</Text>
-      </Text>
-      <StepBtn label="＋" a11yLabel={`Increase ${a11y}`} onPress={inc} />
+      <StepBtn label="−" a11yLabel={`Decrease ${label}`} onPress={() => setMacroPct((m) => rebalanceMacroPct(m, key, m[key] - 1))} />
+      <View style={{ alignItems: 'center' }}>
+        <Text>
+          <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{macroPct[key]}</Text>
+          <Text style={{ color: c('textMuted'), fontSize: 14 }}>% {label}</Text>
+        </Text>
+        <Text style={[{ color: c('textMuted'), fontSize: 12, marginTop: 2 }, num]}>{gramsVal} g</Text>
+      </View>
+      <StepBtn label="＋" a11yLabel={`Increase ${label}`} onPress={() => setMacroPct((m) => rebalanceMacroPct(m, key, m[key] + 1))} />
     </View>
   );
 
   return (
-    <Sheet visible onClose={onClose}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
-        <Serif size={24} weight="medium" color={c('textPrimary')}>Settings</Serif>
-        <TextLink label="Close" onPress={onClose} tone="neutral" />
-      </View>
-
-      <ScrollView style={{ maxHeight: 560 }} showsVerticalScrollIndicator={false}>
-        {/* Go Premium */}
-        <Pressable onPress={() => setShowPaywall(true)} style={{ backgroundColor: c('accentFaint'), borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Modal visible animationType="slide" onRequestClose={onClose}>
+      <View style={{ flex: 1, backgroundColor: c('bg') }}>
+        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 24, gap: 12 }} showsVerticalScrollIndicator={false}>
+          {/* back header (Overview pattern) */}
           <View>
-            <Text style={{ color: c('accentSoft'), fontSize: 15, fontWeight: '700' }}>{isPremium ? 'Premium' : 'Go Premium'}</Text>
-            <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 2 }}>{isPremium ? 'Active — thank you' : 'Full menu · weekly regen · coach insights'}</Text>
-          </View>
-          <Text style={{ color: c('accentSoft'), fontSize: 20 }}>›</Text>
-        </Pressable>
-
-        {/* Daily budget stepper */}
-        <View style={{ marginTop: 20 }}>
-          <Kicker>Daily budget</Kicker>
-          <View style={{ marginTop: 8, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <StepBtn label="−" a11yLabel="Decrease daily budget" onPress={() => setBudget((b) => clampBudget(b - 50))} />
-            <Text>
-              <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{Math.round(budget).toLocaleString()}</Text>
-              <Text style={{ color: c('textMuted'), fontSize: 14 }}> kcal</Text>
-            </Text>
-            <StepBtn label="＋" a11yLabel="Increase daily budget" onPress={() => setBudget((b) => clampBudget(b + 50))} />
-          </View>
-        </View>
-
-        {/* Daily targets — protein always visible; carbs & fat behind Advanced */}
-        <View style={{ marginTop: 16 }}>
-          <Kicker>Daily targets</Kicker>
-          {targetRow(
-            proteinTarget,
-            'g protein',
-            () => { setProteinTarget((p) => clampProtein(p - 5)); setProteinTouched(true); },
-            () => { setProteinTarget((p) => clampProtein(p + 5)); setProteinTouched(true); },
-            'protein target',
-          )}
-          <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>Protein drives your menu; carbs and fat are guides.</Text>
-
-          <View style={{ marginTop: 10, alignItems: 'flex-start' }}>
-            <TextLink label={showAdvancedTargets ? 'Hide carbs & fat' : 'Advanced: carbs & fat'} tone="neutral" onPress={() => setShowAdvancedTargets((v) => !v)} />
+            <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel="Back to Progress" style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 4, opacity: pressed ? 0.6 : 1 })}>
+              <Text style={{ color: c('accentSoft'), fontSize: 22, fontWeight: '600', marginTop: -2 }}>‹</Text>
+              <Text style={{ color: c('accentSoft'), fontSize: 15, fontWeight: '600' }}>Progress</Text>
+            </Pressable>
+            <Kicker>Make it yours</Kicker>
+            <Serif size={34} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Settings</Serif>
           </View>
 
-          {showAdvancedTargets ? (
-            <>
-              {targetRow(
-                carbTarget,
-                'g carbs',
-                () => { setCarbTarget((v) => clampCarbs(v - 10)); setCarbsTouched(true); },
-                () => { setCarbTarget((v) => clampCarbs(v + 10)); setCarbsTouched(true); },
-                'carb target',
-              )}
-              {targetRow(
-                fatTarget,
-                'g fat',
-                () => { setFatTarget((v) => clampFat(v - 10)); setFatTouched(true); },
-                () => { setFatTarget((v) => clampFat(v + 10)); setFatTouched(true); },
-                'fat target',
-              )}
-            </>
-          ) : null}
+          {/* Go Premium */}
+          <Pressable onPress={() => setShowPaywall(true)} style={{ backgroundColor: c('accentFaint'), borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+              <Text style={{ color: c('accentSoft'), fontSize: 15, fontWeight: '700' }}>{isPremium ? 'Premium' : 'Go Premium'}</Text>
+              <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 2 }}>{isPremium ? 'Active — thank you' : 'Full menu · weekly regen · coach insights'}</Text>
+            </View>
+            <Text style={{ color: c('accentSoft'), fontSize: 20 }}>›</Text>
+          </Pressable>
 
-          {targetsOverBudget ? (
-            <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 8 }}>Protein and fat here already use your whole budget, so carbs will show as none.</Text>
-          ) : null}
-        </View>
+          {/* ── Goal ───────────────────────────────────────────────────────────── */}
+          <View style={{ marginTop: 8 }}>
+            <Kicker>Goal</Kicker>
+            {customBudget ? (
+              <>
+                <View style={{ marginTop: 8, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <StepBtn label="−" a11yLabel="Decrease daily budget" onPress={() => setBudget((b) => clampBudget(b - 50))} />
+                  <Text>
+                    <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{clampBudget(Math.round(budget)).toLocaleString()}</Text>
+                    <Text style={{ color: c('textMuted'), fontSize: 14 }}> kcal / day</Text>
+                  </Text>
+                  <StepBtn label="＋" a11yLabel="Increase daily budget" onPress={() => setBudget((b) => clampBudget(b + 50))} />
+                </View>
+                {prefs == null ? (
+                  <Text style={{ color: c('textMuted'), fontSize: 12.5, marginTop: 8 }}>Set a goal-based budget for a target that follows your body and pace.</Text>
+                ) : null}
+                <View style={{ marginTop: 10, alignItems: 'flex-start' }}>
+                  <TextLink label="Use a goal-based budget" tone="positive" onPress={() => setCustomBudget(false)} />
+                </View>
+              </>
+            ) : (
+              <>
+                <Seg items={GOAL_OPTS} value={goalV} onChange={setGoalV} a11y="Goal" />
+                {goalV !== 'maintain' ? (
+                  <>
+                    {subLabel('Pace')}
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 8 }}>
+                      {RATE_PRESETS.map((rp) => selectChip(rp.label, rate === rp.rate, () => setRate(rp.rate), String(rp.rate)))}
+                    </View>
+                  </>
+                ) : null}
 
-        {/* Variety segmented control */}
-        <View style={{ marginTop: 20 }}>
-          <Kicker>Variety</Kicker>
-          <View style={{ marginTop: 8, flexDirection: 'row', backgroundColor: c('surfaceSunken'), borderRadius: 999, padding: 4 }}>
-            {VARIATIONS.map((v) => {
-              const on = variation === v.v;
-              return (
-                <Pressable key={v.v} onPress={() => setVariation(v.v)} style={{ flex: 1, borderRadius: 999, paddingVertical: 9, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
-                  <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{v.label}</Text>
-                </Pressable>
-              );
-            })}
+                {subLabel('Activity')}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 8 }}>
+                  {ACTIVITIES.map((a) => selectChip(ACTIVITY_LABEL[a], activity === a, () => setActivity(a), a))}
+                </View>
+
+                {subLabel('About you')}
+                <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                  <NumberField label="Height" value={heightCm} onChange={(n) => setHeightCm(Math.round(n))} suffix="cm" />
+                  <NumberField label="Age" value={age} onChange={(n) => setAge(Math.round(n))} />
+                </View>
+                <View style={{ marginTop: 8 }}>
+                  <Seg items={SEX_OPTS} value={sex} onChange={setSex} a11y="Sex" />
+                </View>
+                <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 10 }}>Using your last weigh-in · {kgToDisplay(currentKg, unit)}</Text>
+
+                {/* computed budget card */}
+                <View style={{ marginTop: 12, backgroundColor: c('accentFaint'), borderRadius: 16, padding: 14 }}>
+                  <Text>
+                    <Text style={[{ color: c('textPrimary'), fontSize: 22, fontWeight: '800' }, num]}>{computed.target.toLocaleString()}</Text>
+                    <Text style={{ color: c('textMuted'), fontSize: 14 }}> kcal / day</Text>
+                  </Text>
+                  <Text style={[{ color: c('textMuted'), fontSize: 12.5, marginTop: 4 }, num]}>
+                    ≈ {computed.tdee.toLocaleString()} maintenance{goalV === 'maintain' ? '' : goalV === 'lose' ? ` − ${Math.abs(computed.dailyDelta)}` : ` + ${computed.dailyDelta}`}
+                  </Text>
+                  {computed.floored ? (
+                    <Text style={{ color: c('textSecondary'), fontSize: 12.5, marginTop: 6 }}>Held at {computed.floor.toLocaleString()} kcal — a gentler pace gets there too.</Text>
+                  ) : null}
+                  {goalV === 'gain' && rate >= 0.75 ? (
+                    <Text style={{ color: c('textMuted'), fontSize: 12.5, marginTop: 6 }}>Slower gaining keeps more of each kilo as muscle.</Text>
+                  ) : null}
+                </View>
+                <View style={{ marginTop: 10, alignItems: 'flex-start' }}>
+                  <TextLink label="Set calories manually" tone="neutral" onPress={() => { setBudget(computed.target); setCustomBudget(true); }} />
+                </View>
+              </>
+            )}
           </View>
-          <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 8 }}>{VARIETY_HINT[variation]}</Text>
-        </View>
 
-        {/* Weight unit segmented control — persists immediately (not part of Save) */}
-        <View style={{ marginTop: 20 }}>
-          <Kicker>Weight unit</Kicker>
-          <View style={{ marginTop: 8, flexDirection: 'row', backgroundColor: c('surfaceSunken'), borderRadius: 999, padding: 4 }}>
-            {WEIGHT_UNITS.map((wu) => {
-              const on = unit === wu.u;
-              return (
-                <Pressable key={wu.u} onPress={() => setUnit(wu.u)} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`Weight unit ${wu.label}`} style={{ flex: 1, borderRadius: 999, paddingVertical: 9, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
-                  <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{wu.label}</Text>
-                </Pressable>
-              );
-            })}
+          {/* ── Daily targets (macro %) ────────────────────────────────────────── */}
+          <View style={{ marginTop: 8 }}>
+            <Kicker>Daily targets</Kicker>
+            {macroRow('protein', 'protein', grams.proteinG)}
+            {macroRow('carbs', 'carbs', grams.carbsG)}
+            {macroRow('fat', 'fat', grams.fatG)}
+            <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 8 }}>= 100% · Protein drives your menu; carbs and fat are guides.</Text>
           </View>
-        </View>
 
-        {/* Pantry */}
-        <View style={{ marginTop: 20 }}>
-          <Kicker>Pantry staples</Kicker>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 10 }}>
-            {pantryOptions.map((p) => (
-              <Chip key={p.token} label={p.label} selected={pantry.includes(p.token)} onPress={() => togglePantry(p.token)} />
-            ))}
-          </View>
-        </View>
-
-        {/* Allergies */}
-        <View style={{ marginTop: 20 }}>
-          <Kicker>Allergies</Kicker>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 10 }}>
-            {ALLERGENS.map((a) => (
-              <Chip key={a} label={ALLERGEN_LABELS[a]} selected={allergies.includes(a)} onPress={() => toggleAllergen(a)} />
-            ))}
-          </View>
-        </View>
-
-        {confirmReset ? (
-          <View style={{ marginTop: 10, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 16 }}>
-            <Text style={{ color: c('textSecondary'), fontSize: 13.5, lineHeight: 20, textAlign: 'center', marginBottom: 14 }}>
-              This deletes your profile and every logged meal. It can't be undone.
-            </Text>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <Pressable onPress={() => setConfirmReset(false)} style={{ flex: 1, borderWidth: 1, borderColor: c('borderStrong'), borderRadius: 999, paddingVertical: 12, alignItems: 'center' }}>
-                <Text style={{ color: c('textSecondary'), fontSize: 14, fontWeight: '600' }}>Cancel</Text>
-              </Pressable>
-              <Pressable onPress={onReset} style={({ pressed }) => ({ flex: 1, backgroundColor: c('danger'), opacity: pressed ? 0.85 : 1, borderRadius: 999, paddingVertical: 12, alignItems: 'center' })}>
-                <Text style={{ color: c('bg'), fontSize: 14, fontWeight: '700' }}>Delete everything</Text>
-              </Pressable>
+          {/* Weight unit — persists immediately (not part of Save) */}
+          <View style={{ marginTop: 8 }}>
+            <Kicker>Weight unit</Kicker>
+            <View style={{ marginTop: 8, flexDirection: 'row', backgroundColor: c('surfaceSunken'), borderRadius: 999, padding: 4 }}>
+              {WEIGHT_UNITS.map((wu) => {
+                const on = unit === wu.u;
+                return (
+                  <Pressable key={wu.u} onPress={() => setUnit(wu.u)} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`Weight unit ${wu.label}`} style={{ flex: 1, borderRadius: 999, paddingVertical: 9, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
+                    <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{wu.label}</Text>
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
-        ) : (
-          <Pressable onPress={() => setConfirmReset(true)} style={{ alignItems: 'center', paddingVertical: 18, marginTop: 8 }}>
-            {({ pressed }) => (
-              <Text style={{ color: pressed ? c('danger') : c('textMuted'), fontSize: 14, fontWeight: '600' }}>Start over — clear profile &amp; logs</Text>
-            )}
-          </Pressable>
-        )}
-      </ScrollView>
 
-      <View style={{ marginTop: 14 }}>
-        <PrimaryButton label="Save changes" onPress={save} full />
+          {/* Variety */}
+          <View style={{ marginTop: 8 }}>
+            <Kicker>Variety</Kicker>
+            <Seg items={VARIATIONS.map((v) => ({ v: v.v, label: v.label }))} value={variation} onChange={setVariation} a11y="Variety" />
+            <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 8 }}>{VARIETY_HINT[variation]}</Text>
+          </View>
+
+          {/* Pantry */}
+          <View style={{ marginTop: 8 }}>
+            <Kicker>Pantry staples</Kicker>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 10 }}>
+              {pantryOptions.map((p) => (
+                <Chip key={p.token} label={p.label} selected={pantry.includes(p.token)} onPress={() => togglePantry(p.token)} />
+              ))}
+            </View>
+          </View>
+
+          {/* Allergies */}
+          <View style={{ marginTop: 8 }}>
+            <Kicker>Allergies</Kicker>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 10 }}>
+              {ALLERGENS.map((a) => (
+                <Chip key={a} label={ALLERGEN_LABELS[a]} selected={allergies.includes(a)} onPress={() => toggleAllergen(a)} />
+              ))}
+            </View>
+          </View>
+
+          {confirmReset ? (
+            <View style={{ marginTop: 10, backgroundColor: c('surfaceSunken'), borderRadius: 16, padding: 16 }}>
+              <Text style={{ color: c('textSecondary'), fontSize: 13.5, lineHeight: 20, textAlign: 'center', marginBottom: 14 }}>
+                This deletes your profile and every logged meal. It can't be undone.
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <Pressable onPress={() => setConfirmReset(false)} style={{ flex: 1, borderWidth: 1, borderColor: c('borderStrong'), borderRadius: 999, paddingVertical: 12, alignItems: 'center' }}>
+                  <Text style={{ color: c('textSecondary'), fontSize: 14, fontWeight: '600' }}>Cancel</Text>
+                </Pressable>
+                <Pressable onPress={onReset} style={({ pressed }) => ({ flex: 1, backgroundColor: c('danger'), opacity: pressed ? 0.85 : 1, borderRadius: 999, paddingVertical: 12, alignItems: 'center' })}>
+                  <Text style={{ color: c('bg'), fontSize: 14, fontWeight: '700' }}>Delete everything</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <Pressable onPress={() => setConfirmReset(true)} style={{ alignItems: 'center', paddingVertical: 18, marginTop: 8 }}>
+              {({ pressed }) => (
+                <Text style={{ color: pressed ? c('danger') : c('textMuted'), fontSize: 14, fontWeight: '600' }}>Start over — clear profile &amp; logs</Text>
+              )}
+            </Pressable>
+          )}
+        </ScrollView>
+
+        <View style={{ padding: 20, paddingBottom: 34, borderTopWidth: 1, borderTopColor: c('border'), backgroundColor: c('bg') }}>
+          <PrimaryButton label="Save changes" onPress={save} full />
+        </View>
       </View>
 
       {showPaywall ? <Paywall onClose={() => setShowPaywall(false)} /> : null}
-    </Sheet>
+    </Modal>
   );
 }
