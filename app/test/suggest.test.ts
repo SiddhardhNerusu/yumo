@@ -41,6 +41,16 @@ describe('suggestFor', () => {
     expect(new Set(recipeIds).size).toBe(recipeIds.length); // no duplicate ids
   });
 
+  it('foryou surfaces the planned pick with its SCALED Cur, not rebuilt at raw serving', () => {
+    // engine scales a 500 kcal recipe to 750 (portionScale 1.5) — the plan/coach show 750
+    const scaledPlanned: SuggestCur = { recipe: recipe('b', 500), kcal: 750, protein: 40, carbs: 0, fat: 0, portionScale: 1.5 };
+    const out = suggestFor('foryou', ctx({ planned: scaledPlanned }));
+    const plannedSug = out.find((s) => s.kind === 'recipe' && s.cur.recipe.id === 'b') as { kind: 'recipe'; cur: SuggestCur } | undefined;
+    expect(plannedSug).toBeDefined();
+    expect(plannedSug!.cur.kcal).toBe(750); // scaled, NOT curFor's raw 500
+    expect(plannedSug!.cur.portionScale).toBe(1.5);
+  });
+
   it('cold start (no tiles, no plan) still fills from the pool', () => {
     const out = suggestFor('foryou', ctx());
     expect(out.length).toBe(3);

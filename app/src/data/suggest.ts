@@ -64,7 +64,15 @@ export function suggestFor(source: SuggestSource, ctx: SuggestCtx): Suggestion[]
   if (list.length === 0) return [];
   const start = ((ctx.offset % list.length) + list.length) % list.length;
   const rotated = [...list.slice(start), ...list.slice(0, start)];
-  return rotated.slice(0, 3).map((rc) => (rc.kind === 'tile' ? { kind: 'tile', tile: rc.tile } : { kind: 'recipe', cur: ctx.curFor(rc.recipe) }));
+  // The planned pick already carries the menu engine's SCALED Cur (portionScale
+  // != 1); reuse it so the planned meal shows/logs the same kcal/macros as the
+  // coach line and every other view. Everything else is a pool recipe at its
+  // authored serving via curFor.
+  return rotated.slice(0, 3).map((rc) => {
+    if (rc.kind === 'tile') return { kind: 'tile', tile: rc.tile };
+    const cur = ctx.planned && rc.recipe.id === ctx.planned.recipe.id ? ctx.planned : ctx.curFor(rc.recipe);
+    return { kind: 'recipe', cur };
+  });
 }
 
 /** true when the "In budget" source had to fall back to lightest picks (nothing
