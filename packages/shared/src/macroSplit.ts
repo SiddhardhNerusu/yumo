@@ -1,10 +1,13 @@
 /**
- * Macro split as whole-integer percentages that always sum to exactly 100.
- * The editor is auto-rebalancing (Cronometer/MacroFactor pattern, not MFP's
- * three-wheels-plus-red-error): moving one macro redistributes the delta over
- * the other two, so the sum can never be wrong. Grams are derived from a budget
- * at read time, so changing the calorie goal moves the grams without touching
- * the percentages.
+ * Macro split as whole-integer percentages. The shipped Settings editor is
+ * MFP-style **free movement + strict 100% gating**: each macro slider moves
+ * independently (so the sum CAN be off 100), a live badge shows the total, and
+ * Save is disabled until it reads exactly 100. `balanceMacroPct` powers the
+ * "Balance for me" one-tap fix, and `pctToGrams` derives grams from the current
+ * budget at read time (so changing the calorie goal moves the grams without
+ * touching the percentages). `rebalanceMacroPct` (auto-rebalance) and
+ * `defaultMacroPct` (via normalizeToClamped) still guarantee sum===100 for
+ * callers that want it, but the editor no longer auto-rebalances.
  */
 export interface MacroPct {
   protein: number;
@@ -113,6 +116,33 @@ export function rebalanceMacroPct(cur: MacroPct, key: keyof MacroPct, nextVal: n
   out[a] = valA;
   out[b] = valB;
   return out;
+}
+
+/** The slider range for the free-movement (MFP-style) macro editor: a uniform
+ * 5–65 per macro (the asymmetric MACRO_PCT_CLAMP is kept only for defaultMacroPct
+ * normalization, per the design brief). */
+export const MACRO_SLIDER = { min: 5, max: 65 } as const;
+
+/**
+ * "Balance for me": keep protein and fat as the user set them and give carbs the
+ * remainder so the three sum to exactly 100. Overflow (when 100−protein−fat lands
+ * outside carbs' 5–65 band) spills into fat, then — only in the pathological case
+ * where both sliders are cranked — protein absorbs the last residual. Always
+ * returns a valid split summing to 100.
+ */
+export function balanceMacroPct(pct: MacroPct): MacroPct {
+  const { min: LO, max: HI } = MACRO_SLIDER;
+  const clampU = (x: number) => Math.max(LO, Math.min(HI, Math.round(x)));
+  let protein = clampU(pct.protein);
+  let fat = clampU(pct.fat);
+  let carbs = 100 - protein - fat;
+  if (carbs > HI) { fat = clampU(fat + (carbs - HI)); }      // overflow spills into fat
+  else if (carbs < LO) { fat = clampU(fat - (LO - carbs)); } // (rare: both cranked)
+  carbs = clampU(100 - protein - fat);
+  // reconcile to exactly 100: any residual goes to protein (last resort)
+  protein = 100 - carbs - fat;
+  if (protein < LO) { protein = LO; fat = 100 - protein - carbs; }
+  return { protein, carbs, fat };
 }
 
 /** Percentages → gram targets at a given budget (protein/carbs ×4, fat ×9). */

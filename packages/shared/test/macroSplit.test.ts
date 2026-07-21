@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { defaultMacroPct, rebalanceMacroPct, pctToGrams, MACRO_PCT_CLAMP, type MacroPct } from '../src/macroSplit';
+import { defaultMacroPct, rebalanceMacroPct, balanceMacroPct, pctToGrams, MACRO_PCT_CLAMP, MACRO_SLIDER, type MacroPct } from '../src/macroSplit';
 
 const sum = (m: MacroPct) => m.protein + m.carbs + m.fat;
 const inClamp = (m: MacroPct) =>
@@ -68,6 +68,46 @@ describe('rebalanceMacroPct', () => {
     const m = rebalanceMacroPct({ protein: 33, carbs: 40, fat: 27 }, 'protein', 34);
     expect(sum(m)).toBe(100);
     expect(m.protein).toBe(34);
+  });
+});
+
+describe('balanceMacroPct (Balance for me)', () => {
+  const inSlider = (m: MacroPct) =>
+    m.protein >= MACRO_SLIDER.min && m.protein <= MACRO_SLIDER.max &&
+    m.carbs >= MACRO_SLIDER.min && m.carbs <= MACRO_SLIDER.max &&
+    m.fat >= MACRO_SLIDER.min && m.fat <= MACRO_SLIDER.max;
+
+  it('gives carbs the remainder, keeping protein and fat, to hit exactly 100', () => {
+    // 35 + 30 → carbs should become 35 (sum was 103 at {35,38,30})
+    const m = balanceMacroPct({ protein: 35, carbs: 38, fat: 30 });
+    expect(m.protein).toBe(35);
+    expect(m.fat).toBe(30);
+    expect(m.carbs).toBe(35);
+    expect(sum(m)).toBe(100);
+  });
+
+  it('spills overflow into fat when carbs would exceed its ceiling', () => {
+    // protein 10 + fat 15 → remainder 75 > 65 ceiling → carbs 65, fat 25
+    const m = balanceMacroPct({ protein: 10, carbs: 20, fat: 15 });
+    expect(m.carbs).toBe(65);
+    expect(m.fat).toBe(25);
+    expect(sum(m)).toBe(100);
+  });
+
+  it('always returns a valid split summing to 100 across every input', () => {
+    for (let p = 5; p <= 65; p += 1) {
+      for (let f = 5; f <= 65; f += 1) {
+        const m = balanceMacroPct({ protein: p, carbs: 50, fat: f });
+        expect(sum(m)).toBe(100);
+        expect(inSlider(m)).toBe(true);
+        expect(isInts(m)).toBe(true);
+      }
+    }
+  });
+
+  it('is idempotent on an already-balanced split', () => {
+    const b: MacroPct = { protein: 30, carbs: 40, fat: 30 };
+    expect(balanceMacroPct(b)).toEqual(b);
   });
 });
 

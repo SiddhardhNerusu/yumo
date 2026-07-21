@@ -1,0 +1,21 @@
+{
+  "$description": "Pantry 'cousin' fan-out (§6 Settings revamp) — versioned DATA, not code, per the no-hardcoded-food-lists rule. Keyed by base-staple token (lowercased PANTRY_STAPLES label). Selecting a base staple reveals its cousins as suggestion chips. Placeholder seed — replaced by the server bubbles endpoint later. Cousin tokens derive by lowercasing the label at read time (matching how staple tokens are formed).",
+  "cousins": {
+    "rice": ["Basmati rice", "Brown rice", "Jasmine rice", "Microwave rice"],
+    "pasta": ["Spaghetti", "Penne", "Orzo", "Lasagne sheets"],
+    "bread": ["Wholemeal bread", "Sourdough", "Pitta", "Wraps"],
+    "onions": ["Red onions", "Spring onions", "Shallots"],
+    "tinned tomatoes": ["Passata", "Tomato purée"],
+    "olive oil": ["Vegetable oil", "Coconut oil", "Spray oil"],
+    "chicken": ["Chicken breast", "Chicken thighs", "Chicken mince"],
+    "cheese": ["Cheddar", "Feta", "Halloumi", "Mozzarella"],
+    "milk": ["Semi-skimmed milk", "Whole milk", "Oat milk"],
+    "potatoes": ["Baby potatoes", "Sweet potatoes"],
+    "frozen veg": ["Frozen peas", "Frozen spinach", "Sweetcorn"],
+    "beans": ["Chickpeas", "Black beans", "Kidney beans", "Baked beans"],
+    "oats": ["Rolled oats", "Instant oats"],
+    "yogurt": ["Greek yogurt", "Skyr", "Natural yogurt"],
+    "peanut butter": ["Almond butter", "Tahini"],
+    "eggs": ["Free-range eggs"]
+  }
+}
