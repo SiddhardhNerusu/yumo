@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, Modal, ScrollView, Pressable, useWindowDimensions, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
 import { kgToDisplay, weightDelta, type WeightUnit } from '@yumo/shared';
 import { haptics } from '../haptics';
@@ -41,18 +41,26 @@ export function PhotoJourney({
   const [aIdx, setAIdx] = useState(0);
   const [bIdx, setBIdx] = useState(Math.max(0, photos.length - 1));
 
+  // Removing the currently-viewed photo shrinks `photos`, which can leave `idx`
+  // past the end — clamp for render, and re-scroll the pager onto the valid page
+  // so it never shows a blank frame.
+  const safeIdx = Math.max(0, Math.min(idx, photos.length - 1));
+  useEffect(() => {
+    if (idx !== safeIdx) { setIdx(safeIdx); scRef.current?.scrollTo({ x: safeIdx * width, animated: false }); }
+  }, [idx, safeIdx, width]);
+
   const oldest = photos[photos.length - 1];
-  const cur = photos[idx];
+  const cur = photos[safeIdx];
   if (!cur || !oldest) return null;
 
   const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const i = Math.max(0, Math.min(photos.length - 1, Math.round(e.nativeEvent.contentOffset.x / width)));
-    if (i !== idx) { setIdx(i); haptics.select(); }
+    if (i !== safeIdx) { setIdx(i); haptics.select(); }
   };
 
   const vsFirst = cur.kg - oldest.kg;
   const wd = weightDelta(vsFirst, unit);
-  const isOldest = idx === photos.length - 1;
+  const isOldest = safeIdx === photos.length - 1;
 
   return (
     <Modal visible animationType="fade" onRequestClose={() => (compare ? setCompare(false) : onClose())}>
@@ -104,11 +112,11 @@ export function PhotoJourney({
           {photos.length <= 9 ? (
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {photos.map((_, i) => (
-                <View key={i} style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 999, backgroundColor: i === idx ? LIGHT : 'rgba(255,255,255,0.3)' }} />
+                <View key={i} style={{ width: i === safeIdx ? 18 : 6, height: 6, borderRadius: 999, backgroundColor: i === safeIdx ? LIGHT : 'rgba(255,255,255,0.3)' }} />
               ))}
             </View>
           ) : (
-            <Text style={[{ color: DIM, fontSize: 12 }, num]}>{idx + 1} of {photos.length}</Text>
+            <Text style={[{ color: DIM, fontSize: 12 }, num]}>{safeIdx + 1} of {photos.length}</Text>
           )}
 
           <Pressable onPress={() => onRemove(cur.day)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove this photo">
