@@ -103,8 +103,8 @@ export function RecipeSheet({ recipe, onClose }: { recipe: RecipeSheetData | nul
       <View style={{ marginTop: 16 }}>
         {recipe?.add ? (
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            {recipe.swap ? <OutlineButton label="⇄ Swap dish" flex onPress={recipe.swap} /> : null}
-            <PrimaryButton label={recipe.addLabel ?? 'Add'} flex onPress={recipe.add} />
+            {recipe.swap ? <OutlineButton label="⇄ Swap dish" flex={1} onPress={recipe.swap} /> : null}
+            <PrimaryButton label={recipe.addLabel ?? 'Add'} flex={1.4} onPress={recipe.add} />
           </View>
         ) : (
           <PrimaryButton label="Done" onPress={onClose} full />

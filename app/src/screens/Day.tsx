@@ -26,7 +26,7 @@ import { macroTargets } from '../data/macros';
 import { MixSheet, type MixOption } from '../components/MixSheet';
 import { RecipeSheet, type RecipeSheetData } from '../components/RecipeSheet';
 import { AddSheet, type AddItem } from '../components/AddSheet';
-import { smartSuggest, type SmartCtx, type SuggestCur } from '../data/suggest';
+import { smartSuggest, suggestableCount, type SmartCtx, type SuggestCur } from '../data/suggest';
 import { effortMin } from '../data/effort';
 import { Serif, Card, PrimaryButton, MixButton, OutlineButton, TextLink, Skeleton } from '../components/kit';
 import { SwipeRow } from '../components/SwipeRow';
@@ -470,7 +470,7 @@ export function Day({ profile }: { profile: UserProfile }) {
             </Text>
           ))}
         </View>
-        <PantryLine cook={cook} showReady={fromKitchen} />
+        <PantryLine cook={cook} />
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, alignItems: 'center' }}>
           {opts.loggable ? <PrimaryButton label="Log it" flex onPress={() => logMeal(slot, cur, epochOf(dayIdx))} /> : null}
           <MixButton onPress={() => openMix(key, cur.recipe, slot)} />
@@ -670,6 +670,9 @@ export function Day({ profile }: { profile: UserProfile }) {
             const s = state.slots.find((x) => x.slot === slot)!;
             const open = s.items.length === 0 && !s.skipped;
             const usual = open && s.isCurrent ? state.usual : null;
+            // Shuffle only when there's more than the 3 shown rows to reroll among —
+            // at ≤3 candidates the rows already surface everything (§0).
+            const canShuffle = open && !usual && suggestableCount(suggestCtx(slot, cur, 0)) > 3;
 
             return (
               <Card key={slot} current={s.isCurrent} logged={s.items.length > 0}>
@@ -680,7 +683,7 @@ export function Day({ profile }: { profile: UserProfile }) {
                       <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{s.kcal.toLocaleString()}</Text>
                       <Text style={{ color: c('textMuted'), fontSize: 11 }}> kcal</Text>
                     </Text>
-                  ) : open && !usual ? (
+                  ) : canShuffle ? (
                     <ShufflePill onPress={() => shuffle(slot)} />
                   ) : null}
                 </View>
@@ -869,15 +872,14 @@ function ThumbsRow({ thumb, onThumb }: { thumb?: 'up' | 'down'; onThumb: (d: 'up
 }
 
 /** §7 near-miss as a first-class line. */
-function PantryLine({ cook, showReady }: { cook: Cookability | null; showReady: boolean }) {
+function PantryLine({ cook }: { cook: Cookability | null }) {
   const { c } = useTheme();
   if (!cook) return null;
   if (cook.tier === 'oneShort') {
     const need = cook.missing.slice(0, 2).map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ');
     return <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '600', marginTop: 8 }}>Just need: {need}</Text>;
   }
-  if (cook.tier === 'now' && showReady) {
-    return <Text style={{ color: c('success'), fontSize: 13, fontWeight: '600', marginTop: 8 }}>✓ All in your kitchen</Text>;
-  }
+  // Full-kitchen "✓ All in your kitchen" match is surfaced on the smart rows and in
+  // the dish sheet; the planned card keeps just the "Just need: …" nudge.
   return null;
 }

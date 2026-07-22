@@ -153,7 +153,9 @@ export function AddSheet({
     [savedMeals],
   );
 
-  const filtering = q.trim().length > 0 || cap !== null || kitchenOnly || sort !== 'smart';
+  // A re-sort is a reorder, NOT a narrowing filter — it must not hide the "From
+  // your menu" top pick (§7). Only search/cap/kitchen actually narrow the lists.
+  const filtering = q.trim().length > 0 || cap !== null || kitchenOnly;
   const expanded = focused || q.trim().length > 0;
   const cookNow = (it: AddItem) => {
     if (it.source !== 'menu' || !have?.size) return false;
@@ -184,7 +186,7 @@ export function AddSheet({
 
   // A gram-based ingredient (has per100g) opens the portion stepper; curated foods
   // and per-serving meals log in a single tap.
-  const tap = (it: AddItem) => { if (it.per100g) setEditing({ item: it, grams: 100 }); else onLog(it); };
+  const tap = (it: AddItem) => { setMenuOpen(null); if (it.per100g) setEditing({ item: it, grams: 100 }); else onLog(it); };
 
   const onScanned = async (ean: string) => {
     setScanning(false);
@@ -273,7 +275,7 @@ export function AddSheet({
             placeholderTextColor={c('textMuted')}
             value={q}
             onChangeText={setQ}
-            onFocus={() => setFocused(true)}
+            onFocus={() => { setFocused(true); setMenuOpen(null); }}
             onBlur={() => setFocused(false)}
             returnKeyType="search"
             style={{ flex: 1, backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: focused ? c('accent') : c('border'), borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, color: c('textPrimary'), fontSize: 15 }}
@@ -281,7 +283,7 @@ export function AddSheet({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Scan a barcode"
-            onPress={() => { setScanMsg(null); setScanning(true); }}
+            onPress={() => { setMenuOpen(null); setScanMsg(null); setScanning(true); }}
             style={({ pressed }) => ({ width: 46, height: 46, borderRadius: 14, backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: c('border'), alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}
           >
             <BarcodeIcon color={c('textSecondary')} />
@@ -299,7 +301,7 @@ export function AddSheet({
           <Pressable onPress={() => setMenuOpen((m) => (m === 'cap' ? null : 'cap'))} accessibilityRole="button" accessibilityLabel={cap === null ? 'Calorie cap: any' : `Calorie cap: under ${cap}`} style={{ backgroundColor: cap !== null ? c('accent') : c('surfaceSunken'), borderWidth: 1, borderColor: cap !== null ? c('accent') : 'rgba(247,242,234,0.09)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 13 }}>
             <Text style={{ color: cap !== null ? c('accentText') : c('textPrimary'), fontSize: 13, fontWeight: '600' }}>{cap === null ? 'Any kcal' : `Under ${cap}`} ▾</Text>
           </Pressable>
-          <Pressable onPress={() => setKitchenOnly((k) => !k)} accessibilityRole="button" accessibilityState={{ selected: kitchenOnly }} accessibilityLabel="My kitchen only" style={{ backgroundColor: kitchenOnly ? c('accent') : c('surfaceSunken'), borderWidth: 1, borderColor: kitchenOnly ? c('accent') : 'rgba(247,242,234,0.09)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 13 }}>
+          <Pressable onPress={() => { setMenuOpen(null); setKitchenOnly((k) => !k); }} accessibilityRole="button" accessibilityState={{ selected: kitchenOnly }} accessibilityLabel="My kitchen only" style={{ backgroundColor: kitchenOnly ? c('accent') : c('surfaceSunken'), borderWidth: 1, borderColor: kitchenOnly ? c('accent') : 'rgba(247,242,234,0.09)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 13 }}>
             <Text style={{ color: kitchenOnly ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>My kitchen</Text>
           </Pressable>
         </View>

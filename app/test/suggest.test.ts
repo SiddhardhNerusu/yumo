@@ -48,6 +48,16 @@ describe('smartSuggest', () => {
     expect([...ids(out), ...ids(rest)]).toEqual(expect.arrayContaining(['a', 'd']));
   });
 
+  it('budget-fit OUTRANKS kitchen-tier (priority 1 beats priority 2)', () => {
+    // remaining 550: b(500)/c(300) fit budget; a(700)/d(900) are over.
+    // Make the keys DISAGREE — the over-budget a is cookable-now, the fits-budget b/c are shop.
+    const cookTier = (r: MenuRecipe): CookTier => (r.id === 'a' ? 'now' : 'shop');
+    const out = smartSuggest(ctx({ remaining: 550, cookTier }));
+    // `over` dominates `tier`: the fits-budget shop dishes rank ahead of the cookable-now over-budget one.
+    expect(ids(out)).toEqual(['b', 'c', 'a']);
+    expect(ids(out)[0]).not.toBe('a'); // a swap to tier-first would surface 'a' here — guard against it
+  });
+
   it('surfaces the planned pick with its SCALED Cur, not rebuilt at raw serving', () => {
     const scaledPlanned: SuggestCur = { recipe: recipe('b', 500), kcal: 750, protein: 40, carbs: 0, fat: 0, portionScale: 1.5 };
     const out = smartSuggest(ctx({ planned: scaledPlanned }));

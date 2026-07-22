@@ -46,3 +46,12 @@ export function smartSuggest(ctx: SmartCtx): SuggestCur[] {
   // pool recipes are built at their authored serving via curFor.
   return rotated.slice(0, 3).map(({ r }) => (ctx.planned && r.id === ctx.planned.recipe.id ? ctx.planned : ctx.curFor(r)));
 }
+
+/**
+ * How many recipes the engine can rank for this slot (slot-affine AND allowed).
+ * Shuffle only makes sense when this exceeds the 3 rows shown — at ≤3 the rows
+ * already surface everything, so the caller hides the Shuffle affordance.
+ */
+export function suggestableCount(ctx: SmartCtx): number {
+  return ctx.pool.filter(ctx.allowed).length;
+}

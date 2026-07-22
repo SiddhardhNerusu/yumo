@@ -45,11 +45,11 @@ export function Serif({ children, size, weight = 'regular', italic, color, style
 // `flex` = fill a ROW (e.g. [Log it] beside Mix/Recipe). `full` = stretch to the
 // full width of a COLUMN (sheet footers). Never use `flex` in a column: flexBasis:0
 // on the vertical axis collapses the pill to ~0 height and clips the label.
-export function PrimaryButton({ label, onPress, flex, full, disabled }: { label: string; onPress?: () => void; flex?: boolean; full?: boolean; disabled?: boolean }) {
+export function PrimaryButton({ label, onPress, flex, full, disabled }: { label: string; onPress?: () => void; flex?: boolean | number; full?: boolean; disabled?: boolean }) {
   const { c } = useTheme();
   const p = usePress();
   return (
-    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} disabled={disabled} style={{ flex: flex ? 1 : undefined, alignSelf: full ? 'stretch' : undefined, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 12, paddingHorizontal: 20, alignItems: 'center', opacity: disabled ? 0.5 : 1, transform: [{ scale: p.scale }] }}>
+    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} disabled={disabled} style={{ flex: typeof flex === 'number' ? flex : flex ? 1 : undefined, alignSelf: full ? 'stretch' : undefined, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 12, paddingHorizontal: 20, alignItems: 'center', opacity: disabled ? 0.5 : 1, transform: [{ scale: p.scale }] }}>
       <Text style={{ color: c('accentText'), fontWeight: '700', fontSize: 14 }}>{label}</Text>
     </AnimatedPressable>
   );
@@ -66,11 +66,11 @@ export function MixButton({ label = 'Mix it up', onPress }: { label?: string; on
   );
 }
 
-export function OutlineButton({ label, onPress, flex, full }: { label: string; onPress?: () => void; flex?: boolean; full?: boolean }) {
+export function OutlineButton({ label, onPress, flex, full }: { label: string; onPress?: () => void; flex?: boolean | number; full?: boolean }) {
   const { c } = useTheme();
   const p = usePress();
   return (
-    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} style={{ flex: flex ? 1 : undefined, alignSelf: full ? 'stretch' : undefined, borderWidth: 1, borderColor: c('borderStrong'), borderRadius: 999, paddingVertical: 11, paddingHorizontal: 16, alignItems: 'center', transform: [{ scale: p.scale }] }}>
+    <AnimatedPressable onPress={onPress} onPressIn={p.onPressIn} onPressOut={p.onPressOut} style={{ flex: typeof flex === 'number' ? flex : flex ? 1 : undefined, alignSelf: full ? 'stretch' : undefined, borderWidth: 1, borderColor: c('borderStrong'), borderRadius: 999, paddingVertical: 11, paddingHorizontal: 16, alignItems: 'center', transform: [{ scale: p.scale }] }}>
       <Text style={{ color: c('textSecondary'), fontWeight: '600', fontSize: 14 }}>{label}</Text>
     </AnimatedPressable>
   );
