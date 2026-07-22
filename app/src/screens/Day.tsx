@@ -139,7 +139,7 @@ export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal
   const expiringKey = expiringLabels.join('|');
   const kitchenBoost = (on: boolean): string[] => {
     const ids = new Set(recipesUsingExpiring(POOL, expiring));
-    if (on || kitchen.emptyMode) for (const r of POOL) if (cookability(r, have).tier === 'now') ids.add(r.id);
+    if (on) for (const r of POOL) if (cookability(r, have).tier === 'now') ids.add(r.id);
     return [...ids];
   };
   const [plan, setPlan] = useState<WeekMenuPlan | null>(null);
@@ -178,7 +178,7 @@ export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal
     });
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile, kitchen.emptyMode, expiringKey]);
+  }, [profile, expiringKey]);
 
   const planNextWeek = () => {
     setRegenerating(true);

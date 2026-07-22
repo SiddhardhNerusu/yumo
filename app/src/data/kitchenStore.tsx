@@ -18,7 +18,6 @@ import { DEMO_DATA } from './demo';
 
 const KEY = 'yumo.kitchen.v1';
 const STATS_KEY = 'yumo.kitchen.stats.v1';
-const EMPTY_KEY = 'yumo.kitchen.empty.v1';
 const DAY = 86_400_000;
 const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -32,9 +31,6 @@ interface KitchenStore {
   /** §8 tallies (stocked/wasted/cooked, lifetime) + derived used-fraction. */
   stats: KitchenStats;
   usedPct: number | null;
-  /** §9 "using things up" — bias generation to in-stock/expiring, pause shopping. */
-  emptyMode: boolean;
-  setEmptyMode: (on: boolean) => void;
   addItem: (token: string, opts?: { label?: string; zone?: Zone; level?: Level; price?: number; source?: KitchenItem['source'] }) => void;
   restock: (entries: Array<{ token: string; label?: string; price?: number; zone?: Zone; level?: Level }>) => void;
   removeItem: (id: string) => void;
@@ -70,7 +66,6 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
   const [items, setItems] = useState<KitchenItem[]>([]);
   const [recentlyAdded, setRecentlyAdded] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState<KitchenStats>({ stocked: 0, wasted: 0, cooked: 0 });
-  const [emptyMode, setEmptyModeState] = useState(false);
   // live mirror of items so event handlers (add/restock) can read current state
   // without a stale closure and without re-creating callbacks on every change.
   const itemsRef = useRef<KitchenItem[]>(items);
@@ -79,10 +74,9 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
   // Load persisted kitchen (+ §8 stats, §9 mode), else seed from the starter kitchen.
   useEffect(() => {
     let alive = true;
-    Promise.all([AsyncStorage.getItem(KEY), AsyncStorage.getItem(STATS_KEY), AsyncStorage.getItem(EMPTY_KEY)])
-      .then(([v, sv, ev]) => {
+    Promise.all([AsyncStorage.getItem(KEY), AsyncStorage.getItem(STATS_KEY)])
+      .then(([v, sv]) => {
         if (!alive) return;
-        if (ev === '1') setEmptyModeState(true);
         let statsLoaded = false;
         if (sv) { try { const p = JSON.parse(sv); if (p && typeof p.stocked === 'number') { setStats(p); statsLoaded = true; } } catch { /* ignore */ } }
         if (v) {
@@ -136,7 +130,6 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
       return next;
     });
   }, []);
-  const setEmptyMode = useCallback((on: boolean) => { setEmptyModeState(on); AsyncStorage.setItem(EMPTY_KEY, on ? '1' : '0').catch(() => {}); }, []);
 
   const persist = useCallback((next: KitchenItem[]) => {
     AsyncStorage.setItem(KEY, JSON.stringify(next)).catch(() => {});
@@ -242,7 +235,7 @@ export function KitchenProvider({ children, seedTokens = [] }: { children: React
 
   const usedPct = stats.stocked > 0 ? Math.max(0, Math.min(1, (stats.stocked - stats.wasted) / stats.stocked)) : null;
 
-  const value = useMemo<KitchenStore>(() => ({ items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, restoreDecrement, availableTokens }), [items, recentlyAdded, stats, usedPct, emptyMode, setEmptyMode, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, restoreDecrement, availableTokens]);
+  const value = useMemo<KitchenStore>(() => ({ items, recentlyAdded, stats, usedPct, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, restoreDecrement, availableTokens }), [items, recentlyAdded, stats, usedPct, addItem, restock, removeItem, setLevel, setFreshness, moveZone, wasteItem, decrementForRecipe, restoreDecrement, availableTokens]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

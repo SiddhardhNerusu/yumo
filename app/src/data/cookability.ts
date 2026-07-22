@@ -46,13 +46,4 @@ export function cookability(recipe: MenuRecipe, haveTokens: Set<string>): Cookab
   return { tier, have, total: tokens.length, missing };
 }
 
-/** §6 shopping list = what the given recipes need that isn't in stock, deduped. */
-export function shoppingGaps(recipes: MenuRecipe[], haveTokens: Set<string>): string[] {
-  const gaps = new Set<string>();
-  for (const r of recipes) {
-    for (const t of cookability(r, haveTokens).missing) gaps.add(t);
-  }
-  return [...gaps];
-}
-
 export const TIER_LABEL: Record<CookTier, string> = { now: 'All in', oneShort: 'Almost', shop: 'To buy' };

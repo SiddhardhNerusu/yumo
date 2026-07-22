@@ -136,8 +136,10 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
     ? [{ zone: null, rows: sortRows(visible) }]
     : ZONES.map((z) => ({ zone: z, rows: sortRows(visible.filter((i) => zoneOf(i) === z)) })).filter((g) => g.rows.length);
 
-  const noMatch = q.length >= 1 && visible.length === 0;
   const freeAddQuery = query.trim();
+  // offer free-add only when nothing ANYWHERE in the kitchen matches — an item
+  // hidden by the active unit filter shouldn't be "re-added" into the wrong zone.
+  const existsAnywhere = q.length >= 1 && stock.some((i) => i.label.toLowerCase().includes(q));
 
   const doFreeAdd = () => {
     if (freeAddQuery.length < 2) return;
@@ -170,7 +172,8 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
 
   const buyAll = (tokens: string[]) => {
     kitchen.restock(tokens.map((t) => ({ token: t })));
-    tokens.forEach((t) => { shopping.remove(t); track('item_added', { source: 'shopping' }); });
+    shopping.removeMany(tokens); // one write — a per-token loop would clobber all but the last
+    tokens.forEach(() => track('item_added', { source: 'shopping' }));
   };
 
   const placeholder = filter ? `Search the ${ZONE_LABEL[filter].toLowerCase()}…` : 'Search your kitchen…';
@@ -220,7 +223,7 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
           placeholderTextColor={c('textMuted')}
           style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, color: c('textPrimary'), fontSize: 14 }}
         />
-        {noMatch && freeAddQuery.length >= 2 ? (
+        {freeAddQuery.length >= 2 && !existsAnywhere ? (
           <Pressable onPress={doFreeAdd} accessibilityRole="button" style={({ pressed }) => ({ borderWidth: 1, borderColor: withAlpha(c('textPrimary'), 0.25), borderStyle: 'dashed', borderRadius: 12, paddingVertical: 12, alignItems: 'center', opacity: pressed ? 0.7 : 1 })}>
             <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '600' }}>＋ Add “{freeAddQuery}” to your kitchen</Text>
           </Pressable>
@@ -286,7 +289,9 @@ function ShoppingListSheet({ visible, items, onClose, onRemove, onBought }: { vi
   const { c } = useTheme();
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const toggle = (t: string) => setChecked((s) => { const n = new Set(s); if (n.has(t)) n.delete(t); else n.add(t); return n; });
-  const buy = () => { const tokens = [...checked]; if (tokens.length) onBought(tokens); setChecked(new Set()); onClose(); };
+  // only buy tokens still on the list — a checked row deleted via × must not be
+  // re-restocked (its token lingers in `checked`).
+  const buy = () => { const live = new Set(items.map((i) => i.token)); const tokens = [...checked].filter((t) => live.has(t)); if (tokens.length) onBought(tokens); setChecked(new Set()); onClose(); };
   return (
     <Sheet visible={visible} onClose={onClose}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
