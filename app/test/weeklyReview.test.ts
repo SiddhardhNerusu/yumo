@@ -31,10 +31,10 @@ describe('weeklyReview', () => {
     expect(r.headline.length).toBeGreaterThan(0);
   });
 
-  it('win = budget adherence when most days land under', () => {
+  it('win = budget adherence, averaging over the on-budget days only', () => {
     const r = weeklyReview(base());
-    // 6 of 7 ≤ 2000; avg under across all logged = 650/7 ≈ 93
-    expect(r.bullets[0]!.text).toBe('6 of 7 days on budget, averaging 93 kcal under.');
+    // 6 of 7 ≤ 2000; mean margin over those 6 on-budget days = 790/6 ≈ 132
+    expect(r.bullets[0]!.text).toBe('6 of 7 days on budget, averaging 132 kcal under.');
   });
 
   it('watch-out surfaces the weekend protein dip, stated neutrally', () => {
@@ -71,6 +71,33 @@ describe('weeklyReview', () => {
     const wed = r.rows.find((x) => x.label === 'Wed')!;
     expect(wed.logged).toBe(false);
     expect(wed.deltaText).toBe('');
+  });
+
+  it('always renders 3 bullets — backfills an affirming line on a clean week (no manufactured watch-out)', () => {
+    const cleanDays = WEEK.map((d) => ({ ...d, kcal: 1700, protein: 120 }));
+    const cleanSlots = SLOTS.map((s) => ({ ...s, avgKcal: s.envelopeKcal - 30, avgProtein: 30 }));
+    const r = weeklyReview(base({ days: cleanDays, slots: cleanSlots }));
+    expect(r.bullets).toHaveLength(3);
+    expect(r.bullets[0]!.tone).toBe('win');
+    expect(r.bullets.some((b) => b.tone === 'watch')).toBe(false);
+  });
+
+  it('tip degrades to "a prepped usual" when no dish name is known (the real production path)', () => {
+    const noDish = SLOTS.map((s) => ({ ...s, topDish: undefined }));
+    const r = weeklyReview(base({ slots: noDish }));
+    const tip = r.bullets.find((b) => b.tone === 'tip')!;
+    expect(tip.text).toContain('a prepped usual');
+    expect(tip.text).not.toContain('undefined');
+  });
+
+  it('watch and tip never name the same slot', () => {
+    // no weekday/weekend protein gap → watch falls to the slot-overrun branch (lunch);
+    // tip must then pick a different slot, not repeat lunch.
+    const flatProtein = WEEK.map((d) => ({ ...d, protein: 100 }));
+    const r = weeklyReview(base({ days: flatProtein }));
+    const watch = r.bullets.find((b) => b.tone === 'watch');
+    const tip = r.bullets.find((b) => b.tone === 'tip');
+    if (watch && tip && watch.text.includes('Lunch')) expect(tip.text.toLowerCase()).not.toContain('lunch');
   });
 
   it('is graceful with too little data', () => {

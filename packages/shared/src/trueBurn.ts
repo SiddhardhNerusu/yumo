@@ -1,5 +1,5 @@
 import { mifflinStJeorBMR, KCAL_PER_KG, type BodyStats } from './budget';
-import { trendSeries, trendAt, maxTrendJump } from './trend';
+import { trendSeries, trendAt, maxTrendJump, TREND_HALFLIFE_DAYS } from './trend';
 import type { DayKg } from './weightWindows';
 
 /**
@@ -47,6 +47,9 @@ export interface TrueBurnResult {
   state: TrueBurnState;
   /** the number to show and to feed the budget (formulaTdee while learning). */
   burn: number;
+  /** this window's UNBLENDED estimate (learned only) — persist THIS as the next
+   * previousEstimate so the blend anchors on raw, not a doubly-smoothed value. */
+  rawBurn: number | null;
   /** echo of the formula estimate, for the "the formula guessed X" sub-line. */
   formulaTdee: number;
   /** mean logged intake over the window (learned only, else null). */
@@ -83,6 +86,7 @@ function learning(input: TrueBurnInput, loggedDays: number, weighInsUsed: number
   return {
     state: 'learning',
     burn: input.formulaTdee,
+    rawBurn: null,
     formulaTdee: input.formulaTdee,
     intakeAvg: null,
     dailyBalance: null,
@@ -118,8 +122,11 @@ export function trueBurn(input: TrueBurnInput): TrueBurnResult {
     return learning(input, loggedDays, weighInsUsed);
   }
 
-  // A corrupt weigh-in (huge single-day trend jump) invalidates the whole window.
-  if (maxTrendJump(series, trendStartDay, trendEndDay) > MAX_TREND_JUMP_KG) {
+  // A corrupt weigh-in (huge single-day trend jump) invalidates the window. Scan
+  // back ~2 EWMA half-lives before the window start too: the trend is a forward
+  // EWMA, so an outlier in that warm-up lead-in still bleeds into startKg (an
+  // outlier further back has decayed to a negligible weight and is ignored).
+  if (maxTrendJump(series, trendStartDay - 2 * TREND_HALFLIFE_DAYS, trendEndDay) > MAX_TREND_JUMP_KG) {
     return learning(input, loggedDays, weighInsUsed);
   }
 
@@ -145,6 +152,7 @@ export function trueBurn(input: TrueBurnInput): TrueBurnResult {
   return {
     state: 'learned',
     burn,
+    rawBurn: Math.round(rawBurn),
     formulaTdee: input.formulaTdee,
     intakeAvg,
     dailyBalance,

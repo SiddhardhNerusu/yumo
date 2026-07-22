@@ -85,17 +85,29 @@ function headline(loggedDays: number, onBudgetFrac: number): string {
 function winBullet(input: WeeklyReviewInput, logged: ReviewDayInput[]): ReviewBullet {
   const onBudget = logged.filter((d) => d.kcal <= input.budget);
   const proteinHit = logged.filter((d) => d.protein >= input.proteinTarget);
-  const avgUnder = Math.round(mean(logged.map((d) => input.budget - d.kcal)));
   const budgetFrac = onBudget.length / logged.length;
   const proteinFrac = proteinHit.length / logged.length;
 
-  if (budgetFrac >= 0.5 && avgUnder >= 0 && budgetFrac >= proteinFrac) {
+  if (budgetFrac >= 0.5 && budgetFrac >= proteinFrac) {
+    // average the margin over the ON-BUDGET days only, so it always reads "N under"
+    // (a whole-week mean could go negative after one blowout — never a win phrasing).
+    const avgUnder = Math.round(mean(onBudget.map((d) => input.budget - d.kcal)));
     return { tone: 'win', text: `${onBudget.length} of ${logged.length} days on budget, averaging ${fmt(avgUnder)} kcal under.` };
   }
   if (proteinFrac >= 0.5) {
     return { tone: 'win', text: `Protein held up — you hit ${input.proteinTarget}g on ${proteinHit.length} of ${logged.length} days.` };
   }
   return { tone: 'win', text: `You logged ${logged.length} day${logged.length === 1 ? '' : 's'} this week — showing up is the hard part.` };
+}
+
+/** An always-warm affirming bullet, used to backfill to three on a clean week
+ * (never a manufactured criticism — the brief forbids punitive framing). */
+function affirmBullet(logged: ReviewDayInput[], idx: number): ReviewBullet {
+  const opts = [
+    'Nothing really slipped — a clean, consistent week.',
+    `You logged ${logged.length} day${logged.length === 1 ? '' : 's'} this week — that consistency is the whole game.`,
+  ];
+  return { tone: 'win', text: opts[idx % opts.length]! };
 }
 
 function trickiestSlot(slots: ReviewSlotInput[]): ReviewSlotInput | null {
@@ -106,7 +118,9 @@ function trickiestSlot(slots: ReviewSlotInput[]): ReviewSlotInput | null {
   return ranked.length && ranked[0]!.overrun >= SLOT_OVERRUN_KCAL ? ranked[0]!.s : null;
 }
 
-function watchBullet(input: WeeklyReviewInput, logged: ReviewDayInput[]): ReviewBullet | null {
+/** The watch-out bullet + which slot (if any) it consumed, so the tip can avoid
+ * naming the same slot twice. */
+function watchBullet(input: WeeklyReviewInput, logged: ReviewDayInput[], tricky: ReviewSlotInput | null): { bullet: ReviewBullet; usedSlot: string | null } | null {
   // 1) weekday vs weekend protein gap
   const weekend = logged.filter((d) => d.dow === 0 || d.dow === 6);
   const weekday = logged.filter((d) => d.dow >= 1 && d.dow <= 5);
@@ -114,31 +128,31 @@ function watchBullet(input: WeeklyReviewInput, logged: ReviewDayInput[]): Review
     const wknd = Math.round(mean(weekend.map((d) => d.protein)));
     const wkdy = Math.round(mean(weekday.map((d) => d.protein)));
     if (wkdy - wknd >= PROTEIN_GAP_G) {
-      return { tone: 'watch', text: `Protein dipped to ${wknd}g over the weekend — weekdays hit ${wkdy}g.` };
+      return { bullet: { tone: 'watch', text: `Protein dipped to ${wknd}g over the weekend — weekdays hit ${wkdy}g.` }, usedSlot: null };
     }
   }
   // 2) a slot that runs over its share
-  const tricky = trickiestSlot(input.slots);
   if (tricky) {
-    return { tone: 'watch', text: `${tricky.label} ran about ${fmt(tricky.avgKcal - tricky.envelopeKcal)} kcal above its usual share.` };
+    return { bullet: { tone: 'watch', text: `${tricky.label} ran about ${fmt(tricky.avgKcal - tricky.envelopeKcal)} kcal above its usual share.` }, usedSlot: tricky.slot };
   }
   // 3) days over budget
   const over = logged.filter((d) => d.kcal > input.budget);
   if (over.length) {
-    return { tone: 'watch', text: `${over.length} day${over.length === 1 ? '' : 's'} went a little over — usually the easiest to smooth out.` };
+    return { bullet: { tone: 'watch', text: `${over.length} day${over.length === 1 ? '' : 's'} went a little over — usually the easiest to smooth out.` }, usedSlot: null };
   }
   return null;
 }
 
-function tipBullet(input: WeeklyReviewInput): ReviewBullet | null {
-  const tricky = trickiestSlot(input.slots);
+function tipBullet(input: WeeklyReviewInput, excludeSlot: string | null): ReviewBullet | null {
+  const pool = input.slots.filter((s) => s.slot !== excludeSlot);
+  const tricky = trickiestSlot(pool);
   if (tricky) {
     const where = tricky.worstDayLabel ? `${tricky.worstDayLabel} ${tricky.label.toLowerCase()}` : `${tricky.label}`;
     const prep = tricky.topDish ? `a prepped ${tricky.topDish}` : 'a prepped usual';
     return { tone: 'tip', text: `${where} is your trickiest slot — ${prep} there would close the gap.` };
   }
   // lowest-protein slot as a gentle, still-personal nudge
-  const withData = input.slots.filter((s) => s.loggedDays > 0);
+  const withData = pool.filter((s) => s.loggedDays > 0);
   if (withData.length) {
     const low = [...withData].sort((a, b) => a.avgProtein - b.avgProtein)[0]!;
     return { tone: 'tip', text: `${low.label} is your lightest slot for protein — a small swap there adds up over a week.` };
@@ -178,15 +192,17 @@ export function weeklyReview(input: WeeklyReviewInput): WeeklyReview {
   }
 
   const onBudgetFrac = logged.filter((d) => d.kcal <= input.budget).length / loggedDays;
+  const tricky = trickiestSlot(input.slots);
+  const watch = watchBullet(input, logged, tricky);
+  // Order ✓ win → ▲ watch (or an affirm on a clean week) → ✦ tip, always three.
   const bullets: ReviewBullet[] = [winBullet(input, logged)];
-  const watch = watchBullet(input, logged);
-  if (watch) bullets.push(watch);
-  const tip = tipBullet(input);
-  if (tip) bullets.push(tip);
+  bullets.push(watch ? watch.bullet : affirmBullet(logged, 0));
+  const tip = tipBullet(input, watch?.usedSlot ?? null);
+  bullets.push(tip ?? affirmBullet(logged, 1));
 
   return {
     headline: headline(loggedDays, onBudgetFrac),
-    bullets,
+    bullets: bullets.slice(0, 3),
     rows,
     loggedDays,
     hasData: true,

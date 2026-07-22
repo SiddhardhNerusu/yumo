@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Modal, View, Text, ScrollView, Pressable, type GestureResponderEvent } from 'react-native';
-import Svg, { Path, Circle, Line } from 'react-native-svg';
+import Svg, { Path, Circle, Line, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
 import type { UserProfile } from '@yumo/menu';
 import { logEvents, localParts } from '@yumo/brain';
 import { weightDelta, weightParts, trendSeries, trueBurn, dailyBudget, SLOT_ENVELOPE, type MealSlot, type Goal, type DayKg } from '@yumo/shared';
@@ -30,7 +30,7 @@ const shortDate = (day: number) => `${asDate(day).getUTCDate()} ${MON_SHORT[asDa
 const weekdayFull = (day: number) => WEEKDAY_FULL[asDate(day).getUTCDay()]!;
 
 type Range = 'w' | 'm' | 'y';
-const CAL_MAX = 2400;
+const CAL_MAX_FLOOR = 2400; // chart ceiling never dips below this; grows for big budgets/days
 const CHART_W = 340;
 
 interface DayTotals { kcal: number; protein: number }
@@ -194,11 +194,11 @@ function calorieData(byDay: Map<number, DayTotals>, today: number, range: Range,
 
 interface WeightData {
   line: string; area: string; rawDots: { x: number; y: number }[]; trendPts: { x: number; y: number; day: number; kg: number }[];
-  goalY: number | null; delta: string; deltaAligned: boolean; stats: Stat[]; insight: string; startLabel: string; endLabel: string; def: string; hasData: boolean;
+  goalY: number | null; goalLabel: string | null; delta: string; deltaAligned: boolean; stats: Stat[]; insight: string; startLabel: string; endLabel: string; def: string; hasData: boolean;
 }
 
 function weightData(entries: DayKg[], trendAll: DayKg[], range: Range, today: number, goalKg: number | undefined, goal: Goal, unit: ReturnType<typeof useWeightUnit>['unit']): WeightData {
-  const empty: WeightData = { line: '', area: '', rawDots: [], trendPts: [], goalY: null, delta: '', deltaAligned: false, stats: [], insight: '', startLabel: '', endLabel: '', def: 'Add weigh-ins on Progress to see the trend.', hasData: false };
+  const empty: WeightData = { line: '', area: '', rawDots: [], trendPts: [], goalY: null, goalLabel: null, delta: '', deltaAligned: false, stats: [], insight: '', startLabel: '', endLabel: '', def: 'Add weigh-ins on Progress to see the trend.', hasData: false };
   const windowDays = range === 'w' ? 7 : range === 'm' ? 30 : 100000;
   const startDay = today - windowDays + 1;
   const trendWin = trendAll.filter((p) => p.day >= startDay && p.day <= today);
@@ -208,10 +208,14 @@ function weightData(entries: DayKg[], trendAll: DayKg[], range: Range, today: nu
   const domainStart = trendWin[0]!.day;
   const domainEnd = trendWin[trendWin.length - 1]!.day;
   const span = Math.max(1, domainEnd - domainStart);
-  const showGoal = (range === 'y') && goalKg != null;
+  // goal line only on the Year range, and only for an active lose/gain goal.
+  const showGoal = range === 'y' && goalKg != null && goal !== 'maintain';
+  const GOAL_PAD = 1.5;
   const vals = [...trendWin.map((p) => p.kg), ...rawWin.map((p) => p.kg)];
-  const lo = showGoal ? Math.min(...vals, goalKg! + 1.5) : Math.min(...vals);
-  const hi = Math.max(...vals);
+  // when showing the goal, extend the domain to enclose it (with headroom) so the
+  // dashed line sits at the true goal weight whether it's below or above the data.
+  const lo = showGoal ? Math.min(...vals, goalKg! - GOAL_PAD) : Math.min(...vals);
+  const hi = showGoal ? Math.max(...vals, goalKg! + GOAL_PAD) : Math.max(...vals);
   const pad = 8, H = 72;
   const X = (day: number) => ((day - domainStart) / span) * CHART_W;
   const Y = (v: number) => (hi === lo ? H / 2 : pad + (1 - (v - lo) / (hi - lo)) * (H - pad * 2));
@@ -253,9 +257,12 @@ function weightData(entries: DayKg[], trendAll: DayKg[], range: Range, today: nu
   const startLabel = `${startParts.value} ${startParts.suffix} · ${range === 'y' ? MON_SHORT[asDate(domainStart).getUTCMonth()] : shortDate(domainStart)}`;
   const endParts = weightParts(trendNow, unit);
   const endLabel = `${endParts.value} ${endParts.suffix} · today`;
-  const goalY = showGoal ? Y(Math.max(goalKg!, lo)) : null;
+  // goalKg now sits inside [lo,hi], so Y(goalKg) is on-chart; clamp for float safety.
+  const goalY = showGoal ? Math.max(pad, Math.min(H - pad, Y(goalKg!))) : null;
+  const goalParts = showGoal ? weightParts(goalKg!, unit) : null;
+  const goalLabel = goalParts ? `Goal ${goalParts.value} ${goalParts.suffix}` : null;
 
-  return { line: linePath, area, rawDots, trendPts, goalY, delta: deltaStr, deltaAligned: aligned, stats, insight, startLabel, endLabel, def: 'Trend weight — pale dots are raw weigh-ins', hasData: true };
+  return { line: linePath, area, rawDots, trendPts, goalY, goalLabel, delta: deltaStr, deltaAligned: aligned, stats, insight, startLabel, endLabel, def: 'Trend weight — pale dots are raw weigh-ins', hasData: true };
 }
 
 // ── weekly-review per-slot aggregation ───────────────────────────────────────
@@ -359,7 +366,10 @@ export function Overview({ visible, onClose, profile, goal, prefs }: { visible: 
   const wCaption = wSelPt ? `${weightParts(wSelPt.kg, unit).value} ${weightParts(wSelPt.kg, unit).suffix} trend · ${shortDate(wSelPt.day)}` : wData.def;
   const wDot = wSelPt ?? wData.trendPts[wData.trendPts.length - 1] ?? null;
 
-  const budgetTop = (1 - budget / CAL_MAX) * 120;
+  // chart ceiling grows with the budget and the tallest logged day so neither the
+  // bars nor the budget line ever overflow the fixed-height chart.
+  const calMax = Math.max(CAL_MAX_FLOOR, Math.round(budget * 1.1), ...calData.bars.map((b) => b.kcal ?? 0));
+  const budgetTop = (1 - budget / calMax) * 120;
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -447,11 +457,11 @@ export function Overview({ visible, onClose, profile, goal, prefs }: { visible: 
                 <Svg width="100%" height={120} style={{ position: 'absolute', left: 0, top: 0 }} pointerEvents="none">
                   <Line x1={0} y1={budgetTop} x2={CHART_W} y2={budgetTop} stroke={withAlpha(c('textPrimary'), 0.25)} strokeWidth={1} strokeDasharray="3 4" />
                 </Svg>
-                <Text style={[{ position: 'absolute', right: 0, top: budgetTop - 15, color: c('textMuted'), fontSize: 10.5, backgroundColor: c('surface'), paddingLeft: 6 }, num]}>{fmt(budget)}</Text>
+                <Text style={[{ position: 'absolute', right: 0, top: Math.max(0, budgetTop - 15), color: c('textMuted'), fontSize: 10.5, backgroundColor: c('surface'), paddingLeft: 6 }, num]}>{fmt(budget)}</Text>
                 <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, flexDirection: 'row', alignItems: 'flex-end', gap: calData.gap }}>
                   {calData.bars.map((b, i) => (
                     <View key={i} style={{ flex: 1, height: '100%', justifyContent: 'flex-end' }}>
-                      <CalBarView bar={b} selected={cal.sel === i} many={calData.bars.length > 15} budget={budget} />
+                      <CalBarView bar={b} selected={cal.sel === i} many={calData.bars.length > 15} budget={budget} calMax={calMax} />
                     </View>
                   ))}
                 </View>
@@ -485,6 +495,9 @@ export function Overview({ visible, onClose, profile, goal, prefs }: { visible: 
                       {wt.sel != null && wDot ? <Line x1={wDot.x} y1={0} x2={wDot.x} y2={72} stroke={withAlpha(c('accentSoft'), 0.4)} strokeWidth={1} strokeDasharray="3 3" /> : null}
                       {wDot ? <Circle cx={wDot.x} cy={wDot.y} r={3.5} fill={c('accent')} stroke={c('surface')} strokeWidth={2} /> : null}
                     </Svg>
+                    {wData.goalLabel != null && wData.goalY != null ? (
+                      <Text pointerEvents="none" style={{ position: 'absolute', right: 2, top: Math.max(0, wData.goalY - 11), color: c('success'), fontSize: 9, fontWeight: '600' }}>{wData.goalLabel}</Text>
+                    ) : null}
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
                     <Text style={[{ color: c('textMuted'), fontSize: 11 }, num]}>{wData.startLabel}</Text>
@@ -524,9 +537,13 @@ export function Overview({ visible, onClose, profile, goal, prefs }: { visible: 
               <View style={{ backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: c('border'), borderRadius: 12, paddingVertical: 12, paddingHorizontal: 14, gap: 8 }}>
                 <Text style={{ color: c('textPrimary'), fontSize: 13, fontWeight: '700' }}>How we work this out</Text>
                 <Text style={{ color: c('textSecondary'), fontSize: 12.5, lineHeight: 18 }}>Think of your body as a bank account. We know what went in — the food you logged. And the scale tells us what happened to the balance — your weight trend.</Text>
-                {learned && burn.intakeAvg != null && burn.paceKgPerWeek != null ? (
-                  <Text style={[{ color: c('textSecondary'), fontSize: 12.5, lineHeight: 18 }, num]}>If you ate {fmt(burn.intakeAvg)} kcal a day and still lost about {Math.abs(burn.paceKgPerWeek).toFixed(1)} kg a week, you must have burned more than you ate — about {fmt(Math.abs(burn.dailyBalance ?? 0))} kcal a day more. Add those together and that's your true burn: <Text style={{ color: c('textPrimary'), fontWeight: '700' }}>≈ {fmt(burn.burn)} kcal</Text>.</Text>
-                ) : null}
+                {learned && burn.intakeAvg != null && burn.paceKgPerWeek != null ? (() => {
+                  const surplus = (burn.dailyBalance ?? 0) > 0;
+                  const pace = weightDelta(burn.paceKgPerWeek, unit);
+                  return (
+                    <Text style={[{ color: c('textSecondary'), fontSize: 12.5, lineHeight: 18 }, num]}>If you ate {fmt(burn.intakeAvg)} kcal a day and {surplus ? 'still gained' : 'still lost'} about {pace.value} {pace.suffix} a week, you must have burned {surplus ? 'less' : 'more'} than you ate — about {fmt(Math.abs(burn.dailyBalance ?? 0))} kcal a day {surplus ? 'less' : 'more'}. {surplus ? 'Subtract that' : 'Add those together'} and that's your true burn: <Text style={{ color: c('textPrimary'), fontWeight: '700' }}>≈ {fmt(burn.burn)} kcal</Text>.</Text>
+                  );
+                })() : null}
                 <Text style={{ color: c('textSecondary'), fontSize: 12.5, lineHeight: 18 }}>No formula can know your body this well — this is measured from your own numbers, and it quietly retunes your budget as your body changes.</Text>
                 <Text style={{ color: c('textMuted'), fontSize: 11.5, lineHeight: 16 }}>It needs about 2 weeks of steady logging and weigh-ins to beat the formula — until then we show the standard estimate.</Text>
               </View>
@@ -545,7 +562,7 @@ export function Overview({ visible, onClose, profile, goal, prefs }: { visible: 
             ) : null}
             {learned ? (
               <StatStrip stats={[
-                [`${(burn.dailyBalance ?? 0) <= 0 ? '−' : '+'}${fmt(Math.abs(burn.dailyBalance ?? 0))}`, 'avg daily deficit'],
+                [`${(burn.dailyBalance ?? 0) <= 0 ? '−' : '+'}${fmt(Math.abs(burn.dailyBalance ?? 0))}`, (burn.dailyBalance ?? 0) > 0 ? 'avg daily surplus' : 'avg daily deficit'],
                 [`${weightDelta(burn.paceKgPerWeek ?? 0, unit).value} ${weightDelta(burn.paceKgPerWeek ?? 0, unit).suffix}/wk`, 'measured pace'],
                 [`${burn.weighInsUsed}`, 'weigh-ins used'],
               ]} />
@@ -566,8 +583,19 @@ export function Overview({ visible, onClose, profile, goal, prefs }: { visible: 
 
 function ProgressPill({ frac }: { frac: number }) {
   const { c } = useTheme();
-  // approximate the accent→accentSoft gradient with a solid accent (RN-SVG-free pill)
-  return <View style={{ height: '100%', width: `${Math.max(0, Math.min(1, frac)) * 100}%`, borderRadius: 999, backgroundColor: c('accent') }} />;
+  const w = Math.max(0, Math.min(1, frac)) * 100;
+  // §2 accent→accentSoft gradient fill across the eaten portion.
+  return (
+    <Svg width="100%" height={6}>
+      <Defs>
+        <LinearGradient id="pillGrad" x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor={c('accent')} />
+          <Stop offset="1" stopColor={c('accentSoft')} />
+        </LinearGradient>
+      </Defs>
+      <Rect x={0} y={0} width={`${w}%`} height={6} rx={3} fill="url(#pillGrad)" />
+    </Svg>
+  );
 }
 
 function MacroRow({ label, now: nowG, goal, color }: { label: string; now: number; goal: number; color: string }) {
@@ -586,10 +614,10 @@ function MacroRow({ label, now: nowG, goal, color }: { label: string; now: numbe
   );
 }
 
-function CalBarView({ bar, selected, many, budget }: { bar: CalBar; selected: boolean; many: boolean; budget: number }) {
+function CalBarView({ bar, selected, many, budget, calMax }: { bar: CalBar; selected: boolean; many: boolean; budget: number; calMax: number }) {
   const { c } = useTheme();
   const unlogged = bar.kcal == null;
-  const pct = unlogged ? 4 : Math.max(4, (bar.kcal! / CAL_MAX) * 100);
+  const pct = unlogged ? 4 : Math.max(4, Math.min(100, (bar.kcal! / calMax) * 100));
   const color = unlogged ? withAlpha(c('textPrimary'), 0.12)
     : selected ? c('accentSoft')
       : bar.today ? withAlpha(c('accent'), 0.35)
@@ -610,19 +638,20 @@ function buildBurnSpark(tb: ReturnType<typeof useTrueBurn>, weights: DayKg[], by
   const POINTS = 6, STEP = 28;
   const intakeAll: { day: number; kcal: number }[] = [];
   for (const [day, t] of byDay) if (t.kcal > 0) intakeAll.push({ day, kcal: Math.round(t.kcal) });
-  const vals: number[] = [];
+  // keep only points where the burn was actually MEASURED (learned) — learning
+  // points would flat-line at today's formula and mislabel the start month.
+  const pts: { val: number; day: number }[] = [];
   for (let k = POINTS - 1; k >= 0; k--) {
     const dayK = today - k * STEP;
-    const wIn = weights.filter((w) => w.day <= dayK);
-    const inWin = intakeAll.filter((d) => d.day <= dayK);
-    vals.push(trueBurn({ intake: inWin, weighIns: wIn, todayEpoch: dayK, body: tb.body, formulaTdee: tb.result.formulaTdee, previousEstimate: null }).burn);
+    const r = trueBurn({ intake: intakeAll.filter((d) => d.day <= dayK), weighIns: weights.filter((w) => w.day <= dayK), todayEpoch: dayK, body: tb.body, formulaTdee: tb.result.formulaTdee, previousEstimate: null });
+    if (r.state === 'learned') pts.push({ val: r.burn, day: dayK });
   }
-  if (vals.length < 2) return null;
+  if (pts.length < 2) return null;
+  const vals = pts.map((p) => p.val);
   const lo = Math.min(...vals), hi = Math.max(...vals);
   const H = 44, pad = 6;
   const X = (i: number) => (i / (vals.length - 1)) * CHART_W;
   const Y = (v: number) => (hi === lo ? H / 2 : pad + (1 - (v - lo) / (hi - lo)) * (H - pad * 2));
   const line = vals.map((v, i) => `${i === 0 ? 'M' : 'L'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
-  const startDay = today - (POINTS - 1) * STEP;
-  return { line, endX: X(vals.length - 1), endY: Y(vals[vals.length - 1]!), startLabel: `${fmt(vals[0]!)} · ${MON_SHORT[asDate(startDay).getUTCMonth()]}` };
+  return { line, endX: X(vals.length - 1), endY: Y(vals[vals.length - 1]!), startLabel: `${fmt(pts[0]!.val)} · ${MON_SHORT[asDate(pts[0]!.day).getUTCMonth()]}` };
 }

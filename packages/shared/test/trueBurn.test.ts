@@ -97,4 +97,21 @@ describe('trueBurn — guardrails', () => {
     expect(r.state).toBe('learning'); // window thrown out despite enough data
     expect(r.burn).toBe(FORMULA);
   });
+
+  it('rejects a fat-finger in the EWMA warm-up zone JUST BEFORE the window (leaks into startKg)', () => {
+    const good = history(74.0, 1.8 / 27);
+    // corrupt a weigh-in a few days before the 28-day window start (T-27) — outside
+    // the window interior but inside the EWMA lead-in that feeds startKg.
+    const bad = good.map((w) => (w.day === TODAY - 28 ? { ...w, kg: w.kg + 45 } : w));
+    const r = trueBurn({ intake: intake(20, 1846), weighIns: bad, todayEpoch: TODAY, body: BODY, formulaTdee: FORMULA });
+    expect(r.state).toBe('learning'); // must NOT accept a corrupted startKg as learned
+  });
+
+  it('exposes the unblended rawBurn for the next blend anchor', () => {
+    const r = trueBurn({ intake: intake(20, 1846), weighIns: history(74.0, 1.8 / 27), todayEpoch: TODAY, body: BODY, formulaTdee: FORMULA });
+    expect(r.state).toBe('learned');
+    expect(r.rawBurn).not.toBeNull();
+    // with no previousEstimate, burn == round(rawBurn) (within the clamp band)
+    expect(r.burn).toBe(r.rawBurn);
+  });
 });

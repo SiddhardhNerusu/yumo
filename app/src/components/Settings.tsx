@@ -248,7 +248,7 @@ export function Settings({
 
   const save = () => {
     if (!atHundred) return;
-    const newPrefs: GoalPrefs = { heightCm, age, sex, activity, rateKgPerWeek: rate, macroPct, customBudget, goalWeightKg, trueBurnEstimate: learned ? tb.burn : prefs?.trueBurnEstimate };
+    const newPrefs: GoalPrefs = { heightCm, age, sex, activity, rateKgPerWeek: rate, macroPct, customBudget, goalWeightKg, trueBurnEstimate: learned ? (tb.rawBurn ?? tb.burn) : prefs?.trueBurnEstimate };
     onSave(
       { ...profile, budgetKcal: finalBudget || profile.budgetKcal, proteinTargetG: grams.proteinG, carbTargetG: grams.carbsG, fatTargetG: grams.fatG, variation, allergies, pantry },
       goalV,
@@ -342,12 +342,12 @@ export function Settings({
                 <InlineField label="Goal weight" value={Math.round(kgToEditValue(goalWeightKg ?? currentKg, unit))} onChange={(n) => setGoalWeightKg(displayToKg(n, unit))} suffix={editUnitFor(unit)} />
               </View>
             ) : null}
-            <View style={{ gap: 6, opacity: learned ? 0.55 : 1 }}>
+            <View style={{ gap: 6, opacity: learned && !customBudget ? 0.55 : 1 }}>
               <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>Activity</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {ACTIVITY_TILES.map((t) => <ActivityTile key={t.v} title={t.title} sub={t.sub} selected={activity === t.v} onPress={() => setActivity(t.v)} />)}
               </View>
-              {learned ? <Text style={{ color: c('textMuted'), fontSize: 11.5 }}>We’ve learned your real burn, so this matters less now.</Text> : null}
+              {learned && !customBudget ? <Text style={{ color: c('textMuted'), fontSize: 11.5 }}>We’ve learned your real burn, so this matters less now.</Text> : null}
             </View>
           </Card>
 
