@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { suggestFor, budgetIsTight, type SuggestCtx, type SuggestCur, type SuggestTile } from '../src/data/suggest';
+import { smartSuggest, type SmartCtx, type SuggestCur, type CookTier } from '../src/data/suggest';
 import type { MenuRecipe } from '@yumo/menu';
 
 const recipe = (id: string, kcal: number, slots: string[] = ['lunch']): MenuRecipe => ({
@@ -7,84 +7,66 @@ const recipe = (id: string, kcal: number, slots: string[] = ['lunch']): MenuReci
   perServing: { kcal, protein_g: Math.round(kcal / 20), carbs_g: 0, fat_g: 0 }, allergens: [], foodTokens: [id],
 });
 const curOf = (r: MenuRecipe): SuggestCur => ({ recipe: r, kcal: r.perServing.kcal, protein: 0, carbs: 0, fat: 0, portionScale: 1 });
-const tile = (foodId: string, kcal = 300): SuggestTile => ({ foodId, name: foodId, kcal, portionG: 100 });
 
 const POOL = [recipe('a', 700), recipe('b', 500), recipe('c', 300), recipe('d', 900), recipe('bfast', 400, ['breakfast'])];
 
-const ctx = (over: Partial<SuggestCtx> = {}): SuggestCtx => ({
-  slot: 'lunch', tiles: [], planned: null, pool: POOL, remaining: 2000, offset: 0,
+const ctx = (over: Partial<SmartCtx> = {}): SmartCtx => ({
+  slot: 'lunch', planned: null, pool: POOL, remaining: 2000, offset: 0,
   allowed: (r) => r.slotAffinity.includes('lunch'),
   score: (r) => r.perServing.protein_g, // protein-forward
   cookTier: () => 'shop',
   curFor: curOf,
   ...over,
 });
+const ids = (out: SuggestCur[]) => out.map((s) => s.recipe.id);
 
-describe('suggestFor', () => {
-  it('returns at most 3', () => {
-    expect(suggestFor('foryou', ctx()).length).toBe(3);
-    expect(suggestFor('budget', ctx()).length).toBe(3);
-  });
-
-  it('foryou leads with tiles, then planned, then pool; deduped', () => {
-    const planned = curOf(recipe('b', 500));
-    const out = suggestFor('foryou', ctx({ tiles: [tile('t1'), tile('t2')], planned }));
-    expect(out[0]).toEqual({ kind: 'tile', tile: tile('t1') });
-    expect(out[1]).toEqual({ kind: 'tile', tile: tile('t2') });
-    expect(out[2]).toEqual({ kind: 'recipe', cur: planned });
-  });
-
-  it('foryou dedupes a planned recipe that also appears in the pool', () => {
-    const planned = curOf(recipe('a', 700)); // 'a' is in POOL
-    const out = suggestFor('foryou', ctx({ planned }));
-    const recipeIds = out.filter((s) => s.kind === 'recipe').map((s) => (s.kind === 'recipe' ? s.cur.recipe.id : ''));
-    expect(new Set(recipeIds).size).toBe(recipeIds.length); // no duplicate ids
-  });
-
-  it('foryou surfaces the planned pick with its SCALED Cur, not rebuilt at raw serving', () => {
-    // engine scales a 500 kcal recipe to 750 (portionScale 1.5) — the plan/coach show 750
-    const scaledPlanned: SuggestCur = { recipe: recipe('b', 500), kcal: 750, protein: 40, carbs: 0, fat: 0, portionScale: 1.5 };
-    const out = suggestFor('foryou', ctx({ planned: scaledPlanned }));
-    const plannedSug = out.find((s) => s.kind === 'recipe' && s.cur.recipe.id === 'b') as { kind: 'recipe'; cur: SuggestCur } | undefined;
-    expect(plannedSug).toBeDefined();
-    expect(plannedSug!.cur.kcal).toBe(750); // scaled, NOT curFor's raw 500
-    expect(plannedSug!.cur.portionScale).toBe(1.5);
-  });
-
-  it('cold start (no tiles, no plan) still fills from the pool', () => {
-    const out = suggestFor('foryou', ctx());
+describe('smartSuggest', () => {
+  it('returns at most 3, recipes only, slot-affine', () => {
+    const out = smartSuggest(ctx());
     expect(out.length).toBe(3);
-    expect(out.every((s) => s.kind === 'recipe')).toBe(true);
+    expect(out.every((s) => s.recipe.slotAffinity.includes('lunch'))).toBe(true);
+    expect(ids(out)).not.toContain('bfast');
   });
 
-  it('budget only offers picks that fit the remaining kcal', () => {
-    const out = suggestFor('budget', ctx({ remaining: 550 }));
-    const kcals = out.map((s) => (s.kind === 'recipe' ? s.cur.kcal : 0));
-    expect(kcals.every((k) => k <= 550)).toBe(true); // 500 and 300 fit; 700/900 excluded
-    expect(budgetIsTight(ctx({ remaining: 550 }))).toBe(false);
+  it('within-budget dishes rank BEFORE over-budget ones (but over-budget is never dropped)', () => {
+    // remaining 550: a(700)/d(900) are over; b(500)/c(300) fit. tie-break by protein score (b>c).
+    const out = smartSuggest(ctx({ remaining: 550 }));
+    expect(ids(out).slice(0, 2)).toEqual(['b', 'c']); // both in-budget first (b protein>c)
+    // 3rd slot = the best over-budget dish by score: d(900→45) beats a(700→35)
+    expect(ids(out)[2]).toBe('d');
+    // 'a' still exists in the ranking (never hidden) — just pushed past the top 3
+    const all = smartSuggest(ctx({ remaining: 550, offset: 3 }));
+    expect(ids(all)).toContain('a');
   });
 
-  it('budget falls back to lightest picks when nothing fits (never empty), flagged tight', () => {
-    const c = ctx({ remaining: 100 });
-    const out = suggestFor('budget', c);
-    expect(out.length).toBeGreaterThan(0);
-    expect((out[0] as { cur: SuggestCur }).cur.kcal).toBe(300); // lightest lunch pick first
-    expect(budgetIsTight(c)).toBe(true);
+  it('kitchen: cookable-now ranks first, shop-only LAST but never dropped', () => {
+    const cookTier = (r: MenuRecipe): CookTier => (r.id === 'c' ? 'now' : r.id === 'b' ? 'oneShort' : 'shop');
+    const out = smartSuggest(ctx({ cookTier }));
+    expect(ids(out).slice(0, 2)).toEqual(['c', 'b']); // now, then oneShort
+    // a and d are shop-tier — present in the full ranking, not filtered out
+    const rest = smartSuggest(ctx({ cookTier, offset: 3 }));
+    expect([...ids(out), ...ids(rest)]).toEqual(expect.arrayContaining(['a', 'd']));
   });
 
-  it('kitchen ranks cookable-now first and drops shop-only', () => {
-    const cookTier = (r: MenuRecipe): 'now' | 'oneShort' | 'shop' => (r.id === 'a' ? 'now' : r.id === 'b' ? 'oneShort' : 'shop');
-    const out = suggestFor('kitchen', ctx({ cookTier }));
-    const ids = out.map((s) => (s.kind === 'recipe' ? s.cur.recipe.id : ''));
-    expect(ids).toEqual(['a', 'b']); // only now + oneShort; c/d/bfast dropped (shop or wrong slot)
+  it('surfaces the planned pick with its SCALED Cur, not rebuilt at raw serving', () => {
+    const scaledPlanned: SuggestCur = { recipe: recipe('b', 500), kcal: 750, protein: 40, carbs: 0, fat: 0, portionScale: 1.5 };
+    const out = smartSuggest(ctx({ planned: scaledPlanned }));
+    const b = out.find((s) => s.recipe.id === 'b');
+    expect(b).toBeDefined();
+    expect(b!.kcal).toBe(750); // scaled, NOT curFor's raw 500
+    expect(b!.portionScale).toBe(1.5);
   });
 
-  it('Mix offset rotates the list and wraps', () => {
-    const base = suggestFor('budget', ctx({ offset: 0 }));
-    const mixed = suggestFor('budget', ctx({ offset: 3 }));
-    expect(base).not.toEqual(mixed);
-    const full = ctx().pool.filter((r) => r.slotAffinity.includes('lunch')).length; // 4 lunch recipes
-    const wrapped = suggestFor('budget', ctx({ offset: full }));
-    expect(wrapped).toEqual(suggestFor('budget', ctx({ offset: 0 }))); // full wrap == offset 0
+  it('cold start (empty budget/kitchen signals) still fills 3 from the pool', () => {
+    const out = smartSuggest(ctx());
+    expect(out.length).toBe(3);
+  });
+
+  it('Shuffle offset rotates the list and wraps at the pool count', () => {
+    const base = smartSuggest(ctx({ offset: 0 }));
+    const shuffled = smartSuggest(ctx({ offset: 3 }));
+    expect(ids(base)).not.toEqual(ids(shuffled));
+    const lunchCount = POOL.filter((r) => r.slotAffinity.includes('lunch')).length; // 4
+    expect(ids(smartSuggest(ctx({ offset: lunchCount })))).toEqual(ids(base)); // full wrap == offset 0
   });
 });

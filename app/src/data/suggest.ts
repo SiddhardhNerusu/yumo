@@ -2,81 +2,47 @@ import type { MenuRecipe } from '@yumo/menu';
 import type { MealSlot } from '@yumo/shared';
 
 /**
- * Slot suggestion selection (§R2). Replaces the fixed "quick log + on the menu"
- * block with three interchangeable sources the user picks between, plus a Mix
- * re-roll. Pure list logic — all scoring/cookability/allow predicates and the
- * recipe→Cur builder are INJECTED, so this stays RN-free and unit-testable.
+ * ONE smart slot ranking — no user-facing source picker (§Today-revamp §0). Every
+ * meal suggestion is, in priority order: (1) within the remaining budget, (2)
+ * makeable from the kitchen, (3) the best "for you" score. Over-budget and
+ * shop-only dishes rank LAST but are NEVER dropped — the card surfaces the gap as
+ * "{n} to buy". Pure list logic — scoring / cookability / allow / Cur-builder are
+ * INJECTED so this stays RN-free and unit-testable. Recipes only; the user's own
+ * quick-log foods live in the "usual" card and the Add sheet.
  */
-export type SuggestSource = 'foryou' | 'budget' | 'kitchen';
 export type CookTier = 'now' | 'oneShort' | 'shop';
-
-export interface SuggestTile { foodId: string; name: string; kcal: number; portionG: number }
 export interface SuggestCur { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number; portionScale: number }
-export type Suggestion = { kind: 'tile'; tile: SuggestTile } | { kind: 'recipe'; cur: SuggestCur };
 
-export interface SuggestCtx {
+export interface SmartCtx {
   slot: MealSlot;
-  /** the Brain's quick-log tiles (the user's own foods) — only for the current slot. */
-  tiles: SuggestTile[];
-  /** today's planned pick for this slot (the menu engine's choice). */
+  /** today's engine pick for this slot — carries the SCALED Cur (portionScale != 1). */
   planned: SuggestCur | null;
   pool: MenuRecipe[];
-  /** kcal left in today's budget (for the "In budget" source). */
+  /** kcal left in today's budget — over-budget dishes sink but are never hidden. */
   remaining: number;
-  /** re-roll cursor — Mix advances it by 3, wrapping. */
+  /** Shuffle cursor — each Shuffle advances it by 3, wrapping. */
   offset: number;
   allowed: (r: MenuRecipe) => boolean; // isAllowed(profile) AND slot-affine
-  score: (r: MenuRecipe) => number; // higher = better
+  score: (r: MenuRecipe) => number; // higher = better ("for you")
   cookTier: (r: MenuRecipe) => CookTier;
   curFor: (r: MenuRecipe) => SuggestCur;
 }
 
-type Raw = { kind: 'tile'; tile: SuggestTile } | { kind: 'recipe'; recipe: MenuRecipe };
-
 const TIER_RANK: Record<CookTier, number> = { now: 0, oneShort: 1, shop: 2 };
 
-/** The full ranked candidate list for a source (raw — Curs are built later, only
- * for the ≤3 that survive, so we never scale the whole pool). */
-function rankedRaw(source: SuggestSource, ctx: SuggestCtx): Raw[] {
-  const pool = ctx.pool.filter(ctx.allowed);
-  if (source === 'foryou') {
-    const seen = new Set<string>();
-    const out: Raw[] = [];
-    for (const t of ctx.tiles) if (!seen.has(t.foodId)) { seen.add(t.foodId); out.push({ kind: 'tile', tile: t }); }
-    if (ctx.planned && !seen.has(ctx.planned.recipe.id)) { seen.add(ctx.planned.recipe.id); out.push({ kind: 'recipe', recipe: ctx.planned.recipe }); }
-    for (const r of [...pool].sort((a, b) => ctx.score(b) - ctx.score(a))) if (!seen.has(r.id)) { seen.add(r.id); out.push({ kind: 'recipe', recipe: r }); }
-    return out;
-  }
-  if (source === 'budget') {
-    const fits = pool.filter((r) => r.perServing.kcal <= ctx.remaining).sort((a, b) => b.perServing.kcal - a.perServing.kcal);
-    // nothing fits → the lightest picks (never punitive — the caller adds a calm note)
-    const base = fits.length ? fits : [...pool].sort((a, b) => a.perServing.kcal - b.perServing.kcal);
-    return base.map((r) => ({ kind: 'recipe', recipe: r }));
-  }
-  // kitchen: cookable-now first, then near-miss; drop shop-only
-  const cookable = pool.filter((r) => ctx.cookTier(r) !== 'shop').sort((a, b) => (TIER_RANK[ctx.cookTier(a)] - TIER_RANK[ctx.cookTier(b)]) || (ctx.score(b) - ctx.score(a)));
-  return cookable.map((r) => ({ kind: 'recipe', recipe: r }));
-}
-
-/** Up to 3 suggestions for the source, rotated by the Mix offset. */
-export function suggestFor(source: SuggestSource, ctx: SuggestCtx): Suggestion[] {
-  const list = rankedRaw(source, ctx);
-  if (list.length === 0) return [];
-  const start = ((ctx.offset % list.length) + list.length) % list.length;
-  const rotated = [...list.slice(start), ...list.slice(0, start)];
-  // The planned pick already carries the menu engine's SCALED Cur (portionScale
-  // != 1); reuse it so the planned meal shows/logs the same kcal/macros as the
-  // coach line and every other view. Everything else is a pool recipe at its
-  // authored serving via curFor.
-  return rotated.slice(0, 3).map((rc) => {
-    if (rc.kind === 'tile') return { kind: 'tile', tile: rc.tile };
-    const cur = ctx.planned && rc.recipe.id === ctx.planned.recipe.id ? ctx.planned : ctx.curFor(rc.recipe);
-    return { kind: 'recipe', cur };
-  });
-}
-
-/** true when the "In budget" source had to fall back to lightest picks (nothing
- * actually fit) — the block shows a calm "lighter picks" note. */
-export function budgetIsTight(ctx: SuggestCtx): boolean {
-  return !ctx.pool.some((r) => ctx.allowed(r) && r.perServing.kcal <= ctx.remaining);
+/** Up to 3 smart suggestions for the slot, rotated by the Shuffle offset. */
+export function smartSuggest(ctx: SmartCtx): SuggestCur[] {
+  const kcalOf = (r: MenuRecipe) => (ctx.planned && r.id === ctx.planned.recipe.id ? ctx.planned.kcal : r.perServing.kcal);
+  // score + tier computed ONCE per recipe (O(n)), then a numeric sort (no scoring in the comparator).
+  const ranked = ctx.pool
+    .filter(ctx.allowed)
+    .map((r) => ({ r, over: kcalOf(r) > ctx.remaining ? 1 : 0, tier: TIER_RANK[ctx.cookTier(r)], score: ctx.score(r) }))
+    .sort((a, b) => a.over - b.over || a.tier - b.tier || b.score - a.score);
+  if (!ranked.length) return [];
+  const start = ((ctx.offset % ranked.length) + ranked.length) % ranked.length;
+  const rotated = [...ranked.slice(start), ...ranked.slice(0, start)];
+  // The planned pick already carries the menu engine's SCALED Cur (portionScale != 1);
+  // reuse it so it shows/logs the same kcal/macros as every other view. All other
+  // pool recipes are built at their authored serving via curFor.
+  return rotated.slice(0, 3).map(({ r }) => (ctx.planned && r.id === ctx.planned.recipe.id ? ctx.planned : ctx.curFor(r)));
 }

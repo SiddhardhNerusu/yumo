@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View, Text, Pressable, Linking } from 'react-native';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ScrollView, View, Text, Pressable, Linking, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { localParts, logEvents, portionChips } from '@yumo/brain';
 import { SLOT_ENVELOPE, type MealSlot } from '@yumo/shared';
 import { softScore, isAllowed, type MenuRecipe, type UserProfile, type WeekMenuPlan, type ScoreContext } from '@yumo/menu';
 import { useTheme } from '../theme';
-import { useToday, type Tile } from '../useToday';
+import { useToday } from '../useToday';
 import { useNow } from '../useNow';
 import { useEventStore } from '../data/eventStore';
 import { useKitchen } from '../data/kitchenStore';
@@ -20,16 +20,15 @@ import { expiringItems, expiringUsedBy, recipesUsingExpiring } from '../data/exp
 import { POOL } from '../data/menu-seed';
 import { SLOT_TIME } from '../data/seed';
 import { BudgetRing } from '../components/BudgetRing';
-import { CoachLine } from '../components/CoachLine';
 import { MacroBar } from '../components/MacroBar';
 import { Overview } from './Overview';
 import { macroTargets } from '../data/macros';
 import { MixSheet, type MixOption } from '../components/MixSheet';
 import { RecipeSheet } from '../components/RecipeSheet';
 import { AddSheet, type AddItem } from '../components/AddSheet';
-import { SuggestionBlock } from '../components/SuggestionBlock';
-import { suggestFor, budgetIsTight, type SuggestCtx, type SuggestCur } from '../data/suggest';
-import { Serif, Kicker, Card, PrimaryButton, MixButton, OutlineButton, TextLink, Skeleton, ACCENT_BORDER } from '../components/kit';
+import { smartSuggest, type SmartCtx, type SuggestCur } from '../data/suggest';
+import { effortMin } from '../data/effort';
+import { Serif, Card, PrimaryButton, MixButton, OutlineButton, TextLink, Skeleton } from '../components/kit';
 import { SwipeRow } from '../components/SwipeRow';
 import { track } from '../analytics';
 import { coach } from '../coach/pack';
@@ -39,8 +38,66 @@ const num = { fontVariant: ['tabular-nums' as const] };
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const SLOTS: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+const HAIRLINE = 'rgba(247,242,234,0.09)'; // pill borders (matches kit's chip border)
+const ROW_DIVIDER = 'rgba(247,242,234,0.06)'; // dish-row divider (§6)
 
 type Cur = { recipe: MenuRecipe; kcal: number; protein: number; carbs: number; fat: number; portionScale: number };
+type DishMeta = { min: number; kitchen: { label: string; ok: boolean } | null };
+
+/** §1/§6 kicker — 11/700/1.3 uppercase textMuted (brief's kicker, tighter than kit's). */
+function Kick({ children, color }: { children: ReactNode; color?: string }) {
+  const { c } = useTheme();
+  return <Text style={{ color: color ?? c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.3, textTransform: 'uppercase' }}>{children}</Text>;
+}
+
+/** §6 meal-card suggestions: 3 smart dish rows, tap name → detail, ＋ → log. New
+ * rows fade+rise in (220ms) on Shuffle. The Shuffle pill + footer live in Day. */
+function SmartRows({ items, metaFor, onOpen, onLog }: { items: SuggestCur[]; metaFor: (cur: SuggestCur) => DishMeta; onOpen: (cur: SuggestCur) => void; onLog: (cur: SuggestCur) => void }) {
+  const { c } = useTheme();
+  const fade = useRef(new Animated.Value(1)).current;
+  const key = items.map((i) => i.recipe.id).join('|');
+  useEffect(() => {
+    fade.setValue(0);
+    Animated.timing(fade, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+  }, [key, fade]);
+  return (
+    <Animated.View style={{ opacity: fade, transform: [{ translateY: fade.interpolate({ inputRange: [0, 1], outputRange: [4, 0] }) }] }}>
+      {items.map((cur, i) => {
+        const meta = metaFor(cur);
+        return (
+          <View key={cur.recipe.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: ROW_DIVIDER }}>
+            <Pressable onPress={() => onOpen(cur)} accessibilityRole="button" accessibilityLabel={`${cur.recipe.name}, view recipe`} style={({ pressed }) => ({ flex: 1, minWidth: 0, opacity: pressed ? 0.6 : 1 })}>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                <Text numberOfLines={1} style={{ color: c('textPrimary'), fontSize: 15, fontWeight: '600', flexShrink: 1 }}>{cur.recipe.name}</Text>
+                <Text style={{ color: c('textMuted'), fontSize: 13, marginLeft: 4 }}>›</Text>
+              </View>
+              <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 3 }} numberOfLines={1}>
+                {cur.protein}g protein · {meta.min} min
+                {meta.kitchen ? ' · ' : ''}
+                {meta.kitchen ? <Text style={{ color: meta.kitchen.ok ? c('success') : c('textMuted') }}>{meta.kitchen.label}</Text> : null}
+              </Text>
+            </Pressable>
+            <Text style={[{ color: c('textSecondary'), fontSize: 14, fontWeight: '600' }, num]}>{cur.kcal.toLocaleString()}</Text>
+            <Pressable onPress={() => onLog(cur)} accessibilityRole="button" accessibilityLabel={`Log ${cur.recipe.name}`} hitSlop={6} style={({ pressed }) => ({ width: 30, height: 30, borderRadius: 999, backgroundColor: c('accentFaint'), alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
+              <Text style={{ color: c('accentSoft'), fontSize: 18, fontWeight: '600', marginTop: -1 }}>＋</Text>
+            </Pressable>
+          </View>
+        );
+      })}
+    </Animated.View>
+  );
+}
+
+/** §0/§6 Shuffle pill — rerolls one meal's suggestions (⇄ + "Shuffle"). */
+function ShufflePill({ onPress }: { onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="Shuffle suggestions" hitSlop={6} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: HAIRLINE, borderRadius: 999, paddingVertical: 5, paddingHorizontal: 11, opacity: pressed ? 0.6 : 1 })}>
+      <Text style={{ color: c('accentSoft'), fontSize: 13 }}>⇄</Text>
+      <Text style={{ color: c('textSecondary'), fontSize: 12, fontWeight: '600' }}>Shuffle</Text>
+    </Pressable>
+  );
+}
 
 /** §3.5 portion confirm-chip — one tap logs at this portion. */
 function PortionChip({ label, kcal, primary, onPress }: { label: string; kcal: number; primary?: boolean; onPress: () => void }) {
@@ -89,7 +146,12 @@ export function Day({ profile }: { profile: UserProfile }) {
   const [dayIdx, setDayIdx] = useState(0);
   const [overrides, setOverrides] = useState<Record<string, MenuRecipe>>({});
   const [regenerating, setRegenerating] = useState(false);
-  const [fromKitchen, setFromKitchen] = useState(false);
+  // Kitchen-first is now the DEFAULT (folded into the smart ranker's kitchen-tier
+  // sort); the generated plan stays balanced, so this is a constant, no toggle.
+  const fromKitchen = false;
+  // per-slot Shuffle cursor for the suggestion rows (§0 Shuffle rerolls one meal).
+  const [offsets, setOffsets] = useState<Partial<Record<MealSlot, number>>>({});
+  const shuffle = (slot: MealSlot) => { haptics.select(); setOffsets((o) => ({ ...o, [slot]: (o[slot] ?? 0) + 3 })); };
   const userWeights = useMemo(() => learnedWeights(events, now), [events, now]);
 
   // Feed the REAL generated menu into the Brain so a real user's own foods can
@@ -117,12 +179,6 @@ export function Day({ profile }: { profile: UserProfile }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile, kitchen.emptyMode, expiringKey]);
 
-  const toggleKitchen = () => {
-    const next = !fromKitchen;
-    setFromKitchen(next);
-    const p = next ? { ...profile, pantry: [...have] } : profile;
-    getMenu(p, undefined, kitchenBoost(next), next ? makePantryFit(have) : undefined, userWeights).then((r) => { setPlan(r.plan); setSource(r.source); });
-  };
   const planNextWeek = () => {
     setRegenerating(true);
     track('menu_regenerated');
@@ -186,10 +242,10 @@ export function Day({ profile }: { profile: UserProfile }) {
   if (!plan) {
     return (
       <View style={{ flex: 1, backgroundColor: c('bg') }}>
-        <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64 }}>
-          <Kicker>{greetingFor(now)}</Kicker>
-          <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2, marginBottom: 20 }}>Today</Serif>
-          <View style={{ alignItems: 'center', marginBottom: 22 }}><Skeleton width={196} height={196} radius={98} /></View>
+        <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 16, paddingTop: 60 }}>
+          <Kick>{greetingFor(now)}</Kick>
+          <Serif size={30} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2, marginBottom: 20 }}>Today</Serif>
+          <View style={{ alignItems: 'center', marginBottom: 22 }}><Skeleton width={210} height={210} radius={105} /></View>
           <View style={{ flexDirection: 'row', gap: 6, marginBottom: 22 }}>
             {Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} height={54} radius={14} style={{ flex: 1 }} />)}
           </View>
@@ -251,24 +307,7 @@ export function Day({ profile }: { profile: UserProfile }) {
   const loggedCount = state.slots.filter((s) => s.items.length > 0).length;
   const planRecipeIds = plan.days.flatMap((d) => d.picks.map((p) => p.recipe.id));
 
-  // §5 computed coach line (today's remaining plan vs the budget).
-  const coachText = (() => {
-    const remainingSlots: string[] = [];
-    let plannedKcal = 0;
-    for (const s of state.slots) {
-      if (s.items.length || s.skipped) continue;
-      const p = currentForToday(s.slot);
-      if (!p) continue;
-      remainingSlots.push(s.slot);
-      plannedKcal += p.kcal;
-    }
-    const left = state.budget - state.eaten;
-    if (remainingSlots.length === 0) return left >= 0 ? `${left.toLocaleString()} kcal spare today — nicely done.` : 'Day logged. Tomorrow is a fresh start.';
-    const spare = left - plannedKcal;
-    if (spare >= 0) return `Your ${remainingSlots.join(' + ')} fit today's budget with ${spare.toLocaleString()} kcal spare.`;
-    return `The menu runs ${Math.abs(spare).toLocaleString()} kcal over — Mix it up for a lighter pick.`;
-  })();
-  /** Planned pick for TODAY's date (coach line + ladder use today even when browsing another day). */
+  /** Planned pick for TODAY's date (the ladder uses today even when browsing another day). */
   function currentForToday(slot: MealSlot): Cur | null {
     const tIdx = plan!.days.findIndex((d) => d.dayOfWeek === todayDow);
     if (tIdx < 0) return null;
@@ -282,21 +321,21 @@ export function Day({ profile }: { profile: UserProfile }) {
     return { recipe: pick.recipe, kcal, ...macrosFor(pick.recipe, kcal), portionScale: pick.portionScale };
   }
 
-  // ── §R2 slot suggestions: build a Cur for any pool recipe (at its authored
-  //    serving) + the injected ctx the pure suggestFor selects over. ────────────
+  // ── smart slot suggestions: build a Cur for any pool recipe (at its authored
+  //    serving) + the injected ctx the pure smartSuggest ranks over (budget →
+  //    kitchen tier → score). Kitchen-first is inherent in cookTier. ────────────
   const curFor = (r: MenuRecipe): SuggestCur => { const kcal = Math.round(r.perServing.kcal); return { recipe: r, kcal, ...macrosFor(r, kcal), portionScale: 1 }; };
-  const suggestCtx = (slot: MealSlot, plannedCur: Cur | null, tilesForSlot: Tile[], offset: number): SuggestCtx => {
+  const suggestCtx = (slot: MealSlot, plannedCur: Cur | null, offset: number): SmartCtx => {
     const sctx: ScoreContext = {
       slotTargetKcal: SLOT_ENVELOPE[slot],
       recentlyUsed: new Set(planRecipeIds),
       proteinPaceDeficit: 0,
       boostIds: new Set(kitchenBoost(fromKitchen)),
       userWeights,
-      pantryFit: fromKitchen ? makePantryFit(have) : undefined,
+      pantryFit: undefined,
     };
     return {
       slot,
-      tiles: tilesForSlot,
       planned: plannedCur,
       pool: POOL,
       remaining: Math.max(0, state.remaining),
@@ -306,6 +345,16 @@ export function Day({ profile }: { profile: UserProfile }) {
       cookTier: (r) => cookability(r, have).tier,
       curFor,
     };
+  };
+  // §6 per-dish meta: cook time (from effort) + kitchen match ("have it all" /
+  // "{n} to buy"); the match hides on an empty kitchen (nothing to match against).
+  const dishMeta = (cur: SuggestCur): DishMeta => {
+    let kitchen: DishMeta['kitchen'] = null;
+    if (have.size) {
+      const cook = cookability(cur.recipe, have);
+      kitchen = cook.tier === 'now' ? { label: '✓ have it all', ok: true } : { label: `${cook.missing.length} to buy`, ok: false };
+    }
+    return { min: effortMin(cur.recipe.effort), kitchen };
   };
 
   // per-day "already logged this (slot, food)?" keyset — generalizes loggedToday
@@ -342,9 +391,6 @@ export function Day({ profile }: { profile: UserProfile }) {
     if (!u) return;
     const kcal = u.portionG > 0 ? Math.round((u.kcal * portionG) / u.portionG) : u.kcal;
     logFood(u.foodId, { slot, kcal, portionG, name: u.name, source: 'usual', taps: 1 });
-  };
-  const logTile = (slot: MealSlot, t: { foodId: string; name: string; kcal: number; portionG: number }) => {
-    logFood(t.foodId, { slot, kcal: t.kcal, portionG: t.portionG, name: t.name, source: 'tile', taps: 2 });
   };
   const openMix = (key: string, recipe: MenuRecipe, slot: MealSlot) => {
     setMix({ key, slot, recipe });
@@ -437,17 +483,17 @@ export function Day({ profile }: { profile: UserProfile }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
-      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 64, paddingBottom: 40 }}>
-        {/* header */}
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 16, paddingTop: 60, paddingBottom: 40 }}>
+        {/* header (§1) */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View>
-            <Kicker>{greetingFor(now)}</Kicker>
-            <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Today</Serif>
+            <Kick>{greetingFor(now)}</Kick>
+            <Serif size={30} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Today</Serif>
           </View>
           <View style={{ alignItems: 'flex-end', gap: 8, marginTop: 4 }}>
             <Text style={{ color: c('textMuted'), fontSize: 13 }}>{dateStr}</Text>
-            <Pressable onPress={planNextWeek} disabled={regenerating} accessibilityRole="button" accessibilityLabel="New week" style={{ paddingVertical: 9, paddingHorizontal: 15, borderRadius: 999, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border') }}>
-              <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{regenerating ? 'New week…' : '↻ New week'}</Text>
+            <Pressable onPress={planNextWeek} disabled={regenerating} accessibilityRole="button" accessibilityLabel="New week" style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: c('surface'), borderWidth: 1, borderColor: HAIRLINE }}>
+              <Text style={{ color: c('textSecondary'), fontSize: 12, fontWeight: '600' }}>{regenerating ? 'New week…' : '↻ New week'}</Text>
             </Pressable>
           </View>
         </View>
@@ -467,9 +513,7 @@ export function Day({ profile }: { profile: UserProfile }) {
                 <MacroBar eaten={macrosEaten} targets={targets} />
               </View>
             </View>
-            <View style={{ marginTop: 18, marginBottom: (showWaste || learnedNote) ? 10 : 4 }}>
-              <CoachLine text={coachText} />
-            </View>
+            <View style={{ marginTop: (showWaste || learnedNote || state.signpost) ? 14 : 0 }} />
             {learnedNote ? (
               <View style={{ marginBottom: showWaste ? 10 : 4, flexDirection: 'row', justifyContent: 'center' }}>
                 <Text style={{ color: c('accentSoft'), fontSize: 13.5, fontWeight: '600' }}>Got it — {learnedNote.toLowerCase()}</Text>
@@ -499,9 +543,9 @@ export function Day({ profile }: { profile: UserProfile }) {
             const on = i === dayIdx;
             const isTd = dd.dayOfWeek === todayDow;
             return (
-              <Pressable key={i} onPress={() => { setDayIdx(i); setMix(null); }} accessibilityRole="button" accessibilityLabel={`${DOW[dd.dayOfWeek]}${isTd ? ', today' : ''}`} accessibilityState={{ selected: on }} style={{ flex: 1, borderRadius: 14, paddingVertical: 8, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
+              <Pressable key={i} onPress={() => { setDayIdx(i); setMix(null); }} accessibilityRole="button" accessibilityLabel={`${DOW[dd.dayOfWeek]}${isTd ? ', today' : ''}`} accessibilityState={{ selected: on }} style={{ flex: 1, borderRadius: 12, paddingVertical: 7, alignItems: 'center', backgroundColor: on ? c('accent') : 'transparent' }}>
                 <Text style={{ color: on ? c('accentText') : isTd ? c('accentSoft') : c('textMuted'), fontSize: 11, fontWeight: '600', opacity: on ? 0.7 : 1 }}>{DOW[dd.dayOfWeek]}</Text>
-                <Text style={[{ color: on ? c('accentText') : c('textPrimary'), fontSize: 16, fontWeight: '700', marginTop: 2 }, num]}>{new Date(epochOf(i) * 86_400_000).getUTCDate()}</Text>
+                <Text style={[{ color: on ? c('accentText') : c('textPrimary'), fontSize: 15, fontWeight: '700', marginTop: 2 }, num]}>{new Date(epochOf(i) * 86_400_000).getUTCDate()}</Text>
               </Pressable>
             );
           })}
@@ -514,31 +558,27 @@ export function Day({ profile }: { profile: UserProfile }) {
           </View>
         ) : null}
 
-        {/* summary */}
+        {/* plan header (§5) */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 16, marginBottom: 12 }}>
           {isPast ? (
             <Text>
-              <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{pastEaten.toLocaleString()}</Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '800' }, num]}>{pastEaten.toLocaleString()}</Text>
               <Text style={{ color: c('textMuted'), fontSize: 13 }}> eaten · </Text>
-              <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{dayTotal.toLocaleString()}</Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '800' }, num]}>{dayTotal.toLocaleString()}</Text>
               <Text style={{ color: c('textMuted'), fontSize: 13 }}> planned</Text>
             </Text>
           ) : (
             <Text>
-              <Text style={[{ color: c('textPrimary'), fontSize: 15, fontWeight: '700' }, num]}>{dayTotal.toLocaleString()}</Text>
+              <Text style={[{ color: c('textPrimary'), fontSize: 16, fontWeight: '800' }, num]}>{dayTotal.toLocaleString()}</Text>
               <Text style={{ color: c('textMuted'), fontSize: 13 }}> kcal planned</Text>
             </Text>
           )}
-          {isToday && loggedCount > 0 ? <Text style={{ color: c('success'), fontSize: 13, fontWeight: '600' }}>{loggedCount} logged ✓</Text> : null}
+          {isToday && loggedCount > 0 ? (
+            <Text style={{ color: c('success'), fontSize: 13, fontWeight: '600' }}>{loggedCount} logged ✓</Text>
+          ) : (
+            <Text style={{ color: c('textMuted'), fontSize: 12 }}>Fits your budget · uses your kitchen</Text>
+          )}
         </View>
-
-        {/* from-your-kitchen toggle */}
-        <Pressable onPress={toggleKitchen} accessibilityRole="switch" accessibilityState={{ checked: fromKitchen }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: fromKitchen ? c('accentFaint') : c('chipSurface'), borderRadius: 999, paddingVertical: 10, paddingHorizontal: 16, borderWidth: 1, borderColor: fromKitchen ? ACCENT_BORDER : c('border'), marginBottom: 12 }}>
-          <Text style={{ color: fromKitchen ? c('accentSoft') : c('textSecondary'), fontSize: 14, fontWeight: '600' }}>From your kitchen</Text>
-          <View style={{ width: 42, height: 24, borderRadius: 999, backgroundColor: fromKitchen ? c('accent') : c('surfaceSunken'), padding: 3, alignItems: fromKitchen ? 'flex-end' : 'flex-start' }}>
-            <View style={{ width: 18, height: 18, borderRadius: 999, backgroundColor: fromKitchen ? c('accentText') : c('textMuted') }} />
-          </View>
-        </Pressable>
 
         {/* meal cards */}
         <View style={{ gap: 10 }}>
@@ -625,12 +665,14 @@ export function Day({ profile }: { profile: UserProfile }) {
             return (
               <Card key={slot} current={s.isCurrent} logged={s.items.length > 0}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ color: s.isCurrent ? c('accentSoft') : c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase' }}>{cap(slot)}</Text>
+                  <Kick color={s.isCurrent ? c('accentSoft') : undefined}>{cap(slot)}</Kick>
                   {s.items.length ? (
                     <Text>
                       <Text style={[{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }, num]}>{s.kcal.toLocaleString()}</Text>
                       <Text style={{ color: c('textMuted'), fontSize: 11 }}> kcal</Text>
                     </Text>
+                  ) : open && !usual ? (
+                    <ShufflePill onPress={() => shuffle(slot)} />
                   ) : null}
                 </View>
 
@@ -730,22 +772,25 @@ export function Day({ profile }: { profile: UserProfile }) {
                   );
                 })() : null}
 
-                {/* §R2: one suggestion block — For you / In budget / Kitchen + Mix.
-                    Replaces the old Quick-log + On-the-menu split. The usual card
-                    (the moat) still wins the slot above when the Brain is sure. */}
+                {/* §6: ONE smart suggestion list (budget-fit + kitchen-first by
+                    default, no source picker). Shuffle (in the header) rerolls it.
+                    The usual card (the moat) still wins the slot above when sure. */}
                 {open && !usual ? (() => {
-                  const sctx = suggestCtx(slot, cur, s.isCurrent ? state.tiles : [], 0);
+                  const items = smartSuggest(suggestCtx(slot, cur, offsets[slot] ?? 0));
                   return (
-                    <SuggestionBlock
-                      suggest={(source, offset) => suggestFor(source, { ...sctx, offset })}
-                      budgetTight={budgetIsTight(sctx)}
-                      kitchenAvailable={have.size > 0}
-                      canOpen={(it) => (it.kind === 'recipe' ? true : recipeFor(it.tile.foodId, it.tile.name) != null)}
-                      onOpen={(it) => { if (it.kind === 'recipe') openRecipe(it.cur); else openRecipeByRef(it.tile.foodId, it.tile.name, it.tile.kcal); }}
-                      onLog={(it) => { if (it.kind === 'recipe') logMeal(slot, it.cur, todayEpoch); else logTile(slot, it.tile); }}
-                      onAddMore={() => setAddSlot({ slot, epochDay: todayEpoch })}
-                      onSkip={() => skipMeal(slot)}
-                    />
+                    <>
+                      <SmartRows
+                        items={items}
+                        metaFor={dishMeta}
+                        onOpen={(sc) => openRecipe(sc)}
+                        onLog={(sc) => logMeal(slot, sc, todayEpoch)}
+                      />
+                      <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 12 }} />
+                      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
+                        <TextLink label="＋ More" onPress={() => setAddSlot({ slot, epochDay: todayEpoch })} />
+                        <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
+                      </View>
+                    </>
                   );
                 })() : null}
 
