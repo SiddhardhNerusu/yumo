@@ -55,6 +55,13 @@ export interface BudgetInput extends BodyStats {
   goal: Goal;
   /** kg/week; ignored for 'maintain'. Clamped to [RATE_MIN, RATE_MAX]. */
   rateKgPerWeek: number;
+  /**
+   * Measured maintenance (True burn) to use in place of the Mifflin estimate,
+   * once it's `learned` (§6). When set, the pace deficit and ED floor still
+   * apply on top — only the maintenance base changes. `tdee` in the result then
+   * echoes this value so the provenance line can read "≈ {tdee} true burn − {delta}".
+   */
+  maintenanceOverride?: number;
 }
 
 export interface BudgetResult {
@@ -75,7 +82,9 @@ export interface BudgetResult {
 /** The number-reveal calculation (§2.1). */
 export function dailyBudget(input: BudgetInput): BudgetResult {
   const bmr = mifflinStJeorBMR(input);
-  const maintenance = Math.round(bmr * ACTIVITY_MULTIPLIER[input.activity]);
+  const maintenance = input.maintenanceOverride != null
+    ? Math.round(input.maintenanceOverride)
+    : Math.round(bmr * ACTIVITY_MULTIPLIER[input.activity]);
   const rate = input.goal === 'maintain' ? 0 : clamp(input.rateKgPerWeek, RATE_MIN, RATE_MAX);
   const perDay = Math.round((rate * KCAL_PER_KG) / 7);
   const dailyDelta = input.goal === 'lose' ? -perDay : input.goal === 'gain' ? perDay : 0;

@@ -18,6 +18,10 @@ export interface GoalPrefs {
   macroPct?: { protein: number; carbs: number; fat: number };
   /** true → the manual kcal stepper is the budget source (bypasses the engine). */
   customBudget?: boolean;
+  /** goal weight in kg — drives the Weight-card goal line (Overview §5). Absent → no goal line. */
+  goalWeightKg?: number;
+  /** last accepted True-burn estimate, for the 0.7/0.3 stability blend (Overview §6). */
+  trueBurnEstimate?: number;
 }
 
 /** The persisted `usual.profile.v1` envelope. `prefs` is optional for backwards

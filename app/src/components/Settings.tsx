@@ -8,6 +8,9 @@ import {
   balanceMacroPct,
   pctToGrams,
   MACRO_SLIDER,
+  displayToKg,
+  kgToEditValue,
+  editUnitFor,
   type Allergen,
   type Goal,
   type Sex,
@@ -19,6 +22,8 @@ import type { UserProfile, VariationDial } from '@yumo/menu';
 import { RATE_PRESETS, type GoalPrefs } from '../data/goalPrefs';
 import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
+import { useNow } from '../useNow';
+import { useTrueBurn } from '../data/useTrueBurn';
 import { ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { buildPantryRows } from '../data/pantryCousins';
 import { Serif, PrimaryButton, TextLink, HAIRLINE_TOP, withAlpha } from './kit';
@@ -213,6 +218,7 @@ export function Settings({
   const [sex, setSex] = useState<Sex>(prefs?.sex ?? 'male');
   const [customBudget, setCustomBudget] = useState<boolean>(prefs?.customBudget ?? prefs == null);
   const [budget, setBudget] = useState<number>(profile.budgetKcal);
+  const [goalWeightKg, setGoalWeightKg] = useState<number | undefined>(prefs?.goalWeightKg);
   const [macroPct, setMacroPct] = useState<MacroPct>(
     prefs?.macroPct ?? defaultMacroPct(profile.budgetKcal, profile.targetWeightKg, profile.proteinTargetG, profile.fatTargetG),
   );
@@ -221,8 +227,14 @@ export function Settings({
   const [pantry, setPantry] = useState<string[]>(profile.pantry);
   const [pantryQuery, setPantryQuery] = useState('');
 
+  const now = useNow();
+  const tb = useTrueBurn(profile, prefs, now).result;
+  const learned = tb.state === 'learned';
   const clampBudget = (v: number) => Math.max(1400, Math.min(4000, v));
-  const computed = dailyBudget({ weightKg: currentKg, heightCm, age, sex, activity, goal: goalV, rateKgPerWeek: rate });
+  // Once True burn is learned, the measured burn replaces the Mifflin maintenance
+  // base (§6.Applying-1); the pace deficit + ED floor still apply on top. The
+  // activity tier becomes a seed/fallback that no longer moves the target.
+  const computed = dailyBudget({ weightKg: currentKg, heightCm, age, sex, activity, goal: goalV, rateKgPerWeek: rate, maintenanceOverride: learned && !customBudget ? tb.burn : undefined });
   const finalBudget = customBudget ? clampBudget(Math.round(budget)) : computed.target;
   const grams = pctToGrams(macroPct, finalBudget);
   const macroTotal = macroPct.protein + macroPct.carbs + macroPct.fat;
@@ -236,7 +248,7 @@ export function Settings({
 
   const save = () => {
     if (!atHundred) return;
-    const newPrefs: GoalPrefs = { heightCm, age, sex, activity, rateKgPerWeek: rate, macroPct, customBudget };
+    const newPrefs: GoalPrefs = { heightCm, age, sex, activity, rateKgPerWeek: rate, macroPct, customBudget, goalWeightKg, trueBurnEstimate: learned ? tb.burn : prefs?.trueBurnEstimate };
     onSave(
       { ...profile, budgetKcal: finalBudget || profile.budgetKcal, proteinTargetG: grams.proteinG, carbTargetG: grams.carbsG, fatTargetG: grams.fatG, variation, allergies, pantry },
       goalV,
@@ -271,7 +283,14 @@ export function Settings({
 
           {/* Budget hero */}
           <View style={{ backgroundColor: c('accentFaint'), borderWidth: 1, borderColor: withAlpha(c('accent'), 0.18), borderRadius: 20, padding: 16, marginTop: 2 }}>
-            <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.3, textTransform: 'uppercase' }}>Your daily budget</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.3, textTransform: 'uppercase' }}>Your daily budget</Text>
+              {learned && !customBudget ? (
+                <View style={{ backgroundColor: withAlpha(c('accent'), 0.18), borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 }}>
+                  <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700' }}>Learned</Text>
+                </View>
+              ) : null}
+            </View>
             {customBudget ? (
               <>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
@@ -293,7 +312,7 @@ export function Settings({
                   <Text style={{ color: c('textSecondary'), fontSize: 14 }}> kcal / day</Text>
                 </Text>
                 <Text style={[{ color: c('textMuted'), fontSize: 12.5, marginTop: 4 }, num]}>
-                  ≈ {computed.tdee.toLocaleString()} maintenance{goalV === 'maintain' ? '' : goalV === 'lose' ? ` − ${Math.abs(computed.dailyDelta)}` : ` + ${computed.dailyDelta}`}
+                  ≈ {computed.tdee.toLocaleString()} {learned ? 'true burn' : 'maintenance'}{goalV === 'maintain' ? '' : goalV === 'lose' ? ` − ${Math.abs(computed.dailyDelta)}` : ` + ${computed.dailyDelta}`}
                 </Text>
                 {computed.floored ? <Text style={{ color: c('textSecondary'), fontSize: 12.5, marginTop: 6 }}>Held at {computed.floor.toLocaleString()} kcal — a gentler pace gets there too.</Text> : null}
                 <View style={{ marginTop: 10, alignItems: 'flex-start' }}>
@@ -318,11 +337,17 @@ export function Settings({
                 </View>
               </View>
             ) : null}
-            <View style={{ gap: 6 }}>
+            {goalV !== 'maintain' ? (
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <InlineField label="Goal weight" value={Math.round(kgToEditValue(goalWeightKg ?? currentKg, unit))} onChange={(n) => setGoalWeightKg(displayToKg(n, unit))} suffix={editUnitFor(unit)} />
+              </View>
+            ) : null}
+            <View style={{ gap: 6, opacity: learned ? 0.55 : 1 }}>
               <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>Activity</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {ACTIVITY_TILES.map((t) => <ActivityTile key={t.v} title={t.title} sub={t.sub} selected={activity === t.v} onPress={() => setActivity(t.v)} />)}
               </View>
+              {learned ? <Text style={{ color: c('textMuted'), fontSize: 11.5 }}>We’ve learned your real burn, so this matters less now.</Text> : null}
             </View>
           </Card>
 

@@ -9,3 +9,5 @@ export * from './receipt';
 export * from './healthMerge';
 export * from './macroSplit';
 export * from './weightWindows';
+export * from './trend';
+export * from './trueBurn';

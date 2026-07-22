@@ -90,7 +90,7 @@ export function AppShell({
   return (
     <View style={{ flex: 1, backgroundColor: c('bg') }}>
       <Animated.View style={{ flex: 1, opacity: screenOp }}>
-        {tab === 'today' ? <Day profile={profile} /> : null}
+        {tab === 'today' ? <Day profile={profile} goal={goal} prefs={prefs} /> : null}
         {tab === 'kitchen' ? <Kitchen profile={profile} /> : null}
         {tab === 'progress' ? <Progress profile={profile} goal={goal} prefs={prefs} onReset={onReset} onUpdateProfile={onUpdateProfile} /> : null}
       </Animated.View>

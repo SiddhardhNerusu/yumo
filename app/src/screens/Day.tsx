@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ScrollView, View, Text, Pressable, Linking, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { localParts, logEvents, portionChips } from '@yumo/brain';
-import { SLOT_ENVELOPE, type MealSlot } from '@yumo/shared';
+import { SLOT_ENVELOPE, type MealSlot, type Goal } from '@yumo/shared';
+import type { GoalPrefs } from '../data/goalPrefs';
 import { softScore, isAllowed, type MenuRecipe, type UserProfile, type WeekMenuPlan, type ScoreContext } from '@yumo/menu';
 import { useTheme } from '../theme';
 import { useToday } from '../useToday';
@@ -117,7 +118,7 @@ function PortionChip({ label, kcal, primary, onPress }: { label: string; kcal: n
  * disagreeing); other days of the week are pure planning (no Log it — you can't
  * eat Friday yet).
  */
-export function Day({ profile }: { profile: UserProfile }) {
+export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal; prefs?: GoalPrefs }) {
   const { c } = useTheme();
   const { events, logFood, skipMeal, deleteLog, recordMixupPick, thumbRecipe, thumbs } = useEventStore();
   const kitchen = useKitchen();
@@ -820,7 +821,7 @@ export function Day({ profile }: { profile: UserProfile }) {
 
       <MixSheet visible={mix !== null} currentName={mix?.recipe.name ?? ''} options={mixOptions} loading={mixLoading} onPick={pickMix} onClose={() => setMix(null)} />
       <RecipeSheet recipe={sheet} onClose={() => setSheet(null)} />
-      <Overview visible={showOverview} onClose={() => setShowOverview(false)} profile={profile} />
+      <Overview visible={showOverview} onClose={() => setShowOverview(false)} profile={profile} goal={goal} prefs={prefs} />
       <AddSheet
         visible={addSlot !== null}
         slotLabel={addSlot ? cap(addSlot.slot) : ''}

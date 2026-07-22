@@ -38,4 +38,19 @@ describe('Mifflin-St Jeor + budget', () => {
     expect(r.dailyDelta).toBe(0);
     expect(r.target).toBe(r.tdee);
   });
+
+  it('maintenanceOverride (True burn) replaces the Mifflin base; pace deficit + floor still apply', () => {
+    const r = dailyBudget({ weightKg: 80, heightCm: 180, age: 30, sex: 'male', activity: 'desk', goal: 'lose', rateKgPerWeek: 0.5, maintenanceOverride: 2340 });
+    expect(r.tdee).toBe(2340); // echoes the measured burn, NOT 2136 Mifflin
+    expect(r.dailyDelta).toBe(-550); // pace deficit unchanged
+    expect(r.target).toBe(1790); // 2340 − 550
+    expect(r.floored).toBe(false);
+  });
+
+  it('maintenanceOverride still respects the ED floor', () => {
+    const r = dailyBudget({ weightKg: 60, heightCm: 165, age: 30, sex: 'female', activity: 'desk', goal: 'lose', rateKgPerWeek: 1.0, maintenanceOverride: 1300 });
+    expect(r.rawTarget).toBe(200); // 1300 − 1100
+    expect(r.target).toBe(1200); // clamped up to the female floor
+    expect(r.floored).toBe(true);
+  });
 });
