@@ -21,24 +21,13 @@ import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
 import { ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { buildPantryRows } from '../data/pantryCousins';
-import { Serif, PrimaryButton, TextLink, HAIRLINE_TOP } from './kit';
+import { Serif, PrimaryButton, TextLink, HAIRLINE_TOP, withAlpha } from './kit';
 import { RangeSlider } from './RangeSlider';
 import { useEntitlement } from '../data/entitlement';
 import { Paywall } from './Paywall';
 import { haptics } from '../haptics';
 
 const num = { fontVariant: ['tabular-nums' as const] };
-
-/** Accent at reduced opacity — keeps the one-accent ladder theme-correct (the
- * accent token differs light vs dark), instead of hardcoding a dark rgba. */
-const withAlpha = (hex: string, a: number): string => {
-  const h = hex.replace('#', '');
-  if (h.length < 6) return hex;
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return `rgba(${r},${g},${b},${a})`;
-};
 
 const GOAL_OPTS: { v: Goal; label: string }[] = [
   { v: 'lose', label: 'Lose' },

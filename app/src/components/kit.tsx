@@ -9,6 +9,18 @@ export const LOGGED_BORDER = 'rgba(95,196,140,0.25)';
 const GRABBER = 'rgba(247,242,234,0.15)'; // brief §2: grabber 36×4 at 0.15
 export const HAIRLINE_TOP = 'rgba(247,242,234,0.14)'; // directional top highlight — light reads from above
 
+/** The accent (or any hex) at reduced opacity — keeps the one-accent ladder
+ * theme-correct (the accent token differs light vs dark) instead of hardcoding a
+ * dark rgba. Used for macro-bar carb/fat tints, ring glow, etc. */
+export function withAlpha(hex: string, a: number): string {
+  const h = hex.replace('#', '');
+  if (h.length < 6) return hex; // already rgba() or a name — leave it
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 const num = { fontVariant: ['tabular-nums' as const] };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
