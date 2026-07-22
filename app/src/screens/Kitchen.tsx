@@ -1,263 +1,321 @@
-import { useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView, Modal } from 'react-native';
-import Svg, { Rect } from 'react-native-svg';
-import type { UserProfile, MenuRecipe } from '@yumo/menu';
-import { logEvents, localParts } from '@yumo/brain';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, Pressable, ScrollView, TextInput, Animated } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Svg, { Rect, Line } from 'react-native-svg';
+import type { UserProfile } from '@yumo/menu';
 import { useTheme } from '../theme';
 import { useNow } from '../useNow';
-import { DEMO_DATA } from '../data/demo';
 import { useKitchen } from '../data/kitchenStore';
-import { useEventStore } from '../data/eventStore';
-import { getMenu } from '../data/repo';
-import { computeStreak } from '../data/streak';
-import { shoppingGaps } from '../data/cookability';
-import { expiringItems } from '../data/expiring';
-import { mealCost, gbp, MEAL_OUT_BASELINE, TYPICAL_MEAL_COST } from '../data/kitchenMoney';
-import { KitchenRoom, tileColor } from '../components/kitchen/KitchenScene';
-import { ItemSheet } from '../components/kitchen/ItemSheet';
+import { useShoppingList } from '../data/shoppingList';
+import { ZONES, ZONE_LABEL, inStock, type KitchenItem, type Zone } from '../data/kitchen-model';
 import { KitchenAddSheet } from '../components/kitchen/KitchenAddSheet';
-import { KitchenVoiceSheet, type VoiceAddItem } from '../components/kitchen/KitchenVoiceSheet';
-import { buildFoodVocab } from '../data/foodVocab';
-import { TonightSheet } from '../components/kitchen/TonightSheet';
-import { ShoppingListSheet } from '../components/kitchen/ShoppingListSheet';
-import type { ShopPick } from '../data/shopping';
-import { Serif, Kicker, TextLink, OutlineButton, ACCENT_BORDER } from '../components/kit';
-import { freshnessOf, ZONE_LABEL, type KitchenItem, type Zone, type Freshness } from '../data/kitchen-model';
+import { Serif, Sheet, withAlpha } from '../components/kit';
 import { track } from '../analytics';
 import { haptics } from '../haptics';
 
-// §3.6 receipt choreography — what flies onto the shelves when you scan (with prices for §8 money).
-const RECEIPT_ITEMS: Array<{ token: string; label: string; zone: Zone; price: number }> = [
-  { token: 'broccoli', label: 'Broccoli', zone: 'fridge', price: 0.6 },
-  { token: 'cheddar', label: 'Cheddar', zone: 'fridge', price: 3 },
-  { token: 'firm tofu', label: 'Firm tofu', zone: 'fridge', price: 1.8 },
-  { token: 'wholemeal bread', label: 'Wholemeal bread', zone: 'cupboard', price: 1.1 },
-];
-const LOW = '#EDA33B';
-const FRESH_TAG: Record<Freshness, { label: string; col: string } | null> = {
-  fresh: { label: 'FRESH', col: '#5FC48C' },
-  soon: { label: 'USE SOON', col: '#EDA33B' },
-  today: { label: 'USE TODAY', col: '#FF7A5C' },
-  gone: { label: 'USE TODAY', col: '#FF7A5C' },
-};
+const num = { fontVariant: ['tabular-nums' as const] };
+const DAY = 86_400_000;
+const KEEPS_DAYS = 60; // fresh for longer than this → an undated staple ("keeps")
+const FILTER_KEY = 'yumo.kitchen.filter.v1';
 
-function ReceiptGlyph() {
+// The door glyph is the ONLY illustration on the page (§2). Material fills are
+// deliberate illustration colours (no theme token — a fridge is always cream),
+// so they stay literal; the neutral border/handle derive from textPrimary.
+const MATERIAL: Record<Zone, string> = { fridge: '#E8DFC9', freezer: '#D8DEE3', cupboard: '#6B4A32', counter: '#6B4A32' };
+
+interface Fresh { text: string; warn: boolean; keeps: boolean; days: number }
+function freshnessInfo(item: KitchenItem, now: number): Fresh {
+  const days = Math.round((item.freshUntil - now) / DAY);
+  if (days > KEEPS_DAYS) return { text: 'keeps', warn: false, keeps: true, days: Infinity };
+  if (days <= 1) return { text: 'use today', warn: true, keeps: false, days };
+  if (days <= 3) return { text: `${days} days`, warn: true, keeps: false, days };
+  return { text: `${days} days`, warn: false, keeps: false, days };
+}
+
+function DoorGlyph({ zone }: { zone: Zone }) {
   return (
-    <Svg width={22} height={27} viewBox="0 0 22 27">
-      <Rect x={0} y={0} width={22} height={27} rx={3} fill="#EDE3D2" />
-      {[6, 11, 16, 20].map((y, i) => <Rect key={i} x={4} y={y} width={i === 3 ? 8 : 14} height={1.6} rx={0.8} fill="#9C8F7C" />)}
+    <Svg width={30} height={38} viewBox="0 0 30 38">
+      <Rect x={0.5} y={0.5} width={29} height={37} rx={6} fill={MATERIAL[zone]} stroke="rgba(247,242,234,0.14)" strokeWidth={1} />
+      <Line x1={7} y1={11} x2={7} y2={27} stroke="rgba(247,242,234,0.25)" strokeWidth={2} strokeLinecap="round" />
     </Svg>
   );
 }
 
-// As a TAB (no onClose) it renders inline; with onClose it's the legacy slide-up modal.
-export function Kitchen({ profile, onClose }: { profile: UserProfile; onClose?: () => void }) {
+function ReceiptGlyph({ color }: { color: string }) {
+  return (
+    <Svg width={15} height={17} viewBox="0 0 15 17">
+      <Rect x={0.5} y={0.5} width={14} height={16} rx={2} fill="none" stroke={color} strokeWidth={1.2} />
+      {[4, 7.5, 11].map((y, i) => <Line key={i} x1={3} y1={y} x2={i === 2 ? 8 : 12} y2={y} stroke={color} strokeWidth={1.2} strokeLinecap="round" />)}
+    </Svg>
+  );
+}
+
+/** §11 kicker — 11/700/1.3 uppercase textMuted. */
+function Kick({ children }: { children: string }) {
+  const { c } = useTheme();
+  return <Text style={{ color: c('textMuted'), fontSize: 11, fontWeight: '700', letterSpacing: 1.3, textTransform: 'uppercase' }}>{children}</Text>;
+}
+
+/** §4 row action bar — fades in (200ms), one open at a time. */
+function ActionBar({ onUsed, onLow, onBin }: { onUsed: () => void; onLow: () => void; onBin: () => void }) {
+  const { c } = useTheme();
+  const a = useRef(new Animated.Value(0)).current;
+  useEffect(() => { Animated.timing(a, { toValue: 1, duration: 200, useNativeDriver: true }).start(); }, [a]);
+  const btn = (label: string, onPress: () => void, bg: string, fg: string, border?: string) => (
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => ({ flex: 1, backgroundColor: bg, borderWidth: border ? 1 : 0, borderColor: border, borderRadius: 10, paddingVertical: 9, alignItems: 'center', opacity: pressed ? 0.7 : 1 })}>
+      <Text style={{ color: fg, fontSize: 12, fontWeight: '700' }}>{label}</Text>
+    </Pressable>
+  );
+  return (
+    <Animated.View style={{ flexDirection: 'row', gap: 8, paddingBottom: 12, opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [-4, 0] }) }] }}>
+      {btn('✓ Used up', onUsed, withAlpha(c('success'), 0.12), c('success'))}
+      {btn('Running low', onLow, withAlpha(c('warning'), 0.13), c('warning'))}
+      {btn('Bin', onBin, c('surfaceSunken'), c('textSecondary'), c('border'))}
+    </Animated.View>
+  );
+}
+
+/**
+ * The Kitchen tab (§6a) — three unit cards filter one scalable inventory list.
+ * No illustrated scene, no per-item icons, text-first rows. Freshness is days-left
+ * (or "keeps"); amount surfaces only as a Low badge.
+ */
+export function Kitchen({ profile }: { profile: UserProfile }) {
+  void profile;
   const { c } = useTheme();
   const kitchen = useKitchen();
-  const { events, logFood } = useEventStore();
+  const shopping = useShoppingList();
   const now = useNow();
 
-  const [focused, setFocused] = useState<Zone | null>(null);
-  const [selected, setSelected] = useState<KitchenItem | null>(null);
-  const [addZone, setAddZone] = useState<Zone | null>(null);
-  const [showVoice, setShowVoice] = useState(false);
-  const [showTonight, setShowTonight] = useState(false);
-  const [showShopping, setShowShopping] = useState(false);
-  const [scanned, setScanned] = useState(false);
-  const [openZones, setOpenZones] = useState<Set<Zone>>(new Set());
-  const [tossingIds, setTossingIds] = useState<Set<string>>(new Set());
-  const [menuPicks, setMenuPicks] = useState<ShopPick[]>([]);
-  const menuRecipes = useMemo(() => menuPicks.map((p) => p.recipe), [menuPicks]);
+  const [filter, setFilter] = useState<Zone | null>(null);
+  const [query, setQuery] = useState('');
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [showList, setShowList] = useState(false);
+  const [snack, setSnack] = useState<{ text: string; actionLabel?: string; onAction?: () => void } | null>(null);
+  const snackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    track('kitchen_opened', {});
-    getMenu(profile).then((r) => setMenuPicks(r.plan.days.flatMap((d) => d.picks.map((p) => ({ recipe: p.recipe, portionScale: p.portionScale }))))).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const have = useMemo(() => kitchen.availableTokens(), [kitchen.items]); // eslint-disable-line react-hooks/exhaustive-deps
-  const gaps = useMemo(() => shoppingGaps(menuRecipes, have), [menuRecipes, have]);
-  const streak = useMemo(() => computeStreak(events, now).current, [events, now]);
-  const remaining = useMemo(() => {
-    const today = localParts(now, 0).epochDay;
-    const eaten = logEvents(events).filter((e) => localParts(e.ts, 0).epochDay === today).reduce((s, e) => s + (e.kcal ?? 0), 0);
-    return Math.max(0, profile.budgetKcal - eaten);
-  }, [events, now, profile.budgetKcal]);
-
-  const inStock = kitchen.items.filter((i) => i.level !== 'out');
-  const runningLow = inStock.filter((i) => i.level === 'low').length;
-  const selectedLive = selected ? kitchen.items.find((i) => i.id === selected.id) ?? null : null;
-
-  // §8 waste-saver + money recap.
-  const expiring = useMemo(() => expiringItems(kitchen.items, now), [kitchen.items, now]);
-  const perMealCost = useMemo(() => {
-    const costs = menuRecipes.map((r) => mealCost(r, kitchen.items)).filter((x): x is number => x != null);
-    return costs.length ? costs.reduce((a, b) => a + b, 0) / costs.length : TYPICAL_MEAL_COST;
-  }, [menuRecipes, kitchen.items]);
-  const saved = Math.round(kitchen.stats.cooked * Math.max(0, MEAL_OUT_BASELINE - perMealCost));
-  const usedPct = kitchen.usedPct != null ? Math.round(kitchen.usedPct * 100) : null;
-  const recap = [usedPct != null ? `Used ${usedPct}% of what you stocked` : null, saved > 0 ? `≈ ${gbp(saved)} saved cooking in` : null].filter(Boolean).join(' · ');
-
-  const openTonight = () => { setShowTonight(true); track('tonight_viewed', {}); };
-  const toggleEmpty = () => { const next = !kitchen.emptyMode; kitchen.setEmptyMode(next); track('empty_mode_on', { on: next }); };
-  const voiceVocab = useMemo(() => buildFoodVocab(kitchen.items), [kitchen.items]);
-  const addByVoice = (voiced: VoiceAddItem[]) => {
-    kitchen.restock(voiced.map((i) => ({ token: i.token, label: i.label, level: i.level })));
-    voiced.forEach(() => track('item_added', { source: 'voice' }));
+  useEffect(() => { track('kitchen_opened', {}); }, []);
+  // persist the last unit filter across visits (§2).
+  useEffect(() => { AsyncStorage.getItem(FILTER_KEY).then((v) => { if (v === 'fridge' || v === 'freezer' || v === 'cupboard') setFilter(v); }).catch(() => {}); }, []);
+  const pickFilter = (z: Zone) => {
+    setOpenId(null);
+    setFilter((cur) => {
+      const next = cur === z ? null : z;
+      AsyncStorage.setItem(FILTER_KEY, next ?? '').catch(() => {});
+      return next;
+    });
   };
 
-  const focus = (z: Zone | null) => { setFocused(z); if (z) track(z === 'counter' ? 'kitchen_counter_focused' : 'kitchen_zone_focused', {}); };
-  // §3.6 tap → doors open → items fly in at 750ms → doors close at 2900ms.
-  const scan = () => {
-    if (scanned) return;
-    setScanned(true);
-    track('receipt_scanned', { lines: RECEIPT_ITEMS.length, matched: RECEIPT_ITEMS.length });
-    RECEIPT_ITEMS.forEach((it) => track('item_added', { source: 'receipt', zone: it.zone }));
-    haptics.impact(); // doors swing open
-    setOpenZones(new Set<Zone>(['fridge', 'cupboard']));
-    setTimeout(() => { haptics.impact(); kitchen.restock(RECEIPT_ITEMS); }, 750); // items land
-    setTimeout(() => setOpenZones(new Set()), 2900);
+  const flash = (text: string, actionLabel?: string, onAction?: () => void) => {
+    if (snackTimer.current) clearTimeout(snackTimer.current);
+    setSnack({ text, actionLabel, onAction });
+    snackTimer.current = setTimeout(() => setSnack(null), 4000);
   };
-  // §3.7 toss: sheet closes now, tile plays tossOut, item removed ~500ms later.
-  const toss = (id: string) => {
-    setSelected(null);
-    haptics.impact();
-    setTossingIds((s) => new Set(s).add(id));
+  useEffect(() => () => { if (snackTimer.current) clearTimeout(snackTimer.current); }, []);
+
+  const stock = useMemo(() => kitchen.items.filter((i) => inStock(i.level)), [kitchen.items]);
+  const fresh = useMemo(() => new Map(stock.map((i) => [i.id, freshnessInfo(i, now)])), [stock, now]);
+
+  const zoneCount = (z: Zone) => stock.filter((i) => (i.zone === 'counter' ? 'cupboard' : i.zone) === z).length;
+  const soonCount = (z: Zone) => (z === 'freezer' ? 0 : stock.filter((i) => (i.zone === 'counter' ? 'cupboard' : i.zone) === z && !fresh.get(i.id)!.keeps && fresh.get(i.id)!.days <= 3).length);
+
+  const q = query.trim().toLowerCase();
+  const zoneOf = (i: KitchenItem): Zone => (i.zone === 'counter' ? 'cupboard' : i.zone);
+  const visible = useMemo(() => stock.filter((i) => (!filter || zoneOf(i) === filter) && (q.length < 1 || i.label.toLowerCase().includes(q))), [stock, filter, q]);
+
+  const sortRows = (rows: KitchenItem[]) => [...rows].sort((a, b) => {
+    const fa = fresh.get(a.id)!, fb = fresh.get(b.id)!;
+    if (fa.keeps !== fb.keeps) return fa.keeps ? 1 : -1; // undated staples last
+    if (fa.keeps) return a.label.localeCompare(b.label); // then alphabetical
+    return fa.days - fb.days; // else days-left ascending
+  });
+
+  // grouped (no filter) or flat (filtered)
+  const groups: Array<{ zone: Zone | null; rows: KitchenItem[] }> = filter
+    ? [{ zone: null, rows: sortRows(visible) }]
+    : ZONES.map((z) => ({ zone: z, rows: sortRows(visible.filter((i) => zoneOf(i) === z)) })).filter((g) => g.rows.length);
+
+  const noMatch = q.length >= 1 && visible.length === 0;
+  const freeAddQuery = query.trim();
+
+  const doFreeAdd = () => {
+    if (freeAddQuery.length < 2) return;
+    kitchen.addItem(freeAddQuery, filter ? { zone: filter } : {});
+    track('item_added', { source: 'freeadd' });
+    haptics.select();
+    setQuery('');
+  };
+
+  const usedUp = (it: KitchenItem) => {
+    setOpenId(null);
+    kitchen.removeItem(it.id);
+    track('item_used_up', {});
+    flash(`${it.label} used up`, shopping.has(it.token) ? undefined : 'Add to list', shopping.has(it.token) ? undefined : () => { shopping.add(it.token, it.label); flash(`${it.label} added to shopping list`); });
+  };
+  const runLow = (it: KitchenItem) => {
+    setOpenId(null);
+    kitchen.setLevel(it.id, 'low');
+    shopping.add(it.token, it.label);
+    track('item_low', {});
+    flash(`${it.label} added to shopping list`);
+  };
+  const bin = (it: KitchenItem) => {
+    setOpenId(null);
+    kitchen.wasteItem(it.id);
     track('item_wasted', {});
-    setTimeout(() => {
-      kitchen.wasteItem(id);
-      setTossingIds((s) => { const n = new Set(s); n.delete(id); return n; });
-    }, 500);
-  };
-  const logDinner = (r: MenuRecipe) => {
-    // §11 north star: 'cooknow' source distinguishes cook-from-kitchen logs from ordinary menu logs.
-    const decrementedIds = kitchen.decrementForRecipe(r);
-    logFood(r.id, { slot: 'dinner', kcal: Math.round(r.perServing.kcal), proteinG: Math.round(r.perServing.protein_g), name: r.name, source: 'cooknow', taps: 1, meta: { decrementedIds } });
-    track('tonight_accepted', {});
-    setShowTonight(false);
+    haptics.impact();
+    flash(`${it.label} binned`);
   };
 
-  const focusedItems = focused ? kitchen.items.filter((i) => i.zone === focused && i.level !== 'out') : [];
+  const buyAll = (tokens: string[]) => {
+    kitchen.restock(tokens.map((t) => ({ token: t })));
+    tokens.forEach((t) => { shopping.remove(t); track('item_added', { source: 'shopping' }); });
+  };
 
-  const body = (
-      <View style={{ flex: 1, backgroundColor: c('bg') }}>
-        <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <View>
-              <Kicker>Your kitchen</Kicker>
-              <Serif size={36} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Kitchen</Serif>
-            </View>
-            {onClose ? <Pressable onPress={onClose} hitSlop={8} style={{ marginTop: 8 }}><Text style={{ color: c('textSecondary'), fontSize: 15, fontWeight: '600' }}>Close</Text></Pressable> : null}
+  const placeholder = filter ? `Search the ${ZONE_LABEL[filter].toLowerCase()}…` : 'Search your kitchen…';
+
+  return (
+    <View style={{ flex: 1, backgroundColor: c('bg') }}>
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 16, paddingTop: 58, paddingBottom: 40, gap: 12 }} keyboardShouldPersistTaps="handled">
+        {/* Header */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View>
+            <Kick>Your kitchen</Kick>
+            <Serif size={30} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Kitchen</Serif>
           </View>
+          <Pressable onPress={() => setAddOpen(true)} accessibilityRole="button" accessibilityLabel="Scan receipt" style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: c('accentFaint'), borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13, marginTop: 4, opacity: pressed ? 0.7 : 1 })}>
+            <ReceiptGlyph color={c('accentSoft')} />
+            <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '700' }}>Scan receipt</Text>
+          </Pressable>
+        </View>
 
-          {/* room-view banner / focused back-chip */}
-          {focused ? (
-            <Pressable onPress={() => focus(null)} style={{ alignSelf: 'flex-start', marginTop: 16, marginBottom: 16, backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border'), borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14 }}>
-              <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '600' }}>‹ Back to kitchen</Text>
-            </Pressable>
-          ) : (
-            <Pressable onPress={scanned ? undefined : (DEMO_DATA ? scan : () => setAddZone('fridge'))} style={{ marginTop: 16, marginBottom: 18, backgroundColor: c('accentFaint'), borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ flex: 1 }}>
-                {/* Real receipt OCR (Kitchen plan Phase C) isn't built yet, so production
-                    opens the real add flow instead of faking a scan. The canned fly-in
-                    stays for the dev showcase only. */}
-                <Text style={{ color: c('accentSoft'), fontSize: 15, fontWeight: '700' }}>{DEMO_DATA ? 'Scan a receipt' : 'Add groceries'}</Text>
-                <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 2 }}>{DEMO_DATA ? (scanned ? 'Scanned — the shopping flew in ✓' : 'Watch the shopping fly into your fridge') : 'Add what you bought to your kitchen'}</Text>
-              </View>
-              <ReceiptGlyph />
-            </Pressable>
-          )}
+        {/* Unit cards */}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {ZONES.map((z) => {
+            const on = filter === z;
+            const soon = soonCount(z);
+            return (
+              <Pressable key={z} onPress={() => pickFilter(z)} accessibilityRole="button" accessibilityState={{ selected: on }} style={{ flex: 1, borderRadius: 16, padding: 12, backgroundColor: on ? c('accentFaint') : c('surface'), borderWidth: 1, borderColor: on ? withAlpha(c('accent'), 0.55) : c('border') }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <DoorGlyph zone={z} />
+                  {soon > 0 ? (
+                    <View style={{ backgroundColor: withAlpha(c('warning'), 0.18), borderRadius: 999, paddingVertical: 2, paddingHorizontal: 7 }}>
+                      <Text style={[{ color: c('warning'), fontSize: 10.5, fontWeight: '700' }, num]}>{soon} soon</Text>
+                    </View>
+                  ) : null}
+                </View>
+                <Text style={{ color: on ? c('accentSoft') : c('textPrimary'), fontSize: 13, fontWeight: '700', marginTop: 10 }}>{ZONE_LABEL[z]}</Text>
+                <Text style={[{ color: on ? withAlpha(c('accentSoft'), 0.7) : c('textMuted'), fontSize: 11.5, marginTop: 1 }, num]}>{zoneCount(z)} item{zoneCount(z) === 1 ? '' : 's'}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-          {/* §8 waste-saver — gentle "use it up" nudge (room view only) */}
-          {!focused && expiring.length > 0 ? (
-            <Pressable onPress={openTonight} style={{ marginTop: -6, marginBottom: 16, backgroundColor: 'rgba(237,163,59,0.13)', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-              <Text style={{ color: LOW, fontSize: 13, fontWeight: '700', flex: 1 }} numberOfLines={1}>🍃 {expiring.length} thing{expiring.length > 1 ? 's' : ''} to use soon</Text>
-              <Text style={{ color: LOW, fontSize: 13, fontWeight: '600' }}>Tonight's dinners →</Text>
-            </Pressable>
-          ) : null}
+        {/* Search */}
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={placeholder}
+          placeholderTextColor={c('textMuted')}
+          style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, color: c('textPrimary'), fontSize: 14 }}
+        />
+        {noMatch && freeAddQuery.length >= 2 ? (
+          <Pressable onPress={doFreeAdd} accessibilityRole="button" style={({ pressed }) => ({ borderWidth: 1, borderColor: withAlpha(c('textPrimary'), 0.25), borderStyle: 'dashed', borderRadius: 12, paddingVertical: 12, alignItems: 'center', opacity: pressed ? 0.7 : 1 })}>
+            <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '600' }}>＋ Add “{freeAddQuery}” to your kitchen</Text>
+          </Pressable>
+        ) : null}
 
-          <KitchenRoom
-            items={kitchen.items}
-            now={now}
-            recentlyAdded={kitchen.recentlyAdded}
-            tossing={tossingIds}
-            focused={focused}
-            openZones={openZones}
-            onFocus={focus}
-            onItemPress={(it) => (focused ? setSelected(it) : focus(it.zone))}
-            streak={streak}
-            shoppingCount={kitchen.emptyMode ? 0 : gaps.length}
-            onTonight={openTonight}
-            onShopping={() => setShowShopping(true)}
-          />
-
-          {/* below-scene: room stats OR focused item list */}
-          {focused ? (
-            <View style={{ marginTop: 20 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-                <Serif size={22} weight="medium" color={c('textPrimary')}>{focused === 'counter' ? 'On the counter' : `In the ${ZONE_LABEL[focused].toLowerCase()}`}</Serif>
-                <Text style={{ color: c('textMuted'), fontSize: 13 }}>{focusedItems.length} items</Text>
-              </View>
-              {focusedItems.map((it) => {
-                const tag = FRESH_TAG[freshnessOf(it, now)];
+        {/* Inventory list */}
+        <View style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderTopColor: withAlpha(c('textPrimary'), 0.14), borderRadius: 20, paddingHorizontal: 16, paddingVertical: 4 }}>
+          {visible.length === 0 ? (
+            <Text style={{ color: c('textMuted'), fontSize: 13, textAlign: 'center', paddingVertical: 24 }}>{q.length >= 1 ? 'Nothing matches — add it above.' : 'Your kitchen is empty — add what you have.'}</Text>
+          ) : groups.map((g, gi) => (
+            <View key={g.zone ?? 'all'}>
+              {g.zone ? <View style={{ paddingTop: gi === 0 ? 10 : 14, paddingBottom: 4 }}><Kick>{ZONE_LABEL[g.zone]}</Kick></View> : null}
+              {g.rows.map((it, ri) => {
+                const f = fresh.get(it.id)!;
+                const open = openId === it.id;
                 return (
-                  <Pressable key={it.id} onPress={() => setSelected(it)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderTopWidth: 1, borderTopColor: c('divider') }}>
-                    <View style={{ width: 12, height: 12, borderRadius: 4, backgroundColor: tileColor(it.token) }} />
-                    <Text style={{ color: c('textPrimary'), fontSize: 15, flex: 1 }}>{it.label}</Text>
-                    {tag ? <Text style={{ color: tag.col, fontSize: 11, fontWeight: '700' }}>{tag.label}</Text> : null}
-                    <Text style={{ color: c('textMuted'), fontSize: 13, width: 54, textAlign: 'right', textTransform: 'capitalize' }}>{it.level}</Text>
-                  </Pressable>
+                  <View key={it.id} style={{ borderTopWidth: ri === 0 && (g.zone || gi === 0) ? 0 : 1, borderTopColor: withAlpha(c('textPrimary'), 0.06) }}>
+                    <Pressable onPress={() => setOpenId(open ? null : it.id)} accessibilityRole="button" accessibilityLabel={`${it.label}, ${f.text}`} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 13, opacity: pressed ? 0.6 : 1 })}>
+                      <Text numberOfLines={1} style={{ flex: 1, minWidth: 0, color: c('textPrimary'), fontSize: 14.5, fontWeight: '600' }}>{it.label}</Text>
+                      {it.level === 'low' ? (
+                        <View style={{ backgroundColor: withAlpha(c('warning'), 0.13), borderRadius: 999, paddingVertical: 2, paddingHorizontal: 7 }}>
+                          <Text style={{ color: c('warning'), fontSize: 11, fontWeight: '700' }}>Low</Text>
+                        </View>
+                      ) : null}
+                      <Text style={[{ fontSize: 12.5, fontWeight: '600', color: f.warn ? c('warning') : c('textMuted') }, num]}>{f.text}</Text>
+                    </Pressable>
+                    {open ? <ActionBar onUsed={() => usedUp(it)} onLow={() => runLow(it)} onBin={() => bin(it)} /> : null}
+                  </View>
                 );
               })}
-              <View style={{ marginTop: 14, flexDirection: 'row', gap: 8 }}>
-                <OutlineButton label="＋ Add item" onPress={() => setAddZone(focused)} />
-                <OutlineButton label="🎙 By voice" onPress={() => setShowVoice(true)} />
-              </View>
             </View>
-          ) : (
-            <>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 18 }}>
-                <Text>
-                  <Text style={{ color: c('textPrimary'), fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{inStock.length}</Text>
-                  <Text style={{ color: c('textMuted'), fontSize: 14 }}> items</Text>
-                </Text>
-                {runningLow > 0 ? <Text style={{ color: LOW, fontSize: 14, fontWeight: '700' }}>{runningLow} running low</Text> : null}
-              </View>
-              {recap ? <Text style={{ color: c('textMuted'), fontSize: 12.5, marginTop: 6 }}>{recap}</Text> : null}
-              <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
-                <Pressable onPress={() => setShowVoice(true)} accessibilityRole="button" accessibilityLabel="Add by voice" style={{ backgroundColor: c('chipSurface'), borderWidth: 1, borderColor: c('border'), borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14 }}>
-                  <Text style={{ color: c('textSecondary'), fontSize: 13, fontWeight: '700' }}>🎙 Add by voice</Text>
-                </Pressable>
-                <Pressable onPress={toggleEmpty} style={{ backgroundColor: kitchen.emptyMode ? c('accentFaint') : c('chipSurface'), borderWidth: 1, borderColor: kitchen.emptyMode ? ACCENT_BORDER : c('border'), borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14 }}>
-                  <Text style={{ color: kitchen.emptyMode ? c('accentSoft') : c('textSecondary'), fontSize: 13, fontWeight: '700' }}>{kitchen.emptyMode ? '✓ Using things up' : 'Using things up'}</Text>
-                </Pressable>
-              </View>
-              {kitchen.emptyMode ? <Text style={{ color: c('textMuted'), fontSize: 12, marginTop: 6 }}>Menu leans on what's in — shopping suggestions paused.</Text> : null}
-              <Text style={{ color: c('textMuted'), fontSize: 13, textAlign: 'center', marginTop: 14 }}>Tap a unit to look inside · the fridge notes are tappable</Text>
-            </>
-          )}
-        </ScrollView>
+          ))}
+        </View>
 
-        <ItemSheet
-          item={selectedLive}
-          now={now}
-          onClose={() => setSelected(null)}
-          onLevel={kitchen.setLevel}
-          onFreshness={kitchen.setFreshness}
-          onZone={kitchen.moveZone}
-          onToss={toss}
-        />
-        <KitchenAddSheet zone={addZone} onClose={() => setAddZone(null)} onAdd={(name, zone) => { kitchen.addItem(name, { label: name, zone }); track('item_added', { source: 'manual', zone }); }} />
-        <KitchenVoiceSheet visible={showVoice} vocab={voiceVocab} onClose={() => setShowVoice(false)} onAdd={addByVoice} />
-        <TonightSheet visible={showTonight} items={kitchen.items} remaining={remaining} now={now} onLog={logDinner} onClose={() => setShowTonight(false)} />
-        <ShoppingListSheet visible={showShopping} picks={menuPicks} haveTokens={have} paused={kitchen.emptyMode} onClose={() => setShowShopping(false)} onBought={(tokens) => { kitchen.restock(tokens.map((t) => ({ token: t }))); tokens.forEach(() => track('item_added', { source: 'shopping' })); }} />
-      </View>
+        {/* Footer */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
+          <Text style={[{ color: c('textMuted'), fontSize: 12 }, num]}>{stock.length} item{stock.length === 1 ? '' : 's'} · tap one for actions</Text>
+          <Pressable onPress={() => setShowList(true)} accessibilityRole="button" hitSlop={8}>
+            <Text style={[{ color: c('accentSoft'), fontSize: 13, fontWeight: '600' }, num]}>Shopping list · {shopping.count} ›</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+
+      {/* snackbar */}
+      {snack ? (
+        <View style={{ position: 'absolute', left: 16, right: 16, bottom: 24, backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: c('border'), borderRadius: 14, paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <Text style={{ color: c('textPrimary'), fontSize: 13.5, flex: 1 }} numberOfLines={1}>{snack.text}</Text>
+          {snack.actionLabel && snack.onAction ? (
+            <Pressable onPress={() => { snack.onAction!(); }} hitSlop={8}><Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '700' }}>{snack.actionLabel}</Text></Pressable>
+          ) : null}
+        </View>
+      ) : null}
+
+      <KitchenAddSheet zone={addOpen ? (filter ?? 'fridge') : null} onClose={() => setAddOpen(false)} onAdd={(name, zone) => { kitchen.addItem(name, { label: name, zone }); track('item_added', { source: 'manual', zone }); }} />
+      <ShoppingListSheet visible={showList} items={shopping.items} onClose={() => setShowList(false)} onRemove={shopping.remove} onBought={buyAll} />
+    </View>
   );
+}
 
-  if (!onClose) return body; // tab mode: inline, no modal chrome
+// ── shopping list sheet ──────────────────────────────────────────────────────
+
+function ShoppingListSheet({ visible, items, onClose, onRemove, onBought }: { visible: boolean; items: { token: string; label: string }[]; onClose: () => void; onRemove: (token: string) => void; onBought: (tokens: string[]) => void }) {
+  const { c } = useTheme();
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const toggle = (t: string) => setChecked((s) => { const n = new Set(s); if (n.has(t)) n.delete(t); else n.add(t); return n; });
+  const buy = () => { const tokens = [...checked]; if (tokens.length) onBought(tokens); setChecked(new Set()); onClose(); };
   return (
-    <Modal visible animationType="slide" onRequestClose={onClose}>
-      {body}
-    </Modal>
+    <Sheet visible={visible} onClose={onClose}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
+        <Serif size={24} weight="medium" color={c('textPrimary')}>Shopping list</Serif>
+        <Text style={{ color: c('textMuted'), fontSize: 13 }}>{items.length} item{items.length === 1 ? '' : 's'}</Text>
+      </View>
+      {items.length === 0 ? (
+        <Text style={{ color: c('textMuted'), fontSize: 14, paddingVertical: 20, textAlign: 'center' }}>Nothing to buy yet. “Used up” and “Running low” add items here.</Text>
+      ) : (
+        <>
+          <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+            {items.map((it) => {
+              const on = checked.has(it.token);
+              return (
+                <View key={it.token} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderTopWidth: 1, borderTopColor: c('divider') }}>
+                  <Pressable onPress={() => toggle(it.token)} accessibilityRole="checkbox" accessibilityState={{ checked: on }} hitSlop={6} style={{ width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: on ? c('accent') : c('borderStrong'), backgroundColor: on ? c('accent') : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+                    {on ? <Text style={{ color: c('accentText'), fontSize: 13, fontWeight: '800' }}>✓</Text> : null}
+                  </Pressable>
+                  <Text style={{ flex: 1, color: c('textPrimary'), fontSize: 15, textDecorationLine: on ? 'line-through' : 'none' }}>{it.label}</Text>
+                  <Pressable onPress={() => onRemove(it.token)} hitSlop={8}><Text style={{ color: c('textMuted'), fontSize: 18 }}>×</Text></Pressable>
+                </View>
+              );
+            })}
+          </ScrollView>
+          <Pressable onPress={buy} disabled={checked.size === 0} accessibilityRole="button" style={{ marginTop: 16, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 13, alignItems: 'center', opacity: checked.size === 0 ? 0.5 : 1 }}>
+            <Text style={{ color: c('accentText'), fontSize: 14, fontWeight: '700' }}>Bought {checked.size || ''} — add to kitchen</Text>
+          </Pressable>
+        </>
+      )}
+    </Sheet>
   );
 }
