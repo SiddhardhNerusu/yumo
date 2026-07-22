@@ -9,6 +9,9 @@ import { searchFoods, lookupBarcode } from '../data/repo';
 import { POOL } from '../data/menu-seed';
 import { SINGLE_FOODS } from '../data/foods-seed';
 import { useMyMeals } from '../data/myMeals';
+import { cookability } from '../data/cookability';
+import { effortMin } from '../data/effort';
+import type { MenuRecipe } from '@yumo/menu';
 
 export interface Macros { kcal: number; protein_g: number; carbs_g: number; fat_g: number }
 export interface AddItem {
@@ -25,16 +28,29 @@ export interface AddItem {
   portionG?: number;
   /** per-100g macros — present on gram-based FDC ingredients → enables the portion stepper. */
   per100g?: Macros;
+  /** §7 sort metadata (recipes only) — cook time bucket + ingredient count. */
+  effort?: MenuRecipe['effort'];
+  ingredientCount?: number;
   source: string;
 }
 
-const BANDS = [250, 500, 700] as const;
 const num = { fontVariant: ['tabular-nums' as const] };
 
-/** Nearest calorie band, or null for 'all'. */
-function nearestBand(kcal: number): number {
-  return BANDS.reduce((best, b) => (Math.abs(b - kcal) < Math.abs(best - kcal) ? b : best), BANDS[0]);
-}
+type SortKey = 'smart' | 'kcal' | 'protein' | 'quick' | 'ingredients';
+const SORTS: { k: SortKey; label: string }[] = [
+  { k: 'smart', label: '✦ Smart' },
+  { k: 'kcal', label: 'Lowest kcal' },
+  { k: 'protein', label: 'High protein' },
+  { k: 'quick', label: 'Quickest' },
+  { k: 'ingredients', label: 'Fewest ingredients' },
+];
+const SORT_SHORT: Record<SortKey, string> = { smart: 'Smart', kcal: 'Lowest kcal', protein: 'High protein', quick: 'Quickest', ingredients: 'Fewest' };
+const CAPS: { v: number | null; label: string }[] = [
+  { v: null, label: 'Any calories' },
+  { v: 250, label: 'Under 250 kcal' },
+  { v: 500, label: 'Under 500 kcal' },
+  { v: 700, label: 'Under 700 kcal' },
+];
 
 const MEALS: AddItem[] = POOL.map((r) => ({
   id: r.id,
@@ -43,6 +59,8 @@ const MEALS: AddItem[] = POOL.map((r) => ({
   proteinG: Math.round(r.perServing.protein_g),
   carbsG: Math.round(r.perServing.carbs_g ?? 0),
   fatG: Math.round(r.perServing.fat_g ?? 0),
+  effort: r.effort,
+  ingredientCount: r.foodTokens.length,
   source: 'menu',
 }));
 
@@ -80,18 +98,24 @@ export function AddSheet({
   visible,
   slotLabel,
   planned,
+  have,
   onLog,
   onClose,
 }: {
   visible: boolean;
   slotLabel: string;
   planned: AddItem | null;
+  /** kitchen tokens — enables the §7 "My kitchen" filter (recipes cookable now). */
+  have?: Set<string>;
   onLog: (item: AddItem) => void;
   onClose: () => void;
 }) {
   const { c } = useTheme();
   const [q, setQ] = useState('');
-  const [band, setBand] = useState<number | null>(null);
+  const [sort, setSort] = useState<SortKey>('smart');
+  const [cap, setCap] = useState<number | null>(null);
+  const [kitchenOnly, setKitchenOnly] = useState(false);
+  const [menuOpen, setMenuOpen] = useState<'sort' | 'cap' | null>(null);
   const [hits, setHits] = useState<AddItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -102,7 +126,7 @@ export function AddSheet({
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    if (!visible) { setQ(''); setBand(null); setHits([]); setFocused(false); setEditing(null); setScanning(false); setScanMsg(null); }
+    if (!visible) { setQ(''); setSort('smart'); setCap(null); setKitchenOnly(false); setMenuOpen(null); setHits([]); setFocused(false); setEditing(null); setScanning(false); setScanMsg(null); }
   }, [visible]);
 
   useEffect(() => {
@@ -129,12 +153,33 @@ export function AddSheet({
     [savedMeals],
   );
 
-  const filtering = q.trim().length > 0 || band !== null;
+  const filtering = q.trim().length > 0 || cap !== null || kitchenOnly || sort !== 'smart';
   const expanded = focused || q.trim().length > 0;
-  const match = (it: AddItem) => (q.trim().length < 2 || it.name.toLowerCase().includes(q.trim().toLowerCase())) && (band === null || nearestBand(it.kcal) === band);
-  const myMeals = useMemo(() => myMealItems.filter(match), [q, band, myMealItems]);
-  const meals = useMemo(() => MEALS.filter(match), [q, band]);
-  const foods = useMemo(() => [...FOODS.filter(match), ...hits.filter((h) => band === null || nearestBand(h.kcal) === band)], [q, band, hits]);
+  const cookNow = (it: AddItem) => {
+    if (it.source !== 'menu' || !have?.size) return false;
+    const r = POOL.find((x) => x.id === it.id);
+    return r ? cookability(r, have).tier === 'now' : false;
+  };
+  const match = (it: AddItem) =>
+    (q.trim().length < 2 || it.name.toLowerCase().includes(q.trim().toLowerCase())) &&
+    (cap === null || it.kcal <= cap) &&
+    (!kitchenOnly || cookNow(it));
+  const cmp = (a: AddItem, b: AddItem): number => {
+    switch (sort) {
+      case 'kcal': return a.kcal - b.kcal;
+      case 'protein': return (b.proteinG ?? -1) - (a.proteinG ?? -1);
+      case 'quick': return (a.effort ? effortMin(a.effort) : 999) - (b.effort ? effortMin(b.effort) : 999);
+      case 'ingredients': return (a.ingredientCount ?? 999) - (b.ingredientCount ?? 999);
+      default: return 0; // ✦ Smart = the engine / source order
+    }
+  };
+  const sorted = (xs: AddItem[]) => (sort === 'smart' ? xs : [...xs].sort(cmp));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const myMeals = useMemo(() => sorted(myMealItems.filter(match)), [q, cap, kitchenOnly, sort, myMealItems, have]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const meals = useMemo(() => sorted(MEALS.filter(match)), [q, cap, kitchenOnly, sort, have]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const foods = useMemo(() => sorted([...FOODS, ...hits].filter(match)), [q, cap, kitchenOnly, sort, hits, have]);
   const nothing = filtering && myMeals.length === 0 && meals.length === 0 && foods.length === 0 && !loading;
 
   // A gram-based ingredient (has per100g) opens the portion stepper; curated foods
@@ -245,16 +290,33 @@ export function AddSheet({
 
         {scanMsg ? <Text style={{ color: c('textMuted'), fontSize: 13, marginBottom: 10 }}>{scanMsg}</Text> : null}
 
+        {/* §7 sort · calorie cap · my kitchen (replaces the old ~250/~500/~700 caps) */}
         <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
-          {([['All', null], ['~250', 250], ['~500', 500], ['~700', 700]] as Array<[string, number | null]>).map(([label, val]) => {
-            const on = band === val;
-            return (
-              <Pressable key={label} onPress={() => setBand(val)} style={{ flex: 1, borderRadius: 999, paddingVertical: 8, alignItems: 'center', backgroundColor: on ? c('accent') : c('surfaceSunken'), borderWidth: 1, borderColor: on ? c('accent') : 'rgba(247,242,234,0.09)' }}>
-                <Text style={{ color: on ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>{label}</Text>
-              </Pressable>
-            );
-          })}
+          <Pressable onPress={() => setMenuOpen((m) => (m === 'sort' ? null : 'sort'))} accessibilityRole="button" accessibilityLabel={`Sort: ${SORT_SHORT[sort]}`} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: 'rgba(247,242,234,0.09)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 13 }}>
+            <Text style={{ color: c('textMuted'), fontSize: 12 }}>Sort </Text>
+            <Text style={{ color: c('textPrimary'), fontSize: 13, fontWeight: '600' }}>{SORT_SHORT[sort]} ▾</Text>
+          </Pressable>
+          <Pressable onPress={() => setMenuOpen((m) => (m === 'cap' ? null : 'cap'))} accessibilityRole="button" accessibilityLabel={cap === null ? 'Calorie cap: any' : `Calorie cap: under ${cap}`} style={{ backgroundColor: cap !== null ? c('accent') : c('surfaceSunken'), borderWidth: 1, borderColor: cap !== null ? c('accent') : 'rgba(247,242,234,0.09)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 13 }}>
+            <Text style={{ color: cap !== null ? c('accentText') : c('textPrimary'), fontSize: 13, fontWeight: '600' }}>{cap === null ? 'Any kcal' : `Under ${cap}`} ▾</Text>
+          </Pressable>
+          <Pressable onPress={() => setKitchenOnly((k) => !k)} accessibilityRole="button" accessibilityState={{ selected: kitchenOnly }} accessibilityLabel="My kitchen only" style={{ backgroundColor: kitchenOnly ? c('accent') : c('surfaceSunken'), borderWidth: 1, borderColor: kitchenOnly ? c('accent') : 'rgba(247,242,234,0.09)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 13 }}>
+            <Text style={{ color: kitchenOnly ? c('accentText') : c('textSecondary'), fontSize: 13, fontWeight: '600' }}>My kitchen</Text>
+          </Pressable>
         </View>
+
+        {menuOpen ? (
+          <View style={{ backgroundColor: c('accentSubtle'), borderWidth: 1, borderColor: c('borderStrong'), borderRadius: 14, padding: 6, marginBottom: 8 }}>
+            {(menuOpen === 'sort'
+              ? SORTS.map((s) => ({ key: s.k, label: s.label, on: sort === s.k, pick: () => { setSort(s.k); setMenuOpen(null); } }))
+              : CAPS.map((cp) => ({ key: String(cp.v), label: cp.label, on: cap === cp.v, pick: () => { setCap(cp.v); setMenuOpen(null); } }))
+            ).map((o) => (
+              <Pressable key={o.key} onPress={o.pick} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 11, borderRadius: 9, backgroundColor: o.on ? c('accentFaint') : 'transparent' }}>
+                <Text style={{ color: o.on ? c('accentSoft') : c('textSecondary'), fontSize: 13.5, fontWeight: '600' }}>{o.label}</Text>
+                {o.on ? <Text style={{ color: c('accent'), fontSize: 13 }}>✓</Text> : null}
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
 
         <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} style={expanded ? { flex: 1 } : { maxHeight: 420 }} contentContainerStyle={{ paddingBottom: expanded ? 28 : 0 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           {planned && !filtering ? (

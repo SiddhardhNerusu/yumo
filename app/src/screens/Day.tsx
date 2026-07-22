@@ -821,6 +821,7 @@ export function Day({ profile }: { profile: UserProfile }) {
       <AddSheet
         visible={addSlot !== null}
         slotLabel={addSlot ? cap(addSlot.slot) : ''}
+        have={have}
         planned={addSlot ? addPlanned(addSlot.slot, addSlot.epochDay) : null}
         onLog={(it) => {
           if (addSlot) {
