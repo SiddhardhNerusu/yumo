@@ -24,7 +24,7 @@ import { MacroBar } from '../components/MacroBar';
 import { Overview } from './Overview';
 import { macroTargets } from '../data/macros';
 import { MixSheet, type MixOption } from '../components/MixSheet';
-import { RecipeSheet } from '../components/RecipeSheet';
+import { RecipeSheet, type RecipeSheetData } from '../components/RecipeSheet';
 import { AddSheet, type AddItem } from '../components/AddSheet';
 import { smartSuggest, type SmartCtx, type SuggestCur } from '../data/suggest';
 import { effortMin } from '../data/effort';
@@ -198,7 +198,7 @@ export function Day({ profile }: { profile: UserProfile }) {
   }, [events, now]);
 
   // ── sheets ──────────────────────────────────────────────────────────────────
-  const [sheet, setSheet] = useState<{ name: string; kcal: number; steps: string[]; ingredients: RecipeIngredientLine[]; methods?: string[]; portion?: string } | null>(null);
+  const [sheet, setSheet] = useState<RecipeSheetData | null>(null);
   // carries the day (M2): AddSheet can target today or a past day of this week.
   const [addSlot, setAddSlot] = useState<{ slot: MealSlot; epochDay: number } | null>(null);
   const [mix, setMix] = useState<{ key: string; slot: MealSlot; recipe: MenuRecipe } | null>(null);
@@ -407,10 +407,19 @@ export function Day({ profile }: { profile: UserProfile }) {
     setOverrides((o) => ({ ...o, [mix.key]: alt }));
     setMix(null);
   };
-  const openRecipe = (cur: Cur) => {
+  const openRecipe = (cur: Cur, slot?: MealSlot) => {
     const s = Math.max(0.5, Math.round(cur.portionScale * 2) / 2);
     return getRecipeDetail(cur.recipe, s).then((d) =>
-      setSheet({ name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s) }));
+      setSheet({
+        name: cur.recipe.name, kcal: cur.kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s),
+        protein: cur.protein, min: effortMin(cur.recipe.effort), cook: have.size ? cookability(cur.recipe, have) : null,
+        // §8 footer only from a suggestion (has a slot to add into / swap within).
+        ...(slot ? {
+          addLabel: `＋ Add to ${cap(slot)}`,
+          add: () => { logMeal(slot, cur, todayEpoch); setSheet(null); },
+          swap: () => { setSheet(null); openMix(`${dayIdx}:${slot}`, cur.recipe, slot); },
+        } : {}),
+      }));
   };
   // Resolve a logged row / quick-log tile back to its recipe so tapping the NAME
   // opens "how to make it" (id first, then name — search adds have synthetic ids).
@@ -424,7 +433,7 @@ export function Day({ profile }: { profile: UserProfile }) {
     if (!r) return;
     const s = r.perServing.kcal > 0 ? Math.max(0.5, Math.round((kcal / r.perServing.kcal) * 2) / 2) : 1;
     getRecipeDetail(r, s).then((d) =>
-      setSheet({ name: r.name, kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s) }));
+      setSheet({ name: r.name, kcal, steps: d.steps, ingredients: d.ingredients, methods: d.methods, portion: portionLabel(s), protein: Math.round(r.perServing.protein_g * s), min: effortMin(r.effort), cook: have.size ? cookability(r, have) : null }));
   };
   // The AddSheet's "from your menu" suggestion for the day being added to — the
   // SELECTED day's pick on a past day, today's otherwise (so the chip matches
@@ -782,7 +791,7 @@ export function Day({ profile }: { profile: UserProfile }) {
                       <SmartRows
                         items={items}
                         metaFor={dishMeta}
-                        onOpen={(sc) => openRecipe(sc)}
+                        onOpen={(sc) => openRecipe(sc, slot)}
                         onLog={(sc) => logMeal(slot, sc, todayEpoch)}
                       />
                       <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 12 }} />
