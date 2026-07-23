@@ -9,6 +9,7 @@ import { useKitchen } from '../data/kitchenStore';
 import { useShoppingList } from '../data/shoppingList';
 import { ZONES, ZONE_LABEL, inStock, type KitchenItem, type Zone } from '../data/kitchen-model';
 import { KitchenAddSheet } from '../components/kitchen/KitchenAddSheet';
+import { ReceiptSheet } from '../components/kitchen/ReceiptSheet';
 import { Serif, Sheet, withAlpha } from '../components/kit';
 import { track } from '../analytics';
 import { haptics } from '../haptics';
@@ -91,6 +92,7 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const [showList, setShowList] = useState(false);
   const [snack, setSnack] = useState<{ text: string; actionLabel?: string; onAction?: () => void } | null>(null);
   const snackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -187,7 +189,7 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
             <Kick>Your kitchen</Kick>
             <Serif size={30} weight="medium" color={c('textPrimary')} style={{ letterSpacing: -0.5, marginTop: 2 }}>Kitchen</Serif>
           </View>
-          <Pressable onPress={() => setAddOpen(true)} accessibilityRole="button" accessibilityLabel="Scan receipt" style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: c('accentFaint'), borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13, marginTop: 4, opacity: pressed ? 0.7 : 1 })}>
+          <Pressable onPress={() => setReceiptOpen(true)} accessibilityRole="button" accessibilityLabel="Scan receipt" style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: c('accentFaint'), borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13, marginTop: 4, opacity: pressed ? 0.7 : 1 })}>
             <ReceiptGlyph color={c('accentSoft')} />
             <Text style={{ color: c('accentSoft'), fontSize: 13, fontWeight: '700' }}>Scan receipt</Text>
           </Pressable>
@@ -278,6 +280,18 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
       ) : null}
 
       <KitchenAddSheet zone={addOpen ? (filter ?? 'fridge') : null} onClose={() => setAddOpen(false)} onAdd={(name, zone) => { kitchen.addItem(name, { label: name, zone }); track('item_added', { source: 'manual', zone }); }} />
+      <ReceiptSheet
+        visible={receiptOpen}
+        items={kitchen.items}
+        onClose={() => setReceiptOpen(false)}
+        onConfirm={(entries) => {
+          kitchen.restock(entries);
+          track('receipt_scanned', { lines: entries.length, matched: entries.length });
+          entries.forEach((e) => track('item_added', { source: 'receipt', zone: e.zone }));
+          setReceiptOpen(false);
+        }}
+        onManual={() => { setReceiptOpen(false); setAddOpen(true); }}
+      />
       <ShoppingListSheet visible={showList} items={shopping.items} onClose={() => setShowList(false)} onRemove={shopping.remove} onBought={buyAll} />
     </View>
   );

@@ -42,6 +42,9 @@ const RULES: Array<[RegExp, keyof typeof TABLE]> = [
   [/\b(stock|sauce|paste|gravy|bouillon)\b/, 'condiment'],
   // plant "milks"/creams are shelf-stable, not dairy
   [/(coconut|almond|oat|soya?|rice|cashew) milk|coconut cream/, 'dry'],
+  // "frozen X" is a freezer item first (before the food-type rule below claims it).
+  // Word-boundaried so it never matches "rice"/"juice" via a bare "ice".
+  [/\bfrozen\b|\bice cream\b|\bice lolly\b/, 'frozen'],
   [/chicken|turkey|poultry|thigh|breast(?!.*milk)/, 'poultry'],
   [/beef|pork|lamb|mince|steak|bacon|sausage|ham/, 'red_meat'],
   [/salmon|tuna|cod|fish|prawn|shrimp|seafood/, 'fish'],
@@ -63,7 +66,6 @@ const RULES: Array<[RegExp, keyof typeof TABLE]> = [
   [/rice|pasta|oats|flour|noodle|couscous|quinoa|cereal|granola|sugar/, 'dry'],
   [/almond|peanut|cashew|walnut|nut butter|nuts/, 'nut'],
   [/oil|ketchup|mayo|mustard|vinegar|honey|jam|salsa/, 'condiment'],
-  [/frozen|ice/, 'frozen'],
 ];
 
 export function categoryFor(token: string): keyof typeof TABLE | null {
@@ -80,11 +82,14 @@ export function shelfLifeDays(token: string, zone: Zone): number {
   return (cat ? TABLE[cat] : DEFAULT)[col];
 }
 
-/** Best default zone to drop a new item into. */
+/** Best default zone to drop a new item into. Hardy produce (root veg, fruit) and
+ * shelf-stable goods live in the cupboard; only chilled/perishable defaults to the
+ * fridge. Any of these is user-overridable per item. */
+const CUPBOARD_CATS = new Set<keyof typeof TABLE>(['tinned', 'dry', 'legume_dry', 'nut', 'condiment', 'root', 'fruit']);
 export function defaultZone(token: string): Zone {
   const cat = categoryFor(token);
   if (!cat) return 'cupboard';
-  if (['tinned', 'dry', 'legume_dry', 'nut', 'condiment'].includes(cat)) return 'cupboard';
+  if (CUPBOARD_CATS.has(cat)) return 'cupboard';
   if (cat === 'frozen') return 'freezer';
   return 'fridge';
 }
