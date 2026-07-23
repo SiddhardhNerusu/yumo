@@ -24,6 +24,7 @@ import { useTheme } from '../theme';
 import { useWeightUnit } from '../data/weightUnit';
 import { useNow } from '../useNow';
 import { useTrueBurn } from '../data/useTrueBurn';
+import { useShopDay } from '../data/shopDay';
 import { ALLERGEN_LABELS } from '../data/onboarding-seed';
 import { buildPantryRows } from '../data/pantryCousins';
 import { Serif, PrimaryButton, TextLink, HAIRLINE_TOP, withAlpha } from './kit';
@@ -72,6 +73,12 @@ const MACRO_ROWS: { key: keyof MacroPct; name: string; alpha: number }[] = [
 ];
 
 // ── shared controls (module-level so inputs/sliders keep identity across renders) ──
+
+// expo weekday convention: 1 = Sunday … 7 = Saturday
+const SHOP_DAYS: { w: number; l: string }[] = [
+  { w: 1, l: 'Sun' }, { w: 2, l: 'Mon' }, { w: 3, l: 'Tue' }, { w: 4, l: 'Wed' }, { w: 5, l: 'Thu' }, { w: 6, l: 'Fri' }, { w: 7, l: 'Sat' },
+];
+const DAY_NAME: Record<number, string> = { 1: 'Sunday', 2: 'Monday', 3: 'Tuesday', 4: 'Wednesday', 5: 'Thursday', 6: 'Friday', 7: 'Saturday' };
 
 function Seg<T extends string>({ items, value, onChange, a11y }: { items: { v: T; label: string }[]; value: T; onChange: (v: T) => void; a11y: string }) {
   const { c } = useTheme();
@@ -207,6 +214,7 @@ export function Settings({
   const { c } = useTheme();
   const { isPremium } = useEntitlement();
   const { unit, setUnit } = useWeightUnit();
+  const { weekday: shopWeekday, setShopDay } = useShopDay();
   const [showPaywall, setShowPaywall] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
@@ -415,6 +423,16 @@ export function Settings({
               {ALLERGENS.map((a) => <PantryChip key={a} label={ALLERGEN_LABELS[a]} selected={allergies.includes(a)} onPress={() => toggleAllergen(a)} />)}
             </View>
             <Text style={{ color: c('textMuted'), fontSize: 11.5 }}>We filter these out of every menu — but always check labels.</Text>
+          </Card>
+
+          {/* Weekly shop reminder */}
+          <Card kicker="Weekly shop" summary={shopWeekday != null ? DAY_NAME[shopWeekday] : 'Off'} summaryTone={shopWeekday != null ? 'accent' : 'muted'}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              {SHOP_DAYS.map((d) => <PantryChip key={d.w} label={d.l} selected={shopWeekday === d.w} onPress={() => setShopDay(shopWeekday === d.w ? null : d.w)} />)}
+            </View>
+            <Text style={{ color: c('textMuted'), fontSize: 11.5 }}>
+              {shopWeekday != null ? `We’ll nudge you ${DAY_NAME[shopWeekday]} morning with your shop list — what you flagged plus what next week’s menu needs.` : 'Pick a shop day and we’ll remind you that morning with your list.'}
+            </Text>
           </Card>
 
           {/* Start over */}

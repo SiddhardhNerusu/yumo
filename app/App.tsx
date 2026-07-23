@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useFonts,
@@ -19,11 +20,35 @@ import { KitchenProvider } from './src/data/kitchenStore';
 import { EntitlementProvider } from './src/data/entitlement';
 import { WeightUnitProvider } from './src/data/weightUnit';
 import { MyMealsProvider } from './src/data/myMeals';
+import { NavIntentProvider, useNavIntent } from './src/data/navIntent';
+import { ShopDayProvider } from './src/data/shopDay';
+import { SHOP_NOTIFICATION_TYPE } from './src/data/shopReminder';
 import { ErrorBoundary } from './src/ErrorBoundary';
 import { bootstrapSession } from './src/data/repo';
 
 const PROFILE_KEY = 'usual.profile.v1';
 const EVENTLOG_KEY = 'usual.eventlog.v1';
+
+// Foreground presentation for a delivered notification (native only).
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false }),
+  });
+}
+
+/** Routes a shop-day notification tap → open the Kitchen shop list, warm or cold. */
+function NotificationBridge() {
+  const { openShop } = useNavIntent();
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const isShop = (r: Notifications.NotificationResponse | null) =>
+      (r?.notification.request.content.data as { type?: string } | undefined)?.type === SHOP_NOTIFICATION_TYPE;
+    const sub = Notifications.addNotificationResponseReceivedListener((r) => { if (isShop(r)) openShop(); });
+    Notifications.getLastNotificationResponseAsync().then((r) => { if (isShop(r)) openShop(); }).catch(() => {});
+    return () => sub.remove();
+  }, [openShop]);
+  return null;
+}
 
 function Splash({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { c } = useTheme();
@@ -102,7 +127,12 @@ export default function App() {
           <EventStoreProvider>
             <KitchenProvider seedTokens={profile.pantry}>
               <MyMealsProvider>
-                <AppShell profile={profile} goal={goal} prefs={prefs} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+                <ShopDayProvider>
+                  <NavIntentProvider>
+                    <NotificationBridge />
+                    <AppShell profile={profile} goal={goal} prefs={prefs} onReset={handleReset} onUpdateProfile={handleUpdateProfile} />
+                  </NavIntentProvider>
+                </ShopDayProvider>
               </MyMealsProvider>
             </KitchenProvider>
           </EventStoreProvider>

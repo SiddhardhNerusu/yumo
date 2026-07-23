@@ -9,6 +9,7 @@ import { useTheme } from './theme';
 import { HAIRLINE_TOP } from './components/kit';
 import { haptics } from './haptics';
 import { useEntitlement } from './data/entitlement';
+import { useNavIntent } from './data/navIntent';
 import { Day } from './screens/Day';
 import { Kitchen } from './screens/Kitchen';
 import { Progress } from './screens/Progress';
@@ -64,8 +65,11 @@ export function AppShell({
 }) {
   const { c } = useTheme();
   const { isPremium } = useEntitlement();
+  const { shopNonce } = useNavIntent();
   const [tab, setTab] = useState<Tab>('today');
   const [showPaywall, setShowPaywall] = useState(false);
+  // a shop-day notification tap → jump to the Kitchen tab (Kitchen opens the sheet).
+  useEffect(() => { if (shopNonce > 0) setTab('kitchen'); }, [shopNonce]);
   // crossfade the screen on tab change so tabs dissolve rather than hard-cut
   const screenOp = useRef(new Animated.Value(1)).current;
   useEffect(() => { screenOp.setValue(0.4); Animated.timing(screenOp, { toValue: 1, duration: 180, useNativeDriver: true }).start(); }, [tab, screenOp]);

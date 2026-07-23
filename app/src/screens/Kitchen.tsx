@@ -7,9 +7,13 @@ import { useTheme } from '../theme';
 import { useNow } from '../useNow';
 import { useKitchen } from '../data/kitchenStore';
 import { useShoppingList } from '../data/shoppingList';
+import { useNavIntent } from '../data/navIntent';
 import { ZONES, ZONE_LABEL, inStock, type KitchenItem, type Zone } from '../data/kitchen-model';
 import { KitchenAddSheet } from '../components/kitchen/KitchenAddSheet';
 import { ReceiptSheet } from '../components/kitchen/ReceiptSheet';
+import { getMenu } from '../data/repo';
+import { buildWeeklyShop, weeklyShopCount } from '../data/weeklyShop';
+import type { ShopPick, ShopAisleGroup } from '../data/shopping';
 import { Serif, Sheet, withAlpha } from '../components/kit';
 import { track } from '../analytics';
 import { haptics } from '../haptics';
@@ -82,11 +86,16 @@ function ActionBar({ onUsed, onLow, onBin }: { onUsed: () => void; onLow: () => 
  * (or "keeps"); amount surfaces only as a Low badge.
  */
 export function Kitchen({ profile }: { profile: UserProfile }) {
-  void profile;
   const { c } = useTheme();
   const kitchen = useKitchen();
   const shopping = useShoppingList();
   const now = useNow();
+
+  // next week's menu picks → what to buy that isn't in stock (fetched once per mount).
+  const [menuPicks, setMenuPicks] = useState<ShopPick[]>([]);
+  useEffect(() => {
+    getMenu(profile).then((r) => setMenuPicks(r.plan.days.flatMap((d) => d.picks.map((p) => ({ recipe: p.recipe, portionScale: p.portionScale }))))).catch(() => {});
+  }, [profile]);
 
   const [filter, setFilter] = useState<Zone | null>(null);
   const [query, setQuery] = useState('');
@@ -96,8 +105,11 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
   const [showList, setShowList] = useState(false);
   const [snack, setSnack] = useState<{ text: string; actionLabel?: string; onAction?: () => void } | null>(null);
   const snackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { shopNonce } = useNavIntent();
 
   useEffect(() => { track('kitchen_opened', {}); }, []);
+  // opened via a shop-day notification tap → show the shopping list.
+  useEffect(() => { if (shopNonce > 0) setShowList(true); }, [shopNonce]);
   // persist the last unit filter across visits (§2).
   useEffect(() => { AsyncStorage.getItem(FILTER_KEY).then((v) => { if (v === 'fridge' || v === 'freezer' || v === 'cupboard') setFilter(v); }).catch(() => {}); }, []);
   const pickFilter = (z: Zone) => {
@@ -118,6 +130,12 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
 
   const stock = useMemo(() => kitchen.items.filter((i) => inStock(i.level)), [kitchen.items]);
   const fresh = useMemo(() => new Map(stock.map((i) => [i.id, freshnessInfo(i, now)])), [stock, now]);
+
+  // the weekly shop: what you flagged (Used up / Running low) ∪ what next week's
+  // menu needs that isn't in stock, merged + aisle-grouped.
+  const have = useMemo(() => kitchen.availableTokens(), [kitchen.items]); // eslint-disable-line react-hooks/exhaustive-deps
+  const shopGroups = useMemo(() => buildWeeklyShop(shopping.items, menuPicks, have), [shopping.items, menuPicks, have]);
+  const shopCount = weeklyShopCount(shopGroups);
 
   const zoneCount = (z: Zone) => stock.filter((i) => (i.zone === 'counter' ? 'cupboard' : i.zone) === z).length;
   const soonCount = (z: Zone) => (z === 'freezer' ? 0 : stock.filter((i) => (i.zone === 'counter' ? 'cupboard' : i.zone) === z && !fresh.get(i.id)!.keeps && fresh.get(i.id)!.days <= 3).length);
@@ -264,7 +282,7 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
           <Text style={[{ color: c('textMuted'), fontSize: 12 }, num]}>{stock.length} item{stock.length === 1 ? '' : 's'} · tap one for actions</Text>
           <Pressable onPress={() => setShowList(true)} accessibilityRole="button" hitSlop={8}>
-            <Text style={[{ color: c('accentSoft'), fontSize: 13, fontWeight: '600' }, num]}>Shopping list · {shopping.count} ›</Text>
+            <Text style={[{ color: c('accentSoft'), fontSize: 13, fontWeight: '600' }, num]}>Shopping list · {shopCount} ›</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -284,51 +302,61 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
         visible={receiptOpen}
         items={kitchen.items}
         onClose={() => setReceiptOpen(false)}
-        onConfirm={(entries) => {
+        onConfirm={(entries, src) => {
           kitchen.restock(entries);
-          track('receipt_scanned', { lines: entries.length, matched: entries.length });
+          track('receipt_scanned', { source: src, lines: entries.length, matched: entries.length });
           entries.forEach((e) => track('item_added', { source: 'receipt', zone: e.zone }));
           setReceiptOpen(false);
+          flash(`Added ${entries.length} to your kitchen`);
         }}
         onManual={() => { setReceiptOpen(false); setAddOpen(true); }}
       />
-      <ShoppingListSheet visible={showList} items={shopping.items} onClose={() => setShowList(false)} onRemove={shopping.remove} onBought={buyAll} />
+      <ShoppingListSheet visible={showList} groups={shopGroups} count={shopCount} onClose={() => setShowList(false)} onRemove={shopping.remove} onBought={buyAll} />
     </View>
   );
 }
 
 // ── shopping list sheet ──────────────────────────────────────────────────────
 
-function ShoppingListSheet({ visible, items, onClose, onRemove, onBought }: { visible: boolean; items: { token: string; label: string }[]; onClose: () => void; onRemove: (token: string) => void; onBought: (tokens: string[]) => void }) {
+function ShoppingListSheet({ visible, groups, count, onClose, onRemove, onBought }: { visible: boolean; groups: ShopAisleGroup[]; count: number; onClose: () => void; onRemove: (token: string) => void; onBought: (tokens: string[]) => void }) {
   const { c } = useTheme();
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const toggle = (t: string) => setChecked((s) => { const n = new Set(s); if (n.has(t)) n.delete(t); else n.add(t); return n; });
-  // only buy tokens still on the list — a checked row deleted via × must not be
-  // re-restocked (its token lingers in `checked`).
-  const buy = () => { const live = new Set(items.map((i) => i.token)); const tokens = [...checked].filter((t) => live.has(t)); if (tokens.length) onBought(tokens); setChecked(new Set()); onClose(); };
+  const liveTokens = useMemo(() => new Set(groups.flatMap((g) => g.items.map((i) => i.token))), [groups]);
+  // only buy tokens still on the list — a checked row removed via × must not be re-restocked.
+  const buy = () => { const tokens = [...checked].filter((t) => liveTokens.has(t)); if (tokens.length) onBought(tokens); setChecked(new Set()); onClose(); };
   return (
     <Sheet visible={visible} onClose={onClose}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
         <Serif size={24} weight="medium" color={c('textPrimary')}>Shopping list</Serif>
-        <Text style={{ color: c('textMuted'), fontSize: 13 }}>{items.length} item{items.length === 1 ? '' : 's'}</Text>
+        <Text style={[{ color: c('textMuted'), fontSize: 13 }, num]}>{count} item{count === 1 ? '' : 's'}</Text>
       </View>
-      {items.length === 0 ? (
-        <Text style={{ color: c('textMuted'), fontSize: 14, paddingVertical: 20, textAlign: 'center' }}>Nothing to buy yet. “Used up” and “Running low” add items here.</Text>
+      {count === 0 ? (
+        <Text style={{ color: c('textMuted'), fontSize: 14, paddingVertical: 20, textAlign: 'center', lineHeight: 20 }}>Nothing to buy yet. “Used up” and “Running low” add items here, and next week’s menu fills in the rest.</Text>
       ) : (
         <>
-          <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
-            {items.map((it) => {
-              const on = checked.has(it.token);
-              return (
-                <View key={it.token} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderTopWidth: 1, borderTopColor: c('divider') }}>
-                  <Pressable onPress={() => toggle(it.token)} accessibilityRole="checkbox" accessibilityState={{ checked: on }} hitSlop={6} style={{ width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: on ? c('accent') : c('borderStrong'), backgroundColor: on ? c('accent') : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    {on ? <Text style={{ color: c('accentText'), fontSize: 13, fontWeight: '800' }}>✓</Text> : null}
-                  </Pressable>
-                  <Text style={{ flex: 1, color: c('textPrimary'), fontSize: 15, textDecorationLine: on ? 'line-through' : 'none' }}>{it.label}</Text>
-                  <Pressable onPress={() => onRemove(it.token)} hitSlop={8}><Text style={{ color: c('textMuted'), fontSize: 18 }}>×</Text></Pressable>
-                </View>
-              );
-            })}
+          <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>
+            {groups.map((g) => (
+              <View key={g.aisle}>
+                <View style={{ paddingTop: 12, paddingBottom: 2 }}><Kick>{g.label}</Kick></View>
+                {g.items.map((it) => {
+                  const on = checked.has(it.token);
+                  const sub = it.qty || (it.meal ? `for ${it.meal.toLowerCase()}` : it.flagged ? 'you flagged this' : '');
+                  return (
+                    <View key={it.token} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, borderTopWidth: 1, borderTopColor: c('divider') }}>
+                      <Pressable onPress={() => toggle(it.token)} accessibilityRole="checkbox" accessibilityState={{ checked: on }} hitSlop={6} style={{ width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: on ? c('accent') : c('borderStrong'), backgroundColor: on ? c('accent') : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+                        {on ? <Text style={{ color: c('accentText'), fontSize: 13, fontWeight: '800' }}>✓</Text> : null}
+                      </Pressable>
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text numberOfLines={1} style={{ color: c('textPrimary'), fontSize: 15, textDecorationLine: on ? 'line-through' : 'none' }}>{it.label}</Text>
+                        {sub ? <Text style={[{ color: c('textMuted'), fontSize: 12, marginTop: 1 }, num]}>{sub}</Text> : null}
+                      </View>
+                      {it.flagged ? <Pressable onPress={() => onRemove(it.token)} hitSlop={8} accessibilityLabel={`Remove ${it.label}`}><Text style={{ color: c('textMuted'), fontSize: 18 }}>×</Text></Pressable> : null}
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
           </ScrollView>
           <Pressable onPress={buy} disabled={checked.size === 0} accessibilityRole="button" style={{ marginTop: 16, backgroundColor: c('accent'), borderRadius: 999, paddingVertical: 13, alignItems: 'center', opacity: checked.size === 0 ? 0.5 : 1 }}>
             <Text style={{ color: c('accentText'), fontSize: 14, fontWeight: '700' }}>Bought {checked.size || ''} — add to kitchen</Text>

@@ -23,6 +23,12 @@ export const AISLE_LABEL: Record<Aisle, string> = {
   world: 'World foods',
   spices: 'Spices & condiments',
 };
+/** Supermarket aisle a token belongs to (falls back to dry goods). Shared with
+ * the weekly-shop merge so flagged-only items land in the right aisle. */
+export function aisleFor(token: string): Aisle {
+  return (SHOP[token.toLowerCase()] ?? { aisle: 'dry' as Aisle }).aisle;
+}
+
 /** aisles whose items are bought by weight/count (vs. spices/world = buy a jar). */
 const QTY_AISLES = new Set<Aisle>(['produce', 'meat', 'dairy', 'dry', 'frozen']);
 const LIQUID = /\b(milk|stock|broth|cream(?!\s+cheese)|juice|passata|wine|kefir)\b/i; // "cream cheese" is a solid → g
@@ -36,8 +42,10 @@ export interface ShopLine {
   label: string;
   /** human quantity ("2 breasts · 400g" · "360g" · "" for buy-a-jar items). */
   qty: string;
-  /** first meal that needs it. */
+  /** first meal that needs it (empty for a self-flagged item). */
   meal: string;
+  /** true = you flagged this yourself (Used up / Running low), not menu-derived. */
+  flagged?: boolean;
 }
 export interface ShopAisleGroup {
   aisle: Aisle;
