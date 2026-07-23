@@ -37,7 +37,7 @@ export function ReceiptSheet({
   visible: boolean;
   items: KitchenItem[];
   onClose: () => void;
-  onConfirm: (entries: ReceiptEntry[], source: ReceiptSource) => void;
+  onConfirm: (entries: ReceiptEntry[], source: ReceiptSource, stats: { lines: number; matched: number }) => void;
   onManual: () => void;
 }) {
   const { c } = useTheme();
@@ -93,7 +93,9 @@ export function ReceiptSheet({
     const entries: ReceiptEntry[] = rows
       .filter((r) => !excluded.has(r.token))
       .map((r) => ({ token: r.token, label: r.label, zone: r.zone, ...(r.price != null ? { price: r.price } : {}) }));
-    if (entries.length) onConfirm(entries, source);
+    const matched = parsed?.matches.length ?? 0;
+    const lines = matched + (parsed?.unmatched.length ?? 0);
+    if (entries.length) onConfirm(entries, source, { lines, matched });
     close();
   };
 

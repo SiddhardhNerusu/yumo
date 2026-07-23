@@ -105,11 +105,13 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
   const [showList, setShowList] = useState(false);
   const [snack, setSnack] = useState<{ text: string; actionLabel?: string; onAction?: () => void } | null>(null);
   const snackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { shopNonce } = useNavIntent();
+  const { shopNonce, consumeShop } = useNavIntent();
 
   useEffect(() => { track('kitchen_opened', {}); }, []);
-  // opened via a shop-day notification tap → show the shopping list.
-  useEffect(() => { if (shopNonce > 0) setShowList(true); }, [shopNonce]);
+  // opened via a shop-day notification tap → show the list, then CONSUME the intent
+  // so a later manual return to the Kitchen tab (a remount) doesn't re-open it.
+  useEffect(() => { if (shopNonce > 0) { setShowList(true); consumeShop(); } }, [shopNonce, consumeShop]);
+  useEffect(() => { if (showList) track('weekly_shop_opened', {}); }, [showList]);
   // persist the last unit filter across visits (§2).
   useEffect(() => { AsyncStorage.getItem(FILTER_KEY).then((v) => { if (v === 'fridge' || v === 'freezer' || v === 'cupboard') setFilter(v); }).catch(() => {}); }, []);
   const pickFilter = (z: Zone) => {
@@ -193,6 +195,7 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
   const buyAll = (tokens: string[]) => {
     kitchen.restock(tokens.map((t) => ({ token: t })));
     shopping.removeMany(tokens); // one write — a per-token loop would clobber all but the last
+    track('weekly_shop_bought', { n: tokens.length });
     tokens.forEach(() => track('item_added', { source: 'shopping' }));
   };
 
@@ -302,9 +305,9 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
         visible={receiptOpen}
         items={kitchen.items}
         onClose={() => setReceiptOpen(false)}
-        onConfirm={(entries, src) => {
+        onConfirm={(entries, src, stats) => {
           kitchen.restock(entries);
-          track('receipt_scanned', { source: src, lines: entries.length, matched: entries.length });
+          track('receipt_scanned', { source: src, lines: stats.lines, matched: stats.matched, added: entries.length });
           entries.forEach((e) => track('item_added', { source: 'receipt', zone: e.zone }));
           setReceiptOpen(false);
           flash(`Added ${entries.length} to your kitchen`);
@@ -321,6 +324,7 @@ export function Kitchen({ profile }: { profile: UserProfile }) {
 function ShoppingListSheet({ visible, groups, count, onClose, onRemove, onBought }: { visible: boolean; groups: ShopAisleGroup[]; count: number; onClose: () => void; onRemove: (token: string) => void; onBought: (tokens: string[]) => void }) {
   const { c } = useTheme();
   const [checked, setChecked] = useState<Set<string>>(new Set());
+  useEffect(() => { if (!visible) setChecked(new Set()); }, [visible]); // clear ticks on any close path
   const toggle = (t: string) => setChecked((s) => { const n = new Set(s); if (n.has(t)) n.delete(t); else n.add(t); return n; });
   const liveTokens = useMemo(() => new Set(groups.flatMap((g) => g.items.map((i) => i.token))), [groups]);
   // only buy tokens still on the list — a checked row removed via × must not be re-restocked.

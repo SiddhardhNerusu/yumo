@@ -36,15 +36,30 @@ if (Platform.OS !== 'web') {
   });
 }
 
-/** Routes a shop-day notification tap → open the Kitchen shop list, warm or cold. */
+const SHOP_NOTIF_HANDLED_KEY = 'yumo.shopnotif.handled.v1';
+
+/** Routes a shop-day notification tap → open the Kitchen shop list, warm or cold.
+ * getLastNotificationResponseAsync PERSISTS the last response across launches, so
+ * a plain relaunch would otherwise re-open the sheet forever; we dedup on the
+ * notification's delivery date (unique per weekly delivery) so each tap fires once. */
 function NotificationBridge() {
   const { openShop } = useNavIntent();
   useEffect(() => {
     if (Platform.OS === 'web') return;
     const isShop = (r: Notifications.NotificationResponse | null) =>
       (r?.notification.request.content.data as { type?: string } | undefined)?.type === SHOP_NOTIFICATION_TYPE;
-    const sub = Notifications.addNotificationResponseReceivedListener((r) => { if (isShop(r)) openShop(); });
-    Notifications.getLastNotificationResponseAsync().then((r) => { if (isShop(r)) openShop(); }).catch(() => {});
+    const handle = async (r: Notifications.NotificationResponse | null, viaTap: boolean) => {
+      if (!isShop(r)) return;
+      const key = String(r!.notification.date);
+      if (!viaTap) {
+        const prev = await AsyncStorage.getItem(SHOP_NOTIF_HANDLED_KEY).catch(() => null);
+        if (prev === key) return; // this persisted response was already acted on
+      }
+      await AsyncStorage.setItem(SHOP_NOTIF_HANDLED_KEY, key).catch(() => {});
+      openShop();
+    };
+    const sub = Notifications.addNotificationResponseReceivedListener((r) => { void handle(r, true); });
+    Notifications.getLastNotificationResponseAsync().then((r) => handle(r, false)).catch(() => {});
     return () => sub.remove();
   }, [openShop]);
   return null;

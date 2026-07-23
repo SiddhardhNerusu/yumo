@@ -44,16 +44,18 @@ describe('buildWeeklyShop', () => {
     expect(all(groups).find((l) => l.token === 'butter')).toBeUndefined();
   });
 
-  it('groups by aisle in shopping order and alphabetizes within an aisle', () => {
-    const groups = buildWeeklyShop([flag('apple', 'Apple'), flag('avocado', 'Avocado')], [], new Set());
-    // both produce → same group, alphabetical
+  it('alphabetizes within an aisle', () => {
+    const groups = buildWeeklyShop([flag('avocado', 'Avocado'), flag('apple', 'Apple')], [], new Set());
     const produce = groups.find((g) => g.aisle === 'produce');
     expect(produce).toBeDefined();
     const labels = produce!.items.map((i) => i.label);
-    expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
-    // group order follows AISLE_ORDER (produce before dairy etc.)
-    const idx = groups.map((g) => g.aisle);
-    expect(idx).toEqual([...idx]); // stable, no throw
+    expect(labels).toEqual(['Apple', 'Avocado']); // sorted despite reverse input order
+  });
+
+  it('orders aisle GROUPS by AISLE_ORDER regardless of input order', () => {
+    // butter=dairy, apple=produce — flagged dairy-first, but produce precedes dairy.
+    const groups = buildWeeklyShop([flag('butter', 'Butter'), flag('apple', 'Apple')], [], new Set());
+    expect(groups.map((g) => g.aisle)).toEqual(['produce', 'dairy']);
   });
 
   it('weeklyShopCount totals every line', () => {

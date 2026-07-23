@@ -22,7 +22,6 @@ export interface ShopItem {
 
 export interface ShoppingList {
   items: ShopItem[];
-  count: number;
   has: (token: string) => boolean;
   add: (token: string, label: string) => void;
   remove: (token: string) => void;
@@ -74,5 +73,5 @@ export function useShoppingList(): ShoppingList {
   const clear = useCallback(() => { setItems([]); persist([]); }, []);
   const has = useCallback((token: string) => ref.current.some((i) => i.token === token.toLowerCase()), []);
 
-  return { items, count: items.length, has, add, remove, removeMany, clear };
+  return { items, has, add, remove, removeMany, clear };
 }

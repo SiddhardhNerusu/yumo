@@ -16,22 +16,29 @@ const CONTENT = {
   data: { type: SHOP_NOTIFICATION_TYPE },
 };
 
+/** Outcome of trying to schedule — lets the UI tell "reminder set" from "you
+ * declined notifications" from "not available here (web)". */
+export type ShopReminderResult =
+  | { status: 'scheduled'; id: string }
+  | { status: 'denied' }
+  | { status: 'unavailable' };
+
 /**
  * Schedule the weekly reminder for `weekday` (1 = Sunday … 7 = Saturday, expo's
- * convention) at 09:00. Returns the scheduled notification id, or null if we're on
- * web or the user declined notification permission.
+ * convention) at 09:00. Requests permission on demand.
  */
-export async function scheduleShopReminder(weekday: number): Promise<string | null> {
-  if (Platform.OS === 'web') return null;
+export async function scheduleShopReminder(weekday: number): Promise<ShopReminderResult> {
+  if (Platform.OS === 'web') return { status: 'unavailable' };
   const Notifications = await import('expo-notifications');
   const current = await Notifications.getPermissionsAsync();
   let granted = current.granted;
   if (!granted && current.canAskAgain) granted = (await Notifications.requestPermissionsAsync()).granted;
-  if (!granted) return null;
-  return Notifications.scheduleNotificationAsync({
+  if (!granted) return { status: 'denied' };
+  const id = await Notifications.scheduleNotificationAsync({
     content: CONTENT,
     trigger: { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday, hour: 9, minute: 0 },
   });
+  return { status: 'scheduled', id };
 }
 
 /** Cancel a previously scheduled reminder (no-op on web / bad id). */

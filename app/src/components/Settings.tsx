@@ -214,7 +214,7 @@ export function Settings({
   const { c } = useTheme();
   const { isPremium } = useEntitlement();
   const { unit, setUnit } = useWeightUnit();
-  const { weekday: shopWeekday, setShopDay } = useShopDay();
+  const { weekday: shopWeekday, denied: shopDenied, setShopDay } = useShopDay();
   const [showPaywall, setShowPaywall] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
@@ -426,12 +426,16 @@ export function Settings({
           </Card>
 
           {/* Weekly shop reminder */}
-          <Card kicker="Weekly shop" summary={shopWeekday != null ? DAY_NAME[shopWeekday] : 'Off'} summaryTone={shopWeekday != null ? 'accent' : 'muted'}>
+          <Card kicker="Weekly shop" summary={shopWeekday != null ? DAY_NAME[shopWeekday] : 'Off'} summaryTone={shopWeekday != null && !shopDenied ? 'accent' : 'muted'}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
               {SHOP_DAYS.map((d) => <PantryChip key={d.w} label={d.l} selected={shopWeekday === d.w} onPress={() => setShopDay(shopWeekday === d.w ? null : d.w)} />)}
             </View>
-            <Text style={{ color: c('textMuted'), fontSize: 11.5 }}>
-              {shopWeekday != null ? `We’ll nudge you ${DAY_NAME[shopWeekday]} morning with your shop list — what you flagged plus what next week’s menu needs.` : 'Pick a shop day and we’ll remind you that morning with your list.'}
+            <Text style={{ color: shopWeekday != null && shopDenied ? c('warning') : c('textMuted'), fontSize: 11.5 }}>
+              {shopWeekday == null
+                ? 'Pick a shop day and we’ll remind you that morning with your list.'
+                : shopDenied
+                  ? 'Turn on notifications for Yumo to get the reminder — your list is still here anytime.'
+                  : `We’ll nudge you ${DAY_NAME[shopWeekday]} morning with your shop list — what you flagged plus what next week’s menu needs.`}
             </Text>
           </Card>
 

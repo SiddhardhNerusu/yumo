@@ -10,14 +10,17 @@ import { createContext, useCallback, useContext, useState, type ReactNode } from
 interface NavIntentCtx {
   shopNonce: number;
   openShop: () => void;
+  /** clear the intent once acted on, so a later Kitchen remount doesn't re-open the sheet. */
+  consumeShop: () => void;
 }
 
-const Ctx = createContext<NavIntentCtx>({ shopNonce: 0, openShop: () => {} });
+const Ctx = createContext<NavIntentCtx>({ shopNonce: 0, openShop: () => {}, consumeShop: () => {} });
 
 export function NavIntentProvider({ children }: { children: ReactNode }) {
   const [shopNonce, setShopNonce] = useState(0);
   const openShop = useCallback(() => setShopNonce((n) => n + 1), []);
-  return <Ctx.Provider value={{ shopNonce, openShop }}>{children}</Ctx.Provider>;
+  const consumeShop = useCallback(() => setShopNonce(0), []);
+  return <Ctx.Provider value={{ shopNonce, openShop, consumeShop }}>{children}</Ctx.Provider>;
 }
 
 export function useNavIntent(): NavIntentCtx {
