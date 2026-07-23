@@ -11,4 +11,8 @@
  */
 declare const __DEV__: boolean | undefined;
 
-export const DEMO_DATA: boolean = typeof __DEV__ !== 'undefined' ? !!__DEV__ : false;
+// Held OFF so the preview behaves like a real account (honest empty slate) for
+// dogfooding onboarding + the real kitchen/receipt flow. Flip to
+// `typeof __DEV__ !== 'undefined' ? !!__DEV__ : false` to restore the populated
+// demo (seeded meals / example fridge / sample weight trend) for screenshots.
+export const DEMO_DATA: boolean = false;

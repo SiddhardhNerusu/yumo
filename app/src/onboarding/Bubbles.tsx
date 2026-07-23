@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, Text, Pressable, TextInput, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useTheme } from '../theme';
 import { RELATED } from '../data/food-graph';
 
@@ -19,21 +19,41 @@ export function Bubbles({
   selected,
   onToggle,
   max,
+  searchable,
+  allowFreeAdd,
+  placeholder = 'Search…',
 }: {
   options: string[];
   selected: string[];
   onToggle: (value: string) => void;
   max?: number;
+  /** show a search field that filters the pills. */
+  searchable?: boolean;
+  /** when searching, offer to add an unknown item the list doesn't have. */
+  allowFreeAdd?: boolean;
+  placeholder?: string;
 }) {
   const { c } = useTheme();
   const [revealed, setRevealed] = useState<string[]>([]); // related foods spawned by taps
+  const [query, setQuery] = useState('');
   const atCap = max != null && selected.length >= max;
 
   // Base options, then any spawned related foods (deduped, order preserved).
   const seen = new Set<string>();
-  const display: { label: string; suggested: boolean }[] = [];
-  for (const o of options) if (!seen.has(o)) { seen.add(o); display.push({ label: o, suggested: false }); }
-  for (const r of revealed) if (!seen.has(r)) { seen.add(r); display.push({ label: r, suggested: true }); }
+  const all: { label: string; suggested: boolean }[] = [];
+  for (const o of options) if (!seen.has(o)) { seen.add(o); all.push({ label: o, suggested: false }); }
+  for (const r of revealed) if (!seen.has(r)) { seen.add(r); all.push({ label: r, suggested: true }); }
+  const q = query.trim().toLowerCase();
+  const display = q ? all.filter((d) => d.label.toLowerCase().includes(q)) : all;
+  const canFreeAdd = allowFreeAdd && q.length >= 2 && !all.some((d) => d.label.toLowerCase() === q);
+
+  const freeAdd = () => {
+    const label = query.trim();
+    if (!label) return;
+    if (!revealed.includes(label)) setRevealed((prev) => [...prev, label]);
+    if (!selected.includes(label) && !atCap) onToggle(label);
+    setQuery('');
+  };
 
   const onTap = (label: string) => {
     const isSelected = selected.includes(label);
@@ -53,7 +73,18 @@ export function Bubbles({
   };
 
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+    <View style={{ gap: 12 }}>
+      {searchable ? (
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={placeholder}
+          placeholderTextColor={c('textMuted')}
+          autoCorrect={false}
+          style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, color: c('textPrimary'), fontSize: 14 }}
+        />
+      ) : null}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
       {display.map(({ label, suggested }) => {
         const isSelected = selected.includes(label);
         const disabled = atCap && !isSelected;
@@ -84,6 +115,18 @@ export function Bubbles({
           </Pressable>
         );
       })}
+      {canFreeAdd ? (
+        <Pressable
+          onPress={freeAdd}
+          style={{ borderWidth: 1, borderColor: c('accent'), borderStyle: 'dashed', borderRadius: 999, paddingVertical: 9, paddingHorizontal: 15 }}
+        >
+          <Text style={{ color: c('accentSoft'), fontSize: 14, fontWeight: '600' }}>＋ Add “{query.trim()}”</Text>
+        </Pressable>
+      ) : null}
+      {display.length === 0 && !canFreeAdd ? (
+        <Text style={{ color: c('textMuted'), fontSize: 13, paddingVertical: 6 }}>Nothing matches.</Text>
+      ) : null}
+      </View>
     </View>
   );
 }

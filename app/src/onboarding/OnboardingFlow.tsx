@@ -326,48 +326,48 @@ export function OnboardingFlow({ onDone }: { onDone: (profile: UserProfile, goal
       case 'needs':
         return (
           <Screen title="Can’t live without…" subtitle="Tap a food to see more like it. Pick up to 3." footer={footer}>
-            <BubbleCloud parents={FOOD_PARENTS} selected={s.needs} onToggle={(v) => toggle('needs', v)} max={3} />
+            <BubbleCloud key="cloud-needs" parents={FOOD_PARENTS} selected={s.needs} onToggle={(v) => toggle('needs', v)} max={3} />
           </Screen>
         );
 
       case 'likes':
         return (
           <Screen title="Foods you like" subtitle="Tap to explore — we’ll lean towards these." footer={footer}>
-            <BubbleCloud parents={FOOD_PARENTS} selected={s.likes} onToggle={(v) => toggle('likes', v)} max={12} />
+            <BubbleCloud key="cloud-likes" parents={FOOD_PARENTS} selected={s.likes} onToggle={(v) => toggle('likes', v)} max={12} />
           </Screen>
         );
 
       case 'hates':
         return (
           <Screen title="Never suggest…" subtitle="Tap to expand — we’ll keep these off your plate." footer={footer}>
-            <BubbleCloud parents={FOOD_PARENTS} selected={s.hates} onToggle={(v) => toggle('hates', v)} />
+            <BubbleCloud key="cloud-hates" parents={FOOD_PARENTS} selected={s.hates} onToggle={(v) => toggle('hates', v)} />
           </Screen>
         );
 
-      case 'allergies':
+      case 'allergies': {
+        const byLabel = new Map(ALLERGENS.map((a) => [ALLERGEN_LABELS[a], a]));
+        const toggleAllergen = (label: string) => {
+          const code = byLabel.get(label);
+          if (!code) return;
+          patch({ allergies: s.allergies.includes(code) ? s.allergies.filter((x) => x !== code) : [...s.allergies, code] });
+        };
         return (
           <Screen title="Any allergies?" subtitle="We never suggest these and flag them on anything composite — but always check labels: we help, we don’t guarantee." footer={footer}>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {ALLERGENS.map((a) => {
-                const sel = s.allergies.includes(a);
-                return (
-                  <View key={a}>
-                    <Choice
-                      label={ALLERGEN_LABELS[a]}
-                      selected={sel}
-                      onPress={() => patch({ allergies: sel ? s.allergies.filter((x) => x !== a) : [...s.allergies, a] })}
-                    />
-                  </View>
-                );
-              })}
-            </View>
+            <Bubbles
+              searchable
+              placeholder="Search allergies…"
+              options={ALLERGENS.map((a) => ALLERGEN_LABELS[a])}
+              selected={s.allergies.map((a) => ALLERGEN_LABELS[a])}
+              onToggle={toggleAllergen}
+            />
           </Screen>
         );
+      }
 
       case 'pantry':
         return (
           <Screen title="What’s usually in?" subtitle="We’ll lean on what you’ve already got. Change it any time (“I did a shop”)." footer={footer}>
-            <Bubbles options={PANTRY_STAPLES} selected={s.pantry} onToggle={(v) => toggle('pantry', v)} />
+            <Bubbles searchable allowFreeAdd placeholder="Search or add a staple…" options={PANTRY_STAPLES} selected={s.pantry} onToggle={(v) => toggle('pantry', v)} />
           </Screen>
         );
 

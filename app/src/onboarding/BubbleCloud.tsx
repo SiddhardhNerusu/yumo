@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, useWindowDimensions } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, Pressable, TextInput, useWindowDimensions } from 'react-native';
 import {
   forceSimulation,
   forceManyBody,
@@ -55,6 +55,16 @@ export function BubbleCloud({
   const frame = useRef(0);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [, setTick] = useState(0);
+  const [query, setQuery] = useState('');
+
+  // every food reachable from the cloud (parents + their related children), for search.
+  const vocab = useMemo(() => {
+    const set = new Set<string>(parents);
+    for (const p of parents) for (const ch of RELATED[p] ?? []) set.add(ch);
+    return [...set];
+  }, [parents]);
+  const q = query.trim().toLowerCase();
+  const results = q ? vocab.filter((v) => v.toLowerCase().includes(q)) : [];
 
   // Build parent bubbles + start the simulation once.
   useEffect(() => {
@@ -136,6 +146,34 @@ export function BubbleCloud({
   };
 
   return (
+    <View>
+      <TextInput
+        value={query}
+        onChangeText={setQuery}
+        placeholder="Search foods…"
+        placeholderTextColor={c('textMuted')}
+        autoCorrect={false}
+        style={{ backgroundColor: c('surface'), borderWidth: 1, borderColor: c('border'), borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, color: c('textPrimary'), fontSize: 14, marginBottom: 12 }}
+      />
+      {q ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, minHeight: 120 }}>
+          {results.length === 0 ? (
+            <Text style={{ color: c('textMuted'), fontSize: 13, paddingVertical: 6 }}>Nothing matches.</Text>
+          ) : results.map((label) => {
+            const sel = selected.includes(label);
+            const disabled = !sel && atMax;
+            return (
+              <Pressable
+                key={label}
+                onPress={() => trySelect(label)}
+                style={{ backgroundColor: sel ? c('accent') : c('surface'), borderWidth: 1, borderColor: sel ? c('accent') : c('border'), borderRadius: 999, paddingVertical: 9, paddingHorizontal: 15, opacity: disabled ? 0.4 : 1 }}
+              >
+                <Text style={{ color: sel ? c('accentText') : c('textSecondary'), fontSize: 14, fontWeight: '600' }}>{label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : (
     <View style={{ height: H, width: W, alignSelf: 'center' }}>
       {nodesRef.current.map((n) => {
         const sel = selected.includes(n.label);
@@ -173,6 +211,8 @@ export function BubbleCloud({
           </Pressable>
         );
       })}
+    </View>
+      )}
     </View>
   );
 }
