@@ -153,6 +153,9 @@ export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal
   // per-slot Shuffle cursor for the suggestion rows (§0 Shuffle rerolls one meal).
   const [offsets, setOffsets] = useState<Partial<Record<MealSlot, number>>>({});
   const shuffle = (slot: MealSlot) => { haptics.select(); setOffsets((o) => ({ ...o, [slot]: (o[slot] ?? 0) + 3 })); };
+  // a dismissed "Worth a try?" suggestion falls the slot back to the smart-suggestion rows.
+  const [dismissedUsual, setDismissedUsual] = useState<Set<MealSlot>>(new Set());
+  const dismissUsual = (slot: MealSlot) => { haptics.select(); setDismissedUsual((s) => new Set(s).add(slot)); };
   const userWeights = useMemo(() => learnedWeights(events, now), [events, now]);
 
   // Feed the REAL generated menu into the Brain so a real user's own foods can
@@ -670,7 +673,7 @@ export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal
             // ── today: logged reality first, then the ladder / plan ────────────
             const s = state.slots.find((x) => x.slot === slot)!;
             const open = s.items.length === 0 && !s.skipped;
-            const usual = open && s.isCurrent ? state.usual : null;
+            const usual = open && s.isCurrent && !dismissedUsual.has(slot) ? state.usual : null;
             // Shuffle only when there's more than the 3 shown rows to reroll among —
             // at ≤3 candidates the rows already surface everything (§0).
             const canShuffle = open && !usual && suggestableCount(suggestCtx(slot, cur, 0)) > 3;
@@ -771,16 +774,32 @@ export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal
                         </Text>
                       </View>
                       <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 3 }}>{confident ? 'One tap to log — I learned this one.' : 'Tap a portion if you had it.'}</Text>
-                      <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-                        <PortionChip label="bit less" kcal={kAt(chips.less)} onPress={() => logUsual(slot, chips.less)} />
-                        <PortionChip label="✓ the usual" kcal={kAt(chips.usual)} primary onPress={() => logUsual(slot, chips.usual)} />
-                        <PortionChip label="bit more" kcal={kAt(chips.more)} onPress={() => logUsual(slot, chips.more)} />
-                      </View>
-                      <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 16 }} />
-                      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
-                        <TextLink label="Something else →" onPress={() => setAddSlot({ slot, epochDay: todayEpoch })} />
-                        <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
-                      </View>
+                      {confident ? (
+                        <>
+                          {/* a learned usual has a real portion — bit less / more scale it */}
+                          <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+                            <PortionChip label="bit less" kcal={kAt(chips.less)} onPress={() => logUsual(slot, chips.less)} />
+                            <PortionChip label="✓ the usual" kcal={kAt(chips.usual)} primary onPress={() => logUsual(slot, chips.usual)} />
+                            <PortionChip label="bit more" kcal={kAt(chips.more)} onPress={() => logUsual(slot, chips.more)} />
+                          </View>
+                          <View style={{ height: 1, backgroundColor: c('divider'), marginTop: 16 }} />
+                          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 14 }}>
+                            <TextLink label="Something else →" onPress={() => setAddSlot({ slot, epochDay: todayEpoch })} />
+                            <TextLink label="Skip this meal" onPress={() => skipMeal(slot)} tone="neutral" />
+                          </View>
+                        </>
+                      ) : (
+                        // a menu suggestion has no learned portion — just log or dismiss
+                        // (Dismiss reveals the smart-suggestion rows below).
+                        <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+                          <Pressable onPress={() => logUsual(slot, chips.usual)} accessibilityRole="button" accessibilityLabel={`Log ${usual.name}`} style={({ pressed }) => ({ flex: 1.4, borderRadius: 16, paddingVertical: 13, alignItems: 'center', backgroundColor: c('accent'), opacity: pressed ? 0.7 : 1 })}>
+                            <Text style={{ color: c('accentText'), fontSize: 14, fontWeight: '700' }}>✓ Log it</Text>
+                          </Pressable>
+                          <Pressable onPress={() => dismissUsual(slot)} accessibilityRole="button" accessibilityLabel="Dismiss suggestion" style={({ pressed }) => ({ flex: 1, borderRadius: 16, paddingVertical: 13, alignItems: 'center', backgroundColor: c('surfaceSunken'), borderWidth: 1, borderColor: HAIRLINE, opacity: pressed ? 0.7 : 1 })}>
+                            <Text style={{ color: c('textSecondary'), fontSize: 14, fontWeight: '600' }}>Dismiss</Text>
+                          </Pressable>
+                        </View>
+                      )}
                     </View>
                   );
                 })() : null}
