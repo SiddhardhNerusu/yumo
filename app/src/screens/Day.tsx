@@ -759,7 +759,7 @@ export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal
                   const usualHasRecipe = recipeFor(usual.foodId, usual.name) != null;
                   return (
                     <View style={{ marginTop: 10 }}>
-                      <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6 }}>{confident ? 'The usual?' : 'From your menu'}</Text>
+                      <Text style={{ color: c('accentSoft'), fontSize: 11, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6 }}>{confident ? 'The usual?' : 'Worth a try?'}</Text>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
                         <Pressable disabled={!usualHasRecipe} onPress={() => openRecipeByRef(usual.foodId, usual.name, usual.kcal)} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'baseline', opacity: pressed ? 0.6 : 1 })}>
                           <Serif size={23} weight="medium" color={c('textPrimary')} style={{ flexShrink: 1, lineHeight: 26 }}>{usual.name}</Serif>
@@ -770,7 +770,7 @@ export function Day({ profile, goal, prefs }: { profile: UserProfile; goal: Goal
                           <Text style={{ color: c('textMuted'), fontSize: 12 }}> kcal</Text>
                         </Text>
                       </View>
-                      <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 3 }}>{confident ? 'One tap to log — I learned this one.' : 'Did you have your planned meal?'}</Text>
+                      <Text style={{ color: c('textMuted'), fontSize: 13, marginTop: 3 }}>{confident ? 'One tap to log — I learned this one.' : 'Tap a portion if you had it.'}</Text>
                       <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
                         <PortionChip label="bit less" kcal={kAt(chips.less)} onPress={() => logUsual(slot, chips.less)} />
                         <PortionChip label="✓ the usual" kcal={kAt(chips.usual)} primary onPress={() => logUsual(slot, chips.usual)} />

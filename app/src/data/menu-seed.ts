@@ -79,6 +79,9 @@ export const POOL: MenuSeedRecipe[] = [
   ...GENERATED_POOL.filter((g) => !SEED_POOL.some((s) => s.id === g.id)),
 ];
 
+/** id → recipe, so a menu-predicted dish resolves to its real name/kcal (not the raw id). */
+export const POOL_BY_ID: Map<string, MenuSeedRecipe> = new Map(POOL.map((x) => [x.id, x]));
+
 export const POOL_STEPS: Map<string, string[]> = new Map(POOL.map((x) => [x.id, x.steps]));
 
 /** id → structured ingredient quantities (the generated catalogue carries these). */
