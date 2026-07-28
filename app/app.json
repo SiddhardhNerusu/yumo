@@ -48,7 +48,8 @@
         {
           "photosPermission": "Yumo lets you attach progress photos to your weigh-ins and pick a receipt photo to scan. Photos stay on your device."
         }
-      ]
+      ],
+      "expo-status-bar"
     ]
   }
 }
