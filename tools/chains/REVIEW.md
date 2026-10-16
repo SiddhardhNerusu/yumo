@@ -1,0 +1,176 @@
+# Chain catalogue — review list (auto-generated)
+
+2852 items · Nando's 107, Greggs 266, Pret A Manger 219, McDonald's 180, Starbucks 1142, Costa Coffee 938
+
+Rows that look wrong or need a human name. Fix in tools/curation.csv (source_id = id).
+
+- `greggs:americano-decaf-regular` Americano Decaf Regular · 11.0 kcal — atwater mismatch
+- `greggs:americano-regular` Americano Regular · 11.0 kcal — atwater mismatch
+- `greggs:extra-hot-chocolate-powder` Extra Hot Chocolate Powder · 4.0 kcal — atwater mismatch
+- `greggs:fairtrade-orange-juice-from-concentrate-250ml` Fairtrade Orange Juice from Concentrate 250ml · 68.0 kcal — digits in name
+- `greggs:fairtrade-orange-juice-from-concentrate-500ml` Fairtrade Orange Juice from Concentrate 500ml · 68.0 kcal — digits in name
+- `greggs:greggs-natural-mineral-water-500ml` Greggs Natural Mineral Water 500ml · 0.0 kcal — digits in name
+- `greggs:greggs-natural-mineral-water-750ml` Greggs Natural Mineral Water 750ml · 0.0 kcal — digits in name
+- `greggs:sparkling-raspberry-lemonade` Sparkling Raspberry Lemonade · 15.0 kcal — atwater mismatch
+- `greggs:white-tea-large` White Tea Large · 12.0 kcal — atwater mismatch
+- `greggs:white-tea-regular` White Tea Regular · 10.0 kcal — atwater mismatch
+- `pret:UK020347` Pret Still Water 500ml · 0.0 kcal — digits in name
+- `pret:UK020348` Pret Still Water 750ml · 0.0 kcal — digits in name
+- `pret:UK020350` Pret Sparkling Water 500ml · 0.0 kcal — digits in name
+- `pret:UK020924` poppi Raspberry Rose · 27.0 kcal — atwater mismatch
+- `mcdonalds:200082` Sprite Zero · 4.0 kcal — atwater mismatch
+- `mcdonalds:200106` Coca-Cola Zero Sugar · 1.0 kcal — atwater mismatch
+- `mcdonalds:200107` Coca-Cola Zero Sugar Large · 2.0 kcal — atwater mismatch
+- `mcdonalds:200108` Diet Coke · 1.0 kcal — atwater mismatch
+- `mcdonalds:200109` Diet Coke Large · 2.0 kcal — atwater mismatch
+- `mcdonalds:200115` Sprite Zero Large · 5.0 kcal — atwater mismatch
+- `mcdonalds:200240` Diet Coke Small · 1.0 kcal — atwater mismatch
+- `mcdonalds:200241` Coca-Cola Zero Sugar Small · 1.0 kcal — atwater mismatch
+- `mcdonalds:200243` Sprite Zero Small · 3.0 kcal — atwater mismatch
+- `mcdonalds:200483` Fanta Orange Zero - Large · 5.0 kcal — atwater mismatch
+- `mcdonalds:200556` Fanta Orange Zero - Regular · 4.0 kcal — atwater mismatch
+- `mcdonalds:200481` Fanta Orange Zero - Small · 3.0 kcal — atwater mismatch
+- `mcdonalds:200555` Oasis Zero Summer Fruits - Large · 15.0 kcal — atwater mismatch
+- `mcdonalds:200554` Oasis Zero Summer Fruits - Regular · 12.0 kcal — atwater mismatch
+- `mcdonalds:200486` Oasis Zero Summer Fruits - Small · 7.0 kcal — atwater mismatch
+- `mcdonalds:200616` Semi Skimmed Milk – 250ml · 122.0 kcal — digits in name
+- `mcdonalds:200668` Green Apple X Sprite · 6.0 kcal — atwater mismatch
+- `mcdonalds:200810` Red Bull Energy Drink - 250ml · 121.0 kcal — digits in name
+- `mcdonalds:200846` Guava x Sprite Zero · 6.0 kcal — atwater mismatch
+- `starbucks:carbohydrates-g-of-which-sugars-g-fibre-g-protein-g-salt-g-allergens-version-05-10-26-luxury-fruit-toast` Carbohydrates (g) Of which sugars (g) Fibre (g) Protein (g) Salt (g) Allergens Version: 05/10/26 Luxury Fruit Toast · 491.0 kcal — long
+- `starbucks:of-which-sugars-g-fibre-g-protein-g-salt-g-allergens-version-05-10-26-belgian-chocolate-chunk-cookie` Of which sugars (g) Fibre (g) Protein (g) Salt (g) Allergens Version: 05/10/26 Belgian Chocolate Chunk Cookie · 323.0 kcal — long
+- `starbucks:propercorn-sea-salt-popcorn` Propercorn Sea Salt Popcorn · 88.0 kcal — atwater mismatch
+- `starbucks:carbohydrates-g-of-which-sugars-g-fibre-g-protein-g-salt-g-allergens-version-05-10-26-snacking-cheese` Carbohydrates (g) Of which sugars (g) Fibre (g) Protein (g) Salt (g) Allergens Version: 05/10/26 Snacking Cheese · 134.0 kcal — long
+- `starbucks:karma-sugar-free-cola-at-selected-stores` Karma Sugar-Free Cola (at selected stores) · 12.5 kcal — atwater mismatch
+- `starbucks:iced-pumpkin-spice-latte-semi-skimmed-milk-ice-semi-skimmed-venti` Iced Pumpkin Spice Latte - semi- skimmed milk Ice, semi-skimmed (Venti) · 215.0 kcal — long
+- `starbucks:espresso-macchiato-skimmed-milk-espresso-roast-as-consumed-single` Espresso Macchiato - skimmed milk Espresso roast (as consumed) (Single) · 6.0 kcal — long
+- `starbucks:espresso-macchiato-skimmed-milk-espresso-roast-as-consumed-double` Espresso Macchiato - skimmed milk Espresso roast (as consumed) (Double) · 13.0 kcal — long
+- `starbucks:espresso-macchiato-semi-skimmed-milk-espresso-roast-as-consumed-single` Espresso Macchiato - semi-skimmed milk Espresso roast (as consumed) (Single) · 6.0 kcal — long
+- `starbucks:espresso-macchiato-semi-skimmed-milk-espresso-roast-as-consumed-double` Espresso Macchiato - semi-skimmed milk Espresso roast (as consumed) (Double) · 15.0 kcal — long
+- `starbucks:espresso-macchiato-almond-drink-espresso-roast-as-consumed-single` Espresso Macchiato - almond drink Espresso roast (as consumed) (Single) · 5.0 kcal — long
+- `starbucks:espresso-macchiato-almond-drink-espresso-roast-as-consumed-double` Espresso Macchiato - almond drink Espresso roast (as consumed) (Double) · 11.0 kcal — long
+- `starbucks:espresso-macchiato-coconut-drink-espresso-roast-as-consumed-single` Espresso Macchiato - coconut drink Espresso roast (as consumed) (Single) · 6.0 kcal — long
+- `starbucks:espresso-macchiato-coconut-drink-espresso-roast-as-consumed-double` Espresso Macchiato - coconut drink Espresso roast (as consumed) (Double) · 14.0 kcal — long
+- `starbucks:espresso-macchiato-coconut-drink-espresso-roast-as-consumed-short` Espresso Macchiato - coconut drink Espresso roast (as consumed) (Short) · 46.0 kcal — long
+- `starbucks:classic-shaken-iced-black-tea-lemonade-ice-black-tea-concentrate-tall` Classic Shaken Iced Black Tea Lemonade Ice, Black Tea Concentrate (Tall) · 32.0 kcal — long
+- `starbucks:classic-shaken-iced-black-tea-lemonade-ice-black-tea-concentrate-grande` Classic Shaken Iced Black Tea Lemonade Ice, Black Tea Concentrate (Grande) · 43.0 kcal — long
+- `starbucks:classic-shaken-iced-black-tea-lemonade-ice-black-tea-concentrate-venti` Classic Shaken Iced Black Tea Lemonade Ice, Black Tea Concentrate (Venti) · 43.0 kcal — long
+- `starbucks:classic-shaken-iced-green-tea-lemonade-ice-green-tea-concentrate-tall` Classic Shaken Iced Green Tea Lemonade Ice, Green Tea Concentrate (Tall) · 32.0 kcal — long
+- `starbucks:classic-shaken-iced-green-tea-lemonade-ice-green-tea-concentrate-grande` Classic Shaken Iced Green Tea Lemonade Ice, Green Tea Concentrate (Grande) · 43.0 kcal — long
+- `starbucks:classic-shaken-iced-green-tea-lemonade-ice-green-tea-concentrate-venti` Classic Shaken Iced Green Tea Lemonade Ice, Green Tea Concentrate (Venti) · 43.0 kcal — long
+- `starbucks:classic-shaken-hibiscus-tea-lemonade-ice-hibiscus-tea-concentrate-tall` Classic Shaken Hibiscus Tea Lemonade Ice, Hibiscus tea concentrate (Tall) · 32.0 kcal — long
+- `starbucks:classic-shaken-hibiscus-tea-lemonade-ice-hibiscus-tea-concentrate-grande` Classic Shaken Hibiscus Tea Lemonade Ice, Hibiscus tea concentrate (Grande) · 43.0 kcal — long
+- `starbucks:classic-shaken-hibiscus-tea-lemonade-ice-hibiscus-tea-concentrate-venti` Classic Shaken Hibiscus Tea Lemonade Ice, Hibiscus tea concentrate (Venti) · 43.0 kcal — long
+- `starbucks:cool-lime-starbucks-refresha-drink-ice-cool-lime-refresha-base-tall` Cool Lime Starbucks Refresha® Drink Ice, cool lime refresha base (Tall) · 53.0 kcal — long
+- `starbucks:cool-lime-starbucks-refresha-drink-ice-cool-lime-refresha-base-grande` Cool Lime Starbucks Refresha® Drink Ice, cool lime refresha base (Grande) · 69.0 kcal — long
+- `starbucks:cool-lime-starbucks-refresha-drink-ice-cool-lime-refresha-base-venti` Cool Lime Starbucks Refresha® Drink Ice, cool lime refresha base (Venti) · 86.0 kcal — long
+- `starbucks:starbucks-doubleshot-iced-coffee-ice-espresso-roast-as-consumed-tall` Starbucks Doubleshot™ Iced Coffee Ice, espresso roast (as consumed) (Tall) · 104.0 kcal — long
+- `starbucks:starbucks-doubleshot-iced-coffee-ice-espresso-roast-as-consumed-venti` Starbucks Doubleshot™ Iced Coffee Ice, espresso roast (as consumed) (Venti) · 165.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-semi-skimmed-milk-ice-tall` Iced Carmaelised Macadamia Oat Shaken Espresso - semi-skimmed milk Ice, (Tall) · 86.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-semi-skimmed-milk-ice-venti` Iced Carmaelised Macadamia Oat Shaken Espresso - semi-skimmed milk Ice, (Venti) · 139.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-whole-milk-ice-tall` Iced Carmaelised Macadamia Oat Shaken Espresso - whole milk Ice, (Tall) · 105.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-whole-milk-ice-venti` Iced Carmaelised Macadamia Oat Shaken Espresso - whole milk Ice, (Venti) · 165.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-almond-drink-ice-tall` Iced Carmaelised Macadamia Oat Shaken Espresso - almond drink Ice, (Tall) · 60.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-almond-drink-ice-venti` Iced Carmaelised Macadamia Oat Shaken Espresso - almond drink Ice, (Venti) · 102.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-soya-drink-ice-tall` Iced Carmaelised Macadamia Oat Shaken Espresso - soya drink Ice, (Tall) · 80.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-soya-drink-ice-venti` Iced Carmaelised Macadamia Oat Shaken Espresso - soya drink Ice, (Venti) · 130.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-oat-drink-ice-venti` Iced Carmaelised Macadamia Oat Shaken Espresso - oat drink Ice, (Venti) · 157.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-coconut-drink-ice-tall` Iced Carmaelised Macadamia Oat Shaken Espresso - coconut drink Ice, (Tall) · 82.0 kcal — long
+- `starbucks:iced-carmaelised-macadamia-oat-shaken-espresso-coconut-drink-ice-venti` Iced Carmaelised Macadamia Oat Shaken Espresso - coconut drink Ice, (Venti) · 133.0 kcal — long
+- `starbucks:double-chocolatey-chip-cream-frappuccino-semi-skimmed-milk-ice-tall` Double Chocolatey Chip Cream Frappuccino® - semi-skimmed milk Ice, (Tall) · 280.0 kcal — long
+- `starbucks:double-chocolatey-chip-cream-frappuccino-semi-skimmed-milk-ice-grande` Double Chocolatey Chip Cream Frappuccino® - semi-skimmed milk Ice, (Grande) · 379.0 kcal — long
+- `starbucks:double-chocolatey-chip-cream-frappuccino-semi-skimmed-milk-ice-venti` Double Chocolatey Chip Cream Frappuccino® - semi-skimmed milk Ice, (Venti) · 424.0 kcal — long
+- `starbucks:double-chocolatey-chip-cream-frappuccino-coconut-drink-ice-grande` Double Chocolatey Chip Cream Frappuccino® - coconut drink ice, (Grande) · 357.0 kcal — long
+- `starbucks:hazenlut-sugar-free-flavour-protein-cold-foam-hazelnut-sugar-free-tall` Hazenlut Sugar Free flavour Protein Cold Foam Hazelnut sugar free (Tall) · 89.0 kcal — long
+- `starbucks:hazenlut-sugar-free-flavour-protein-cold-foam-hazelnut-sugar-free-venti` Hazenlut Sugar Free flavour Protein Cold Foam Hazelnut sugar free (Venti) · 89.0 kcal — long
+- `starbucks:mocha-bianco-mocha-bianco-milk-venti` Mocha Bianco Mocha Bianco Milk (Venti) · 30.0 kcal — atwater mismatch
+- `starbucks:pour-over-whole-bean-green-coffee-short` Pour Over Whole bean green coffee (Short) · 14.0 kcal — atwater mismatch
+- `starbucks:pour-over-whole-bean-green-coffee-tall` Pour Over Whole bean green coffee (Tall) · 21.0 kcal — atwater mismatch
+- `starbucks:pour-over-whole-bean-green-coffee-grande` Pour Over Whole bean green coffee (Grande) · 28.0 kcal — atwater mismatch
+- `starbucks:espresso-macchiato-skimmed-milk-microblend-espresso-as-consumed-single` Espresso Macchiato - skimmed milk Microblend espresso (as consumed) (Single) · 9.0 kcal — long
+- `starbucks:espresso-macchiato-skimmed-milk-microblend-espresso-as-consumed-double` Espresso Macchiato - skimmed milk Microblend espresso (as consumed) (Double) · 10.0 kcal — long
+- `starbucks:espresso-macchiato-semi-skimmed-milk-microblend-espresso-as-consumed-single` Espresso Macchiato - semi-skimmed milk Microblend espresso (as consumed) (Single) · 10.0 kcal — long
+- `starbucks:espresso-macchiato-semi-skimmed-milk-microblend-espresso-as-consumed-double` Espresso Macchiato - semi-skimmed milk Microblend espresso (as consumed) (Double) · 10.0 kcal — long
+- `starbucks:espresso-macchiato-whole-milk-microblend-espresso-as-consumed-single` Espresso Macchiato - whole milk Microblend espresso (as consumed) (Single) · 12.0 kcal — long
+- `starbucks:espresso-macchiato-whole-milk-microblend-espresso-as-consumed-double` Espresso Macchiato - whole milk Microblend espresso (as consumed) (Double) · 11.0 kcal — long
+- `starbucks:espresso-macchiato-almond-drink-microblend-espresso-as-consumed-single` Espresso Macchiato - almond drink Microblend espresso (as consumed) (Single) · 7.0 kcal — long
+- `starbucks:espresso-macchiato-almond-drink-microblend-espresso-as-consumed-double` Espresso Macchiato - almond drink Microblend espresso (as consumed) (Double) · 9.0 kcal — long
+- `starbucks:espresso-macchiato-soya-drink-microblend-espresso-as-consumed-single` Espresso Macchiato - soya drink Microblend espresso (as consumed) (Single) · 10.0 kcal — long
+- `starbucks:espresso-macchiato-soya-drink-microblend-espresso-as-consumed-double` Espresso Macchiato - soya drink Microblend espresso (as consumed) (Double) · 10.0 kcal — long
+- `starbucks:espresso-macchiato-oat-drink-microblend-espresso-as-consumed-single` Espresso Macchiato - oat drink Microblend espresso (as consumed) (Single) · 12.0 kcal — long
+- `starbucks:espresso-macchiato-oat-drink-microblend-espresso-as-consumed-double` Espresso Macchiato - oat drink Microblend espresso (as consumed) (Double) · 11.0 kcal — long
+- `starbucks:espresso-macchiato-coconut-drink-microblend-espresso-as-consumed-single` Espresso Macchiato - coconut drink Microblend espresso (as consumed) (Single) · 10.0 kcal — long
+- `starbucks:espresso-macchiato-coconut-drink-microblend-espresso-as-consumed-double` Espresso Macchiato - coconut drink Microblend espresso (as consumed) (Double) · 10.0 kcal — long
+- `starbucks:flat-white-skimmed-milk-semi-skimmed-microblend-espresso-as-consumed-short` Flat White - skimmed milk Semi-skimmed microblend espresso (as consumed) (Short) · 63.0 kcal — long
+- `starbucks:flat-white-semi-skimmed-milk-skimmed-microblend-espresso-as-consumed-short` Flat White - semi-skimmed milk Skimmed microblend espresso (as consumed) (Short) · 81.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-portion-gingernut-loaf-cake` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Portion Gingernut Loaf Cake · 409.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-portion-chicken-salad-sandwich` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Portion Chicken Salad Sandwich · 386.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-portion-seeded-brown-bread-toast-without-butter` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Portion Seeded Brown Bread Toast (Without Butter) · 272.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-portion-pain-au-chocolat` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Portion Pain Au Chocolat · 299.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-espresso-macchiato-coconut-drink-double` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Espresso Macchiato · Coconut Drink · Double · 18.0 kcal — long, header leak
+- `costa:espresso-macchiato-ristretto-single` Espresso Macchiato Ristretto · Single · 6.0 kcal — atwater mismatch
+- `costa:espresso-macchiato-whole-milk-single` Espresso Macchiato · Whole Milk · Single · 12.0 kcal — atwater mismatch
+- `costa:espresso-con-panna-mocha-italia-espresso-single` Espresso Con Panna Mocha Italia Espresso · Single · 6.0 kcal — atwater mismatch
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-americano-cortado-skimmed-milk-in-store` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Americano Cortado · Skimmed Milk · In Store · 33.0 kcal — long, header leak
+- `costa:espresso-macchiato-oat-drink-single` Espresso Macchiato · Oat Drink · Single · 12.0 kcal — atwater mismatch
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-latte-skimmed-milk-large-take-away` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Latte · Skimmed Milk · Large · Take Away · 128.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-signature-latte-semi-skimmed-milk-medium` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Signature Latte · Semi-Skimmed Milk · Medium · 150.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-cappuccino-semi-skimmed-milk-small-take-away` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Cappuccino · Semi-Skimmed Milk · Small · Take Away · 104.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-mocha-semi-skimmed-milk-small-in-store` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Mocha · Semi-Skimmed Milk · Small · In Store · 190.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-mocha-coconut-drink-small-in-store` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Mocha · Coconut Drink · Small · In Store · 166.0 kcal — long, header leak
+- `costa:berry-infusion` Berry Infusion · 2.0 kcal — atwater mismatch
+- `costa:decaf-tea` Decaf Tea · 2.0 kcal — atwater mismatch
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-hot-chocolate-oat-drink-medium` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Hot Chocolate · Oat Drink · Medium · 286.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-chai-latte-oat-drink-small-in-store` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Chai Latte · Oat Drink · Small · In Store · 161.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-iced-cappuccino-whole-milk-small-in-store` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Iced Cappuccino · Whole Milk · Small · In Store · 56.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-iced-latte-skimmed-milk-large-take-away` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Iced Latte · Skimmed Milk · Large · Take Away · 114.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-iced-mocha-skimmed-milk-medium` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Iced Mocha · Skimmed Milk · Medium · 185.0 kcal — long, header leak
+- `costa:white-chocolate-iced-whipped-latte-semi-skimmed-milk-small-in-store` White Chocolate Iced Whipped Latte · Semi-Skimmed Milk · Small · In Store · 137.0 kcal — long
+- `costa:white-chocolate-iced-whipped-latte-semi-skimmed-milk-medium-in-store` White Chocolate Iced Whipped Latte · Semi-Skimmed Milk · Medium · In Store · 194.0 kcal — long
+- `costa:white-chocolate-iced-whipped-latte-semi-skimmed-milk-medium-take-away` White Chocolate Iced Whipped Latte · Semi-Skimmed Milk · Medium · Take Away · 199.0 kcal — long
+- `costa:white-chocolate-iced-whipped-latte-semi-skimmed-milk-small-take-away` White Chocolate Iced Whipped Latte · Semi-Skimmed Milk · Small · Take Away · 147.0 kcal — long
+- `costa:white-chocolate-iced-whipped-latte-coconut-drink-medium-take-away` White Chocolate Iced Whipped Latte · Coconut Drink · Medium · Take Away · 186.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-iced-chai-latte-oat-drink-small-take-away` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Iced Chai Latte · Oat Drink · Small · Take Away · 142.0 kcal — long, header leak
+- `costa:peach-iced-tea-red-berries-fruit-cooler-no-added-sugar-peach-iced-tea-small-take-away` Peach Iced Tea Red Berries Fruit Cooler (No Added Sugar)**** Peach Iced Tea · Small · Take Away · 80.0 kcal — long
+- `costa:contains-naturally-ocurring-sugars-iced-chai-latte-oat-drink-large-take-away` **** Contains Naturally Ocurring Sugars Iced Chai Latte · Oat Drink · Large · Take Away · 242.0 kcal — long
+- `costa:chocolate-fudge-frapp-with-coffee-semi-skimmed-milk-small-take-away` Chocolate Fudge Frappé With Coffee · Semi-Skimmed Milk · Small · Take Away · 281.0 kcal — long
+- `costa:chocolate-fudge-frapp-with-coffee-semi-skimmed-milk-small-in-store` Chocolate Fudge Frappé With Coffee · Semi-Skimmed Milk · Small · In Store · 275.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-chocolate-fudge-frapp-whole-milk-medium` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Chocolate Fudge Frappé · Whole Milk · Medium · 411.0 kcal — long, header leak
+- `costa:tropical-mango-bubble-frapp-chocolate-fudge-frapp-whole-milk-small-take-away` Tropical Mango Bubble Frappé Chocolate Fudge Frappé · Whole Milk · Small · Take Away · 303.0 kcal — long
+- `costa:strawberry-drizzle-frapp-salted-caramel-frapp-soya-drink-small-take-away` Strawberry Drizzle Frappé Salted Caramel Frappé · Soya Drink · Small · Take Away · 223.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-matcha-latte-soya-drink-small-take-away` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Matcha Latte · Soya Drink · Small · Take Away · 101.0 kcal — long, header leak
+- `costa:strawberry-matcha-iced-latte-iced-matcha-latte-coconut-drink-medium-in-store` Strawberry Matcha Iced Latte Iced Matcha Latte · Coconut Drink · Medium · In Store · 83.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-maple-hazel-latte-oat-drink-small-takeaway` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Maple Hazel Latte · Oat Drink · Small · Takeaway · 270.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-maple-hazel-iced-latte-oat-drink-small-eat-in` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Maple Hazel Iced Latte · Oat Drink · Small · Eat In · 238.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-caramel-macchiato-coconut-drink-small-eat-in` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Caramel Macchiato · Coconut Drink · Small · Eat In · 76.0 kcal — long, header leak
+- `costa:sweet-ube-iced-matcha-sweet-ube-iced-whipped-latte-coconut-drink-small-eat-in` Sweet Ube Iced Matcha Sweet Ube Iced Whipped Latte · Coconut Drink · Small · Eat In · 98.0 kcal — long
+- `costa:hazelnut-creme-iced-whipped-latte-semi-skimmed-milk-small-takeaway` Hazelnut Creme Iced Whipped Latte · Semi-Skimmed Milk · Small · Takeaway · 192.0 kcal — long
+- `costa:cherry-vanilla-iced-whipped-latte-semi-skimmed-milk-small-takeaway` Cherry Vanilla Iced Whipped Latte · Semi-Skimmed Milk · Small · Takeaway · 147.0 kcal — long
+- `costa:cherry-vanilla-iced-whipped-latte-semi-skimmed-milk-medium-takeaway` Cherry Vanilla Iced Whipped Latte · Semi-Skimmed Milk · Medium · Takeaway · 186.0 kcal — long
+- `costa:cherry-vanilla-iced-whipped-latte-semi-skimmed-milk-medium-eat-in` Cherry Vanilla Iced Whipped Latte · Semi-Skimmed Milk · Medium · Eat In · 171.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-apple-kiwi-refresher-small` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Apple & Kiwi Refresher · Small · 60.0 kcal — long, header leak
+- `costa:apple-kiwi-refresher-hazelnut-creme-frappe-soya-drink-small-takeaway` Apple & Kiwi Refresher Hazelnut Creme Frappe · Soya Drink · Small · Takeaway · 264.0 kcal — long
+- `costa:dragon-fruit-guava-refresher-hazelnut-creme-frappe-coconut-drink-medium` Dragon Fruit & Guava Refresher Hazelnut Creme Frappe · Coconut Drink · Medium · 317.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-jasmine-and-hibiscus-iced-tea-small-eat-in` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Jasmine And Hibiscus Iced Tea · Small · Eat In · 78.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-sweet-ube-frappe-soya-drink-small-in-store` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Sweet Ube Frappe · Soya Drink · Small · In Store · 214.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-spanish-latte-coconut-drink-small-take-away` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Spanish Latte · Coconut Drink · Small · Take Away · 166.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-spanish-iced-latte-oat-drink-medium-in-store` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Spanish Iced Latte · Oat Drink · Medium · In Store · 251.0 kcal — long, header leak
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-chai-syrup` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Chai Syrup · 13.0 kcal — header leak
+- `costa:sugar-free-caramel-latte-with-light-whip-whole-milk-small-take-away` Sugar Free Caramel Latte With Light Whip · Whole Milk · Small · Take Away · 231.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-coconut-drink-small-take-away` Sugar Free Caramel Latte With Light Whip · Coconut Drink · Small · Take Away · 158.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-semi-skimmed-milk-small-take-away` Sugar Free Caramel Latte With Light Whip · Semi Skimmed Milk · Small · Take Away · 188.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-oat-drink-small-take-away` Sugar Free Caramel Latte With Light Whip · Oat Drink · Small · Take Away · 216.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-skimmed-milk-small-take-away` Sugar Free Caramel Latte With Light Whip · Skimmed Milk · Small · Take Away · 158.0 kcal — long
+- `costa:drinks-ingredients-sugar-free-caramel-latte-with-light-whip-soya-drink-small-take-away` Drinks Ingredients Sugar Free Caramel Latte With Light Whip · Soya Drink · Small · Take Away · 180.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-cinnamon-bun-syrup-sugar-free` Sugar Free Caramel Latte With Light Whip Cinnamon Bun Syrup (Sugar Free) · 1.0 kcal — long, atwater mismatch
+- `costa:vanilla-oat-latte-sugar-free-caramel-latte-with-light-whip-whole-milk-small-in-store` Vanilla Oat Latte Sugar Free Caramel Latte With Light Whip · Whole Milk · Small · In Store · 209.0 kcal — long
+- `costa:syrups-sugar-free-caramel-latte-with-light-whip-coconut-drink-small-in-store` Syrups Sugar Free Caramel Latte With Light Whip · Coconut Drink · Small · In Store · 144.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-semi-skimmed-milk-small-in-store` Sugar Free Caramel Latte With Light Whip · Semi Skimmed Milk · Small · In Store · 171.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-oat-drink-small-in-store` Sugar Free Caramel Latte With Light Whip · Oat Drink · Small · In Store · 196.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-skimmed-milk-small-in-store` Sugar Free Caramel Latte With Light Whip · Skimmed Milk · Small · In Store · 144.0 kcal — long
+- `costa:sugar-free-caramel-latte-with-light-whip-soya-drink-small-in-store` Sugar Free Caramel Latte With Light Whip · Soya Drink · Small · In Store · 163.0 kcal — long
+- `costa:fat-g-ml-portion-portion-portion-portion-portion-portion-maple-flavoured-sauce` Fat (G/Ml) Portion Portion Portion Portion Portion Portion Maple Flavoured Sauce · 23.0 kcal — long, header leak
+- `costa:matcha-powder` Matcha Powder · 9.0 kcal — atwater mismatch
+- `costa:freeze-dried-lime-pieces` Freeze Dried Lime Pieces · 4.0 kcal — atwater mismatch
+- `costa:lemon-slices-115-28-0-3-0-3-5-1-4-0-6-0-04-milks-plant-based-alternatives-mango-flavour-bubbles` Lemon Slices 115 28 0.3 0 3.5 1.4 0.6 0.04 Milks / Plant Based Alternatives Mango Flavour Bubbles · 17.0 kcal — digits in name, long
+- `costa:cinnamon-sticks-1053-254-1-1-0-5-82-1-9-2-9-0-00-skimmed-milk` Cinnamon Sticks 1053 254 1.1 0.5 82 1.9 2.9 0.00 Skimmed Milk · 32.0 kcal — digits in name

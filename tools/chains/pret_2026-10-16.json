@@ -1,0 +1,5508 @@
+{
+"captured": "2026-10-16",
+"source": "pret.co.uk product pages (__NEXT_DATA__ nutritionalData)",
+"items": [
+{
+"id": "pret:UK000600",
+"name": "Vanilla Frappé",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 426.0,
+"p": 13.9,
+"c": 43.7,
+"f": 21.7,
+"micros": {
+"sat_fat": 7.9,
+"sugars": 34.3,
+"fibre": 0.4,
+"sodium_mg": 68.0
+},
+"per100": {
+"kcal": 84.0,
+"p": 2.7,
+"c": 8.6,
+"f": 4.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000600/vanilla-frappe",
+"keys": [
+"allergens",
+"averageWeight",
+"canHaveVariants",
+"categories",
+"customisationOptions",
+"description",
+"id",
+"image",
+"ingredients",
+"isBottledDrink",
+"name",
+"newUntil",
+"nutritionalData",
+"nutritionals",
+"nutritions",
+"productType",
+"sku",
+"suitableForVegans",
+"suitableForVegetarians",
+"type",
+"visible",
+"visibleInMenu"
+]
+},
+{
+"id": "pret:UK000601",
+"name": "Hazelnut Frappé",
+"category": "UK Standard Coffee Subscription",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 423.0,
+"p": 13.9,
+"c": 42.8,
+"f": 21.7,
+"micros": {
+"sat_fat": 7.9,
+"sugars": 33.4,
+"fibre": 0.4,
+"sodium_mg": 68.0
+},
+"per100": {
+"kcal": 84.0,
+"p": 2.7,
+"c": 8.4,
+"f": 4.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000601/hazelnut-frappe",
+"keys": null
+},
+{
+"id": "pret:UK000602",
+"name": "Caramel Frappé",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 423.0,
+"p": 13.9,
+"c": 43.0,
+"f": 21.7,
+"micros": {
+"sat_fat": 7.9,
+"sugars": 33.6,
+"fibre": 0.4,
+"sodium_mg": 68.0
+},
+"per100": {
+"kcal": 84.0,
+"p": 2.7,
+"c": 8.5,
+"f": 4.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000602/caramel-frappe",
+"keys": null
+},
+{
+"id": "pret:UK000682",
+"name": "Wiltshire Cured Ham & Grevé Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 596.0,
+"p": 31.5,
+"c": 57.4,
+"f": 25.9,
+"micros": {
+"sat_fat": 8.3,
+"sugars": 3.2,
+"fibre": 3.4,
+"sodium_mg": 1540.0
+},
+"per100": {
+"kcal": 268.0,
+"p": 14.2,
+"c": 25.8,
+"f": 11.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000682/wiltshire-cured-ham-and-greve-baguette",
+"keys": null
+},
+{
+"id": "pret:UK000698",
+"name": "Free-Range Egg Mayo",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 379.0,
+"p": 17.3,
+"c": 43.3,
+"f": 14.3,
+"micros": {
+"sat_fat": 2.8,
+"sugars": 2.1,
+"fibre": 3.8,
+"sodium_mg": 608.0
+},
+"per100": {
+"kcal": 217.0,
+"p": 9.9,
+"c": 24.8,
+"f": 8.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000698/free-range-egg-mayo",
+"keys": null
+},
+{
+"id": "pret:UK000716",
+"name": "Scottish Smoked Salmon",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 416.0,
+"p": 22.2,
+"c": 40.8,
+"f": 17.4,
+"micros": {
+"sat_fat": 5.3,
+"sugars": 2.3,
+"fibre": 3.4,
+"sodium_mg": 1276.0
+},
+"per100": {
+"kcal": 264.0,
+"p": 14.1,
+"c": 25.9,
+"f": 11.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000716/scottish-smoked-salmon",
+"keys": null
+},
+{
+"id": "pret:UK000765",
+"name": "All Butter Croissant",
+"category": "Breakfast pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 291.0,
+"p": 6.5,
+"c": 27.5,
+"f": 16.8,
+"micros": {
+"sat_fat": 11.5,
+"sugars": 4.5,
+"fibre": 1.6,
+"sodium_mg": 272.0
+},
+"per100": {
+"kcal": 409.0,
+"p": 9.1,
+"c": 38.8,
+"f": 23.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000765/all-butter-croissant",
+"keys": null
+},
+{
+"id": "pret:UK000783",
+"name": "Diet Coke Can",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000783/diet-coke-can",
+"keys": null
+},
+{
+"id": "pret:UK000809",
+"name": "Chicken, Avocado & Basil",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 488.0,
+"p": 23.2,
+"c": 43.5,
+"f": 23.3,
+"micros": {
+"sat_fat": 4.7,
+"sugars": 3.4,
+"fibre": 6.0,
+"sodium_mg": 827.9999999999999
+},
+"per100": {
+"kcal": 204.0,
+"p": 9.7,
+"c": 18.2,
+"f": 9.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000809/chicken-avocado-and-basil",
+"keys": null
+},
+{
+"id": "pret:UK000823",
+"name": "Coke Can",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 140.0,
+"p": 0.0,
+"c": 35.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 35.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 42.0,
+"p": 0.0,
+"c": 10.6,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000823/coke-can",
+"keys": null
+},
+{
+"id": "pret:UK000831",
+"name": "Banana",
+"category": "Fresh fruit",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 76.0,
+"p": 0.9,
+"c": 17.2,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 13.4,
+"fibre": 1.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 103.0,
+"p": 1.2,
+"c": 23.2,
+"f": 0.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000831/banana",
+"keys": null
+},
+{
+"id": "pret:UK000962",
+"name": "Pole & Line Caught Tuna Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 515.0,
+"p": 25.2,
+"c": 58.8,
+"f": 19.3,
+"micros": {
+"sat_fat": 2.2,
+"sugars": 4.1,
+"fibre": 2.6,
+"sodium_mg": 984.0
+},
+"per100": {
+"kcal": 223.0,
+"p": 10.9,
+"c": 25.5,
+"f": 8.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK000962/pole-and-line-caught-tuna-baguette",
+"keys": null
+},
+{
+"id": "pret:UK001022",
+"name": "Coke Bottle",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 212.0,
+"p": 0.0,
+"c": 53.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 53.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 42.0,
+"p": 0.0,
+"c": 10.6,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001022/coke-bottle",
+"keys": null
+},
+{
+"id": "pret:UK001040",
+"name": "Brie, Tomato & Basil Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 439.0,
+"p": 17.6,
+"c": 56.2,
+"f": 15.2,
+"micros": {
+"sat_fat": 10.1,
+"sugars": 3.6,
+"fibre": 3.3,
+"sodium_mg": 856.0
+},
+"per100": {
+"kcal": 233.0,
+"p": 9.4,
+"c": 29.8,
+"f": 8.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001040/brie-tomato-and-basil-baguette",
+"keys": null
+},
+{
+"id": "pret:UK001044",
+"name": "Roasted Tomato & Egg Mayo Breakfast Baguette",
+"category": "Breakfast baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 361.0,
+"p": 14.1,
+"c": 42.3,
+"f": 14.3,
+"micros": {
+"sat_fat": 2.3,
+"sugars": 5.2,
+"fibre": 3.2,
+"sodium_mg": 752.0
+},
+"per100": {
+"kcal": 235.0,
+"p": 9.2,
+"c": 27.6,
+"f": 9.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001044/roasted-tomato-and-egg-mayo-breakfast-baguette",
+"keys": null
+},
+{
+"id": "pret:UK001256",
+"name": "Filter Coffee",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 2.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 64.0
+},
+"per100": {
+"kcal": 1.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001256/filter-coffee",
+"keys": null
+},
+{
+"id": "pret:UK001286",
+"name": "Diet Coke Bottle",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001286/diet-coke-bottle",
+"keys": null
+},
+{
+"id": "pret:UK001341",
+"name": "Smoked Salmon & Egg Mayo Breakfast Baguette",
+"category": "Breakfast baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 352.0,
+"p": 17.5,
+"c": 38.7,
+"f": 13.7,
+"micros": {
+"sat_fat": 2.6,
+"sugars": 1.5,
+"fibre": 1.9,
+"sodium_mg": 856.0
+},
+"per100": {
+"kcal": 236.0,
+"p": 11.8,
+"c": 25.9,
+"f": 9.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001341/smoked-salmon-and-egg-mayo-breakfast-baguette",
+"keys": null
+},
+{
+"id": "pret:UK001501",
+"name": "Avo & Herb Wrap",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 502.0,
+"p": 12.5,
+"c": 40.0,
+"f": 31.1,
+"micros": {
+"sat_fat": 6.2,
+"sugars": 4.3,
+"fibre": 6.0,
+"sodium_mg": 516.0
+},
+"per100": {
+"kcal": 203.0,
+"p": 5.0,
+"c": 16.2,
+"f": 12.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001501/avo-and-herb-wrap",
+"keys": null
+},
+{
+"id": "pret:UK001528",
+"name": "Apple",
+"category": "Fresh fruit",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 85.0,
+"p": 0.6,
+"c": 18.9,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 18.9,
+"fibre": 2.9,
+"sodium_mg": 8.0
+},
+"per100": {
+"kcal": 53.0,
+"p": 0.4,
+"c": 11.8,
+"f": 0.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001528/apple",
+"keys": null
+},
+{
+"id": "pret:UK001531",
+"name": "Mature Cheddar & Pret Pickle",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 508.0,
+"p": 18.2,
+"c": 54.7,
+"f": 23.0,
+"micros": {
+"sat_fat": 9.4,
+"sugars": 12.9,
+"fibre": 4.8,
+"sodium_mg": 864.0
+},
+"per100": {
+"kcal": 227.0,
+"p": 8.1,
+"c": 24.4,
+"f": 10.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001531/mature-cheddar-and-pret-pickle",
+"keys": null
+},
+{
+"id": "pret:UK001653",
+"name": "Pret Bar",
+"category": "Bars and bites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 279.0,
+"p": 4.0,
+"c": 34.6,
+"f": 13.4,
+"micros": {
+"sat_fat": 7.0,
+"sugars": 22.4,
+"fibre": 2.6,
+"sodium_mg": 44.0
+},
+"per100": {
+"kcal": 436.0,
+"p": 6.3,
+"c": 54.0,
+"f": 21.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001653/pret-bar",
+"keys": null
+},
+{
+"id": "pret:UK001755",
+"name": "Double Berry Muffin",
+"category": "Cookies and Cakes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 441.0,
+"p": 6.6,
+"c": 53.4,
+"f": 21.6,
+"micros": {
+"sat_fat": 2.5,
+"sugars": 30.5,
+"fibre": 3.5,
+"sodium_mg": 288.0
+},
+"per100": {
+"kcal": 356.0,
+"p": 5.3,
+"c": 43.1,
+"f": 17.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001755/double-berry-muffin",
+"keys": null
+},
+{
+"id": "pret:UK001813",
+"name": "Love Bar",
+"category": "Bars and bites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 348.0,
+"p": 3.8,
+"c": 41.2,
+"f": 18.0,
+"micros": {
+"sat_fat": 9.0,
+"sugars": 20.8,
+"fibre": 3.0,
+"sodium_mg": 160.0
+},
+"per100": {
+"kcal": 497.0,
+"p": 5.4,
+"c": 58.8,
+"f": 25.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001813/love-bar",
+"keys": null
+},
+{
+"id": "pret:UK001921",
+"name": "Posh Cheddar & Pickle Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 643.0,
+"p": 21.4,
+"c": 71.9,
+"f": 28.5,
+"micros": {
+"sat_fat": 9.8,
+"sugars": 18.6,
+"fibre": 6.6,
+"sodium_mg": 1128.0
+},
+"per100": {
+"kcal": 278.0,
+"p": 9.2,
+"c": 31.1,
+"f": 12.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK001921/posh-cheddar-and-pickle-baguette",
+"keys": null
+},
+{
+"id": "pret:UK003037",
+"name": "Sea Salt Crisps",
+"category": "Crisps and popcorn",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 213.0,
+"p": 2.4,
+"c": 22.0,
+"f": 12.4,
+"micros": {
+"sat_fat": 1.4,
+"sugars": 0.2,
+"fibre": 1.7,
+"sodium_mg": 144.0
+},
+"per100": {
+"kcal": 532.0,
+"p": 6.1,
+"c": 55.0,
+"f": 31.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003037/sea-salt-crisps",
+"keys": null
+},
+{
+"id": "pret:UK003038",
+"name": " Salt & Cider Vinegar Crisps",
+"category": "Crisps and popcorn",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 206.0,
+"p": 1.9,
+"c": 21.3,
+"f": 12.2,
+"micros": {
+"sat_fat": 0.9,
+"sugars": 0.4,
+"fibre": 1.7,
+"sodium_mg": 260.0
+},
+"per100": {
+"kcal": 515.0,
+"p": 4.8,
+"c": 53.2,
+"f": 30.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003038/salt-and-cider-vinegar-crisps",
+"keys": null
+},
+{
+"id": "pret:UK003039",
+"name": "Mature Cheddar & Red Onion Crisps",
+"category": "Crisps and popcorn",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 210.0,
+"p": 2.6,
+"c": 20.5,
+"f": 12.7,
+"micros": {
+"sat_fat": 1.0,
+"sugars": 1.0,
+"fibre": 1.8,
+"sodium_mg": 212.0
+},
+"per100": {
+"kcal": 524.0,
+"p": 6.5,
+"c": 51.1,
+"f": 31.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003039/mature-cheddar-and-red-onion-crisps",
+"keys": null
+},
+{
+"id": "pret:UK003339",
+"name": "Choc Bar",
+"category": "Bars and bites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 380.0,
+"p": 3.1,
+"c": 37.3,
+"f": 23.5,
+"micros": {
+"sat_fat": 14.1,
+"sugars": 22.7,
+"fibre": 3.1,
+"sodium_mg": 128.0
+},
+"per100": {
+"kcal": 543.0,
+"p": 4.5,
+"c": 53.3,
+"f": 33.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003339/choc-bar",
+"keys": null
+},
+{
+"id": "pret:UK003463",
+"name": "Breakfast Tea",
+"category": "Tea and other hot drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 15.0,
+"p": 1.0,
+"c": 1.5,
+"f": 0.5,
+"micros": {
+"sat_fat": 0.3,
+"sugars": 1.6,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 5.0,
+"p": 0.3,
+"c": 0.5,
+"f": 0.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003463/breakfast-tea",
+"keys": null
+},
+{
+"id": "pret:UK003464",
+"name": "Earl Grey Tea",
+"category": "Tea and other hot drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 15.0,
+"p": 1.0,
+"c": 1.5,
+"f": 0.5,
+"micros": {
+"sat_fat": 0.3,
+"sugars": 1.5,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 5.0,
+"p": 0.3,
+"c": 0.5,
+"f": 0.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003464/earl-grey-tea",
+"keys": null
+},
+{
+"id": "pret:UK003465",
+"name": "Peppermint Tea",
+"category": "Tea and other hot drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003465/peppermint-tea",
+"keys": null
+},
+{
+"id": "pret:UK003466",
+"name": "Tropical Green Tea",
+"category": "Tea and other hot drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003466/tropical-green-tea",
+"keys": null
+},
+{
+"id": "pret:UK003546",
+"name": "Italian Prosciutto Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 546.0,
+"p": 24.1,
+"c": 54.3,
+"f": 24.7,
+"micros": {
+"sat_fat": 5.9,
+"sugars": 3.8,
+"fibre": 4.8,
+"sodium_mg": 1436.0
+},
+"per100": {
+"kcal": 248.0,
+"p": 11.0,
+"c": 24.7,
+"f": 11.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003546/italian-prosciutto-baguette",
+"keys": null
+},
+{
+"id": "pret:UK003567",
+"name": "Babyccino",
+"category": "Tea and other hot drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 18.0,
+"p": 1.1,
+"c": 2.1,
+"f": 0.5,
+"micros": {
+"sat_fat": 0.4,
+"sugars": 2.1,
+"fibre": 0.2,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 59.0,
+"p": 3.7,
+"c": 6.8,
+"f": 1.8
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003567/babyccino",
+"keys": null
+},
+{
+"id": "pret:UK003816",
+"name": "Pole & Line Caught Tuna Half Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 257.0,
+"p": 12.6,
+"c": 29.4,
+"f": 9.6,
+"micros": {
+"sat_fat": 1.1,
+"sugars": 2.0,
+"fibre": 1.3,
+"sodium_mg": 492.0
+},
+"per100": {
+"kcal": 223.0,
+"p": 10.9,
+"c": 25.5,
+"f": 8.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003816/pole-and-line-caught-tuna-half-baguette",
+"keys": null
+},
+{
+"id": "pret:UK003824",
+"name": "Posh Cheddar & Pickle Half Baguette ",
+"category": "Veggie & Vegan-Friendly",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 322.0,
+"p": 10.7,
+"c": 36.0,
+"f": 14.3,
+"micros": {
+"sat_fat": 4.9,
+"sugars": 9.3,
+"fibre": 3.3,
+"sodium_mg": 564.0
+},
+"per100": {
+"kcal": 276.0,
+"p": 9.2,
+"c": 30.8,
+"f": 12.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK003824/posh-cheddar-and-pickle-half-baguette",
+"keys": null
+},
+{
+"id": "pret:UK004019",
+"name": "Salted Popcorn",
+"category": "Crisps and popcorn",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 136.0,
+"p": 2.5,
+"c": 14.2,
+"f": 6.9,
+"micros": {
+"sat_fat": 0.5,
+"sugars": 0.1,
+"fibre": 3.5,
+"sodium_mg": 176.0
+},
+"per100": {
+"kcal": 468.0,
+"p": 8.6,
+"c": 48.8,
+"f": 23.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004019/salted-popcorn",
+"keys": null
+},
+{
+"id": "pret:UK004106",
+"name": "Iced Latte",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 98.0,
+"p": 6.8,
+"c": 10.0,
+"f": 3.4,
+"micros": {
+"sat_fat": 2.0,
+"sugars": 10.0,
+"fibre": 0.0,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 25.0,
+"p": 1.7,
+"c": 2.5,
+"f": 0.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004106/iced-latte",
+"keys": null
+},
+{
+"id": "pret:UK004165",
+"name": "Pret's Gingerbread Biscuit Godfrey",
+"category": "Cookies and Cakes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 200.0,
+"p": 2.1,
+"c": 33.2,
+"f": 6.3,
+"micros": {
+"sat_fat": 2.8,
+"sugars": 17.5,
+"fibre": 0.7,
+"sodium_mg": 136.0
+},
+"per100": {
+"kcal": 464.0,
+"p": 4.9,
+"c": 77.3,
+"f": 14.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004165/prets-gingerbread-biscuit-godfrey",
+"keys": null
+},
+{
+"id": "pret:UK004206",
+"name": "Chocolate Brownie Bar",
+"category": "Bars and bites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 321.0,
+"p": 4.0,
+"c": 30.0,
+"f": 19.9,
+"micros": {
+"sat_fat": 12.4,
+"sugars": 25.3,
+"fibre": 2.8,
+"sodium_mg": 40.0
+},
+"per100": {
+"kcal": 493.0,
+"p": 6.1,
+"c": 46.2,
+"f": 30.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004206/chocolate-brownie-bar",
+"keys": null
+},
+{
+"id": "pret:UK004209",
+"name": "Pret's Proper Porridge",
+"category": "Breakfast porridge",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 216.0,
+"p": 8.7,
+"c": 23.7,
+"f": 8.7,
+"micros": {
+"sat_fat": 4.8,
+"sugars": 6.9,
+"fibre": 4.2,
+"sodium_mg": 72.0
+},
+"per100": {
+"kcal": 72.0,
+"p": 2.9,
+"c": 7.9,
+"f": 2.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004209/prets-proper-porridge",
+"keys": null
+},
+{
+"id": "pret:UK004255",
+"name": "Sweet & Salt Popcorn",
+"category": "Crisps and popcorn",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 157.0,
+"p": 1.7,
+"c": 15.2,
+"f": 9.3,
+"micros": {
+"sat_fat": 0.7,
+"sugars": 5.4,
+"fibre": 2.4,
+"sodium_mg": 96.0
+},
+"per100": {
+"kcal": 522.0,
+"p": 5.8,
+"c": 50.7,
+"f": 31.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004255/sweet-and-salt-popcorn",
+"keys": null
+},
+{
+"id": "pret:UK004340",
+"name": "Chocolate Chunk Cookie",
+"category": "Cookies and Cakes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 329.0,
+"p": 4.1,
+"c": 48.9,
+"f": 12.5,
+"micros": {
+"sat_fat": 7.4,
+"sugars": 25.2,
+"fibre": 2.1,
+"sodium_mg": 164.0
+},
+"per100": {
+"kcal": 433.0,
+"p": 5.3,
+"c": 64.3,
+"f": 16.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004340/chocolate-chunk-cookie",
+"keys": null
+},
+{
+"id": "pret:UK004468",
+"name": "Ham & Cheese Croissant",
+"category": "Hot pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 312.0,
+"p": 13.5,
+"c": 19.9,
+"f": 19.4,
+"micros": {
+"sat_fat": 9.8,
+"sugars": 3.2,
+"fibre": 1.9,
+"sodium_mg": 476.0
+},
+"per100": {
+"kcal": 318.0,
+"p": 13.8,
+"c": 20.3,
+"f": 19.8
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004468/ham-and-cheese-croissant",
+"keys": null
+},
+{
+"id": "pret:UK004469",
+"name": "Mozzarella & Tomato Croissant",
+"category": "Hot pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 373.0,
+"p": 12.9,
+"c": 24.1,
+"f": 24.6,
+"micros": {
+"sat_fat": 13.9,
+"sugars": 3.7,
+"fibre": 1.8,
+"sodium_mg": 512.0
+},
+"per100": {
+"kcal": 344.0,
+"p": 11.9,
+"c": 22.2,
+"f": 22.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004469/mozzarella-and-tomato-croissant",
+"keys": null
+},
+{
+"id": "pret:UK004550",
+"name": "Hot Chocolate",
+"category": "Tea and other hot drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 247.0,
+"p": 11.5,
+"c": 35.3,
+"f": 5.4,
+"micros": {
+"sat_fat": 3.4,
+"sugars": 34.0,
+"fibre": 5.3,
+"sodium_mg": 16.0
+},
+"per100": {
+"kcal": 77.0,
+"p": 3.6,
+"c": 11.1,
+"f": 1.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004550/hot-chocolate",
+"keys": null
+},
+{
+"id": "pret:UK004735",
+"name": "Cranberries in Coats",
+"category": "Nuts and dried fruit snacks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 235.0,
+"p": 0.5,
+"c": 36.5,
+"f": 9.5,
+"micros": {
+"sat_fat": 5.5,
+"sugars": 31.0,
+"fibre": 0.8,
+"sodium_mg": 40.0
+},
+"per100": {
+"kcal": 471.0,
+"p": 1.1,
+"c": 73.0,
+"f": 19.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK004735/cranberries-in-coats",
+"keys": null
+},
+{
+"id": "pret:UK005078",
+"name": "Classic Frappe",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 365.0,
+"p": 10.6,
+"c": 26.7,
+"f": 23.9,
+"micros": {
+"sat_fat": 7.4,
+"sugars": 17.3,
+"fibre": 0.4,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 92.0,
+"p": 2.7,
+"c": 6.7,
+"f": 6.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005078/classic-frappe",
+"keys": null
+},
+{
+"id": "pret:UK005229",
+"name": "Mango & Lime",
+"category": "Fruit pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 72.0,
+"p": 1.0,
+"c": 14.1,
+"f": 0.9,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 13.8,
+"fibre": 1.5,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 48.0,
+"p": 0.7,
+"c": 9.4,
+"f": 0.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005229/mango-and-lime",
+"keys": null
+},
+{
+"id": "pret:UK005296",
+"name": "Pret A Mango",
+"category": "Nuts and dried fruit snacks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 118.0,
+"p": 0.7,
+"c": 26.9,
+"f": 0.4,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 17.5,
+"fibre": 1.8,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 337.0,
+"p": 2.1,
+"c": 77.0,
+"f": 1.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005296/pret-a-mango",
+"keys": null
+},
+{
+"id": "pret:UK005381",
+"name": "Egg & Spinach Protein Pot",
+"category": "Protein pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 103.0,
+"p": 11.4,
+"c": 2.3,
+"f": 5.3,
+"micros": {
+"sat_fat": 1.5,
+"sugars": 0.2,
+"fibre": 0.3,
+"sodium_mg": 227.99999999999997
+},
+"per100": {
+"kcal": 105.0,
+"p": 11.6,
+"c": 2.4,
+"f": 5.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005381/egg-and-spinach-protein-pot",
+"keys": null
+},
+{
+"id": "pret:UK005413",
+"name": "Lemon & Ginger Pret Still",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 94.0,
+"p": 0.5,
+"c": 19.5,
+"f": 1.0,
+"micros": {
+"sat_fat": 0.2,
+"sugars": 19.5,
+"fibre": 2.5,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 19.0,
+"p": 0.1,
+"c": 3.9,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005413/lemon-and-ginger-pret-still",
+"keys": null
+},
+{
+"id": "pret:UK005416",
+"name": "Green Tea & Peach Pret Still",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 104.0,
+"p": 0.5,
+"c": 21.5,
+"f": 1.2,
+"micros": {
+"sat_fat": 0.5,
+"sugars": 21.5,
+"fibre": 2.5,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 21.0,
+"p": 0.1,
+"c": 4.3,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005416/green-tea-and-peach-pret-still",
+"keys": null
+},
+{
+"id": "pret:UK005559",
+"name": "Popcorn Bar",
+"category": "Bars and bites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 176.0,
+"p": 1.7,
+"c": 21.8,
+"f": 8.9,
+"micros": {
+"sat_fat": 5.1,
+"sugars": 12.5,
+"fibre": 0.8,
+"sodium_mg": 52.0
+},
+"per100": {
+"kcal": 518.0,
+"p": 5.1,
+"c": 64.0,
+"f": 26.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005559/popcorn-bar",
+"keys": null
+},
+{
+"id": "pret:UK005667",
+"name": "Almond Croissant ",
+"category": "Breakfast pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 382.0,
+"p": 7.8,
+"c": 38.9,
+"f": 21.1,
+"micros": {
+"sat_fat": 10.7,
+"sugars": 14.3,
+"fibre": 2.6,
+"sodium_mg": 212.0
+},
+"per100": {
+"kcal": 424.0,
+"p": 8.7,
+"c": 43.2,
+"f": 23.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005667/almond-croissant",
+"keys": null
+},
+{
+"id": "pret:UK005671",
+"name": "Chocolate Croissant",
+"category": "Breakfast pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 350.0,
+"p": 5.9,
+"c": 33.4,
+"f": 20.6,
+"micros": {
+"sat_fat": 12.3,
+"sugars": 15.6,
+"fibre": 3.7,
+"sodium_mg": 164.0
+},
+"per100": {
+"kcal": 407.0,
+"p": 6.9,
+"c": 38.8,
+"f": 24.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005671/chocolate-croissant",
+"keys": null
+},
+{
+"id": "pret:UK005705",
+"name": "Pain aux Raisins",
+"category": "Breakfast pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 358.0,
+"p": 7.0,
+"c": 49.0,
+"f": 14.4,
+"micros": {
+"sat_fat": 9.1,
+"sugars": 21.4,
+"fibre": 2.5,
+"sodium_mg": 340.0
+},
+"per100": {
+"kcal": 296.0,
+"p": 5.8,
+"c": 40.5,
+"f": 11.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005705/pain-aux-raisins",
+"keys": null
+},
+{
+"id": "pret:UK005764",
+"name": "Kale & Cauli Macaroni Cheese",
+"category": "Hot food boxes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 535.0,
+"p": 25.5,
+"c": 45.5,
+"f": 26.7,
+"micros": {
+"sat_fat": 16.9,
+"sugars": 6.2,
+"fibre": 5.1,
+"sodium_mg": 688.0
+},
+"per100": {
+"kcal": 149.0,
+"p": 7.1,
+"c": 12.6,
+"f": 7.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005764/kale-and-cauli-macaroni-cheese",
+"keys": null
+},
+{
+"id": "pret:UK005773",
+"name": "Five Berry Bowl",
+"category": "Birchers and yoghurt bowls",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 334.0,
+"p": 12.9,
+"c": 45.7,
+"f": 9.8,
+"micros": {
+"sat_fat": 3.6,
+"sugars": 26.1,
+"fibre": 5.7,
+"sodium_mg": 128.0
+},
+"per100": {
+"kcal": 162.0,
+"p": 6.2,
+"c": 22.1,
+"f": 4.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005773/five-berry-bowl",
+"keys": null
+},
+{
+"id": "pret:UK005781",
+"name": "Apple Juice",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 126.0,
+"p": 0.3,
+"c": 30.7,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 28.2,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 50.0,
+"p": 0.1,
+"c": 12.3,
+"f": 0.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005781/apple-juice",
+"keys": null
+},
+{
+"id": "pret:UK005783",
+"name": "Orange Juice",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 63.0,
+"p": 1.2,
+"c": 13.5,
+"f": 0.3,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 12.6,
+"fibre": 0.7,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 42.0,
+"p": 0.8,
+"c": 9.0,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005783/orange-juice",
+"keys": null
+},
+{
+"id": "pret:UK005786",
+"name": "Mango Smoothie",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 142.0,
+"p": 1.2,
+"c": 31.7,
+"f": 0.7,
+"micros": {
+"sat_fat": 0.2,
+"sugars": 29.7,
+"fibre": 1.6,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 57.0,
+"p": 0.5,
+"c": 12.7,
+"f": 0.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005786/mango-smoothie",
+"keys": null
+},
+{
+"id": "pret:UK005788",
+"name": "Vitamin Volcano",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 115.0,
+"p": 1.2,
+"c": 27.5,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 24.5,
+"fibre": 1.2,
+"sodium_mg": 72.0
+},
+"per100": {
+"kcal": 46.0,
+"p": 0.5,
+"c": 11.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005788/vitamin-volcano",
+"keys": null
+},
+{
+"id": "pret:UK005804",
+"name": "Frozen Hot Chocolate",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 503.0,
+"p": 16.8,
+"c": 54.8,
+"f": 22.8,
+"micros": {
+"sat_fat": 8.7,
+"sugars": 44.1,
+"fibre": 5.7,
+"sodium_mg": 16.0
+},
+"per100": {
+"kcal": 99.0,
+"p": 3.3,
+"c": 10.8,
+"f": 4.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005804/frozen-hot-chocolate",
+"keys": null
+},
+{
+"id": "pret:UK005840",
+"name": "Ginger Shot",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 55.0,
+"p": 0.8,
+"c": 11.4,
+"f": 0.3,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 9.7,
+"fibre": 1.8,
+"sodium_mg": 44.0
+},
+"per100": {
+"kcal": 50.0,
+"p": 0.7,
+"c": 10.4,
+"f": 0.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005840/ginger-shot",
+"keys": null
+},
+{
+"id": "pret:UK005978",
+"name": "Iced Black Americano",
+"category": "Your choice of hot or iced drink",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 2.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005978/iced-black-americano",
+"keys": null
+},
+{
+"id": "pret:UK005993",
+"name": "Dark Chocolate Corn Cakes",
+"category": "Bars and bites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 82.0,
+"p": 1.2,
+"c": 10.4,
+"f": 3.7,
+"micros": {
+"sat_fat": 2.2,
+"sugars": 4.4,
+"fibre": 0.8,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 480.0,
+"p": 7.0,
+"c": 61.0,
+"f": 22.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK005993/dark-chocolate-corn-cakes",
+"keys": null
+},
+{
+"id": "pret:UK006060",
+"name": "Falafel & Halloumi Hot Wrap",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 623.0,
+"p": 22.3,
+"c": 63.1,
+"f": 29.5,
+"micros": {
+"sat_fat": 10.9,
+"sugars": 15.0,
+"fibre": 8.2,
+"sodium_mg": 1436.0
+},
+"per100": {
+"kcal": 235.0,
+"p": 8.4,
+"c": 23.8,
+"f": 11.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006060/falafel-and-halloumi-hot-wrap",
+"keys": null
+},
+{
+"id": "pret:UK006207",
+"name": "Avo, Olive & Toms Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 564.0,
+"p": 13.0,
+"c": 57.1,
+"f": 29.6,
+"micros": {
+"sat_fat": 4.9,
+"sugars": 5.9,
+"fibre": 8.5,
+"sodium_mg": 656.0
+},
+"per100": {
+"kcal": 238.0,
+"p": 5.5,
+"c": 24.1,
+"f": 12.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006207/avo-olive-and-toms-baguette",
+"keys": null
+},
+{
+"id": "pret:UK006210",
+"name": "Bircher Muesli",
+"category": "Birchers and yoghurt bowls",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 336.0,
+"p": 14.0,
+"c": 43.5,
+"f": 11.0,
+"micros": {
+"sat_fat": 4.1,
+"sugars": 32.7,
+"fibre": 3.8,
+"sodium_mg": 108.0
+},
+"per100": {
+"kcal": 157.0,
+"p": 6.5,
+"c": 20.3,
+"f": 5.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006210/bircher-muesli",
+"keys": null
+},
+{
+"id": "pret:UK006220",
+"name": "Souper Tomato",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 141.0,
+"p": 6.0,
+"c": 15.1,
+"f": 5.2,
+"micros": {
+"sat_fat": 0.4,
+"sugars": 14.7,
+"fibre": 5.0,
+"sodium_mg": 648.0
+},
+"per100": {
+"kcal": 39.0,
+"p": 1.6,
+"c": 4.1,
+"f": 1.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006220/souper-tomato",
+"keys": null
+},
+{
+"id": "pret:UK006282",
+"name": "Chef's Italian Chicken Salad",
+"category": "Salads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 526.0,
+"p": 25.3,
+"c": 12.0,
+"f": 41.2,
+"micros": {
+"sat_fat": 5.9,
+"sugars": 10.3,
+"fibre": 3.2,
+"sodium_mg": 919.9999999999999
+},
+"per100": {
+"kcal": 168.0,
+"p": 8.1,
+"c": 3.8,
+"f": 13.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006282/chefs-italian-chicken-salad",
+"keys": null
+},
+{
+"id": "pret:UK006363",
+"name": "Cranberry, Raspberry & Pomegranate Pret Still",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 115.0,
+"p": 0.5,
+"c": 24.5,
+"f": 1.1,
+"micros": {
+"sat_fat": 0.3,
+"sugars": 24.5,
+"fibre": 2.6,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 22.0,
+"p": 0.1,
+"c": 4.8,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006363/cranberry-raspberry-and-pomegranate-pret-still",
+"keys": null
+},
+{
+"id": "pret:UK006364",
+"name": "Mango & Passion Fruit Pret Still",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 112.0,
+"p": 0.5,
+"c": 23.5,
+"f": 1.2,
+"micros": {
+"sat_fat": 0.3,
+"sugars": 23.5,
+"fibre": 2.5,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 22.0,
+"p": 0.1,
+"c": 4.7,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006364/mango-and-passion-fruit-pret-still",
+"keys": null
+},
+{
+"id": "pret:UK006440",
+"name": "Ham & Cheese",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 531.0,
+"p": 30.0,
+"c": 42.7,
+"f": 25.8,
+"micros": {
+"sat_fat": 15.8,
+"sugars": 2.5,
+"fibre": 3.9,
+"sodium_mg": 1444.0
+},
+"per100": {
+"kcal": 273.0,
+"p": 15.4,
+"c": 21.9,
+"f": 13.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006440/ham-and-cheese",
+"keys": null
+},
+{
+"id": "pret:UK006483",
+"name": "Tuna Nicoise Salad",
+"category": "Salads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 357.0,
+"p": 29.6,
+"c": 8.5,
+"f": 22.4,
+"micros": {
+"sat_fat": 3.4,
+"sugars": 7.0,
+"fibre": 1.5,
+"sodium_mg": 788.0
+},
+"per100": {
+"kcal": 119.0,
+"p": 9.9,
+"c": 2.9,
+"f": 7.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006483/tuna-nicoise-salad",
+"keys": null
+},
+{
+"id": "pret:UK006491",
+"name": "Swedish Meatball Hot Wrap",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 630.0,
+"p": 30.3,
+"c": 44.8,
+"f": 35.5,
+"micros": {
+"sat_fat": 15.1,
+"sugars": 8.5,
+"fibre": 4.8,
+"sodium_mg": 1036.0
+},
+"per100": {
+"kcal": 264.0,
+"p": 12.7,
+"c": 18.8,
+"f": 14.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006491/swedish-meatball-hot-wrap",
+"keys": null
+},
+{
+"id": "pret:UK006550",
+"name": "Souper Tomato Side Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 71.0,
+"p": 3.0,
+"c": 7.5,
+"f": 2.6,
+"micros": {
+"sat_fat": 0.2,
+"sugars": 7.4,
+"fibre": 2.5,
+"sodium_mg": 324.0
+},
+"per100": {
+"kcal": 39.0,
+"p": 1.6,
+"c": 4.1,
+"f": 1.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006550/souper-tomato-side-soup",
+"keys": null
+},
+{
+"id": "pret:UK006553",
+"name": "Mocha",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 196.0,
+"p": 10.7,
+"c": 25.0,
+"f": 5.3,
+"micros": {
+"sat_fat": 3.3,
+"sugars": 24.2,
+"fibre": 2.8,
+"sodium_mg": 68.0
+},
+"per100": {
+"kcal": 57.0,
+"p": 3.1,
+"c": 7.3,
+"f": 1.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006553/mocha",
+"keys": null
+},
+{
+"id": "pret:UK006555",
+"name": "Cappuccino",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 116.0,
+"p": 8.2,
+"c": 11.6,
+"f": 4.1,
+"micros": {
+"sat_fat": 2.6,
+"sugars": 11.5,
+"fibre": 0.2,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 39.0,
+"p": 2.8,
+"c": 3.9,
+"f": 1.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006555/cappuccino",
+"keys": null
+},
+{
+"id": "pret:UK006608",
+"name": "Hot Shot",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 27.0,
+"p": 0.4,
+"c": 5.2,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 3.7,
+"fibre": 1.4,
+"sodium_mg": 8.0
+},
+"per100": {
+"kcal": 25.0,
+"p": 0.4,
+"c": 4.7,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006608/hot-shot",
+"keys": null
+},
+{
+"id": "pret:UK006642",
+"name": "Americano",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 2.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 1.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006642/americano",
+"keys": null
+},
+{
+"id": "pret:UK006643",
+"name": "Espresso",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 2.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.2,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 3.0,
+"p": 0.0,
+"c": 0.1,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006643/espresso",
+"keys": null
+},
+{
+"id": "pret:UK006647",
+"name": "Flat White ",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 98.0,
+"p": 6.8,
+"c": 10.0,
+"f": 3.4,
+"micros": {
+"sat_fat": 2.0,
+"sugars": 10.0,
+"fibre": 0.0,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 37.0,
+"p": 2.6,
+"c": 3.8,
+"f": 1.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006647/flat-white",
+"keys": null
+},
+{
+"id": "pret:UK006676",
+"name": "Coke Zero Can",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006676/coke-zero-can",
+"keys": null
+},
+{
+"id": "pret:UK006710",
+"name": "Coke Zero Bottle",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006710/coke-zero-bottle",
+"keys": null
+},
+{
+"id": "pret:UK006712",
+"name": "Macchiato",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 7.0,
+"p": 0.4,
+"c": 0.6,
+"f": 0.3,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 0.6,
+"fibre": 0.0,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 9.0,
+"p": 0.5,
+"c": 0.8,
+"f": 0.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006712/macchiato",
+"keys": null
+},
+{
+"id": "pret:UK006718",
+"name": "Acai & Almond Butter Bowl",
+"category": "Veggie & Vegan-Friendly",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 338.0,
+"p": 8.1,
+"c": 43.7,
+"f": 12.9,
+"micros": {
+"sat_fat": 1.6,
+"sugars": 25.6,
+"fibre": 7.4,
+"sodium_mg": 80.0
+},
+"per100": {
+"kcal": 181.0,
+"p": 4.4,
+"c": 23.4,
+"f": 6.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006718/acai-and-almond-butter-bowl",
+"keys": null
+},
+{
+"id": "pret:UK006758",
+"name": "Matcha Latte",
+"category": "Tea and other hot drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 86.0,
+"p": 1.2,
+"c": 15.3,
+"f": 2.1,
+"micros": {
+"sat_fat": 2.0,
+"sugars": 11.8,
+"fibre": 0.6,
+"sodium_mg": 112.00000000000001
+},
+"per100": {
+"kcal": 26.0,
+"p": 0.3,
+"c": 4.6,
+"f": 0.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006758/matcha-latte",
+"keys": null
+},
+{
+"id": "pret:UK006780",
+"name": "Latte",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 136.0,
+"p": 9.5,
+"c": 14.0,
+"f": 4.6,
+"micros": {
+"sat_fat": 2.8,
+"sugars": 14.0,
+"fibre": 0.0,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 40.0,
+"p": 2.8,
+"c": 4.1,
+"f": 1.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006780/latte",
+"keys": null
+},
+{
+"id": "pret:UK006783",
+"name": "Tuna & Cucumber ",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 379.0,
+"p": 18.5,
+"c": 43.3,
+"f": 13.9,
+"micros": {
+"sat_fat": 1.6,
+"sugars": 3.4,
+"fibre": 3.5,
+"sodium_mg": 568.0
+},
+"per100": {
+"kcal": 210.0,
+"p": 10.3,
+"c": 24.0,
+"f": 7.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006783/tuna-and-cucumber",
+"keys": null
+},
+{
+"id": "pret:UK006813",
+"name": "Smoky Chipotle Crisps",
+"category": "Crisps and popcorn",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 208.0,
+"p": 2.2,
+"c": 21.0,
+"f": 12.4,
+"micros": {
+"sat_fat": 0.9,
+"sugars": 0.9,
+"fibre": 1.9,
+"sodium_mg": 156.0
+},
+"per100": {
+"kcal": 519.0,
+"p": 5.4,
+"c": 52.5,
+"f": 30.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006813/smoky-chipotle-crisps",
+"keys": null
+},
+{
+"id": "pret:UK006823",
+"name": "Chicken Caesar Bacon Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 596.0,
+"p": 30.3,
+"c": 54.3,
+"f": 27.6,
+"micros": {
+"sat_fat": 4.9,
+"sugars": 3.2,
+"fibre": 4.4,
+"sodium_mg": 1048.0
+},
+"per100": {
+"kcal": 273.0,
+"p": 13.9,
+"c": 24.9,
+"f": 12.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006823/chicken-caesar-bacon-baguette",
+"keys": null
+},
+{
+"id": "pret:UK006825",
+"name": "Bacon & Egg Mayo Breakfast Baguette",
+"category": "Breakfast baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 348.0,
+"p": 16.6,
+"c": 38.7,
+"f": 13.7,
+"micros": {
+"sat_fat": 3.4,
+"sugars": 1.5,
+"fibre": 2.0,
+"sodium_mg": 756.0
+},
+"per100": {
+"kcal": 251.0,
+"p": 11.9,
+"c": 27.8,
+"f": 9.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006825/bacon-and-egg-mayo-breakfast-baguette",
+"keys": null
+},
+{
+"id": "pret:UK006827",
+"name": "Classic Super Club",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 528.0,
+"p": 26.8,
+"c": 43.5,
+"f": 26.5,
+"micros": {
+"sat_fat": 4.3,
+"sugars": 3.9,
+"fibre": 4.1,
+"sodium_mg": 1100.0
+},
+"per100": {
+"kcal": 226.0,
+"p": 11.5,
+"c": 18.6,
+"f": 11.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006827/classic-super-club",
+"keys": null
+},
+{
+"id": "pret:UK006892",
+"name": "Iced Matcha Latte",
+"category": "Your choice of hot or iced drink",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 63.0,
+"p": 1.0,
+"c": 11.2,
+"f": 1.5,
+"micros": {
+"sat_fat": 1.4,
+"sugars": 8.4,
+"fibre": 0.4,
+"sodium_mg": 80.0
+},
+"per100": {
+"kcal": 16.0,
+"p": 0.2,
+"c": 2.8,
+"f": 0.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006892/iced-matcha-latte",
+"keys": null
+},
+{
+"id": "pret:UK006927",
+"name": "Cinnamon Danish",
+"category": "Breakfast pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 413.0,
+"p": 6.7,
+"c": 48.3,
+"f": 20.9,
+"micros": {
+"sat_fat": 13.2,
+"sugars": 24.1,
+"fibre": 2.5,
+"sodium_mg": 404.0
+},
+"per100": {
+"kcal": 372.0,
+"p": 6.0,
+"c": 43.5,
+"f": 18.8
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006927/cinnamon-danish",
+"keys": null
+},
+{
+"id": "pret:UK006936",
+"name": "Nuts, Fruit, Chocolate",
+"category": "Nuts and dried fruit snacks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 196.0,
+"p": 5.7,
+"c": 13.4,
+"f": 12.8,
+"micros": {
+"sat_fat": 2.0,
+"sugars": 10.1,
+"fibre": 2.2,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 560.0,
+"p": 16.4,
+"c": 38.3,
+"f": 36.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK006936/nuts-fruit-chocolate",
+"keys": null
+},
+{
+"id": "pret:UK007084",
+"name": "Smoked Salmon & Egg Protein Pot",
+"category": "Protein pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 136.0,
+"p": 12.9,
+"c": 1.9,
+"f": 8.4,
+"micros": {
+"sat_fat": 1.7,
+"sugars": 0.7,
+"fibre": 0.5,
+"sodium_mg": 644.0
+},
+"per100": {
+"kcal": 130.0,
+"p": 12.4,
+"c": 1.9,
+"f": 8.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007084/smoked-salmon-and-egg-protein-pot",
+"keys": null
+},
+{
+"id": "pret:UK007204",
+"name": "Dark Chocolate Salted Almonds",
+"category": "Nuts and dried fruit snacks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 215.0,
+"p": 5.5,
+"c": 12.4,
+"f": 15.1,
+"micros": {
+"sat_fat": 5.3,
+"sugars": 7.9,
+"fibre": 3.5,
+"sodium_mg": 80.0
+},
+"per100": {
+"kcal": 565.0,
+"p": 14.4,
+"c": 32.7,
+"f": 39.8
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007204/dark-chocolate-salted-almonds",
+"keys": null
+},
+{
+"id": "pret:UK007489",
+"name": "Free-Range Egg & Avo Breakfast Baguette",
+"category": "Breakfast baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 347.0,
+"p": 12.3,
+"c": 39.0,
+"f": 15.0,
+"micros": {
+"sat_fat": 3.2,
+"sugars": 1.7,
+"fibre": 3.2,
+"sodium_mg": 836.0
+},
+"per100": {
+"kcal": 228.0,
+"p": 8.1,
+"c": 25.7,
+"f": 9.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007489/free-range-egg-and-avo-breakfast-baguette",
+"keys": null
+},
+{
+"id": "pret:UK007506",
+"name": "Humous & Chipotle Wrap",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 414.0,
+"p": 12.7,
+"c": 49.2,
+"f": 16.0,
+"micros": {
+"sat_fat": 2.0,
+"sugars": 11.5,
+"fibre": 11.3,
+"sodium_mg": 644.0
+},
+"per100": {
+"kcal": 168.0,
+"p": 5.2,
+"c": 20.0,
+"f": 6.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007506/humous-and-chipotle-wrap",
+"keys": null
+},
+{
+"id": "pret:UK007579",
+"name": "Hoisin Duck Wrap",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 442.0,
+"p": 21.0,
+"c": 48.2,
+"f": 17.5,
+"micros": {
+"sat_fat": 2.7,
+"sugars": 12.5,
+"fibre": 3.8,
+"sodium_mg": 1044.0
+},
+"per100": {
+"kcal": 199.0,
+"p": 9.4,
+"c": 21.7,
+"f": 7.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007579/hoisin-duck-wrap",
+"keys": null
+},
+{
+"id": "pret:UK007673",
+"name": "Pret's Sparkling Apple Fizz",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 104.0,
+"p": 0.0,
+"c": 26.1,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 25.1,
+"fibre": 0.0,
+"sodium_mg": 52.0
+},
+"per100": {
+"kcal": 32.0,
+"p": 0.0,
+"c": 7.9,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007673/prets-sparkling-apple-fizz",
+"keys": null
+},
+{
+"id": "pret:UK007674",
+"name": "Pret's Sparkling Ginger Beer",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 119.0,
+"p": 0.0,
+"c": 29.7,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 29.4,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 36.0,
+"p": 0.0,
+"c": 9.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007674/prets-sparkling-ginger-beer",
+"keys": null
+},
+{
+"id": "pret:UK007675",
+"name": "Pret's Sparkling Grape & Elderflower",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 98.0,
+"p": 0.0,
+"c": 24.4,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 24.4,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 30.0,
+"p": 0.0,
+"c": 7.4,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007675/prets-sparkling-grape-and-elderflower",
+"keys": null
+},
+{
+"id": "pret:UK007676",
+"name": "Pret's Rhubarb Lemonade",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 107.0,
+"p": 0.0,
+"c": 26.7,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 26.7,
+"fibre": 0.0,
+"sodium_mg": 12.0
+},
+"per100": {
+"kcal": 32.0,
+"p": 0.0,
+"c": 8.1,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007676/prets-rhubarb-lemonade",
+"keys": null
+},
+{
+"id": "pret:UK007681",
+"name": "Ginger Kombucha",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 45.0,
+"p": 0.0,
+"c": 11.2,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 11.2,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 18.0,
+"p": 0.0,
+"c": 4.5,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007681/ginger-kombucha",
+"keys": null
+},
+{
+"id": "pret:UK007692",
+"name": "Very Berry Croissant",
+"category": "Breakfast pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 299.0,
+"p": 4.4,
+"c": 41.7,
+"f": 12.2,
+"micros": {
+"sat_fat": 7.4,
+"sugars": 21.9,
+"fibre": 2.3,
+"sodium_mg": 224.00000000000003
+},
+"per100": {
+"kcal": 340.0,
+"p": 5.0,
+"c": 47.4,
+"f": 13.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007692/very-berry-croissant",
+"keys": null
+},
+{
+"id": "pret:UK007724",
+"name": "Iced Hot Chocolate",
+"category": "Iced favourites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 197.0,
+"p": 7.9,
+"c": 30.5,
+"f": 3.7,
+"micros": {
+"sat_fat": 2.3,
+"sugars": 29.1,
+"fibre": 5.3,
+"sodium_mg": 12.0
+},
+"per100": {
+"kcal": 52.0,
+"p": 2.1,
+"c": 8.1,
+"f": 1.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007724/iced-hot-chocolate",
+"keys": null
+},
+{
+"id": "pret:UK007725",
+"name": "Iced Mocha",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 159.0,
+"p": 8.0,
+"c": 21.4,
+"f": 4.0,
+"micros": {
+"sat_fat": 2.4,
+"sugars": 20.6,
+"fibre": 2.8,
+"sodium_mg": 68.0
+},
+"per100": {
+"kcal": 38.0,
+"p": 1.9,
+"c": 5.1,
+"f": 1.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007725/iced-mocha",
+"keys": null
+},
+{
+"id": "pret:UK007757",
+"name": "Pret's Mushroom Risotto Side Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 111.0,
+"p": 3.6,
+"c": 14.7,
+"f": 3.9,
+"micros": {
+"sat_fat": 2.3,
+"sugars": 1.4,
+"fibre": 1.5,
+"sodium_mg": 432.0
+},
+"per100": {
+"kcal": 61.0,
+"p": 1.9,
+"c": 8.1,
+"f": 2.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007757/prets-mushroom-risotto-side-soup",
+"keys": null
+},
+{
+"id": "pret:UK007758",
+"name": "Pret's Mushroom Risotto",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 222.0,
+"p": 7.1,
+"c": 29.5,
+"f": 7.8,
+"micros": {
+"sat_fat": 4.6,
+"sugars": 2.7,
+"fibre": 3.0,
+"sodium_mg": 864.0
+},
+"per100": {
+"kcal": 61.0,
+"p": 1.9,
+"c": 8.1,
+"f": 2.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK007758/prets-mushroom-risotto",
+"keys": null
+},
+{
+"id": "pret:UK008241",
+"name": "Chicken Laksa Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 296.0,
+"p": 8.7,
+"c": 22.5,
+"f": 18.1,
+"micros": {
+"sat_fat": 15.2,
+"sugars": 6.9,
+"fibre": 3.9,
+"sodium_mg": 880.0000000000001
+},
+"per100": {
+"kcal": 81.0,
+"p": 2.4,
+"c": 6.2,
+"f": 5.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008241/chicken-laksa-soup",
+"keys": null
+},
+{
+"id": "pret:UK008242",
+"name": "Chicken Laksa Side Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 148.0,
+"p": 4.3,
+"c": 11.3,
+"f": 9.1,
+"micros": {
+"sat_fat": 7.6,
+"sugars": 3.5,
+"fibre": 2.0,
+"sodium_mg": 440.00000000000006
+},
+"per100": {
+"kcal": 81.0,
+"p": 2.4,
+"c": 6.2,
+"f": 5.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008242/chicken-laksa-side-soup",
+"keys": null
+},
+{
+"id": "pret:UK008246",
+"name": "Pret's Sausage Roll",
+"category": "Pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 384.0,
+"p": 13.7,
+"c": 22.4,
+"f": 26.0,
+"micros": {
+"sat_fat": 13.4,
+"sugars": 2.7,
+"fibre": 3.0,
+"sodium_mg": 496.0
+},
+"per100": {
+"kcal": 349.0,
+"p": 12.5,
+"c": 20.4,
+"f": 23.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008246/prets-sausage-roll",
+"keys": null
+},
+{
+"id": "pret:UK008421",
+"name": "Lime & Raspberry Seltzer",
+"category": "Your choice of Pret Cans drink",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008421/lime-and-raspberry-seltzer",
+"keys": null
+},
+{
+"id": "pret:UK008422",
+"name": "Cucumber & Mint Seltzer",
+"category": "Your choice of Pret Cans drink",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008422/cucumber-and-mint-seltzer",
+"keys": null
+},
+{
+"id": "pret:UK008423",
+"name": "Mocha Frappé",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 440.0,
+"p": 15.3,
+"c": 43.0,
+"f": 22.3,
+"micros": {
+"sat_fat": 8.3,
+"sugars": 32.9,
+"fibre": 3.1,
+"sodium_mg": 76.0
+},
+"per100": {
+"kcal": 87.0,
+"p": 3.0,
+"c": 8.5,
+"f": 4.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008423/mocha-frappe",
+"keys": null
+},
+{
+"id": "pret:UK008509",
+"name": "Easy Greens",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 35.0,
+"p": 0.0,
+"c": 8.8,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 7.0,
+"fibre": 0.0,
+"sodium_mg": 44.0
+},
+"per100": {
+"kcal": 18.0,
+"p": 0.0,
+"c": 4.4,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008509/easy-greens",
+"keys": null
+},
+{
+"id": "pret:UK008511",
+"name": "Berries & Banana Smoothie",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 200.0,
+"p": 1.7,
+"c": 45.1,
+"f": 0.6,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 43.8,
+"fibre": 3.9,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 45.0,
+"p": 0.4,
+"c": 10.0,
+"f": 0.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008511/berries-and-banana-smoothie",
+"keys": null
+},
+{
+"id": "pret:UK008512",
+"name": "Mango & Peach Smoothie",
+"category": "Juices and smoothies",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 190.0,
+"p": 1.8,
+"c": 43.6,
+"f": 0.4,
+"micros": {
+"sat_fat": 0.1,
+"sugars": 42.4,
+"fibre": 2.2,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 42.0,
+"p": 0.4,
+"c": 9.7,
+"f": 0.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK008512/mango-and-peach-smoothie",
+"keys": null
+},
+{
+"id": "pret:UK020002",
+"name": "Chicken Pesto & Rocket Wrap",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 516.0,
+"p": 22.1,
+"c": 38.4,
+"f": 29.7,
+"micros": {
+"sat_fat": 3.4,
+"sugars": 3.4,
+"fibre": 3.2,
+"sodium_mg": 800.0
+},
+"per100": {
+"kcal": 242.0,
+"p": 10.4,
+"c": 18.0,
+"f": 13.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020002/chicken-pesto-and-rocket-wrap",
+"keys": null
+},
+{
+"id": "pret:UK020016",
+"name": "Pastel De Nata ",
+"category": "Pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 157.0,
+"p": 2.9,
+"c": 21.2,
+"f": 6.2,
+"micros": {
+"sat_fat": 4.0,
+"sugars": 11.8,
+"fibre": 2.2,
+"sodium_mg": 132.0
+},
+"per100": {
+"kcal": 262.0,
+"p": 4.9,
+"c": 35.3,
+"f": 10.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020016/pastel-de-nata",
+"keys": null
+},
+{
+"id": "pret:UK020023",
+"name": "Chicken Salad Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 595.0,
+"p": 24.0,
+"c": 57.0,
+"f": 29.5,
+"micros": {
+"sat_fat": 7.9,
+"sugars": 3.2,
+"fibre": 2.8,
+"sodium_mg": 1192.0
+},
+"per100": {
+"kcal": 265.0,
+"p": 10.7,
+"c": 25.4,
+"f": 13.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020023/chicken-salad-baguette",
+"keys": null
+},
+{
+"id": "pret:UK020102",
+"name": "Chai Latte ",
+"category": "UK Standard Coffee Subscription",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 207.0,
+"p": 11.2,
+"c": 28.1,
+"f": 5.5,
+"micros": {
+"sat_fat": 3.5,
+"sugars": 27.2,
+"fibre": 0.5,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 62.0,
+"p": 3.3,
+"c": 8.4,
+"f": 1.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020102/chai-latte",
+"keys": null
+},
+{
+"id": "pret:UK020107",
+"name": "Chicken Salad",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 529.0,
+"p": 21.8,
+"c": 42.7,
+"f": 29.3,
+"micros": {
+"sat_fat": 7.9,
+"sugars": 3.1,
+"fibre": 3.8,
+"sodium_mg": 888.0000000000001
+},
+"per100": {
+"kcal": 248.0,
+"p": 10.2,
+"c": 20.0,
+"f": 13.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020107/chicken-salad",
+"keys": null
+},
+{
+"id": "pret:UK020114",
+"name": "Iced Chai Latte",
+"category": "Iced favourites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 162.0,
+"p": 8.2,
+"c": 23.3,
+"f": 4.0,
+"micros": {
+"sat_fat": 2.6,
+"sugars": 23.2,
+"fibre": 0.0,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 40.0,
+"p": 2.1,
+"c": 5.8,
+"f": 1.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020114/iced-chai-latte",
+"keys": null
+},
+{
+"id": "pret:UK020129",
+"name": "Mango & Banana Sunshine Bowl",
+"category": "Birchers and yoghurt bowls",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 342.0,
+"p": 6.4,
+"c": 45.9,
+"f": 13.4,
+"micros": {
+"sat_fat": 8.1,
+"sugars": 24.2,
+"fibre": 5.7,
+"sodium_mg": 24.0
+},
+"per100": {
+"kcal": 205.0,
+"p": 3.9,
+"c": 27.6,
+"f": 8.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020129/mango-and-banana-sunshine-bowl",
+"keys": null
+},
+{
+"id": "pret:UK020164",
+"name": "Fruit Salad",
+"category": "Fruit pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 107.0,
+"p": 1.3,
+"c": 22.7,
+"f": 0.4,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 22.7,
+"fibre": 3.1,
+"sodium_mg": 8.0
+},
+"per100": {
+"kcal": 47.0,
+"p": 0.6,
+"c": 10.1,
+"f": 0.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020164/fruit-salad",
+"keys": null
+},
+{
+"id": "pret:UK020165",
+"name": "Super Fruit",
+"category": "Fruit pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 88.0,
+"p": 1.4,
+"c": 17.0,
+"f": 1.0,
+"micros": {
+"sat_fat": 0.2,
+"sugars": 16.7,
+"fibre": 2.5,
+"sodium_mg": 4.0
+},
+"per100": {
+"kcal": 52.0,
+"p": 0.8,
+"c": 10.0,
+"f": 0.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020165/super-fruit",
+"keys": null
+},
+{
+"id": "pret:UK020168",
+"name": "Classic Cheese Bloomer Toastie",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 638.0,
+"p": 27.5,
+"c": 51.4,
+"f": 34.8,
+"micros": {
+"sat_fat": 14.4,
+"sugars": 1.9,
+"fibre": 4.7,
+"sodium_mg": 892.0
+},
+"per100": {
+"kcal": 322.0,
+"p": 13.9,
+"c": 25.9,
+"f": 17.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020168/classic-cheese-bloomer-toastie",
+"keys": null
+},
+{
+"id": "pret:UK020169",
+"name": "Ham & Cheese Bloomer Toastie",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 592.0,
+"p": 32.5,
+"c": 50.8,
+"f": 27.7,
+"micros": {
+"sat_fat": 10.9,
+"sugars": 1.6,
+"fibre": 5.0,
+"sodium_mg": 1540.0
+},
+"per100": {
+"kcal": 279.0,
+"p": 15.3,
+"c": 23.9,
+"f": 13.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020169/ham-and-cheese-bloomer-toastie",
+"keys": null
+},
+{
+"id": "pret:UK020170",
+"name": "Tuna Melt Bloomer Toastie",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 552.0,
+"p": 34.1,
+"c": 50.2,
+"f": 22.8,
+"micros": {
+"sat_fat": 7.4,
+"sugars": 1.5,
+"fibre": 5.0,
+"sodium_mg": 1032.0
+},
+"per100": {
+"kcal": 253.0,
+"p": 15.6,
+"c": 23.0,
+"f": 10.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020170/tuna-melt-bloomer-toastie",
+"keys": null
+},
+{
+"id": "pret:UK020214",
+"name": "Smoked Salmon, Soft Cheese & Dill Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 501.0,
+"p": 27.0,
+"c": 53.4,
+"f": 19.0,
+"micros": {
+"sat_fat": 4.9,
+"sugars": 3.4,
+"fibre": 4.2,
+"sodium_mg": 1444.0
+},
+"per100": {
+"kcal": 241.0,
+"p": 13.0,
+"c": 25.7,
+"f": 9.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020214/smoked-salmon-soft-cheese-and-dill-baguette",
+"keys": null
+},
+{
+"id": "pret:UK020243",
+"name": "Italian Style Chicken & Basil Hot Wrap",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 555.0,
+"p": 32.4,
+"c": 48.2,
+"f": 24.5,
+"micros": {
+"sat_fat": 7.0,
+"sugars": 11.8,
+"fibre": 6.1,
+"sodium_mg": 1180.0
+},
+"per100": {
+"kcal": 224.0,
+"p": 13.1,
+"c": 19.4,
+"f": 9.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020243/italian-style-chicken-and-basil-hot-wrap",
+"keys": null
+},
+{
+"id": "pret:UK020249",
+"name": "Pret's Lasagne Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 302.0,
+"p": 13.7,
+"c": 24.1,
+"f": 15.8,
+"micros": {
+"sat_fat": 4.3,
+"sugars": 9.7,
+"fibre": 4.0,
+"sodium_mg": 972.0000000000001
+},
+"per100": {
+"kcal": 84.0,
+"p": 3.8,
+"c": 6.7,
+"f": 4.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020249/prets-lasagne-soup",
+"keys": null
+},
+{
+"id": "pret:UK020267",
+"name": "Soup White Baguette with Butter",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 241.0,
+"p": 6.5,
+"c": 36.6,
+"f": 7.3,
+"micros": {
+"sat_fat": 4.7,
+"sugars": 1.5,
+"fibre": 1.6,
+"sodium_mg": 404.0
+},
+"per100": {
+"kcal": 326.0,
+"p": 8.7,
+"c": 49.5,
+"f": 9.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020267/soup-white-baguette-with-butter",
+"keys": null
+},
+{
+"id": "pret:UK020283",
+"name": "Pumpkin Spice Latte ",
+"category": "Coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 183.0,
+"p": 9.3,
+"c": 25.5,
+"f": 4.7,
+"micros": {
+"sat_fat": 2.9,
+"sugars": 24.6,
+"fibre": 0.5,
+"sodium_mg": 68.0
+},
+"per100": {
+"kcal": 53.0,
+"p": 2.7,
+"c": 7.3,
+"f": 1.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020283/pumpkin-spice-latte",
+"keys": null
+},
+{
+"id": "pret:UK020333",
+"name": "Avo, Olive & Toms Half Baguette",
+"category": "Veggie & Vegan-Friendly",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 282.0,
+"p": 6.5,
+"c": 28.6,
+"f": 14.8,
+"micros": {
+"sat_fat": 2.4,
+"sugars": 2.9,
+"fibre": 4.2,
+"sodium_mg": 328.0
+},
+"per100": {
+"kcal": 238.0,
+"p": 5.5,
+"c": 24.1,
+"f": 12.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020333/avo-olive-and-toms-half-baguette",
+"keys": null
+},
+{
+"id": "pret:UK020335",
+"name": "Italian Prosciutto Half Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 274.0,
+"p": 12.1,
+"c": 27.2,
+"f": 12.4,
+"micros": {
+"sat_fat": 3.0,
+"sugars": 1.9,
+"fibre": 2.4,
+"sodium_mg": 720.0
+},
+"per100": {
+"kcal": 248.0,
+"p": 11.0,
+"c": 24.7,
+"f": 11.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020335/italian-prosciutto-half-baguette",
+"keys": null
+},
+{
+"id": "pret:UK020342",
+"name": "Chicken Caesar & Bacon Half Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 298.0,
+"p": 15.1,
+"c": 27.2,
+"f": 13.8,
+"micros": {
+"sat_fat": 2.5,
+"sugars": 1.6,
+"fibre": 2.2,
+"sodium_mg": 524.0
+},
+"per100": {
+"kcal": 273.0,
+"p": 13.9,
+"c": 24.9,
+"f": 12.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020342/chicken-caesar-and-bacon-half-baguette",
+"keys": null
+},
+{
+"id": "pret:UK020347",
+"name": "Pret Still Water 500ml",
+"category": "Cold drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 28.000000000000004
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020347/pret-still-water-500ml",
+"keys": null
+},
+{
+"id": "pret:UK020348",
+"name": "Pret Still Water 750ml",
+"category": "Cold drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 40.0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020348/pret-still-water-750ml",
+"keys": null
+},
+{
+"id": "pret:UK020350",
+"name": "Pret Sparkling Water 500ml",
+"category": "Cold drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 0.0,
+"fibre": 0.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 0.0,
+"p": 0.0,
+"c": 0.0,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020350/pret-sparkling-water-500ml",
+"keys": null
+},
+{
+"id": "pret:UK020354",
+"name": "Chicken, Avocado & Basil Half Sandwich",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 244.0,
+"p": 11.6,
+"c": 21.8,
+"f": 11.6,
+"micros": {
+"sat_fat": 2.3,
+"sugars": 1.7,
+"fibre": 3.0,
+"sodium_mg": 416.0
+},
+"per100": {
+"kcal": 204.0,
+"p": 9.7,
+"c": 18.2,
+"f": 9.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020354/chicken-avocado-and-basil-half-sandwich",
+"keys": null
+},
+{
+"id": "pret:UK020365",
+"name": "Classic Super Club Half Sandwich",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 264.0,
+"p": 13.4,
+"c": 21.7,
+"f": 13.3,
+"micros": {
+"sat_fat": 2.2,
+"sugars": 1.9,
+"fibre": 2.1,
+"sodium_mg": 552.0
+},
+"per100": {
+"kcal": 226.0,
+"p": 11.5,
+"c": 18.6,
+"f": 11.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020365/classic-super-club-half-sandwich",
+"keys": null
+},
+{
+"id": "pret:UK020366",
+"name": "Kids' Chicken & Cucumber Triangles",
+"category": "Little Pret Stars ",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 381.0,
+"p": 18.6,
+"c": 41.8,
+"f": 14.7,
+"micros": {
+"sat_fat": 1.5,
+"sugars": 2.7,
+"fibre": 3.6,
+"sodium_mg": 644.0
+},
+"per100": {
+"kcal": 221.0,
+"p": 10.8,
+"c": 24.3,
+"f": 8.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020366/kids-chicken-and-cucumber-triangles",
+"keys": null
+},
+{
+"id": "pret:UK020368",
+"name": "Kids' Mango & Banana Yogurt Pot",
+"category": "Little Pret Stars ",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 101.0,
+"p": 6.1,
+"c": 9.3,
+"f": 4.3,
+"micros": {
+"sat_fat": 2.9,
+"sugars": 8.8,
+"fibre": 0.2,
+"sodium_mg": 60.0
+},
+"per100": {
+"kcal": 102.0,
+"p": 6.2,
+"c": 9.3,
+"f": 4.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020368/kids-mango-and-banana-yogurt-pot",
+"keys": null
+},
+{
+"id": "pret:UK020370",
+"name": "Kids' Ham Triangles",
+"category": "Little Pret Stars ",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 288.0,
+"p": 13.9,
+"c": 40.8,
+"f": 7.0,
+"micros": {
+"sat_fat": 3.8,
+"sugars": 2.2,
+"fibre": 3.5,
+"sodium_mg": 688.0
+},
+"per100": {
+"kcal": 244.0,
+"p": 11.7,
+"c": 34.6,
+"f": 5.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020370/kids-ham-triangles",
+"keys": null
+},
+{
+"id": "pret:UK020374",
+"name": "Kids' Humous & Cucumber Bowl",
+"category": "Little Pret Stars ",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 84.0,
+"p": 3.0,
+"c": 3.0,
+"f": 5.9,
+"micros": {
+"sat_fat": 0.7,
+"sugars": 1.2,
+"fibre": 3.2,
+"sodium_mg": 132.0
+},
+"per100": {
+"kcal": 94.0,
+"p": 3.3,
+"c": 3.4,
+"f": 6.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020374/kids-humous-and-cucumber-bowl",
+"keys": null
+},
+{
+"id": "pret:UK020375",
+"name": "Kids' Pizza Toastie",
+"category": "Little Pret Stars ",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 379.0,
+"p": 16.9,
+"c": 44.3,
+"f": 13.9,
+"micros": {
+"sat_fat": 6.5,
+"sugars": 4.3,
+"fibre": 4.4,
+"sodium_mg": 568.0
+},
+"per100": {
+"kcal": 274.0,
+"p": 12.3,
+"c": 32.1,
+"f": 10.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020375/kids-pizza-toastie",
+"keys": null
+},
+{
+"id": "pret:UK020376",
+"name": "The Big Apple Bowl",
+"category": "Veggie & Vegan-Friendly",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 304.0,
+"p": 11.7,
+"c": 43.2,
+"f": 8.4,
+"micros": {
+"sat_fat": 3.4,
+"sugars": 29.3,
+"fibre": 4.2,
+"sodium_mg": 96.0
+},
+"per100": {
+"kcal": 157.0,
+"p": 6.0,
+"c": 22.3,
+"f": 4.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020376/the-big-apple-bowl",
+"keys": null
+},
+{
+"id": "pret:UK020379",
+"name": "Smoked Salmon, Egg Mayo & Avo Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 552.0,
+"p": 24.6,
+"c": 54.6,
+"f": 24.9,
+"micros": {
+"sat_fat": 4.9,
+"sugars": 2.4,
+"fibre": 5.7,
+"sodium_mg": 1144.0
+},
+"per100": {
+"kcal": 231.0,
+"p": 10.3,
+"c": 22.8,
+"f": 10.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020379/smoked-salmon-egg-mayo-and-avo-baguette",
+"keys": null
+},
+{
+"id": "pret:UK020394",
+"name": "Chicken Satay Wrap",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 460.0,
+"p": 24.4,
+"c": 45.0,
+"f": 19.2,
+"micros": {
+"sat_fat": 3.4,
+"sugars": 8.9,
+"fibre": 4.6,
+"sodium_mg": 956.0
+},
+"per100": {
+"kcal": 184.0,
+"p": 9.8,
+"c": 18.0,
+"f": 7.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020394/chicken-satay-wrap",
+"keys": null
+},
+{
+"id": "pret:UK020419",
+"name": "Milk Chocolate Bar",
+"category": "Sweet treats",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 172.0,
+"p": 2.3,
+"c": 13.3,
+"f": 11.8,
+"micros": {
+"sat_fat": 7.2,
+"sugars": 13.0,
+"fibre": 1.6,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 574.0,
+"p": 7.8,
+"c": 44.3,
+"f": 39.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020419/milk-chocolate-bar",
+"keys": null
+},
+{
+"id": "pret:UK020420",
+"name": "Dark Chocolate with Sea Salt",
+"category": "Bars and bites",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 172.0,
+"p": 2.7,
+"c": 9.5,
+"f": 12.9,
+"micros": {
+"sat_fat": 7.8,
+"sugars": 8.3,
+"fibre": 3.9,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 575.0,
+"p": 8.9,
+"c": 31.8,
+"f": 42.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020420/dark-chocolate-with-sea-salt",
+"keys": null
+},
+{
+"id": "pret:UK020421",
+"name": "Mediterranean Style Tuna Flatbread",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 502.0,
+"p": 24.3,
+"c": 49.7,
+"f": 22.2,
+"micros": {
+"sat_fat": 2.5,
+"sugars": 8.7,
+"fibre": 3.2,
+"sodium_mg": 608.0
+},
+"per100": {
+"kcal": 190.0,
+"p": 9.2,
+"c": 18.8,
+"f": 8.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020421/mediterranean-style-tuna-flatbread",
+"keys": null
+},
+{
+"id": "pret:UK020422",
+"name": "Falafel, Avo & Chipotle Flatbread",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 499.0,
+"p": 11.9,
+"c": 65.5,
+"f": 19.2,
+"micros": {
+"sat_fat": 4.1,
+"sugars": 16.2,
+"fibre": 8.3,
+"sodium_mg": 316.0
+},
+"per100": {
+"kcal": 188.0,
+"p": 4.5,
+"c": 24.7,
+"f": 7.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020422/falafel-avo-and-chipotle-flatbread",
+"keys": null
+},
+{
+"id": "pret:UK020424",
+"name": "Shawarma Spiced Chicken Flatbread",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 453.0,
+"p": 28.5,
+"c": 56.7,
+"f": 10.7,
+"micros": {
+"sat_fat": 1.6,
+"sugars": 15.0,
+"fibre": 7.8,
+"sodium_mg": 856.0
+},
+"per100": {
+"kcal": 178.0,
+"p": 11.2,
+"c": 22.3,
+"f": 4.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020424/shawarma-spiced-chicken-flatbread",
+"keys": null
+},
+{
+"id": "pret:UK020429",
+"name": "Kids' Cheese & Tomato Triangles",
+"category": "Little Pret Stars ",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 369.0,
+"p": 17.9,
+"c": 43.2,
+"f": 12.9,
+"micros": {
+"sat_fat": 7.5,
+"sugars": 3.9,
+"fibre": 4.1,
+"sodium_mg": 500.0
+},
+"per100": {
+"kcal": 211.0,
+"p": 10.3,
+"c": 24.8,
+"f": 7.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020429/kids-cheese-and-tomato-triangles",
+"keys": null
+},
+{
+"id": "pret:UK020438",
+"name": "Pret's Veggie Breakfast Ciabatta ",
+"category": "Veggie & Vegan-Friendly",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 372.0,
+"p": 17.1,
+"c": 40.4,
+"f": 14.9,
+"micros": {
+"sat_fat": 4.5,
+"sugars": 6.4,
+"fibre": 4.2,
+"sodium_mg": 848.0
+},
+"per100": {
+"kcal": 181.0,
+"p": 8.3,
+"c": 19.7,
+"f": 7.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020438/prets-veggie-breakfast-ciabatta",
+"keys": null
+},
+{
+"id": "pret:UK020439",
+"name": "Triple Bacon Ciabatta",
+"category": "Breakfast rolls",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 322.0,
+"p": 18.1,
+"c": 35.7,
+"f": 11.3,
+"micros": {
+"sat_fat": 4.7,
+"sugars": 2.5,
+"fibre": 2.2,
+"sodium_mg": 544.0
+},
+"per100": {
+"kcal": 273.0,
+"p": 15.4,
+"c": 30.3,
+"f": 9.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020439/triple-bacon-ciabatta",
+"keys": null
+},
+{
+"id": "pret:UK020440",
+"name": "Ultimate Breakfast Ciabatta",
+"category": "Breakfast rolls",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 503.0,
+"p": 25.7,
+"c": 40.9,
+"f": 25.4,
+"micros": {
+"sat_fat": 7.8,
+"sugars": 7.1,
+"fibre": 3.8,
+"sodium_mg": 1024.0
+},
+"per100": {
+"kcal": 232.0,
+"p": 11.9,
+"c": 18.9,
+"f": 11.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020440/ultimate-breakfast-ciabatta",
+"keys": null
+},
+{
+"id": "pret:UK020442",
+"name": "Triple Sausage Ciabatta",
+"category": "Breakfast rolls",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 469.0,
+"p": 19.8,
+"c": 37.8,
+"f": 25.9,
+"micros": {
+"sat_fat": 10.1,
+"sugars": 3.7,
+"fibre": 3.0,
+"sodium_mg": 776.0
+},
+"per100": {
+"kcal": 317.0,
+"p": 13.4,
+"c": 25.5,
+"f": 17.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020442/triple-sausage-ciabatta",
+"keys": null
+},
+{
+"id": "pret:UK020510",
+"name": "Blueberry Balance Bowl",
+"category": "Sweet pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 318.0,
+"p": 12.9,
+"c": 33.8,
+"f": 13.6,
+"micros": {
+"sat_fat": 9.3,
+"sugars": 20.0,
+"fibre": 4.2,
+"sodium_mg": 80.0
+},
+"per100": {
+"kcal": 146.0,
+"p": 5.9,
+"c": 15.5,
+"f": 6.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020510/blueberry-balance-bowl",
+"keys": null
+},
+{
+"id": "pret:UK020513",
+"name": "British Sausages, Pret's Baked Beans & Egg Pot",
+"category": "Hot food",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 342.0,
+"p": 22.1,
+"c": 12.0,
+"f": 19.5,
+"micros": {
+"sat_fat": 6.6,
+"sugars": 6.4,
+"fibre": 14.9,
+"sodium_mg": 680.0
+},
+"per100": {
+"kcal": 139.0,
+"p": 9.0,
+"c": 4.9,
+"f": 7.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020513/british-sausages-prets-baked-beans-and-egg-pot",
+"keys": null
+},
+{
+"id": "pret:UK020514",
+"name": "Roasted Mushroom, Pret's Baked Beans & Egg Pot",
+"category": "Breakfast protein pot",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 191.0,
+"p": 14.1,
+"c": 11.2,
+"f": 6.6,
+"micros": {
+"sat_fat": 1.5,
+"sugars": 5.7,
+"fibre": 15.1,
+"sodium_mg": 424.0
+},
+"per100": {
+"kcal": 84.0,
+"p": 6.2,
+"c": 4.9,
+"f": 2.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020514/roasted-mushroom-prets-baked-beans-and-egg-pot",
+"keys": null
+},
+{
+"id": "pret:UK020515",
+"name": "Coconut & Quinoa Porridge",
+"category": "Veggie & Vegan-Friendly",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 275.0,
+"p": 6.1,
+"c": 34.4,
+"f": 12.2,
+"micros": {
+"sat_fat": 8.8,
+"sugars": 3.2,
+"fibre": 1.5,
+"sodium_mg": 136.0
+},
+"per100": {
+"kcal": 92.0,
+"p": 2.0,
+"c": 11.5,
+"f": 4.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020515/coconut-and-quinoa-porridge",
+"keys": null
+},
+{
+"id": "pret:UK020533",
+"name": "Nutty Pistachio & Almond Loaf Cake",
+"category": "Sweet treats",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 604.0,
+"p": 12.3,
+"c": 34.7,
+"f": 45.5,
+"micros": {
+"sat_fat": 17.9,
+"sugars": 32.8,
+"fibre": 3.1,
+"sodium_mg": 376.0
+},
+"per100": {
+"kcal": 465.0,
+"p": 9.5,
+"c": 26.7,
+"f": 35.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020533/nutty-pistachio-and-almond-loaf-cake",
+"keys": null
+},
+{
+"id": "pret:UK020534",
+"name": "Zingy Lemon & Almond Loaf Cake",
+"category": "Sweet treats",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 592.0,
+"p": 9.4,
+"c": 44.7,
+"f": 41.2,
+"micros": {
+"sat_fat": 14.8,
+"sugars": 42.3,
+"fibre": 2.6,
+"sodium_mg": 340.0
+},
+"per100": {
+"kcal": 439.0,
+"p": 7.0,
+"c": 33.1,
+"f": 30.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020534/zingy-lemon-and-almond-loaf-cake",
+"keys": null
+},
+{
+"id": "pret:UK020603",
+"name": "Crispy Potato Bites",
+"category": "Hot food boxes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 185.0,
+"p": 3.6,
+"c": 30.0,
+"f": 4.8,
+"micros": {
+"sat_fat": 0.3,
+"sugars": 1.5,
+"fibre": 3.9,
+"sodium_mg": 476.0
+},
+"per100": {
+"kcal": 124.0,
+"p": 2.4,
+"c": 20.0,
+"f": 3.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020603/crispy-potato-bites",
+"keys": null
+},
+{
+"id": "pret:UK020642",
+"name": "Chicken Satay Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 537.0,
+"p": 27.6,
+"c": 64.8,
+"f": 17.6,
+"micros": {
+"sat_fat": 3.2,
+"sugars": 9.9,
+"fibre": 4.4,
+"sodium_mg": 1336.0
+},
+"per100": {
+"kcal": 223.0,
+"p": 11.5,
+"c": 27.0,
+"f": 7.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020642/chicken-satay-baguette",
+"keys": null
+},
+{
+"id": "pret:UK020776",
+"name": "Miso Salmon",
+"category": "Super Plates, salads and protein pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 761.0,
+"p": 36.0,
+"c": 43.4,
+"f": 47.1,
+"micros": {
+"sat_fat": 7.1,
+"sugars": 16.5,
+"fibre": 12.8,
+"sodium_mg": 1264.0
+},
+"per100": {
+"kcal": 149.0,
+"p": 7.0,
+"c": 8.5,
+"f": 9.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020776/miso-salmon",
+"keys": null
+},
+{
+"id": "pret:UK020778",
+"name": "Shawarma Chicken",
+"category": "Super Plates, salads and protein pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 628.0,
+"p": 50.3,
+"c": 31.1,
+"f": 30.3,
+"micros": {
+"sat_fat": 4.0,
+"sugars": 14.3,
+"fibre": 14.9,
+"sodium_mg": 1128.0
+},
+"per100": {
+"kcal": 140.0,
+"p": 11.2,
+"c": 7.0,
+"f": 6.8
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020778/shawarma-chicken",
+"keys": null
+},
+{
+"id": "pret:UK020779",
+"name": "Chipotle Chicken",
+"category": "Super Plates, salads and protein pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 709.0,
+"p": 50.1,
+"c": 48.4,
+"f": 32.0,
+"micros": {
+"sat_fat": 8.9,
+"sugars": 13.6,
+"fibre": 13.9,
+"sodium_mg": 1011.9999999999999
+},
+"per100": {
+"kcal": 133.0,
+"p": 9.4,
+"c": 9.1,
+"f": 6.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020779/chipotle-chicken",
+"keys": null
+},
+{
+"id": "pret:UK020781",
+"name": "Egg Florentine",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 459.0,
+"p": 23.7,
+"c": 45.5,
+"f": 19.2,
+"micros": {
+"sat_fat": 5.9,
+"sugars": 3.6,
+"fibre": 4.7,
+"sodium_mg": 736.0
+},
+"per100": {
+"kcal": 189.0,
+"p": 9.8,
+"c": 18.8,
+"f": 7.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020781/egg-florentine",
+"keys": null
+},
+{
+"id": "pret:UK020900",
+"name": "Butternut & Humous Mezze Bowl",
+"category": "Salads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 395.0,
+"p": 13.2,
+"c": 40.4,
+"f": 17.0,
+"micros": {
+"sat_fat": 2.2,
+"sugars": 12.1,
+"fibre": 13.5,
+"sodium_mg": 648.0
+},
+"per100": {
+"kcal": 119.0,
+"p": 4.0,
+"c": 12.2,
+"f": 5.1
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020900/butternut-and-humous-mezze-bowl",
+"keys": null
+},
+{
+"id": "pret:UK020909",
+"name": "poppi Strawberry & Lemon",
+"category": "Cold drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 27.0,
+"p": 0.0,
+"c": 5.3,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 4.3,
+"fibre": 3.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 8.0,
+"p": 0.0,
+"c": 1.6,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020909/poppi-strawberry-and-lemon",
+"keys": null
+},
+{
+"id": "pret:UK020918",
+"name": "Shawarma Spiced Chicken Half Flatbread",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 226.0,
+"p": 14.2,
+"c": 28.4,
+"f": 5.3,
+"micros": {
+"sat_fat": 0.8,
+"sugars": 7.5,
+"fibre": 3.9,
+"sodium_mg": 428.0
+},
+"per100": {
+"kcal": 178.0,
+"p": 11.2,
+"c": 22.3,
+"f": 4.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020918/shawarma-spiced-chicken-half-flatbread",
+"keys": null
+},
+{
+"id": "pret:UK020919",
+"name": "Falafel, Avo & Chipotle Half Flatbread",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 250.0,
+"p": 5.9,
+"c": 32.8,
+"f": 9.6,
+"micros": {
+"sat_fat": 2.0,
+"sugars": 8.1,
+"fibre": 4.1,
+"sodium_mg": 156.0
+},
+"per100": {
+"kcal": 188.0,
+"p": 4.5,
+"c": 24.7,
+"f": 7.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020919/falafel-avo-and-chipotle-half-flatbread",
+"keys": null
+},
+{
+"id": "pret:UK020921",
+"name": "Sausage & Bacon Ciabatta",
+"category": "Breakfast rolls",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 467.0,
+"p": 23.2,
+"c": 37.1,
+"f": 24.5,
+"micros": {
+"sat_fat": 10.0,
+"sugars": 3.3,
+"fibre": 2.8,
+"sodium_mg": 788.0
+},
+"per100": {
+"kcal": 305.0,
+"p": 15.1,
+"c": 24.3,
+"f": 16.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020921/sausage-and-bacon-ciabatta",
+"keys": null
+},
+{
+"id": "pret:UK020922",
+"name": "poppi Wild Berry",
+"category": "Cold drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 24.0,
+"p": 0.0,
+"c": 4.6,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 4.3,
+"fibre": 3.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 7.0,
+"p": 0.0,
+"c": 1.4,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020922/poppi-wild-berry",
+"keys": null
+},
+{
+"id": "pret:UK020923",
+"name": "poppi Lemon Lime",
+"category": "Cold drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 26.0,
+"p": 0.0,
+"c": 4.9,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 4.6,
+"fibre": 3.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 8.0,
+"p": 0.0,
+"c": 1.5,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020923/poppi-lemon-lime",
+"keys": null
+},
+{
+"id": "pret:UK020924",
+"name": "poppi Raspberry Rose",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 27.0,
+"p": 0.0,
+"c": 4.9,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 3.6,
+"fibre": 3.6,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 8.0,
+"p": 0.0,
+"c": 1.5,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020924/poppi-raspberry-rose",
+"keys": null
+},
+{
+"id": "pret:UK020925",
+"name": "poppi Orange",
+"category": "Water and soft drinks",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 26.0,
+"p": 0.0,
+"c": 4.9,
+"f": 0.0,
+"micros": {
+"sat_fat": 0.0,
+"sugars": 4.3,
+"fibre": 3.0,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 8.0,
+"p": 0.0,
+"c": 1.5,
+"f": 0.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020925/poppi-orange",
+"keys": null
+},
+{
+"id": "pret:UK020977",
+"name": "Miso Chicken Rice Bowl",
+"category": "Salads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 385.0,
+"p": 26.6,
+"c": 34.3,
+"f": 14.5,
+"micros": {
+"sat_fat": 1.8,
+"sugars": 17.5,
+"fibre": 7.1,
+"sodium_mg": 1192.0
+},
+"per100": {
+"kcal": 120.0,
+"p": 8.3,
+"c": 10.7,
+"f": 4.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020977/miso-chicken-rice-bowl",
+"keys": null
+},
+{
+"id": "pret:UK020979",
+"name": "Chicken & Edamame Protein Pot",
+"category": "Salads and protein pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 195.0,
+"p": 26.6,
+"c": 7.0,
+"f": 6.1,
+"micros": {
+"sat_fat": 1.2,
+"sugars": 0.8,
+"fibre": 3.0,
+"sodium_mg": 488.0
+},
+"per100": {
+"kcal": 150.0,
+"p": 20.6,
+"c": 5.4,
+"f": 4.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020979/chicken-and-edamame-protein-pot",
+"keys": null
+},
+{
+"id": "pret:UK020980",
+"name": "Korean BBQ Tofu",
+"category": "Super Plates ",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 449.0,
+"p": 21.5,
+"c": 51.0,
+"f": 15.4,
+"micros": {
+"sat_fat": 10.0,
+"sugars": 21.0,
+"fibre": 10.4,
+"sodium_mg": 1308.0
+},
+"per100": {
+"kcal": 100.0,
+"p": 4.8,
+"c": 11.3,
+"f": 3.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK020980/korean-bbq-tofu",
+"keys": null
+},
+{
+"id": "pret:UK021060",
+"name": "Smoked Salmon & Egg Protein Plate",
+"category": "Salads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 413.0,
+"p": 32.0,
+"c": 7.7,
+"f": 27.3,
+"micros": {
+"sat_fat": 5.6,
+"sugars": 1.9,
+"fibre": 3.9,
+"sodium_mg": 1236.0
+},
+"per100": {
+"kcal": 142.0,
+"p": 11.0,
+"c": 2.7,
+"f": 9.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021060/smoked-salmon-and-egg-protein-plate",
+"keys": null
+},
+{
+"id": "pret:UK021061",
+"name": "Chicken & Greens Protein Plate",
+"category": "Salads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 285.0,
+"p": 34.2,
+"c": 14.6,
+"f": 9.0,
+"micros": {
+"sat_fat": 2.1,
+"sugars": 9.2,
+"fibre": 4.3,
+"sodium_mg": 1140.0
+},
+"per100": {
+"kcal": 105.0,
+"p": 12.6,
+"c": 5.4,
+"f": 3.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021061/chicken-and-greens-protein-plate",
+"keys": null
+},
+{
+"id": "pret:UK021250",
+"name": "Vanilla Matcha Frappe",
+"category": "Iced coffee",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 431.0,
+"p": 14.5,
+"c": 44.4,
+"f": 21.6,
+"micros": {
+"sat_fat": 7.9,
+"sugars": 34.2,
+"fibre": 0.4,
+"sodium_mg": 0
+},
+"per100": {
+"kcal": 88.0,
+"p": 2.9,
+"c": 9.0,
+"f": 4.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021250/vanilla-matcha-frappe",
+"keys": null
+},
+{
+"id": "pret:UK021280",
+"name": "Classic Green Side Salad",
+"category": "Salads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 180.0,
+"p": 6.8,
+"c": 6.2,
+"f": 13.9,
+"micros": {
+"sat_fat": 3.3,
+"sugars": 5.1,
+"fibre": 1.5,
+"sodium_mg": 176.0
+},
+"per100": {
+"kcal": 130.0,
+"p": 4.9,
+"c": 4.5,
+"f": 10.0
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021280/classic-green-side-salad",
+"keys": null
+},
+{
+"id": "pret:UK021285",
+"name": "Pret's Chicken Satay Half Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 269.0,
+"p": 13.8,
+"c": 32.4,
+"f": 8.8,
+"micros": {
+"sat_fat": 1.6,
+"sugars": 4.9,
+"fibre": 2.2,
+"sodium_mg": 668.0
+},
+"per100": {
+"kcal": 223.0,
+"p": 11.5,
+"c": 27.0,
+"f": 7.3
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021285/prets-chicken-satay-half-baguette",
+"keys": null
+},
+{
+"id": "pret:UK021286",
+"name": "Coronation Chicken",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 486.0,
+"p": 22.3,
+"c": 47.7,
+"f": 21.9,
+"micros": {
+"sat_fat": 5.6,
+"sugars": 5.3,
+"fibre": 4.5,
+"sodium_mg": 988.0000000000001
+},
+"per100": {
+"kcal": 227.0,
+"p": 10.4,
+"c": 22.2,
+"f": 10.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021286/coronation-chicken",
+"keys": null
+},
+{
+"id": "pret:UK021288",
+"name": "New Yorker Club Sandwich",
+"category": "Sandwiches",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 719.0,
+"p": 34.5,
+"c": 69.5,
+"f": 32.0,
+"micros": {
+"sat_fat": 9.6,
+"sugars": 9.9,
+"fibre": 7.1,
+"sodium_mg": 1200.0
+},
+"per100": {
+"kcal": 235.0,
+"p": 11.3,
+"c": 22.7,
+"f": 10.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021288/new-yorker-club-sandwich",
+"keys": null
+},
+{
+"id": "pret:UK021423",
+"name": "Coronation Chicken Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 542.0,
+"p": 25.0,
+"c": 59.1,
+"f": 21.7,
+"micros": {
+"sat_fat": 3.1,
+"sugars": 5.3,
+"fibre": 5.0,
+"sodium_mg": 1096.0
+},
+"per100": {
+"kcal": 238.0,
+"p": 11.0,
+"c": 26.0,
+"f": 9.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021423/coronation-chicken-baguette",
+"keys": null
+},
+{
+"id": "pret:UK021446",
+"name": "Coronation Chicken Half Baguette",
+"category": "Baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 271.0,
+"p": 12.5,
+"c": 29.6,
+"f": 10.8,
+"micros": {
+"sat_fat": 1.5,
+"sugars": 2.7,
+"fibre": 2.5,
+"sodium_mg": 548.0
+},
+"per100": {
+"kcal": 238.0,
+"p": 11.0,
+"c": 26.0,
+"f": 9.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021446/coronation-chicken-half-baguette",
+"keys": null
+},
+{
+"id": "pret:UK021465",
+"name": "Creamy Roast Chicken Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 229.0,
+"p": 10.2,
+"c": 17.8,
+"f": 12.5,
+"micros": {
+"sat_fat": 7.0,
+"sugars": 3.8,
+"fibre": 2.1,
+"sodium_mg": 848.0
+},
+"per100": {
+"kcal": 63.0,
+"p": 2.8,
+"c": 4.9,
+"f": 3.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021465/creamy-roast-chicken-soup",
+"keys": null
+},
+{
+"id": "pret:UK021467",
+"name": "Butter Chicken Soup ",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 359.0,
+"p": 16.2,
+"c": 24.9,
+"f": 19.8,
+"micros": {
+"sat_fat": 12.2,
+"sugars": 12.5,
+"fibre": 7.9,
+"sodium_mg": 744.0
+},
+"per100": {
+"kcal": 98.0,
+"p": 4.4,
+"c": 6.8,
+"f": 5.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021467/butter-chicken-soup",
+"keys": null
+},
+{
+"id": "pret:UK021468",
+"name": "Banana Cinnamon Porridge",
+"category": "Porridge",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 283.0,
+"p": 9.0,
+"c": 39.3,
+"f": 8.8,
+"micros": {
+"sat_fat": 4.8,
+"sugars": 20.4,
+"fibre": 5.1,
+"sodium_mg": 76.0
+},
+"per100": {
+"kcal": 84.0,
+"p": 2.7,
+"c": 11.7,
+"f": 2.6
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021468/banana-cinnamon-porridge",
+"keys": null
+},
+{
+"id": "pret:UK021469",
+"name": "Side Porridge",
+"category": "Porridge",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 144.0,
+"p": 5.8,
+"c": 15.8,
+"f": 5.8,
+"micros": {
+"sat_fat": 3.2,
+"sugars": 4.6,
+"fibre": 2.8,
+"sodium_mg": 48.0
+},
+"per100": {
+"kcal": 72.0,
+"p": 2.9,
+"c": 7.9,
+"f": 2.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021469/side-porridge",
+"keys": null
+},
+{
+"id": "pret:UK021470",
+"name": "Warm Three Cheese & Tomato Ciabatta",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 570.0,
+"p": 24.5,
+"c": 59.2,
+"f": 25.0,
+"micros": {
+"sat_fat": 10.9,
+"sugars": 8.0,
+"fibre": 5.1,
+"sodium_mg": 1132.0
+},
+"per100": {
+"kcal": 255.0,
+"p": 10.9,
+"c": 26.5,
+"f": 11.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021470/warm-three-cheese-and-tomato-ciabatta",
+"keys": null
+},
+{
+"id": "pret:UK021471",
+"name": "Spinach & Feta Pastry ",
+"category": "Hot pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 551.0,
+"p": 12.6,
+"c": 45.0,
+"f": 34.5,
+"micros": {
+"sat_fat": 20.8,
+"sugars": 4.7,
+"fibre": 5.2,
+"sodium_mg": 768.0
+},
+"per100": {
+"kcal": 315.0,
+"p": 7.2,
+"c": 25.7,
+"f": 19.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021471/spinach-and-feta-pastry",
+"keys": null
+},
+{
+"id": "pret:UK021472",
+"name": "Bacon, Cheese & Jalapeño Pastry",
+"category": "Hot pastries",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 591.0,
+"p": 16.1,
+"c": 48.6,
+"f": 36.4,
+"micros": {
+"sat_fat": 21.9,
+"sugars": 5.8,
+"fibre": 2.3,
+"sodium_mg": 892.0
+},
+"per100": {
+"kcal": 338.0,
+"p": 9.2,
+"c": 27.8,
+"f": 20.8
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021472/bacon-cheese-and-jalapeno-pastry",
+"keys": null
+},
+{
+"id": "pret:UK021473",
+"name": "Loaded Chocolate Chunk Banana Bread",
+"category": "Sweet treats",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 560.0,
+"p": 7.5,
+"c": 59.3,
+"f": 31.7,
+"micros": {
+"sat_fat": 7.8,
+"sugars": 37.4,
+"fibre": 3.5,
+"sodium_mg": 344.0
+},
+"per100": {
+"kcal": 431.0,
+"p": 5.8,
+"c": 45.6,
+"f": 24.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021473/loaded-chocolate-chunk-banana-bread",
+"keys": null
+},
+{
+"id": "pret:UK021477",
+"name": "Toasted Marshmallow Latte",
+"category": "UK Standard Coffee Subscription",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 293.0,
+"p": 9.9,
+"c": 26.1,
+"f": 16.6,
+"micros": {
+"sat_fat": 4.6,
+"sugars": 26.1,
+"fibre": 0.0,
+"sodium_mg": 68.0
+},
+"per100": {
+"kcal": 77.0,
+"p": 2.6,
+"c": 6.9,
+"f": 4.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021477/toasted-marshmallow-latte",
+"keys": null
+},
+{
+"id": "pret:UK021502",
+"name": "Mediterranean Style Tuna Half Flatbread",
+"category": "Wraps and flatbreads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 251.0,
+"p": 12.1,
+"c": 24.9,
+"f": 11.1,
+"micros": {
+"sat_fat": 1.3,
+"sugars": 4.3,
+"fibre": 1.6,
+"sodium_mg": 304.0
+},
+"per100": {
+"kcal": 190.0,
+"p": 9.2,
+"c": 18.8,
+"f": 8.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021502/mediterranean-style-tuna-half-flatbread",
+"keys": null
+},
+{
+"id": "pret:UK021508",
+"name": "Toasted Marshmallow Hot Chocolate",
+"category": "Your choice of hot or iced drink",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 360.0,
+"p": 11.4,
+"c": 38.7,
+"f": 17.0,
+"micros": {
+"sat_fat": 4.9,
+"sugars": 38.0,
+"fibre": 2.8,
+"sodium_mg": 8.0
+},
+"per100": {
+"kcal": 94.0,
+"p": 3.0,
+"c": 10.1,
+"f": 4.5
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021508/toasted-marshmallow-hot-chocolate",
+"keys": null
+},
+{
+"id": "pret:UK021538",
+"name": "Warm Chicken Caesar Bacon Ciabatta",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 791.0,
+"p": 39.9,
+"c": 54.4,
+"f": 45.2,
+"micros": {
+"sat_fat": 10.2,
+"sugars": 3.0,
+"fibre": 3.5,
+"sodium_mg": 1484.0
+},
+"per100": {
+"kcal": 295.0,
+"p": 14.9,
+"c": 20.3,
+"f": 16.9
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021538/warm-chicken-caesar-bacon-ciabatta",
+"keys": null
+},
+{
+"id": "pret:UK021539",
+"name": "Butternut & Humous Side Salad",
+"category": "Salads and protein pots",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 149.0,
+"p": 5.5,
+"c": 12.7,
+"f": 7.2,
+"micros": {
+"sat_fat": 0.8,
+"sugars": 6.5,
+"fibre": 6.0,
+"sodium_mg": 304.0
+},
+"per100": {
+"kcal": 107.0,
+"p": 4.0,
+"c": 9.1,
+"f": 5.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021539/butternut-and-humous-side-salad",
+"keys": null
+},
+{
+"id": "pret:UK021540",
+"name": "Creamy Roast Chicken Side Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 114.0,
+"p": 5.1,
+"c": 8.9,
+"f": 6.2,
+"micros": {
+"sat_fat": 3.5,
+"sugars": 1.9,
+"fibre": 1.1,
+"sodium_mg": 424.0
+},
+"per100": {
+"kcal": 63.0,
+"p": 2.8,
+"c": 4.9,
+"f": 3.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021540/creamy-roast-chicken-side-soup",
+"keys": null
+},
+{
+"id": "pret:UK021541",
+"name": "Butter Chicken Side Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 179.0,
+"p": 8.1,
+"c": 12.4,
+"f": 9.9,
+"micros": {
+"sat_fat": 6.1,
+"sugars": 6.3,
+"fibre": 4.0,
+"sodium_mg": 372.0
+},
+"per100": {
+"kcal": 98.0,
+"p": 4.4,
+"c": 6.8,
+"f": 5.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021541/butter-chicken-side-soup",
+"keys": null
+},
+{
+"id": "pret:UK021542",
+"name": "Pret's Lasagne Side Soup",
+"category": "Soup and breads",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 153.0,
+"p": 6.9,
+"c": 12.2,
+"f": 8.0,
+"micros": {
+"sat_fat": 2.2,
+"sugars": 4.9,
+"fibre": 2.0,
+"sodium_mg": 492.0
+},
+"per100": {
+"kcal": 84.0,
+"p": 3.8,
+"c": 6.7,
+"f": 4.4
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021542/prets-lasagne-side-soup",
+"keys": null
+},
+{
+"id": "pret:UK021543",
+"name": "Raspberry & White Chocolate Cookie",
+"category": "Your choice of bakery treat",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 412.0,
+"p": 4.5,
+"c": 55.8,
+"f": 18.6,
+"micros": {
+"sat_fat": 11.9,
+"sugars": 35.6,
+"fibre": 1.6,
+"sodium_mg": 216.0
+},
+"per100": {
+"kcal": 458.0,
+"p": 5.0,
+"c": 62.0,
+"f": 20.7
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021543/raspberry-and-white-chocolate-cookie",
+"keys": null
+},
+{
+"id": "pret:UK021544",
+"name": "Triple Chocolate Cookie",
+"category": "Cookies and Cakes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 414.0,
+"p": 5.5,
+"c": 51.8,
+"f": 20.0,
+"micros": {
+"sat_fat": 12.7,
+"sugars": 34.4,
+"fibre": 2.2,
+"sodium_mg": 84.0
+},
+"per100": {
+"kcal": 460.0,
+"p": 6.1,
+"c": 57.6,
+"f": 22.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021544/triple-chocolate-cookie",
+"keys": null
+},
+{
+"id": "pret:UK021545",
+"name": "Chocolate Hazelnut Praline Cookie",
+"category": "Your choice of bakery treat",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 424.0,
+"p": 5.5,
+"c": 50.4,
+"f": 21.8,
+"micros": {
+"sat_fat": 11.4,
+"sugars": 31.0,
+"fibre": 2.2,
+"sodium_mg": 156.0
+},
+"per100": {
+"kcal": 471.0,
+"p": 6.1,
+"c": 56.0,
+"f": 24.2
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021545/chocolate-hazelnut-praline-cookie",
+"keys": null
+},
+{
+"id": "pret:UK021546",
+"name": "Warm Beef Birria & Jalapeño Ciabatta",
+"category": "Toasted sandwiches, wraps and baguettes",
+"serving_label": "1 item",
+"serving_grams": null,
+"kcal": 496.0,
+"p": 27.9,
+"c": 59.1,
+"f": 15.4,
+"micros": {
+"sat_fat": 6.8,
+"sugars": 5.8,
+"fibre": 5.0,
+"sodium_mg": 992.0
+},
+"per100": {
+"kcal": 188.0,
+"p": 10.6,
+"c": 22.4,
+"f": 5.8
+},
+"url": "https://www.pret.co.uk/en-GB/products/UK021546/warm-beef-birria-and-jalapeno-ciabatta",
+"keys": null
+}
+],
+"errors": [
+"https://www.pret.co.uk/en-GB/products/UK008301/prets-organic-classic-blend-ground-coffee-200g no nutrition",
+"https://www.pret.co.uk/en-GB/products/UK008302/prets-organic-single-origin-peruvian-ground-coffee-200g no nutrition"
+]
+}

@@ -1,0 +1,1 @@
+Nunito (Google Fonts, SIL Open Font License, see OFL.txt). `Nunito-Variable.ttf` is the variable font; iOS registers its named instances as Nunito-Medium, Nunito-SemiBold, Nunito-Bold, Nunito-ExtraBold and Nunito-Black, which `Theme.swift` uses.
