@@ -60,12 +60,14 @@ struct Store {
     }
     func mostLogged(limit: Int = 10) -> [Food] { Array(foods().filter { $0.useCount > 0 }.prefix(limit)) }
     /// Grouped search (PRODUCT_BRIEF §2): your foods → generic (one per canonical) → branded.
-    func groupedSearch(_ q: String) -> (your: [Food], generic: [Food], chain: [Food], branded: [Food]) {
+    func groupedSearch(_ q: String) -> (your: [Food], generic: [Food], chain: [Food], branded: [Food]) { groupedSearch(q, in: foods()) }
+    /// Same search over an already-fetched list (type-to-log resolves several words against one fetch).
+    func groupedSearch(_ q: String, in all: [Food]) -> (your: [Food], generic: [Food], chain: [Food], branded: [Food]) {
         let needle = q.lowercased()
         let words = needle.split(separator: " ").map(String.init)
-        func matches(_ f: Food) -> Bool { let hay = (f.name + " " + (f.brand ?? "") + " " + f.aliases).lowercased(); return words.allSatisfy { hay.contains($0) } }
+        func matches(_ f: Food) -> Bool { let hay = (f.name + " " + (f.brand ?? "") + " " + (f.state ?? "") + " " + f.aliases).lowercased(); return words.allSatisfy { hay.contains($0) } }
         func rank(_ a: Food, _ b: Food) -> Bool { a.useCount != b.useCount ? a.useCount > b.useCount : (a.name.lowercased().hasPrefix(needle) != b.name.lowercased().hasPrefix(needle) ? a.name.lowercased().hasPrefix(needle) : a.name.count < b.name.count) }
-        let all = foods().filter(matches)
+        let all = all.filter(matches)
         return (all.filter { $0.tier == .user }.sorted(by: rank), Array(all.filter { $0.tier == .generic }.sorted(by: rank).prefix(40)), all.filter { $0.tier == .chain }.sorted(by: rank), all.filter { $0.tier == .branded }.sorted(by: rank))
     }
     // MARK: Trend (EMA α 0.1) — recomputed on every weight save/delete

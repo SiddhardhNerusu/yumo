@@ -15,6 +15,7 @@ struct TodayScreen: View {
     @State private var training: Bool? = nil
     @State private var pinnedRow: String? = nil
     @State private var checkin = false
+    @State private var balance = false
 
     var store: Store { Store(ctx) }
     var dayKey: String { session.selectedDate.dayKey }
@@ -32,7 +33,7 @@ struct TodayScreen: View {
                     }
                     Text(Fmt.dayTitle(session.selectedDate)).font(.yumo.title).tabular()
                 }.frame(height: 44)
-                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow).padding(.top, 4) }
+                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow, balance: balanceRow, onBalance: { balance = true }).padding(.top, 4) }
                 VStack(spacing: Space.cardGap) {
                     ForEach(Meal.allCases) { meal in
                         MealCardView(meal: meal, entries: entries.filter { $0.meal == meal && !removingIds.contains($0.id) },
@@ -49,7 +50,16 @@ struct TodayScreen: View {
         .onChange(of: session.tick) { reload() }
         .sheet(item: $addMeal) { m in AddFoodSheet(meal: m, dayKey: dayKey).yumoSheet() }
         .fullScreenCover(item: $detail) { e in FoodDetailScreen(entry: e, dayKey: dayKey) }
-        .sheet(isPresented: $checkin) { CheckinSheet().yumoSheet().presentationDetents([.height(520)]) }
+        .sheet(isPresented: $checkin) { CheckinSheet().yumoSheet().presentationDetents(Expenditure.stallCheck(store) != nil ? [.large] : [.height(520)]) }
+        .sheet(isPresented: $balance) { BalanceSheet(dayKey: dayKey).yumoSheet().presentationDetents([.large]) }
+    }
+    /// Rev 3 hero row: only when > 150 kcal left and at least one meal is empty (today or a future-less past day is fine; the solver works on any day).
+    var balanceRow: String? {
+        guard let t = targets else { return nil }
+        let left = Double(t.kcal(training: training, profile: store.profile())) - DayTotals(entries).kcal
+        let empty = Meal.allCases.filter { m in !entries.contains { $0.meal == m } }
+        guard left > 150, !empty.isEmpty, isToday else { return nil }
+        return "\(Fmt.k(left)) kcal left · \(empty.map(\.rawValue).joined(separator: ", ")) \(empty.count == 1 ? "is" : "are") empty"
     }
 
     func reload() {
@@ -68,7 +78,7 @@ struct TodayScreen: View {
                 return "\(n.name.components(separatedBy: " (").first ?? n.name) \(Nutrients.format(v, unit: n.unit))\(g.map { " / \(Nutrients.format($0, unit: n.unit))" } ?? "") \(n.unit)"
             }.joined(separator: " · ")
         } else { pinnedRow = nil }
-        if Calendar.current.isDateInToday(session.selectedDate), Expenditure.checkinDue(p) { checkin = true }
+        if Calendar.current.isDateInToday(session.selectedDate), Expenditure.checkinDue(p) || Expenditure.stallCheck(s) != nil { checkin = true }
         var map: [Meal: SavedMeal] = [:]
         for m in Meal.allCases { if let sm = s.savedMeal(matching: entries.filter { $0.meal == m }) { map[m] = sm } }
         savedByMeal = map
@@ -96,6 +106,7 @@ extension Meal: Hashable {}
 
 struct HeroCard: View {
     var totals: DayTotals; var targets: Targets; var dayKcal: Int? = nil; var pinned: String? = nil
+    var balance: String? = nil; var onBalance: () -> Void = {}
     var goal: Int { dayKcal ?? targets.kcal }
     var over: Bool { totals.kcal > Double(goal) }
     var body: some View {
@@ -109,6 +120,16 @@ struct HeroCard: View {
                 stat("Protein", totals.p, targets.protein); stat("Carbs", totals.c, dayKcal.map { Calc.carbsFor(kcal: $0, protein: targets.protein, fat: targets.fat) } ?? targets.carbs); stat("Fat", totals.f, targets.fat)
             }.padding(.top, Space.gridGap)
             if let pinned { Text(pinned).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1).padding(.top, 12) }
+            if let balance {
+                Rectangle().fill(Color.yumo.hairline).frame(height: 1).padding(.top, 14)
+                Button(action: onBalance) {
+                    HStack(spacing: 8) {
+                        Text(balance).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                        Spacer(minLength: 8)
+                        HStack(spacing: 3) { Text("Balance the day"); Text("›") }.font(.nunito(14, .extrabold)).foregroundStyle(Color.yumo.accent)
+                    }.padding(.top, 12).contentShape(Rectangle())
+                }.buttonStyle(PlainPressStyle())
+            }
         }
         .card(padding: EdgeInsets(top: 18, leading: 20, bottom: 16, trailing: 20))
     }

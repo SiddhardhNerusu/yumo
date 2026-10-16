@@ -29,6 +29,8 @@ struct AddFoodSheet: View {
 
     var store: Store { Store(ctx) }
     var title: String { "Add to \(meal.rawValue)" }
+    /// Mode is decided by the text: a digit anywhere (and not a bare barcode) → type-to-log.
+    var typed: Bool { let q = query.trimmingCharacters(in: .whitespaces); return TypeToLog.hasNumbers(q) && !(q.count >= 8 && q.allSatisfy(\.isNumber)) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -53,7 +55,7 @@ struct AddFoodSheet: View {
             HStack(spacing: 12) {
                 Button { go(.scan) } label: { VStack(spacing: 12) { BarcodeGlyph(color: .white); Text("Scan barcode").font(.yumo.tile).foregroundStyle(.white) }.frame(maxWidth: .infinity).frame(height: 120) }
                     .buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: Lift.primary, radius: Radius.card))
-                Button { go(.search) } label: { VStack(spacing: 12) { MagnifierGlyph(color: .yumo.ink, size: 26); Text("Search").font(.yumo.tile).foregroundStyle(Color.yumo.ink) }.frame(maxWidth: .infinity).frame(height: 120) }
+                Button { go(.search) } label: { VStack(spacing: 8) { KeyboardGlyph(color: .yumo.ink); Text("Type it").font(.yumo.tile).foregroundStyle(Color.yumo.ink); Text("chicken 180 rice 150").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }.frame(maxWidth: .infinity).frame(height: 120) }
                     .buttonStyle(LiftButtonStyle(fill: .yumo.surface, edge: .yumo.surfaceEdge, lift: Lift.card, radius: Radius.card))
             }.padding(.horizontal, Space.gutter).padding(.top, 16)
             Spacer()
@@ -108,10 +110,15 @@ struct AddFoodSheet: View {
             SheetHeader(title: title, onClose: { dismiss() }) { Button { go(.scan) } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 44, height: 44).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()) }
             HStack(spacing: 10) {
                 MagnifierGlyph(color: .yumo.inkMuted, size: 18)
-                TextField("Food, brand or barcode", text: $query).font(.yumo.body).focused($focused).submitLabel(.search).autocorrectionDisabled()
+                TextField("chicken 180 rice 150 — or a name", text: $query).font(.yumo.body).focused($focused).submitLabel(.search).autocorrectionDisabled()
             }.padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
                 .padding(.horizontal, Space.gutter).padding(.top, 14)
+            if !store.profile().typeItHintSeen { Text("Foods and grams in one line. I learn your shorthand as we go — first time, I ask.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.gutter + 4).padding(.top, 8) }
             Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal, compact: true).padding(.horizontal, Space.gutter).padding(.top, 10)
+            if typed {
+                // Type-to-log (README §4a): the line has numbers → rows, ask / learned, Log N foods
+                ScrollView { TypeItView(line: query, meal: meal, dayKey: dayKey, onSearchAll: { w in query = w }, onLogged: { n in toaster.show("\(n) food\(n == 1 ? "" : "s") → \(meal.rawValue)"); session.changed(); dismiss() }).padding(.horizontal, Space.gutter).padding(.vertical, 14).padding(.bottom, 40) }.scrollDismissesKeyboard(.interactively)
+            } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if !yourFoods.isEmpty { group("Your foods", yourFoods) }
@@ -135,6 +142,7 @@ struct AddFoodSheet: View {
                     HStack(spacing: 4) { Text(query.isEmpty ? "" : "Still not here?").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted); TextAction(label: "Create a food") { create = CreateFoodDraft(name: query.allSatisfy(\.isNumber) ? "" : query, barcode: query.allSatisfy(\.isNumber) && query.count >= 8 ? query : nil) } }.padding(.top, 4)
                 }.padding(.horizontal, Space.gutter).padding(.vertical, 14).padding(.bottom, 40)
             }.scrollDismissesKeyboard(.interactively)
+            }
         }
         .onChange(of: query) { runSearch() }
         .onAppear { if yourFoods.isEmpty && query.isEmpty { yourFoods = store.mostLogged() } }
@@ -150,6 +158,7 @@ struct AddFoodSheet: View {
     func runSearch() {
         searchTask?.cancel(); brandedOpen = false; remote = []
         let q = query.trimmingCharacters(in: .whitespaces)
+        if typed { return }
         if q.isEmpty { yourFoods = store.mostLogged(); generic = []; chains = []; branded = []; searching = false; return }
         // 8–14 digit numeric input → barcode lookup (the one way a branded product appears without asking).
         if q.count >= 8, q.count <= 14, q.allSatisfy(\.isNumber) {

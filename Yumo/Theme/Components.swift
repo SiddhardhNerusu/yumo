@@ -288,3 +288,91 @@ struct TorchIcon: View {
         }.frame(width: 26, height: 22)
     }
 }
+
+// MARK: - Rev 3 components (DESIGN_SYSTEM.md › Rev 3)
+
+/// Keyboard glyph for the Type it tile.
+struct KeyboardGlyph: View { var color: Color
+    var body: some View {
+        VStack(spacing: 3) {
+            HStack(spacing: 3) { ForEach(0..<5, id: \.self) { _ in RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 5, height: 5) } }
+            HStack(spacing: 3) { ForEach(0..<5, id: \.self) { _ in RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 5, height: 5) } }
+            RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 25, height: 5)
+        }.padding(5).overlay(RoundedRectangle(cornerRadius: 6).stroke(color, lineWidth: 2.5)).frame(height: 26)
+    }
+}
+
+/// Inset disambiguation list: bg fill, radius 14, padding 4 × 12; rows 10 pt vertical with a 22 pt ring; footer rows 14/800 accent ›.
+struct AskList<Content: View>: View {
+    @ViewBuilder var content: Content
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) { content }
+            .padding(.vertical, 4).padding(.horizontal, 12)
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg))
+    }
+}
+struct AskOption: View {
+    var name: String; var sub: String; var kcal: String; var selected = false; var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Circle().stroke(selected ? Color.yumo.accent : Color.yumo.grabber, lineWidth: 2).frame(width: 22, height: 22).overlay { if selected { Circle().fill(Color.yumo.accent).frame(width: 12, height: 12) } }
+                VStack(alignment: .leading, spacing: 1) { Text(name).font(.nunito(16, .bold)).foregroundStyle(Color.yumo.ink); Text(sub).font(.nunito(13, .bold)).foregroundStyle(Color.yumo.inkMuted) }
+                Spacer(); Text(kcal).font(.nunito(15, .extrabold)).tabular().foregroundStyle(Color.yumo.ink)
+            }.padding(.vertical, 10).contentShape(Rectangle())
+        }.buttonStyle(PlainPressStyle())
+    }
+}
+struct AskFooter: View { var label: String; var action: () -> Void
+    var body: some View { Button(action: action) { HStack(spacing: 4) { Text(label); Text("›") }.font(.nunito(14, .extrabold)).foregroundStyle(Color.yumo.accent).padding(.vertical, 10) }.buttonStyle(PlainPressStyle()) }
+}
+
+/// Plan row: 17/700 name + 12/700 muted meal caption; right `from → to` or a plain amount; tags prepped / kept.
+struct PlanRow: View {
+    var name: String; var caption: String; var from: Double; var to: Double; var tag: String?; var tagAccent: Bool; var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 8) { Text(name).font(.nunito(17, .bold)).foregroundStyle(Color.yumo.ink).lineLimit(1)
+                        if let tag { Text(tag).font(.yumo.tag).foregroundStyle(tagAccent ? Color.yumo.accent : .yumo.inkMuted).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(tagAccent ? Color.yumo.accentTint : .yumo.track)) } }
+                    Text(caption).font(.nunito(12, .bold)).foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                }
+                Spacer()
+                if abs(from - to) >= 2.5 {
+                    HStack(spacing: 6) { Text("\(Fmt.g(from)) g").font(.nunito(15, .bold)).strikethrough().foregroundStyle(Color.yumo.inkMuted); Text("→").font(.nunito(15, .bold)).foregroundStyle(Color.yumo.inkMuted); Text("\(Fmt.g(to)) g").font(.nunito(17, .extrabold)).foregroundStyle(Color.yumo.accent) }.tabular()
+                } else { Text("\(Fmt.g(to)) g").font(.nunito(17, .extrabold)).tabular().foregroundStyle(Color.yumo.ink) }
+            }.padding(.vertical, 10).padding(.trailing, Space.cardPad).contentShape(Rectangle())
+        }.buttonStyle(PlainPressStyle()).hairline()
+    }
+}
+
+/// Input row: 17/700 text + 12/700 hint under it, InsetField grams, 32 pt ✕.
+struct InputRow: View {
+    @Binding var text: String; @Binding var grams: String; var hint: String; var hintAccent = false; var onRemove: () -> Void
+    var body: some View {
+        HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 2) {
+                TextField("Food", text: $text).font(.nunito(17, .bold)).autocorrectionDisabled()
+                Text(hint).font(.nunito(12, .bold)).foregroundStyle(hintAccent ? Color.yumo.accent : .yumo.inkMuted).lineLimit(1)
+            }
+            InsetField(text: $grams, unit: "g", width: 96)
+            Button(action: onRemove) { Text("✕").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.inkMuted).frame(width: 32, height: 32) }.buttonStyle(PlainPressStyle())
+        }.padding(.vertical, 8).padding(.trailing, 12).hairline()
+    }
+}
+
+/// Selectable explanation tile: radius 16, bg fill, 12 × 14 padding; selected = tint fill + 2.5 pt accent inset ring.
+struct OptionTile: View {
+    var title: String; var body_: String; var selected: Bool; var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink)
+                Text(body_).font(.nunito(13, .bold)).foregroundStyle(Color.yumo.inkMuted).fixedSize(horizontal: false, vertical: true)
+            }.frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12).padding(.horizontal, 14)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(selected ? Color.yumo.accentTint : .yumo.bg))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.yumo.accent, lineWidth: selected ? 2.5 : 0))
+        }.buttonStyle(PlainPressStyle()).animation(Motion.snap, value: selected)
+    }
+}

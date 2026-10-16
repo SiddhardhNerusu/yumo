@@ -60,6 +60,10 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var pinnedNutrientsData: Data = Data()  // [key] ≤ 3
     var showNutrientsOnToday: Bool = false
     var isPlus: Bool = true                 // every feature unlocked in v1
+    var typeItHintSeen: Bool = false        // first-time line under the Type it field
+    var cutStartedAt: Date? = nil           // for the stall rule (cutting ≥ 8 weeks)
+    var stallDecisionWeek: String? = nil    // week the user answered the stall check-in
+    var dietBreakUntil: Date? = nil         // diet break: target = measured maintenance until this date
     init() {}
     var trainingDays: [Bool] { get { (try? JSONDecoder().decode([Bool].self, from: trainingDaysData)) ?? [true, true, false, true, true, false, false] } set { trainingDaysData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var nutrientOverrides: [String: [Double?]] { get { (try? JSONDecoder().decode([String: [Double?]].self, from: nutrientTargetsData)) ?? [:] } set { nutrientTargetsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
@@ -191,4 +195,33 @@ struct SavedItem: Codable, Hashable { var foodId: String; var quantity: Double; 
     var applied: Bool = false
     var createdAt: Date = Date()
     init(weekStart: String) { self.weekStart = weekStart }
+}
+
+/// Type-to-log learned pattern: key = "word|meal" or "word|*" (PRODUCT_BRIEF §11). Silent at n ≥ 3; a different pick resets n to 1.
+@Model final class LearnedPattern {
+    @Attribute(.unique) var key: String = ""
+    var foodId: String = ""
+    var n: Int = 0
+    var updatedAt: Date = Date()
+    init(key: String, foodId: String, n: Int) { self.key = key; self.foodId = foodId; self.n = n }
+}
+
+/// User-added shorthand (seeded table lives in TypeToLog.aliases).
+@Model final class UserAlias {
+    @Attribute(.unique) var shorthand: String = ""
+    var canonical: String = ""
+    init(shorthand: String, canonical: String) { self.shorthand = shorthand; self.canonical = canonical }
+}
+
+/// Balance the day — prepped list for a day (PRODUCT_BRIEF §12).
+struct PrepItem: Codable, Hashable, Identifiable { var id = UUID(); var text: String; var grams: Double }
+@Model final class PrepDay {
+    @Attribute(.unique) var dayKey: String = ""
+    var modeRaw: String = "prepped"
+    var itemsData: Data = Data()
+    var keepData: Data = Data()
+    var swaps: Int = 0
+    init(dayKey: String) { self.dayKey = dayKey }
+    var items: [PrepItem] { get { (try? JSONDecoder().decode([PrepItem].self, from: itemsData)) ?? [] } set { itemsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
+    var keep: Set<String> { get { Set((try? JSONDecoder().decode([String].self, from: keepData)) ?? []) } set { keepData = (try? JSONEncoder().encode(Array(newValue))) ?? Data() } }
 }

@@ -47,6 +47,7 @@ struct Targets {
         tdee = Calc.tdee(bmr: bmr, activity: p.activity)
         automatic = Calc.automaticTarget(tdee: tdee, mode: p.goalMode, pace: p.paceKgPerWeek)
         var t = p.overrideKcal ?? ((p.adaptiveOn ? p.adaptiveTarget : nil) ?? automatic)
+        if let until = p.dietBreakUntil, until > Date(), let m = p.tdeeMeasured { t = Calc.round50(m) }   // diet break: eat at measured maintenance
         let fl = Calc.floor(for: p.sex)
         clamped = t < fl; if clamped { t = fl }
         kcal = t

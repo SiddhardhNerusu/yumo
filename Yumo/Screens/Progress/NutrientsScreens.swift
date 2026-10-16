@@ -63,14 +63,18 @@ struct CheckinSheet: View {
     @Environment(Session.self) private var session
     @Environment(Toaster.self) private var toaster
     @State private var showHow = false
+    @State private var showWhy = false
+    @State private var choice: Expenditure.StallChoice = .dietBreak
     var store: Store { Store(ctx) }
     var body: some View {
         let p = store.profile()
         let e = store.weeklyEstimates().first { $0.weekStart == p.pendingWeek }
+        let stall = Expenditure.stallCheck(store)
         VStack(spacing: 0) {
-            SheetHeader(title: "Your week", onClose: { Expenditure.apply(store, accept: false); dismiss() }) { Color.clear.frame(width: 44, height: 44) }
-            VStack(spacing: Space.cardGap) {
-                if let e, !e.lowData {
+            SheetHeader(title: "Your week", onClose: { if stall != nil { Expenditure.applyStall(store, choice: nil) } else { Expenditure.apply(store, accept: false) }; dismiss() }) { Color.clear.frame(width: 44, height: 44) }
+            ScrollView { VStack(spacing: Space.cardGap) {
+                if let st = stall { stallBody(st, p) }
+                else if let e, !e.lowData {
                     let (label, ok) = Expenditure.trendLabel(e, pace: p.paceKgPerWeek)
                     ListCard {
                         SettingsRow(label: "Trend") { HStack(spacing: 6) { Text(Fmt.delta(e.trendDeltaKg)).font(.yumo.title).tabular(); Text(label).font(.yumo.caption).foregroundStyle(ok ? Color.yumo.accent : .yumo.inkMuted) } }.hairline()
@@ -92,12 +96,35 @@ struct CheckinSheet: View {
                     Text("Not enough logged days to adjust. Target stays \(Fmt.k(store.targets().kcal)).").font(.yumo.subtitle).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).card()
                     PrimaryButton(label: "OK") { Expenditure.apply(store, accept: false); dismiss() }
                 }
-                TextAction(label: "How this works") { showHow = true }
-            }.padding(Space.gutter)
-            Spacer()
+                if stall == nil { TextAction(label: "How this works") { showHow = true } }
+            }.padding(Space.gutter).padding(.bottom, 24) }
         }
         .background(Color.yumo.bg)
         .fullScreenCover(isPresented: $showHow) { HowThisWorksScreen() }
+        .sheet(isPresented: $showWhy) { WhyThreeSheet().yumoSheet().presentationDetents([.medium]) }
+    }
+    /// Stall variant (README §7b, PRODUCT_BRIEF §13): three selectable tiles, button label follows the selection, never auto-applies.
+    @ViewBuilder func stallBody(_ st: Expenditure.Stall, _ p: UserProfile) -> some View {
+        let target = store.targets().kcal
+        let last = store.weeklyEstimates().filter { !$0.lowData }.last
+        ListCard {
+            SettingsRow(label: "Trend") { HStack(spacing: 6) { Text(Fmt.delta(last?.trendDeltaKg ?? 0)).font(.yumo.title).tabular(); Text("flat \(st.weeksFlat) weeks running").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) } }.hairline()
+            SettingsRow(label: "Logged") { VStack(alignment: .trailing, spacing: 1) { Text("\(st.loggedDays) of \(st.totalDays) days").font(.yumo.title).tabular(); Text("within \(Int(st.withinPct.rounded())) % of target").font(.yumo.caption).foregroundStyle(Color.yumo.accent) } }.hairline()
+            SettingsRow(label: "Cutting for") { Text("\(st.cutWeeks) weeks").font(.yumo.title).tabular() }
+        }
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Looks like a stall").font(.yumo.title)
+            Text("Three flat weeks while you logged this consistently points to adaptation and water retention, not a wrong target. A short break at maintenance usually shows the real trend; cutting further rarely does.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).fixedSize(horizontal: false, vertical: true)
+            OptionTile(title: "Diet break · 2 weeks at \(Fmt.k(st.maintenance))", body_: "Eat at your measured maintenance for 14 days, then resume. Water drops first, so the scale may rise then fall.", selected: choice == .dietBreak) { choice = .dietBreak }
+            OptionTile(title: "Hold at \(Fmt.k(target)) · 1 more week", body_: "Nothing changes. Ask again next week with one more week of data.", selected: choice == .hold) { choice = .hold }
+            OptionTile(title: "Lower to \(Fmt.k(target - 100))", body_: "A small cut. Only if you are sure logging has been complete.", selected: choice == .lower) { choice = .lower }
+        }.frame(maxWidth: .infinity, alignment: .leading).card()
+        PrimaryButton(label: choice == .dietBreak ? "Start the diet break" : (choice == .hold ? "Hold for a week" : "Lower to \(Fmt.k(target - 100))")) {
+            Expenditure.applyStall(store, choice: choice)
+            toaster.show(choice == .dietBreak ? "Diet break until \(Fmt.dayTitle(Date().adding(days: 14)))" : (choice == .hold ? "Holding \(Fmt.k(target))" : "Target \(Fmt.k(target - 100))")); session.changed(); dismiss()
+        }
+        SecondaryButton(label: "Decide later", size: .regular) { Expenditure.applyStall(store, choice: nil); dismiss() }
+        TextAction(label: "Why these three") { showWhy = true }
     }
 }
 
@@ -124,5 +151,23 @@ struct HowThisWorksScreen: View {
             Text("\(n)").font(.yumo.title).foregroundStyle(.white).frame(width: 28, height: 28).background(Circle().fill(Color.yumo.accent))
             VStack(alignment: .leading, spacing: 4) { Text(t).font(.yumo.title); Text(body).font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
         }.card(padding: EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
+    }
+}
+
+
+struct WhyThreeSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(spacing: 0) {
+            SheetHeader(title: "Why these three", onClose: { dismiss() }) { Color.clear.frame(width: 44, height: 44) }
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Measured maintenance says what you burn. It does not say what to do when the trend is flat for three weeks despite adherence.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
+                Text("Diet break").font(.yumo.title); Text("Two weeks at maintenance lets water and stress hormones settle. If the trend was masked, it shows; if the target was right, you lose nothing but two weeks.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
+                Text("Hold").font(.yumo.title); Text("One more week of data costs little and often resolves a water-retention week on its own.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
+                Text("Lower by 100").font(.yumo.title); Text("The smallest meaningful cut. Picked only if you are confident every day was logged completely.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
+                Text("Nothing here is applied automatically. When in doubt the app stays silent.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted)
+            }.fixedSize(horizontal: false, vertical: true).padding(Space.gutter)
+            Spacer()
+        }.background(Color.yumo.bg)
     }
 }

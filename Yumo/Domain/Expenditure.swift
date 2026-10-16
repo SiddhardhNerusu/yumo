@@ -64,6 +64,31 @@ enum Expenditure {
         p.lastCheckinAt = Date(); p.pendingFrom = nil; p.pendingTo = nil
         store.save()
     }
+    // MARK: Stall rule (PRODUCT_BRIEF §13) — fires only when ALL hold; never auto-applies; never on bulk/maintain; never in the first 8 weeks.
+    struct Stall { var weeksFlat: Int; var loggedDays: Int; var totalDays: Int; var withinPct: Double; var cutWeeks: Int; var maintenance: Int }
+    static func stallCheck(_ store: Store) -> Stall? {
+        let p = store.profile(); guard p.goalMode == .cut, p.stallDecisionWeek != weekStart(Date()).dayKey else { return nil }
+        let start = p.cutStartedAt ?? p.createdAt
+        let cutWeeks = Int(Date().timeIntervalSince(start) / 604800); guard cutWeeks >= 8 else { return nil }
+        let est = store.weeklyEstimates().filter { !$0.lowData }.suffix(3); guard est.count == 3 else { return nil }
+        guard est.allSatisfy({ abs($0.trendDeltaKg) < 0.1 }) else { return nil }
+        let target = Double(store.targets().kcal)
+        let logged = est.reduce(0) { $0 + $1.loggedDays }
+        guard Double(logged) / 21 >= 0.85, est.allSatisfy({ abs($0.meanIntake - target) / target <= 0.05 }) else { return nil }
+        let within = est.map { abs($0.meanIntake - target) / target }.max() ?? 0
+        return Stall(weeksFlat: 3, loggedDays: logged, totalDays: 21, withinPct: within * 100, cutWeeks: cutWeeks, maintenance: Calc.round50(p.tdeeMeasured ?? store.targets().tdee))
+    }
+    enum StallChoice { case dietBreak, hold, lower }
+    static func applyStall(_ store: Store, choice: StallChoice?) {
+        let p = store.profile()
+        switch choice {
+        case .dietBreak: p.dietBreakUntil = Date().adding(days: 14); p.adaptiveTarget = Calc.round50(p.tdeeMeasured ?? store.targets().tdee); p.overrideKcal = nil
+        case .lower: p.adaptiveTarget = max(Calc.floor(for: p.sex), store.targets().kcal - 100); p.overrideKcal = nil
+        case .hold, .none: break
+        }
+        p.stallDecisionWeek = weekStart(Date()).dayKey; p.lastCheckinAt = Date(); p.pendingFrom = nil; p.pendingTo = nil
+        store.save()
+    }
     static func trendLabel(_ e: WeeklyEstimate, pace: Double) -> (String, Bool) {
         let onPace = pace == 0 ? abs(e.trendDeltaKg) < 0.2 : (pace < 0 ? e.trendDeltaKg <= pace * 0.6 : e.trendDeltaKg >= pace * 0.6)
         return (onPace ? "on pace" : (pace < 0 ? "slower than planned" : "behind plan"), onPace)
