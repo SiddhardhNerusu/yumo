@@ -35,6 +35,8 @@ struct ProgressScreen: View {
     /// EMA trend (α 0.1) aligned to the points in range; drawn as the primary line once ≥ 7 entries exist (PRODUCT_BRIEF §3.1).
     var movingAverage: [Double?] { weights.count >= 7 ? inRange.map { $0.trendKg.map(disp) } : [] }
     var todayEntry: WeightEntry? { weights.first { $0.dayKey == Date().dayKey } }
+    /// First run (README §19): only the setup weight exists.
+    var firstRun: Bool { weights.count <= 1 }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -75,11 +77,11 @@ struct ProgressScreen: View {
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 6) {
-                        if p.weeklyUpdates < 3 { Tag(label: "Estimate") } else if last?.lowData == true { Text("Low data").font(.yumo.tag).foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(Color.yumo.control)) }
+                        if p.tdeeMeasured == nil { Tag(label: "Formula") } else if p.weeklyUpdates < 3 { Tag(label: "Estimate") } else if last?.lowData == true { Text("Low data").font(.yumo.tag).foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(Color.yumo.control)) }
                         if estimates.filter({ !$0.lowData }).count >= 2 { Sparkline(values: estimates.filter { !$0.lowData }.suffix(6).map(\.tdeeSmoothed)) }
                     }
                 }
-                Text(p.tdeeMeasured != nil ? "from \(p.weeklyUpdates) week\(p.weeklyUpdates == 1 ? "" : "s") of logging · formula said \(Fmt.k(formula))" : "\(t.formula) × \(p.activity.rawValue.formatted()) · measured after your first full week").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
+                Text(p.tdeeMeasured != nil ? "from \(p.weeklyUpdates) week\(p.weeklyUpdates == 1 ? "" : "s") of logging · formula said \(Fmt.k(formula))" : "\(t.formula) for now · Yumo starts measuring the real number after 2 weeks of logging and weigh-ins").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
             }.foregroundStyle(Color.yumo.ink).frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 18, leading: 20, bottom: 16, trailing: 20))
         }.buttonStyle(PlainPressStyle())
     }
@@ -107,18 +109,19 @@ struct ProgressScreen: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Weight").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
-                    HStack(alignment: .firstTextBaseline, spacing: 4) { Text(weights.first.map { Fmt.kg(disp($0.kg)) } ?? "–").font(.yumo.statBig).tabular(); Text(unit).font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
+                    HStack(alignment: .firstTextBaseline, spacing: 4) { Text(weights.first.map { Fmt.kg(disp($0.kg)) } ?? "–").font(.yumo.statBig).tabular(); Text(unit).font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted); if firstRun { Text("from setup").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).padding(.leading, 4) } }
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
                     TextAction(label: "See all ›") { showLog = true }
-                    if let d = delta { (Text("\(range.label) ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(Fmt.delta(disp(d), unit: unit)).font(.yumo.caption).foregroundColor(d < 0 ? .yumo.accent : d > 0 ? .yumo.danger : .yumo.inkMuted)) }
+                    if firstRun { Text("goal \(profile.paceKgPerWeek < 0 ? "−" : "+")\(abs(profile.paceKgPerWeek).formatted()) kg / wk").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted) }
+                    else if let d = delta { (Text("\(range.label) ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(Fmt.delta(disp(d), unit: unit)).font(.yumo.caption).foregroundColor(d < 0 ? .yumo.accent : d > 0 ? .yumo.danger : .yumo.inkMuted)) }
                 }
             }
             Segmented(options: ChartRange.allCases.map { ($0, $0.rawValue) }, selection: $range).padding(.top, 14)
-            LineChart(points: inRange.map { ($0.date, disp($0.kg)) }, range: range, unit: unit, average: movingAverage).frame(height: 150).padding(.top, 18)
-            Text(weights.count <= 1 ? "Your setup weight. The trend starts with your first weigh-in." : weights.count >= 7 ? "Line = 7-day trend · dots = weigh-ins · hold to read a point" : "Hold on the chart to read a point").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 8)
-            PrimaryButton(label: todayEntry.map { "Edit today · \(Fmt.kg(disp($0.kg))) \(unit)" } ?? (weights.count <= 1 ? "Log your first weight" : "Log today's weight")) { logSheet = DayKey(id: Date().dayKey) }.padding(.top, 14)
+            LineChart(points: inRange.map { ($0.date, disp($0.kg)) }, range: range, unit: unit, average: movingAverage, setup: firstRun).frame(height: 150).padding(.top, 18)
+            Text(firstRun ? "Your setup weight. The trend starts with your first weigh-in." : weights.count >= 7 ? "Line = 7-day trend · dots = weigh-ins · hold to read a point" : "Hold on the chart to read a point").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 8)
+            PrimaryButton(label: todayEntry.map { "Edit today · \(Fmt.kg(disp($0.kg))) \(unit)" } ?? (firstRun ? "Log your first weight" : "Log today's weight")) { logSheet = DayKey(id: Date().dayKey) }.padding(.top, 14)
         }.card(padding: EdgeInsets(top: 18, leading: 20, bottom: 20, trailing: 20))
     }
 
@@ -148,7 +151,7 @@ struct DayKey: Identifiable { var id: String }
 
 /// 3 grid lines, right-aligned labels (34pt column), accent line through every point, ink-outlined dots, scrub with dashed guide + tooltip.
 struct LineChart: View {
-    var points: [(Date, Double)]; var range: ChartRange; var unit: String; var average: [Double?] = []
+    var points: [(Date, Double)]; var range: ChartRange; var unit: String; var average: [Double?] = []; var setup = false
     @State private var scrub: Int? = nil
     var body: some View {
         VStack(spacing: 8) {
@@ -171,8 +174,14 @@ struct LineChart: View {
                         Path { p in for (i, pt) in points.enumerated() { let c = CGPoint(x: x(i), y: y(pt.1)); i == 0 ? p.move(to: c) : p.addLine(to: c) } }
                             .stroke(Color.yumo.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
                     }
+                    if setup, let v = points.last?.1 {
+                        // first run: dotted accent.soft line at the setup weight with a 6 pt accent dot at Today
+                        Path { p in p.move(to: CGPoint(x: 0, y: y(v))); p.addLine(to: CGPoint(x: W, y: y(v))) }.stroke(Color.yumo.accentSoft, style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [2, 6]))
+                        Circle().fill(Color.yumo.accent).stroke(Color.yumo.surface, lineWidth: 3).frame(width: 12, height: 12).position(x: W - 6, y: y(v))
+                    } else {
                     ForEach(points.indices, id: \.self) { i in
                         Circle().fill(Color.yumo.surface).stroke(Color.yumo.ink, lineWidth: 2).frame(width: 6, height: 6).position(x: x(i), y: y(points[i].1))
+                    }
                     }
                     if let s = scrub, points.indices.contains(s) {
                         Path { p in p.move(to: CGPoint(x: x(s), y: -6)); p.addLine(to: CGPoint(x: x(s), y: H)) }.stroke(Color.yumo.ink, style: StrokeStyle(lineWidth: 1.5, dash: [3, 3]))

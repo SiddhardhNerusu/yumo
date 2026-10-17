@@ -66,15 +66,15 @@ struct StaplesEditor: View {
     }
 
     @ViewBuilder func stapleRow(_ s: Staple, _ f: Food) -> some View {
-        let k = Balance.classify(f); let canMax = k != .veg
+        let k = Balance.classify(f); let canMax = k != .veg; let flexible = k == .carb || k == .fat
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Button { if mode == .onboarding && canMax { withAnimation(Motion.expand) { open = open == s.foodId ? nil : s.foodId } } } label: {
+                Button { if mode == .onboarding && flexible { withAnimation(Motion.expand) { open = open == s.foodId ? nil : s.foodId } } } label: {
                     VStack(alignment: .leading, spacing: 1) {
                         Text(f.name).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
                         HStack(spacing: 2) {
                             Text(s.maxG.map { "Max \(Fmt.g($0)) g a day" } ?? tag(f)).font(.yumo.footnote).foregroundStyle(mode == .onboarding && k != .protein && k != .veg ? Color.yumo.accent : .yumo.inkMuted)
-                            if mode == .onboarding && canMax { Text("›").font(.yumo.footnote).foregroundStyle(Color.yumo.accent) }
+                            if mode == .onboarding && flexible { Text("›").font(.yumo.footnote).foregroundStyle(Color.yumo.accent) }
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
                 }.buttonStyle(PlainPressStyle())
@@ -83,7 +83,7 @@ struct StaplesEditor: View {
                 }
                 Button { store.removeStaple(s); tick += 1; onChange() } label: { Text("✕").font(.nunito(16, .extrabold)).foregroundStyle(Color.yumo.inkMuted).frame(width: 32, height: 32) }.buttonStyle(PlainPressStyle())
             }.padding(.vertical, 10).padding(.trailing, 12)
-            if mode == .onboarding {
+            if mode == .onboarding && flexible {
                 Expandable(open: open == s.foodId) {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 10) {

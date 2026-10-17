@@ -179,7 +179,6 @@ struct OnboardingFlow: View {
             HStack(spacing: 14) { Text("Drag a number up or down · 5 g steps").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted); if planEdited { TextAction(label: "Reset") { pO = nil; fO = nil; cO = nil } } }
             Text(bodyFat.map { "Katch-McArdle from \(Fmt.kg(Calc.leanMass(kg: kg, bodyFat: $0))) kg lean mass · protein 2.8 g/kg lean · fat 0.8 g/kg. Change any of it later in Settings." } ?? "Mifflin-St Jeor · protein 2.2 g/kg · fat 0.8 g/kg. Add body fat % later for a tighter estimate.").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.center).padding(.horizontal, 8).padding(.top, 6)
             PrimaryButton(label: "Looks good", disabled: !ok, action: next).padding(.top, 10)
-            if !ok { Text("Macros must add up to exactly 100 % to continue.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }
         }.padding(.bottom, 12)
         }.scrollIndicators(.hidden)
     }

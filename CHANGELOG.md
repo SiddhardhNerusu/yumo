@@ -8,6 +8,7 @@
 - **Ruler**: one implementation — 12 pt per step, 0.1 kg; 0.05 with the finger 40–90 pt below the start, 0.01 beyond 90; release ≥ 0.4 kg/s coasts and settles to 0.1; fine never coasts; 2 dp display; mode label "Half speed · 0.05 kg" / "Fine · 0.01 kg"; hint text removed. Used by Log weight and onboarding.
 - **Progress**: Nutrients rows unfold (what it does · To fix it / Over the limit · Best sources, `Domain/NutInfo.swift`), pinned rows first; first-run empty states — Weight "Your setup weight…" + "Log your first weight", Calories "Your week fills in here." + "Log today's first meal ›", "Day 1".
 - **Motion**: `Motion.expand` (360 ms, one curve) for every disclosure; `Motion.push` 360 ms. Pushed pages still use the system cover transition (fade + 12 pt rise not applied yet — see notes).
+- Rev 5 README details (second zip): prepped grams start blank; only flexible staple rows unfold in onboarding; no caption under the gated "Looks good"; first-run Weight card shows "from setup", the goal pace, and a dotted setup line with an accent dot at Today; first-run Maintenance card is tagged "Formula" with the 2-week caption and no sparkline.
 - Catalogue sync still runs on the main thread at launch; the first launch after a catalogue update shows the launch screen for a few seconds.
 
 ## 1.0 build 2026-10-17 (handoff rev 4 — first-run guided tour)

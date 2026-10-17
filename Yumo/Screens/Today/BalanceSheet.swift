@@ -114,7 +114,7 @@ struct BalanceSheet: View {
         if items.isEmpty {
             // pre-fill with the staple proteins (rev 5), else the usual proteins for the empty meals
             let stapleProteins = store.staples().compactMap { store.food(id: $0.foodId) }.filter { Balance.classify($0) == .protein }
-            if !stapleProteins.isEmpty { items = stapleProteins.map { PrepItem(text: $0.name, grams: 300) } }
+            if !stapleProteins.isEmpty { items = stapleProteins.map { PrepItem(text: $0.name, grams: 0) } }   // grams blank until typed (README §1a)
             else {
                 let logged = store.entries(dayKey); let empty = Meal.allCases.filter { m in !logged.contains { $0.meal == m } }
                 var seen = Set<String>()

@@ -461,7 +461,7 @@ struct SwipeHintRow: View {
             Spacer(); Text(Fmt.k(kcal)).font(.nunito(16, .extrabold)).tabular()
         }
         .frame(height: 60).offset(x: dx)
-        .onAppear { guard nudge else { return }; Task { try? await Task.sleep(for: .milliseconds(600)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.5)) { dx = 22 }; try? await Task.sleep(for: .milliseconds(520)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.5)) { dx = 0 } } }
+        .onAppear { guard nudge else { return }; Task { try? await Task.sleep(for: .milliseconds(600)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)) { dx = 22 }; try? await Task.sleep(for: .milliseconds(700)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)) { dx = 0 } } }
     }
 }
 struct ArrowGlyph: View { var color: Color
