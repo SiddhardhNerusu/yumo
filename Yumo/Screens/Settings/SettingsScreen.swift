@@ -13,7 +13,7 @@ struct SettingsScreen: View {
     @State private var tick = 0
     @State private var timeEdit: TimeEdit? = nil
     struct TimeEdit: Identifiable { var id: String; var minutes: Int }
-    enum Page: String, Identifiable { case target, macros, nutrients, savedMeals, myFoods, password; var id: String { rawValue } }
+    enum Page: String, Identifiable { case target, macros, nutrients, staples, savedMeals, myFoods, password; var id: String { rawValue } }
     var store: Store { Store(ctx) }
     var body: some View {
         let p = store.profile(); let t = store.targets()
@@ -31,6 +31,7 @@ struct SettingsScreen: View {
                         SettingsRow(label: "Volume") { Segmented(options: [(false, "ml"), (true, "fl oz")], selection: Binding(get: { p.volumeUnitFlOz }, set: { p.volumeUnitFlOz = $0; store.save(); tick += 1 })).frame(width: 140) }
                     }
                     section("Food") {
+                        row("Staples", store.staples().isEmpty ? "None yet" : "\(store.staples().count) food\(store.staples().count == 1 ? "" : "s")") { page = .staples }.hairline()
                         row("Saved meals", "\(store.savedMeals().count)") { page = .savedMeals }.hairline()
                         row("My foods", "\(store.foods().filter { $0.useCount > 0 || $0.source == .user }.count)") { page = .myFoods }
                     }
@@ -63,7 +64,7 @@ struct SettingsScreen: View {
         .background(Color.yumo.bg.ignoresSafeArea())
         .fullScreenCover(item: $page) { pg in
             switch pg {
-            case .target: CalorieTargetScreen(); case .macros: MacrosScreen(); case .nutrients: NutrientsSettingsScreen(); case .savedMeals: SavedMealsScreen(); case .myFoods: MyFoodsScreen(); case .password: ChangePasswordScreen()
+            case .target: CalorieTargetScreen(); case .macros: MacrosScreen(); case .nutrients: NutrientsSettingsScreen(); case .staples: StaplesScreen(onChange: { tick += 1 }); case .savedMeals: SavedMealsScreen(); case .myFoods: MyFoodsScreen(); case .password: ChangePasswordScreen()
             }
         }
         .onChange(of: page) { if page == nil { tick += 1 } }

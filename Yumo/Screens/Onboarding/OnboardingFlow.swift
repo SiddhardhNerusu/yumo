@@ -6,7 +6,7 @@ struct OnboardingFlow: View {
     @Environment(\.modelContext) private var ctx
     @Environment(Session.self) private var session
     @Environment(Toaster.self) private var toaster
-    enum Step: Int, CaseIterable { case welcome, goal, about, weight, bodyFat, activity, pace, plan, account, done }
+    enum Step: Int, CaseIterable { case welcome, goal, about, weight, bodyFat, activity, pace, plan, staples, account, done }
     @State private var step: Step = .welcome
     @State private var signIn = false
     // draft
@@ -22,8 +22,16 @@ struct OnboardingFlow: View {
     var bmr: Double { Calc.bmr(sex: sex, kg: kg, cm: height, age: age, bodyFat: bodyFat) }
     var tdee: Double { Calc.tdee(bmr: bmr, activity: activity) }
     var target: Int { max(Calc.floor(for: sex), Calc.automaticTarget(tdee: tdee, mode: mode, pace: pace)) }
-    var protein: Int { Calc.defaultProtein(kg: kg, bodyFat: bodyFat) }
-    var fat: Int { Calc.defaultFat(kg: kg) }
+    var protein: Int { pO ?? Calc.defaultProtein(kg: kg, bodyFat: bodyFat) }
+    var fat: Int { fO ?? Calc.defaultFat(kg: kg) }
+    @State private var pO: Int? = nil; @State private var fO: Int? = nil; @State private var cO: Int? = nil   // Your plan drag overrides (rev 5)
+    var planCarbs: Int { cO ?? Calc.carbs(target: target, protein: protein, fat: fat) }
+    var planKcal: Int { protein * 4 + planCarbs * 4 + fat * 9 }
+    var planPct: Int { Int((Double(planKcal) / Double(max(1, target)) * 100).rounded()) }
+    var fatFloor: Int { Int((0.6 * kg / 5).rounded()) * 5 }
+    var proteinFloor: Int { Int((1.6 * kg / 5).rounded()) * 5 }
+    var planEdited: Bool { pO != nil || fO != nil || cO != nil }
+    func beginMacroDrag() { if pO == nil || fO == nil || cO == nil { let c = planCarbs; pO = protein; fO = fat; cO = Int((Double(c) / 5).rounded()) * 5 } }
     var carbs: Int { Calc.carbs(target: target, protein: protein, fat: fat) }
     var steps: [Step] { Step.allCases.filter { $0 != .welcome && $0 != .done && !($0 == .pace && mode == .maintain) } }
 
@@ -40,11 +48,12 @@ struct OnboardingFlow: View {
                 case .welcome: welcome
                 case .goal: page("What are you here for?", "This sets the direction. You can change it any time.") { goal }
                 case .about: page("About you", "For your maintenance calories.") { about }
-                case .weight: page("Your weight today", "Drag the ruler. You'll log this most mornings.") { weight }
+                case .weight: page("Your weight today", "You'll log this most mornings.") { weight }
                 case .bodyFat: page("Body fat, roughly", "Optional. It makes the numbers more accurate.") { bodyFatStep }
                 case .activity: page("How active are you?", "Training sessions, not steps.") { activityStep }
                 case .pace: page(mode == .cut ? "How fast do you want to lose?" : "How fast do you want to gain?", "Slower keeps more muscle. You can change it later.") { paceStep }
-                case .plan: page("Your plan", "Based on what you told us. Everything is editable in Settings.") { plan }
+                case .plan: page("Your plan", mode == .cut ? "Eat this to lose \(abs(pace).formatted()) kg a week." : mode == .bulk ? "Eat this to gain \(pace.formatted()) kg a week." : "Eat this to stay where you are.") { plan }
+                case .staples: page("Your staples", "The foods you eat most weeks. When your prep comes out different, Yumo works out the amounts of these that land the day. Optional.") { staplesStep }
                 case .account: page("Save your plan", "A username and password. Nothing else.") { account }
                 case .done: doneStep
                 }
@@ -99,10 +108,9 @@ struct OnboardingFlow: View {
     var weight: some View {
         VStack(spacing: 0) {
             VStack(spacing: 8) {
-                HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.kg(kg)).font(.nunito(80, .extrabold)).kerning(-2.5).tabular(); Text("kg").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
-                RulerView(value: $kg, min: 30, max: 250, perUnit: 120, lb: false).frame(height: 72)
-                Text("Drag the ruler · 0.1 kg steps").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
-            }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 18, leading: 0, bottom: 16, trailing: 0))
+                HStack(alignment: .firstTextBaseline, spacing: 6) { Text(String(format: "%.2f", kg)).font(.nunito(72, .extrabold)).kerning(-2.5).tabular(); Text("kg").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
+                RulerView(value: $kg, min: 30, max: 250, lb: false)
+            }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 18, leading: 0, bottom: 12, trailing: 0))
             Spacer(); cta()
         }.padding(.horizontal, -Space.gutter).padding(.horizontal, Space.gutter)
     }
@@ -143,18 +151,46 @@ struct OnboardingFlow: View {
         }.padding(.horizontal, -Space.gutter).padding(.horizontal, Space.gutter)
     }
     var plan: some View {
-        VStack(spacing: Space.cardGap) {
+        let fLow = fat < fatFloor, pLow = protein < proteinFloor, ok = planPct == 100
+        return ScrollView {
+        VStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Daily target").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
                 HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(target)).font(.yumo.hero).kerning(-2).tabular().foregroundStyle(Color.yumo.accent); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
                 Text(mode == .maintain ? "Maintenance" : "\(Fmt.k(Calc.round50(tdee))) maintenance \(pace < 0 ? "−" : "+") \(Fmt.k(abs(Calc.paceKcal(pace))))").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
             }.frame(maxWidth: .infinity, alignment: .leading).card()
-            HStack(spacing: 10) { tile("Protein", protein); tile("Carbs", carbs); tile("Fat", fat) }
-            Text(bodyFat.map { "Katch-McArdle from \(Fmt.kg(Calc.leanMass(kg: kg, bodyFat: $0))) kg lean mass · protein 2.8 g/kg lean · fat 0.8 g/kg" } ?? "Mifflin-St Jeor × \(activity.rawValue.formatted()) · protein 2.2 g/kg · fat 0.8 g/kg").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 4)
-            Spacer(); cta("Looks good")
-        }.padding(.horizontal, -Space.gutter).padding(.horizontal, Space.gutter)
+            HStack(spacing: 10) {
+                MacroDragTile(label: "Protein", value: Binding(get: { protein }, set: { pO = $0 }), lo: 50, hi: 400, danger: pLow, onBegin: beginMacroDrag)
+                MacroDragTile(label: "Carbs", value: Binding(get: { planCarbs }, set: { cO = $0 }), lo: 0, hi: 700, danger: false, onBegin: beginMacroDrag)
+                MacroDragTile(label: "Fat", value: Binding(get: { fat }, set: { fO = $0 }), lo: 20, hi: 200, danger: fLow, onBegin: beginMacroDrag)
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                let t = Double(max(1, target))
+                StackedBar(parts: [Double(protein * 4) / t, Double(planCarbs * 4) / t, Double(fat * 9) / t])
+                HStack(alignment: .firstTextBaseline) {
+                    HStack(spacing: 12) {
+                        legend(.yumo.accent, "P \(Int((Double(protein * 4) / t * 100).rounded())) %"); legend(.yumo.ink, "C \(Int((Double(planCarbs * 4) / t * 100).rounded())) %"); legend(.yumo.inkMuted, "F \(Int((Double(fat * 9) / t * 100).rounded())) %")
+                    }
+                    Spacer(); Text("\(planPct) %").font(.nunito(15, .extrabold)).tabular().foregroundStyle(ok ? Color.yumo.ink : .yumo.danger)
+                }
+                Text("of your \(Fmt.k(target)) kcal").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .trailing)
+            }.card(padding: EdgeInsets(top: 14, leading: 16, bottom: 12, trailing: 16))
+            if fLow || pLow { Text(fLow ? "Fat below 0.6 g/kg (\(fatFloor) g). Hormones and recovery suffer under that." : "Protein below 1.6 g/kg (\(proteinFloor) g). You'll lose muscle on a cut.").font(.yumo.caption).foregroundStyle(Color.yumo.danger).multilineTextAlignment(.center).frame(maxWidth: .infinity) }
+            HStack(spacing: 14) { Text("Drag a number up or down · 5 g steps").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted); if planEdited { TextAction(label: "Reset") { pO = nil; fO = nil; cO = nil } } }
+            Text(bodyFat.map { "Katch-McArdle from \(Fmt.kg(Calc.leanMass(kg: kg, bodyFat: $0))) kg lean mass · protein 2.8 g/kg lean · fat 0.8 g/kg. Change any of it later in Settings." } ?? "Mifflin-St Jeor · protein 2.2 g/kg · fat 0.8 g/kg. Add body fat % later for a tighter estimate.").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.center).padding(.horizontal, 8).padding(.top, 6)
+            PrimaryButton(label: "Looks good", disabled: !ok, action: next).padding(.top, 10)
+            if !ok { Text("Macros must add up to exactly 100 % to continue.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }
+        }.padding(.bottom, 12)
+        }.scrollIndicators(.hidden)
     }
-    func tile(_ l: String, _ g: Int) -> some View { VStack(alignment: .leading, spacing: 2) { Text(l).font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted); HStack(alignment: .firstTextBaseline, spacing: 2) { Text("\(g)").font(.yumo.stat).tabular(); Text("g").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) } }.frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)) }
+    func legend(_ c: Color, _ t: String) -> some View { HStack(spacing: 5) { Circle().fill(c).frame(width: 8, height: 8); Text(t).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted) } }
+    var staplesStep: some View {
+        VStack(spacing: 0) {
+            ScrollView { StaplesEditor(mode: .onboarding, onChange: { stapleCount = store.staples().count }).padding(.bottom, 12) }.scrollDismissesKeyboard(.interactively)
+            PrimaryButton(label: stapleCount > 0 ? "Continue" : "Skip for now", action: next).padding(.bottom, 8)
+        }.onAppear { stapleCount = store.staples().count }
+    }
+    @State private var stapleCount = 0
     var accountHint: String? {
         let u = username.trimmingCharacters(in: .whitespaces)
         if u.count < 3 { return "Username needs 3 or more characters." }
@@ -176,7 +212,9 @@ struct OnboardingFlow: View {
     func createAccount() {
         let p = store.profile()
         p.username = username.trimmingCharacters(in: .whitespaces).lowercased(); p.passwordHash = Store.hash(pw1, salt: p.username)
-        p.sex = sex; p.age = age; p.heightCm = height; p.bodyFatPct = bodyFat; p.activity = activity; p.goalMode = mode; p.paceKgPerWeek = pace; p.overrideKcal = nil; p.macrosCustomised = false; p.carbsG = nil
+        p.sex = sex; p.age = age; p.heightCm = height; p.bodyFatPct = bodyFat; p.activity = activity; p.goalMode = mode; p.paceKgPerWeek = pace; p.overrideKcal = nil
+        // Your plan (rev 5): dragged macros are saved as the custom split; untouched = the formula defaults
+        if planEdited { p.macrosCustomised = true; p.proteinG = protein; p.fatG = fat; p.carbsG = planCarbs; p.planEdited = true } else { p.macrosCustomised = false; p.carbsG = nil; p.planEdited = false }
         store.saveWeight(dayKey: Date().dayKey, kg: kg, photo: nil)
         p.onboarded = true; store.save(); step = .done
     }

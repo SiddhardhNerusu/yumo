@@ -35,6 +35,23 @@ struct Store {
     }
     func remove(_ e: FoodEntry) { ctx.delete(e); try? ctx.save() }
     func save() { try? ctx.save() }
+    /// Day keys in [from, to] that have at least one food (week strip, calendar, streak).
+    func loggedDays(from: String, to: String) -> Set<String> {
+        let d = FetchDescriptor<FoodEntry>(predicate: #Predicate { $0.dayKey >= from && $0.dayKey <= to })
+        return Set(((try? ctx.fetch(d)) ?? []).map(\.dayKey))
+    }
+    /// Consecutive logged days ending today (or yesterday when today is still empty).
+    func streak(today: String) -> Int {
+        let start = Date.fromKey(today).adding(days: -400).dayKey
+        let logged = loggedDays(from: start, to: today)
+        var d = Date.fromKey(today); if !logged.contains(today) { d = d.adding(days: -1) }
+        var n = 0; while logged.contains(d.dayKey) { n += 1; d = d.adding(days: -1) }
+        return n
+    }
+    // MARK: Staples (rev 5)
+    func staples() -> [Staple] { (try? ctx.fetch(FetchDescriptor<Staple>(sortBy: [SortDescriptor(\.order)]))) ?? [] }
+    func addStaple(_ f: Food, maxG: Double? = nil) { guard !staples().contains(where: { $0.foodId == f.id }) else { return }; ctx.insert(Staple(foodId: f.id, maxG: maxG, order: (staples().map(\.order).max() ?? -1) + 1)); save() }
+    func removeStaple(_ s: Staple) { ctx.delete(s); save() }
     /// Any food logged on a day before `dayKey` (first-run rules, README §1).
     func hasHistory(before dayKey: String) -> Bool { ((try? ctx.fetchCount(FetchDescriptor<FoodEntry>(predicate: #Predicate { $0.dayKey < dayKey }))) ?? 0) > 0 }
 

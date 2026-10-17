@@ -28,9 +28,8 @@ struct LogWeightSheet: View {
                     HStack { ArrowButton(glyph: "‹") { load(date.adding(days: -1).dayKey) }; Spacer(); Text("\(Fmt.dayTitle(date))\(Calendar.current.isDateInToday(date) ? " · \(Fmt.dayFormatter.string(from: date))" : "")").font(.nunito(16, .extrabold)).tabular(); Spacer(); ArrowButton(glyph: "›", disabled: Calendar.current.isDateInToday(date)) { load(date.adding(days: 1).dayKey) } }
                         .padding(.horizontal, 6).frame(height: 52).background(RoundedRectangle(cornerRadius: Radius.button, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.button)
                     VStack(spacing: 8) {
-                        HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.kg(shown)).font(.yumo.rulerValue).kerning(-2).tabular(); Text(unit).font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
-                        RulerView(value: $kg, min: 30, max: 250, perUnit: 120, lb: lb).frame(height: 72)
-                        Text("Drag the ruler · 0.1 \(unit) steps").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+                        HStack(alignment: .firstTextBaseline, spacing: 6) { Text(String(format: "%.2f", shown)).font(.yumo.rulerValue).kerning(-2).tabular(); Text(unit).font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
+                        RulerView(value: $kg, min: 30, max: 250, lb: lb)
                     }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 18, leading: 0, bottom: 16, trailing: 0))
                     HStack(spacing: 14) {
                         PhotosPicker(selection: $pick, matching: .images) {
@@ -43,7 +42,7 @@ struct LogWeightSheet: View {
                         else { Text("Your first entry.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
                         Spacer()
                     }
-                    PrimaryButton(label: "Save \(Fmt.kg(shown)) \(unit)", action: save).padding(.top, 6)
+                    PrimaryButton(label: "Save \(String(format: "%.2f", shown)) \(unit)", action: save).padding(.top, 6)
                     if existing { TextAction(label: "Delete this entry", danger: true) { if let w = store.weight(dayKey) { store.deleteWeight(w) }; toaster.show("Deleted \(Fmt.dayTitle(date))"); session.changed(); dismiss() } }
                 }.padding(Space.gutter).padding(.bottom, 30)
             }
@@ -57,7 +56,7 @@ struct LogWeightSheet: View {
         if let w = store.weight(k) { kg = w.kg; photo = w.photo; existing = true } else { kg = last?.kg ?? store.currentKg(); photo = nil; existing = false }
     }
     func save() {
-        store.saveWeight(dayKey: dayKey, kg: (kg * 10).rounded() / 10, photo: photo)
+        store.saveWeight(dayKey: dayKey, kg: (kg * 100).rounded() / 100, photo: photo)
         toaster.show("Logged · \(Fmt.kg(shown)) \(unit)"); session.changed()
         Task { await HealthSync.writeWeight(kg: kg, date: date) }
         dismiss()
@@ -65,37 +64,66 @@ struct LogWeightSheet: View {
 }
 
 /// Horizontal tape: minor tick every 12pt (0.1), major every 120pt (1), labels under, faded edges, fixed accent needle. Drag right = lower.
+/// The one Ruler (rev 5, `yumo-ruler.js`): 12 pt per step; 0.1 kg, 0.05 with the finger 40–90 pt below where it touched, 0.01 beyond 90 (iOS scrubber
+/// gesture). Release ≥ 0.4 kg/s in normal mode coasts (velocity × 0.0025^dt) and settles to 0.1; fine mode never coasts. Range 30–250 kg.
 struct RulerView: View {
-    @Binding var value: Double; var min: Double; var max: Double; var perUnit: CGFloat; var lb: Bool
-    @State private var startValue: Double? = nil
-    @State private var lastTick: Int = 0
+    @Binding var value: Double; var min: Double = 30; var max: Double = 250; var lb: Bool = false
+    @State private var step: Double = 0.1
+    @State private var drag: (x: CGFloat, y0: CGFloat, t: Date, raw: Double, v: Double)? = nil
+    @State private var coast: Timer? = nil
+    @State private var lastTick = 0
+    let px: CGFloat = 12
+    var shown: Double { lb ? value * 2.20462 : value }
     var body: some View {
-        GeometryReader { g in
-            let w = g.size.width, center = w / 2
-            let shownValue = lb ? value * 2.20462 : value
-            let lower = Int((shownValue - Double(w / 2 / perUnit)) - 1), upper = Int((shownValue + Double(w / 2 / perUnit)) + 1)
-            ZStack(alignment: .topLeading) {
-                ForEach(Array(stride(from: lower * 10, through: upper * 10, by: 1)), id: \.self) { t in
-                    let v = Double(t) / 10, major = t % 10 == 0
-                    let x = center + CGFloat(v - shownValue) * perUnit
-                    if x > -20 && x < w + 20 {
+        VStack(spacing: 8) {
+            GeometryReader { g in
+                let w = g.size.width, center = w / 2
+                let st = step, unit = st * 10
+                let span = Double(w / 2 / px) * st
+                let lo = Int(((shown - span) / st).rounded(.down)) - 1, hi = Int(((shown + span) / st).rounded(.up)) + 1
+                ZStack(alignment: .topLeading) {
+                    ForEach(lo...hi, id: \.self) { i in
+                        let v = Double(i) * st, major = i % 10 == 0
+                        let x = center + CGFloat((v - shown) / st) * px
                         Rectangle().fill(major ? Color.yumo.inkMuted : .yumo.grabber).frame(width: major ? 2 : 1.5, height: major ? 32 : 18).position(x: x, y: major ? 16 : 9)
-                        if major { Text("\(t / 10)").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).position(x: x, y: 46) }
+                        if major { Text(st == 0.1 ? String(Int((v / unit).rounded()) * Int(unit * 10) / 10) : String(format: "%.1f", v)).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).position(x: x, y: 46) }
                     }
+                    Capsule().fill(Color.yumo.accent).frame(width: 3, height: 44).position(x: center, y: 22)
                 }
-                Capsule().fill(Color.yumo.accent).frame(width: 3, height: 44).position(x: center, y: 22)
-            }
-            .overlay { LinearGradient(stops: [.init(color: .yumo.surface, location: 0), .init(color: .yumo.surface.opacity(0), location: 0.2), .init(color: .yumo.surface.opacity(0), location: 0.8), .init(color: .yumo.surface, location: 1)], startPoint: .leading, endPoint: .trailing).allowsHitTesting(false) }
-            .contentShape(Rectangle())
-            .gesture(DragGesture(minimumDistance: 0).onChanged { d in
-                if startValue == nil { startValue = value }
-                let deltaShown = -Double(d.translation.width / perUnit)
-                var newShown = (lb ? startValue! * 2.20462 : startValue!) + deltaShown
-                newShown = (newShown * 10).rounded() / 10
-                let newKg = lb ? newShown / 2.20462 : newShown
-                value = Swift.min(max, Swift.max(min, newKg))
-                let tick = Int((newShown * 10).rounded()); if tick != lastTick { lastTick = tick; UISelectionFeedbackGenerator().selectionChanged() }
-            }.onEnded { _ in startValue = nil })
-        }.clipped()
+                .overlay { LinearGradient(stops: [.init(color: .yumo.surface, location: 0), .init(color: .yumo.surface.opacity(0), location: 0.2), .init(color: .yumo.surface.opacity(0), location: 0.8), .init(color: .yumo.surface, location: 1)], startPoint: .leading, endPoint: .trailing).allowsHitTesting(false) }
+                .contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged { d in
+                    coast?.invalidate(); coast = nil
+                    let now = Date()
+                    if drag == nil { drag = (d.location.x, d.location.y, now, shown, 0) }
+                    guard var dr = drag else { return }
+                    let dx = d.location.x - dr.x, dt = Swift.max(0.001, now.timeIntervalSince(dr.t)), dy = d.location.y - dr.y0
+                    let st2: Double = dy > 90 ? 0.01 : dy > 40 ? 0.05 : 0.1
+                    let dkg = -Double(dx / px) * st2
+                    dr.raw = Swift.min(maxShown, Swift.max(minShown, dr.raw + dkg)); dr.v = 0.7 * dr.v + 0.3 * (dkg / dt); dr.x = d.location.x; dr.t = now; drag = dr
+                    step = st2
+                    set((dr.raw / st2).rounded() * st2)
+                }.onEnded { _ in
+                    guard let dr = drag else { return }; drag = nil
+                    let fine = step < 0.1
+                    if fine || abs(dr.v) < 0.4 { set((dr.raw / (fine ? 0.01 : 0.1)).rounded() * (fine ? 0.01 : 0.1)); return }
+                    var v = dr.v, raw = dr.raw, last = Date()
+                    coast = Timer.scheduledTimer(withTimeInterval: 1.0 / 60, repeats: true) { t in
+                        let now = Date(), dt = Swift.min(0.04, now.timeIntervalSince(last)); last = now
+                        v *= pow(0.0025, dt); raw = Swift.min(maxShown, Swift.max(minShown, raw + v * dt))
+                        set((raw / 0.1).rounded() * 0.1)
+                        if abs(v) < 0.25 { t.invalidate(); coast = nil }
+                    }
+                })
+            }.frame(height: 56).clipped()
+            Text(step == 0.01 ? "Fine · 0.01 kg" : step == 0.05 ? "Half speed · 0.05 kg" : " ").font(.nunito(12, .extrabold)).foregroundStyle(Color.yumo.accent).animation(Motion.expand, value: step)
+        }
+    }
+    var minShown: Double { lb ? min * 2.20462 : min }
+    var maxShown: Double { lb ? max * 2.20462 : max }
+    func set(_ s: Double) {
+        let kg = lb ? s / 2.20462 : s
+        value = Swift.min(max, Swift.max(min, kg))
+        let tick = Int((s / step).rounded()); if tick != lastTick { lastTick = tick; UISelectionFeedbackGenerator().selectionChanged() }
     }
 }

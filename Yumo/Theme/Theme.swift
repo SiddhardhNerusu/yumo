@@ -86,7 +86,8 @@ enum Space {
 }
 enum Motion {
     static let sheet = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.42)
-    static let push = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.38)
+    static let push = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)     // rev 5: fade + 12 pt rise, 360 ms, one curve
+    static let expand = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)   // rev 5: every disclosure unfolds on this and nothing else
     static let snap = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.35)
     static let remove = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.32)
     static let add = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.30)
@@ -111,15 +112,15 @@ extension View {
     func lifted(_ edge: Color = .yumo.surfaceEdge, lift: CGFloat = Lift.card, radius: CGFloat = Radius.card, pressed: Bool = false) -> some View {
         modifier(Lifted(edge: edge, lift: lift, radius: radius, pressed: pressed))
     }
-    func card(padding: EdgeInsets = EdgeInsets(top: Space.cardPad, leading: Space.cardPad, bottom: Space.cardPad, trailing: Space.cardPad)) -> some View {
+    func card(padding: EdgeInsets = EdgeInsets(top: Space.cardPad, leading: Space.cardPad, bottom: Space.cardPad, trailing: Space.cardPad), radius: CGFloat = Radius.card) -> some View {
         self.padding(padding)
-            .background(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface))
-            .lifted()
+            .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.yumo.surface))
+            .lifted(radius: radius)
     }
-    func listCard() -> some View {
-        self.background(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface))
-            .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
-            .lifted()
+    func listCard(radius: CGFloat = Radius.card) -> some View {
+        self.background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.yumo.surface))
+            .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+            .lifted(radius: radius)
     }
     func hairline() -> some View {
         overlay(alignment: .bottom) { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5) }
@@ -147,6 +148,10 @@ enum Fmt {
     static func k(_ v: Int) -> String { k(Double(v)) }
     static func kg(_ v: Double) -> String { String(format: "%.1f", v) }
     static func g(_ v: Double) -> String { String(Int(v.rounded())) }
+    static let weekdayF: DateFormatter = { let f = DateFormatter(); f.locale = Locale(identifier: "en_GB"); f.dateFormat = "EEE"; return f }()
+    static func weekday(_ d: Date) -> String { weekdayF.string(from: d) }
+    static let monthF: DateFormatter = { let f = DateFormatter(); f.locale = Locale(identifier: "en_GB"); f.dateFormat = "MMMM yyyy"; return f }()
+    static func monthTitle(_ d: Date) -> String { monthF.string(from: d) }
     static func delta(_ v: Double, unit: String = "kg") -> String { v == 0 ? "0.0 \(unit)" : String(format: "%@%.1f %@", v < 0 ? "−" : "+", abs(v), unit) }
     static let dayFormatter: DateFormatter = { let f = DateFormatter(); f.locale = Locale(identifier: "en_GB"); f.dateFormat = "EEE d MMM"; return f }()
     static let monthFormatter: DateFormatter = { let f = DateFormatter(); f.locale = Locale(identifier: "en_GB"); f.dateFormat = "MMMM yyyy"; return f }()

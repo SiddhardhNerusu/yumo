@@ -61,6 +61,8 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var showNutrientsOnToday: Bool = false
     var isPlus: Bool = true                 // every feature unlocked in v1
     var typeItHintSeen: Bool = false        // first-time line under the Type it field
+    var swipeHintSeen: Bool = false          // the "Yesterday's …" row nudges once (rev 5)
+    var planEdited: Bool = false             // Your plan macros were dragged in onboarding (rev 5)
     var tourDone: Bool = false               // first-run guided tour (README §15)
     var tourStep: Int? = nil                 // persists if the app is killed mid-tour
     var cutStartedAt: Date? = nil           // for the stall rule (cutting ≥ 8 weeks)
@@ -226,4 +228,13 @@ struct PrepItem: Codable, Hashable, Identifiable { var id = UUID(); var text: St
     init(dayKey: String) { self.dayKey = dayKey }
     var items: [PrepItem] { get { (try? JSONDecoder().decode([PrepItem].self, from: itemsData)) ?? [] } set { itemsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var keep: Set<String> { get { Set((try? JSONDecoder().decode([String].self, from: keepData)) ?? []) } set { keepData = (try? JSONEncoder().encode(Array(newValue))) ?? Data() } }
+}
+
+/// Staple (rev 5): a food the user eats most weeks. No amounts — the solver sizes it; an optional daily Max caps it.
+@Model final class Staple {
+    @Attribute(.unique) var foodId: String = ""
+    var maxG: Double? = nil
+    var order: Int = 0
+    var createdAt: Date = Date()
+    init(foodId: String, maxG: Double? = nil, order: Int) { self.foodId = foodId; self.maxG = maxG; self.order = order }
 }

@@ -212,10 +212,10 @@ struct AddChip: View {
 
 /// Numeric entry: 40 pt, radius 12, track fill, inner edge inset 0 2 0, value 17/800 right-aligned, unit 17/700 muted.
 struct InsetField: View {
-    @Binding var text: String; var unit: String; var width: CGFloat = 120
+    @Binding var text: String; var unit: String; var width: CGFloat = 120; var placeholder = "0"
     var body: some View {
         HStack(spacing: 6) {
-            TextField("0", text: $text).keyboardType(.decimalPad).font(.nunito(17, .extrabold)).tabular().multilineTextAlignment(.trailing).frame(minWidth: 40)
+            TextField(placeholder, text: $text).keyboardType(.decimalPad).font(.nunito(17, .extrabold)).tabular().multilineTextAlignment(.trailing).frame(minWidth: 40)
             Text(unit).font(.nunito(17, .bold)).foregroundStyle(Color.yumo.inkMuted)
         }
         .padding(.horizontal, 12).frame(width: width, height: 40)
@@ -375,4 +375,153 @@ struct OptionTile: View {
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.yumo.accent, lineWidth: selected ? 2.5 : 0))
         }.buttonStyle(PlainPressStyle()).animation(Motion.snap, value: selected)
     }
+}
+
+// MARK: - Rev 5 components (DESIGN_SYSTEM.md › Rev 5)
+
+/// 7 × (12/800 initial + 32 pt circle): logged = accent + white tick; today = 2 pt grabber ring; other = 2 pt edge ring; selected = inset 2.5 pt accent.
+struct WeekStrip: View {
+    var days: [(date: Date, logged: Bool)]; var selected: Date; var onPick: (Date) -> Void
+    var body: some View {
+        HStack { ForEach(Array(days.enumerated()), id: \.offset) { _, d in
+            let sel = Calendar.current.isDate(d.date, inSameDayAs: selected), today = Calendar.current.isDateInToday(d.date)
+            Button { onPick(d.date) } label: {
+                VStack(spacing: 7) {
+                    Text(String(Fmt.weekday(d.date).prefix(1))).font(.nunito(12, .extrabold)).foregroundStyle(sel ? Color.yumo.ink : .yumo.inkMuted)
+                    ZStack {
+                        Circle().fill(d.logged ? Color.yumo.accent : .clear)
+                        if sel { Circle().strokeBorder(Color.yumo.accent, lineWidth: 2.5) } else if !d.logged { Circle().strokeBorder(today ? Color.yumo.grabber : .yumo.surfaceEdge, lineWidth: 2) }
+                        if d.logged { TickGlyph(color: .white) }
+                    }.frame(width: 32, height: 32)
+                        .overlay { if sel && d.logged { Circle().stroke(Color.yumo.accent, lineWidth: 2.5).padding(-4.5).overlay(Circle().stroke(Color.yumo.bg, lineWidth: 3).padding(-1.5)) } }
+                        .animation(Motion.expand, value: d.logged).animation(Motion.expand, value: sel)
+                }.frame(width: 36)
+            }.buttonStyle(PlainPressStyle())
+            if d.date != days.last?.date { Spacer(minLength: 0) }
+        } }
+    }
+}
+struct TickGlyph: View { var color: Color
+    var body: some View { Path { p in p.move(to: CGPoint(x: 1.5, y: 6)); p.addLine(to: CGPoint(x: 5.2, y: 9.5)); p.addLine(to: CGPoint(x: 12.5, y: 1.5)) }.stroke(color, style: StrokeStyle(lineWidth: 2.6, lineCap: .round, lineJoin: .round)).frame(width: 14, height: 11) }
+}
+
+/// Surface pill, radius 12, 8×12 padding, lift.card; count 15/800 (ink > 0, muted at 0) + "day streak" 13/800 muted.
+struct StreakPill: View { var count: Int
+    var body: some View {
+        HStack(spacing: 4) { Text("\(count)").font(.nunito(15, .extrabold)).tabular().foregroundStyle(count > 0 ? Color.yumo.ink : .yumo.inkMuted); Text("day streak").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.inkMuted) }
+            .padding(.vertical, 8).padding(.horizontal, 12).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.yumo.surface)).lifted(radius: 12)
+    }
+}
+
+/// Floating month grid: surface, radius 22, lift 4 + the system's one blurred shadow; 32 pt day circles, 5 pt accent dot on logged days, future muted.
+struct CalendarPopover: View {
+    var month: Date; var selected: Date; var logged: Set<String>; var onPick: (Date) -> Void; var onToday: () -> Void
+    var body: some View {
+        let cal = Calendar.current, today = Date().startOfDay
+        let first = cal.date(from: cal.dateComponents([.year, .month], from: month))!
+        let n = cal.range(of: .day, in: .month, for: first)!.count, lead = (cal.component(.weekday, from: first) + 5) % 7
+        VStack(spacing: 0) {
+            HStack { Text(Fmt.monthTitle(first)).font(.yumo.title); Spacer(); Button(action: onToday) { Text("Today").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }.buttonStyle(PlainPressStyle()) }.padding(.horizontal, 4)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 4) {
+                ForEach(["M", "T", "W", "T", "F", "S", "S"].indices, id: \.self) { i in Text(["M", "T", "W", "T", "F", "S", "S"][i]).font(.nunito(11, .extrabold)).kerning(0.4).foregroundStyle(Color.yumo.inkMuted).frame(height: 16) }
+                ForEach(0..<(lead + n), id: \.self) { i in
+                    if i < lead { Color.clear.frame(height: 40) } else {
+                        let d = cal.date(byAdding: .day, value: i - lead, to: first)!, future = d > today, sel = cal.isDate(d, inSameDayAs: selected), isToday = cal.isDate(d, inSameDayAs: today)
+                        Button { if !future { onPick(d) } } label: {
+                            VStack(spacing: 3) {
+                                Text("\(i - lead + 1)").font(.nunito(15, .extrabold)).tabular().foregroundStyle(future ? Color.yumo.grabber : sel ? .white : .yumo.ink).frame(width: 32, height: 32)
+                                    .background(Circle().fill(sel ? Color.yumo.accent : isToday ? .yumo.accentTint : .clear))
+                                Circle().fill(!future && logged.contains(d.dayKey) && !sel ? Color.yumo.accent : .clear).frame(width: 5, height: 5)
+                            }.frame(height: 40)
+                        }.buttonStyle(PlainPressStyle()).disabled(future)
+                    }
+                }
+            }.padding(.top, 12)
+        }
+        .padding(EdgeInsets(top: 16, leading: 16, bottom: 14, trailing: 16))
+        .background {
+            // lift 4 + the system's one blurred shadow (floating layers only), composed as one shape so the edge and the shadow don't double up
+            ZStack { RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surfaceEdge).offset(y: 4); RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface) }
+                .shadow(color: Color(red: 31/255, green: 28/255, blue: 23/255).opacity(0.18), radius: 20, y: 18)
+        }
+    }
+}
+
+/// 60 pt row: 30 pt tint tile with an accent arrow, title + 12/800 accent sub-line "Swipe right to add it again"; nudges 22 pt once on appear.
+struct SwipeHintRow: View {
+    var title: String; var count: String; var kcal: Double; var nudge: Bool
+    @State private var dx: CGFloat = 0
+    var body: some View {
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.yumo.accentTint).frame(width: 30, height: 30).overlay(ArrowGlyph(color: .yumo.accent))
+            VStack(alignment: .leading, spacing: 1) {
+                HStack(spacing: 4) { Text(title).font(.nunito(16, .bold)).lineLimit(1); Text(count).font(.nunito(14, .semibold)).foregroundStyle(Color.yumo.inkMuted) }
+                Text("Swipe right to add it again").font(.nunito(12, .extrabold)).foregroundStyle(Color.yumo.accent)
+            }
+            Spacer(); Text(Fmt.k(kcal)).font(.nunito(16, .extrabold)).tabular()
+        }
+        .frame(height: 60).offset(x: dx)
+        .onAppear { guard nudge else { return }; Task { try? await Task.sleep(for: .milliseconds(600)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.5)) { dx = 22 }; try? await Task.sleep(for: .milliseconds(520)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.5)) { dx = 0 } } }
+    }
+}
+struct ArrowGlyph: View { var color: Color
+    var body: some View { Path { p in p.move(to: CGPoint(x: 1, y: 6)); p.addLine(to: CGPoint(x: 13, y: 6)); p.move(to: CGPoint(x: 9, y: 1.5)); p.addLine(to: CGPoint(x: 13.5, y: 6)); p.addLine(to: CGPoint(x: 9, y: 10.5)) }.stroke(color, style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round)).frame(width: 16, height: 12) }
+}
+
+/// 2 pt dashed surface.edge outline, radius 20, 14×16 padding, 15/800 title + 13/700 muted body + accent ›.
+struct DashedEntryRow: View { var title: String; var body_: String; var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) { Text(title).font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text(body_).font(.nunito(13, .bold)).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.leading) }
+                Spacer(); Text("›").font(.nunito(22, .extrabold)).foregroundStyle(Color.yumo.accent)
+            }.padding(EdgeInsets(top: 14, leading: 20, bottom: 14, trailing: 16)).contentShape(Rectangle())
+            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Color.yumo.surfaceEdge, style: StrokeStyle(lineWidth: 2, dash: [6, 5])))
+        }.buttonStyle(PlainPressStyle())
+    }
+}
+
+/// Surface tile with a ▲▼ glyph; vertical drag 10 pt = 5 g; the number turns danger below its floor.
+struct MacroDragTile: View {
+    var label: String; @Binding var value: Int; var lo: Int; var hi: Int; var danger: Bool; var onBegin: () -> Void = {}
+    @State private var start: Int? = nil
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label).font(.nunito(13, .bold)).foregroundStyle(Color.yumo.inkMuted)
+            HStack(alignment: .firstTextBaseline, spacing: 2) { Text("\(value)").font(.nunito(24, .extrabold)).tabular().foregroundStyle(danger ? Color.yumo.danger : .yumo.ink); Text("g").font(.nunito(13, .bold)).foregroundStyle(Color.yumo.inkMuted) }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading).padding(EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color.yumo.surface)).lifted(radius: 18)
+        .overlay(alignment: .topTrailing) { VStack(spacing: 2) { Text("▲"); Text("▼") }.font(.system(size: 9, weight: .bold)).foregroundStyle(Color.yumo.grabber).padding(.top, 12).padding(.trailing, 10) }
+        .contentShape(Rectangle())
+        .gesture(DragGesture(minimumDistance: 2).onChanged { d in
+            if start == nil { start = value; onBegin() }
+            let v = Int(((Double(start!) + Double(-d.translation.height) / 10 * 5) / 5).rounded()) * 5
+            let nv = min(hi, max(lo, v)); if nv != value { value = nv; UISelectionFeedbackGenerator().selectionChanged() }
+        }.onEnded { _ in start = nil })
+    }
+}
+
+/// 10 pt, radius 5, segments accent / ink / muted; widths animate on the token curve.
+struct StackedBar: View { var parts: [Double]   // fractions 0…1 in order protein, carbs, fat
+    var body: some View {
+        GeometryReader { g in
+            HStack(spacing: 0) {
+                ForEach(parts.indices, id: \.self) { i in Rectangle().fill([Color.yumo.accent, .yumo.ink, .yumo.inkMuted][i % 3]).frame(width: max(0, g.size.width * min(1, parts[i]))) }
+                Spacer(minLength: 0)
+            }
+        }.frame(height: 10).background(Capsule().fill(Color.yumo.track)).clipShape(Capsule()).animation(Motion.expand, value: parts)
+    }
+}
+
+/// motion.expand: the one disclosure. Height unfolds, content fades and rises 8 pt, chevron rotates 90°; collapse is the exact reverse.
+struct Expandable<Content: View>: View {
+    var open: Bool; @ViewBuilder var content: () -> Content
+    var body: some View {
+        VStack(spacing: 0) { if open { content().opacity(open ? 1 : 0).offset(y: open ? 0 : 8).transition(.asymmetric(insertion: .opacity.combined(with: .offset(y: 8)), removal: .opacity.combined(with: .offset(y: 8)))) } }
+            .frame(maxWidth: .infinity, alignment: .leading).clipped().animation(Motion.expand, value: open)
+    }
+}
+struct ExpandChevron: View { var open: Bool
+    var body: some View { Text("›").font(.nunito(16, .extrabold)).foregroundStyle(Color.yumo.grabber).rotationEffect(.degrees(open ? 90 : 0)).animation(Motion.expand, value: open) }
 }

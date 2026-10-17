@@ -4,7 +4,7 @@ import SwiftData
 @main
 struct YumoApp: App {
     let container: ModelContainer = {
-        let schema = Schema([UserProfile.self, Food.self, FoodEntry.self, WeightEntry.self, SavedMeal.self, DayFlag.self, WeeklyEstimate.self, LearnedPattern.self, UserAlias.self, PrepDay.self])
+        let schema = Schema([UserProfile.self, Food.self, FoodEntry.self, WeightEntry.self, SavedMeal.self, DayFlag.self, WeeklyEstimate.self, LearnedPattern.self, UserAlias.self, PrepDay.self, Staple.self])
         do { return try ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema)]) }
         catch { fatalError("ModelContainer: \(error)") }
     }()

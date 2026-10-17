@@ -117,8 +117,8 @@ struct ProgressScreen: View {
             }
             Segmented(options: ChartRange.allCases.map { ($0, $0.rawValue) }, selection: $range).padding(.top, 14)
             LineChart(points: inRange.map { ($0.date, disp($0.kg)) }, range: range, unit: unit, average: movingAverage).frame(height: 150).padding(.top, 18)
-            Text(weights.count >= 7 ? "Hold on the chart to read a point · line is the trend, dots are weigh-ins" : inRange.count > 1 ? "Hold on the chart to read a point" : "Log a few weights to see the trend").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 10)
-            PrimaryButton(label: todayEntry.map { "Edit today · \(Fmt.kg(disp($0.kg))) \(unit)" } ?? "Log today's weight") { logSheet = DayKey(id: Date().dayKey) }.padding(.top, 14)
+            Text(weights.count <= 1 ? "Your setup weight. The trend starts with your first weigh-in." : weights.count >= 7 ? "Line = 7-day trend · dots = weigh-ins · hold to read a point" : "Hold on the chart to read a point").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 8)
+            PrimaryButton(label: todayEntry.map { "Edit today · \(Fmt.kg(disp($0.kg))) \(unit)" } ?? (weights.count <= 1 ? "Log your first weight" : "Log today's weight")) { logSheet = DayKey(id: Date().dayKey) }.padding(.top, 14)
         }.card(padding: EdgeInsets(top: 18, leading: 20, bottom: 20, trailing: 20))
     }
 
@@ -132,9 +132,14 @@ struct ProgressScreen: View {
                     Text("Calories · last 7 days").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
                     HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(avg)).font(.nunito(32, .extrabold)).tabular(); Text("avg / \(Fmt.k(targetKcal))").font(.nunito(15, .semibold)).tabular().foregroundStyle(Color.yumo.inkMuted) }
                 }
-                Spacer(); Text("\(hit) / \(logged.count) days on target").font(.yumo.action).tabular().foregroundStyle(Color.yumo.inkMuted).padding(.top, 2)
+                Spacer(); Text(logged.isEmpty ? "Day 1" : "\(hit) / \(logged.count) days on target").font(.yumo.action).tabular().foregroundStyle(Color.yumo.inkMuted).padding(.top, 2)
             }
-            BarRow(days: days).padding(.top, 16)
+            if logged.isEmpty && (days.last?.1 ?? 0) == 0 {
+                VStack(spacing: 10) {
+                    Text("Your week fills in here.").font(.yumo.subtitle)
+                    Button { session.tab = .today } label: { Text("Log today's first meal ›").font(.nunito(14, .extrabold)).foregroundStyle(Color.yumo.accent) }.buttonStyle(PlainPressStyle())
+                }.frame(maxWidth: .infinity).frame(height: 130).overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 2) }.overlay(alignment: .bottom) { Rectangle().fill(Color.yumo.hairline).frame(height: 2) }.padding(.top, 16)
+            } else { BarRow(days: days).padding(.top, 16) }
         }.card(padding: EdgeInsets(top: 18, leading: 20, bottom: 16, trailing: 20))
     }
 }
