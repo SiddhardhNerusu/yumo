@@ -61,6 +61,8 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var showNutrientsOnToday: Bool = false
     var isPlus: Bool = true                 // every feature unlocked in v1
     var typeItHintSeen: Bool = false        // first-time line under the Type it field
+    var tourDone: Bool = false               // first-run guided tour (README §15)
+    var tourStep: Int? = nil                 // persists if the app is killed mid-tour
     var cutStartedAt: Date? = nil           // for the stall rule (cutting ≥ 8 weeks)
     var stallDecisionWeek: String? = nil    // week the user answered the stall check-in
     var dietBreakUntil: Date? = nil         // diet break: target = measured maintenance until this date

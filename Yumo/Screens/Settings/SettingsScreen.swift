@@ -47,6 +47,9 @@ struct SettingsScreen: View {
                         row("Change password", "") { page = .password }.hairline()
                         SettingsRow(label: "Sign out") { EmptyView() }.contentShape(Rectangle()).onTapGesture { confirmSignOut = true }
                     }
+                    section("Help") {
+                        SettingsRow(label: "Show me around") { ChevronValue(value: "Replay the tour") }.contentShape(Rectangle()).onTapGesture { let s = store; dismiss(); session.tab = .today; Task { try? await Task.sleep(for: .milliseconds(600)); Tour.shared.start(store: s, session: session) } }
+                    }
                     section("About") {
                         SettingsRow(label: "Food data") { ChevronValue(value: "Open Food Facts · ODbL") }.contentShape(Rectangle()).onTapGesture { UIApplication.shared.open(URL(string: "https://world.openfoodfacts.org")!) }.hairline()
                         SettingsRow(label: "Version") { Text("\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))").font(.yumo.body).tabular().foregroundStyle(Color.yumo.inkMuted) }.hairline()

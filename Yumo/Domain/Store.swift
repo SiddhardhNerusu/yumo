@@ -35,6 +35,8 @@ struct Store {
     }
     func remove(_ e: FoodEntry) { ctx.delete(e); try? ctx.save() }
     func save() { try? ctx.save() }
+    /// Any food logged on a day before `dayKey` (first-run rules, README §1).
+    func hasHistory(before dayKey: String) -> Bool { ((try? ctx.fetchCount(FetchDescriptor<FoodEntry>(predicate: #Predicate { $0.dayKey < dayKey }))) ?? 0) > 0 }
 
     // MARK: Weights
     func weights() -> [WeightEntry] { (try? ctx.fetch(FetchDescriptor<WeightEntry>(sortBy: [SortDescriptor(\.dayKey, order: .reverse)]))) ?? [] }

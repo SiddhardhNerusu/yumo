@@ -187,7 +187,7 @@ struct OnboardingFlow: View {
             Text("You're set").font(.yumo.pageTitle).padding(.top, 22)
             Text("Your target is \(Fmt.k(target)) kcal. Log your first meal when you're ready.").font(.yumo.subtitle).tabular().foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.center).padding(.top, 8).padding(.horizontal, 32)
             Spacer()
-            PrimaryButton(label: "Open Today") { session.changed(); session.onboarded = true }.padding(.horizontal, Space.gutter).padding(.bottom, 8)
+            PrimaryButton(label: "Open Today") { session.changed(); session.startTour = true; session.onboarded = true }.padding(.horizontal, Space.gutter).padding(.bottom, 8)
         }
     }
 }

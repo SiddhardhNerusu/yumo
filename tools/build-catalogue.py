@@ -4,7 +4,7 @@ Sources (public domain / OGL): USDA FoodData Central SR Legacy (bulk CSV, tools/
 Rules: one row per food + state; raw and cooked are separate entries; brand rows excluded; every row keeps a source_ref.
 Curation overrides live in tools/curation.csv (source_id, display_name, state, aliases, approved, note) and win over the automatic names.
 Run: python3 tools/build-catalogue.py   → prints a cross-check report (Atwater mismatch, duplicates) and writes the JSON."""
-import csv, json, os, re, sys, collections
+import csv, re, json, os, re, sys, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "Yumo", "Resources", "Catalogue", "generic.json")
 VERSION = "2026-10-16.1"
@@ -82,7 +82,16 @@ def sr_legacy():
         f["portions"].append((f"{amt} {label} · {int(round(float(r['gram_weight'])))} g", float(r["gram_weight"])))
     out = []
     for fid, f in foods.items():
-        out.append({"src": "sr", "id": f"fdc:{fid}", "desc": f["desc"], "cat": f["cat"], "nut": f["nut"], "portions": f["portions"][:3], "source_ref": f"USDA SR Legacy {fid}"})
+        # Default serving = the first portion. A piece ("1 medium", "1 large", "1 slice", "1 egg") must outrank a measure ("1 cup, mashed",
+        # "1 tbsp", "1 oz"): type-to-log treats a bare small number as pieces only when the default serving is a piece.
+        def piece_rank(p):
+            l = p[0].lower()
+            if re.search(r"\b(cup|cups|tbsp|tablespoon|tsp|teaspoon|oz|fl oz|ml|pint|quart|lb)\b", l): return 2
+            if re.search(r"\b(medium|large|small|extra large|jumbo|piece|slice|each|unit|whole|egg|fillet|breast|thigh|leg|wing|drumstick|stick|bar|packet|can|container|bottle|serving|patty|link|chop|steak|fruit|pod|head|stalk|ear|leaf|sprig|clove|nut|wedge|ring|square|cookie|cracker|roll|bun|muffin|pancake|waffle|tortilla|pita)\b", l):
+                return 0 if "medium" in l else (0.2 if "large" in l and "extra" not in l else (0.4 if "small" in l and "extra" not in l else 0.6))   # medium is the everyday piece
+            return 1
+        portions = sorted(f["portions"], key=piece_rank)
+        out.append({"src": "sr", "id": f"fdc:{fid}", "desc": f["desc"], "cat": f["cat"], "nut": f["nut"], "portions": portions[:3], "source_ref": f"USDA SR Legacy {fid}"})
     return out
 
 def foundation():

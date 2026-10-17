@@ -16,6 +16,7 @@ struct TodayScreen: View {
     @State private var pinnedRow: String? = nil
     @State private var checkin = false
     @State private var balance = false
+    @State private var hasHistory = false      // first run (README §1): no "Yesterday's …" rows and no Balance row until a food was logged on a previous day
 
     var store: Store { Store(ctx) }
     var dayKey: String { session.selectedDate.dayKey }
@@ -33,12 +34,12 @@ struct TodayScreen: View {
                     }
                     Text(Fmt.dayTitle(session.selectedDate)).font(.yumo.title).tabular()
                 }.frame(height: 44)
-                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow, balance: balanceRow, onBalance: { balance = true }).padding(.top, 4) }
+                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow, balance: balanceRow, onBalance: { balance = true }).tourAnchor(.hero).padding(.top, 4) }
                 VStack(spacing: Space.cardGap) {
                     ForEach(Meal.allCases) { meal in
                         MealCardView(meal: meal, entries: entries.filter { $0.meal == meal && !removingIds.contains($0.id) },
-                                     yesterday: yesterday.filter { $0.meal == meal }, saved: savedByMeal[meal],
-                                     onAdd: { addMeal = meal }, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
+                                     yesterday: hasHistory ? yesterday.filter { $0.meal == meal } : [], saved: savedByMeal[meal],
+                                     onAdd: { addMeal = meal; if meal == .breakfast { Tour.shared.didAct(.breakfastAdd) } }, tourAnchor: meal == .breakfast, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
                     }
                 }.padding(.top, Space.heroGap)
             }
@@ -58,7 +59,7 @@ struct TodayScreen: View {
         guard let t = targets else { return nil }
         let left = Double(t.kcal(training: training, profile: store.profile())) - DayTotals(entries).kcal
         let empty = Meal.allCases.filter { m in !entries.contains { $0.meal == m } }
-        guard left > 150, !empty.isEmpty, isToday else { return nil }
+        guard left > 150, !empty.isEmpty, isToday, hasHistory else { return nil }
         return "\(Fmt.k(left)) kcal left · \(empty.map(\.rawValue).joined(separator: ", ")) \(empty.count == 1 ? "is" : "are") empty"
     }
 
@@ -78,7 +79,8 @@ struct TodayScreen: View {
                 return "\(n.name.components(separatedBy: " (").first ?? n.name) \(Nutrients.format(v, unit: n.unit))\(g.map { " / \(Nutrients.format($0, unit: n.unit))" } ?? "") \(n.unit)"
             }.joined(separator: " · ")
         } else { pinnedRow = nil }
-        if Calendar.current.isDateInToday(session.selectedDate), Expenditure.checkinDue(p) || Expenditure.stallCheck(s) != nil { checkin = true }
+        hasHistory = s.hasHistory(before: Date().dayKey)
+        if Calendar.current.isDateInToday(session.selectedDate), !Tour.shared.active, Expenditure.checkinDue(p) || Expenditure.stallCheck(s) != nil { checkin = true }
         var map: [Meal: SavedMeal] = [:]
         for m in Meal.allCases { if let sm = s.savedMeal(matching: entries.filter { $0.meal == m }) { map[m] = sm } }
         savedByMeal = map
@@ -144,12 +146,13 @@ struct HeroCard: View {
 
 struct MealCardView: View {
     var meal: Meal; var entries: [FoodEntry]; var yesterday: [FoodEntry]; var saved: SavedMeal?
-    var onAdd: () -> Void; var onOpen: (FoodEntry) -> Void; var onRemove: (FoodEntry) -> Void; var onAddYesterday: () -> Void; var onSave: () -> Void
+    var onAdd: () -> Void; var tourAnchor = false; var onOpen: (FoodEntry) -> Void; var onRemove: (FoodEntry) -> Void; var onAddYesterday: () -> Void; var onSave: () -> Void
     var totals: DayTotals { DayTotals(entries) }
+    @ViewBuilder var chip: some View { if tourAnchor { AddChip(action: onAdd).tourAnchor(.breakfastAdd) } else { AddChip(action: onAdd) } }
     var body: some View {
         VStack(spacing: 0) {
             if entries.isEmpty {
-                HStack { Text(meal.rawValue).font(.yumo.title); Spacer(); AddChip(action: onAdd) }
+                HStack { Text(meal.rawValue).font(.yumo.title); Spacer(); chip }
                     .padding(.vertical, 9).padding(.trailing, 12)
                 if !yesterday.isEmpty { SwipeToAddRow(label: "Yesterday's \(meal.rawValue)", count: yesterday.count, kcal: DayTotals(yesterday).kcal, onCommit: onAddYesterday).padding(.leading, -Space.cardPad) }
             } else {
@@ -158,7 +161,7 @@ struct MealCardView: View {
                         HStack(alignment: .firstTextBaseline, spacing: 6) { Text(meal.rawValue).font(.yumo.title); Text("\(Fmt.k(totals.kcal)) kcal").font(.yumo.bodyStrong).tabular().foregroundStyle(Color.yumo.inkMuted); if let s = saved { Tag(label: s.name) } }
                         Text("P \(Fmt.g(totals.p)) · C \(Fmt.g(totals.c)) · F \(Fmt.g(totals.f))").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
                     }
-                    Spacer(); AddChip(action: onAdd)
+                    Spacer(); chip
                 }.padding(.top, 9).padding(.bottom, 8).padding(.trailing, 12).hairline()
                 ForEach(Array(entries.enumerated()), id: \.element.id) { i, e in FoodRowView(entry: e, last: i == entries.count - 1 && saved != nil, onOpen: { onOpen(e) }, onRemove: { onRemove(e) }).padding(.leading, -Space.cardPad) }
                 if saved == nil { HStack { TextAction(label: "Save as meal", action: onSave); Spacer() }.padding(.vertical, Space.rowFooter) }

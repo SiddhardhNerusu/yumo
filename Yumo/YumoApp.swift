@@ -24,6 +24,7 @@ struct YumoApp: App {
     var selectedDate = Date().startOfDay
     var tick = 0                       // bump to re-query after mutations
     var presentSettings = false
+    var startTour = false              // set by onboarding's "Open Today"; MainTabs starts the tour once it is on screen
     func changed() { tick &+= 1 }
     enum Tab { case today, progress }
 }
@@ -65,7 +66,16 @@ struct MainTabs: View {
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
             TabBar(active: $s.tab)
         }.ignoresSafeArea(.keyboard)
+        .onAppear {
+            let store = Store(ctx); let p = store.profile()
+            // Guided tour (README §15): right after onboarding, or resumed if the app was killed mid-tour. Never on a day with existing logs.
+            if session.startTour || (p.tourStep != nil && !p.tourDone), store.entries(Date().dayKey).isEmpty {
+                let resume = session.startTour ? nil : p.tourStep; session.startTour = false
+                Task { try? await Task.sleep(for: .milliseconds(500)); Tour.shared.start(store: store, session: session, resumeAt: resume) }
+            } else if session.startTour { session.startTour = false; p.tourDone = true; store.save() }
+        }
     }
+    @Environment(\.modelContext) private var ctx
 }
 
 struct TabBar: View {
@@ -73,7 +83,7 @@ struct TabBar: View {
     var body: some View {
         HStack(spacing: 0) {
             tab(.today, "Today") { TodayGlyph(color: active == .today ? .yumo.accent : .yumo.inkMuted) }
-            tab(.progress, "Progress") { ProgressGlyph(color: active == .progress ? .yumo.accent : .yumo.inkMuted) }
+            tab(.progress, "Progress") { ProgressGlyph(color: active == .progress ? .yumo.accent : .yumo.inkMuted) }.tourAnchor(.progressTab)
         }
         .padding(.top, 3).frame(height: 50)
         .frame(maxWidth: .infinity)
@@ -81,7 +91,7 @@ struct TabBar: View {
         .overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5) }
     }
     func tab<G: View>(_ t: Session.Tab, _ label: String, @ViewBuilder glyph: () -> G) -> some View {
-        Button { active = t } label: {
+        Button { active = t; if t == .progress { Tour.shared.didAct(.progressTab) } } label: {
             VStack(spacing: 3) { glyph(); Text(label).font(.yumo.tabLabel) }
                 .foregroundStyle(active == t ? Color.yumo.accent : .yumo.inkMuted).frame(maxWidth: .infinity).frame(height: 38)
         }.buttonStyle(PlainPressStyle())

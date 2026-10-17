@@ -186,11 +186,11 @@ struct CheckCircle: View { var on: Bool
 
 // MARK: - Sheet chrome
 struct SheetHeader<Right: View>: View {
-    var title: String; var onClose: () -> Void; @ViewBuilder var right: () -> Right
+    var title: String; var onClose: () -> Void; var closeAnchor = false; @ViewBuilder var right: () -> Right
     var body: some View {
         VStack(spacing: 10) {
             Capsule().fill(Color.yumo.grabber).frame(width: 40, height: 5)
-            ZStack { HStack { CloseButton(action: onClose); Spacer(); right() }; Text(title).font(.yumo.title) }
+            ZStack { HStack { if closeAnchor { CloseButton(action: onClose).tourAnchor(.sheetClose) } else { CloseButton(action: onClose) }; Spacer(); right() }; Text(title).font(.yumo.title) }
         }.padding(.top, 10).padding(.horizontal, Space.gutter)
     }
 }

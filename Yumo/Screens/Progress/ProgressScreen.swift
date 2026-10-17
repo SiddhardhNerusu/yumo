@@ -37,17 +37,23 @@ struct ProgressScreen: View {
     var todayEntry: WeightEntry? { weights.first { $0.dayKey == Date().dayKey } }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: Space.cardGap) {
-                HStack { Text("Progress").font(.yumo.display).kerning(-0.4); Spacer(); CogButton { showSettings = true } }.frame(height: 56)
-                weightCard
-                expenditureCard
-                caloriesCard
-                nutrientsRow
+                HStack { Text("Progress").font(.yumo.display).kerning(-0.4); Spacer(); CogButton { showSettings = true } }.frame(height: 56).id("top")
+                weightCard.tourAnchor(.weightCard).id(Tour.Anchor.weightCard)
+                expenditureCard.tourAnchor(.maintenanceCard).id(Tour.Anchor.maintenanceCard)
+                caloriesCard.tourAnchor(.caloriesCard).id(Tour.Anchor.caloriesCard)
+                nutrientsRow.tourAnchor(.nutrientsRow).id(Tour.Anchor.nutrientsRow)
             }.padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
+        }
+        .onChange(of: Tour.shared.step) { scrollForTour(proxy) }
+        .onChange(of: Tour.shared.active) { if Tour.shared.active { scrollForTour(proxy) } }
+        .onAppear { Task { try? await Task.sleep(for: .milliseconds(350)); scrollForTour(proxy) } }
         }
         .scrollIndicators(.hidden)
         .onAppear(perform: reload).onChange(of: session.tick) { reload() }
+        .onChange(of: Tour.shared.active) { if !Tour.shared.active { reload() } }
         .sheet(item: $logSheet) { k in LogWeightSheet(dayKey: k.id).yumoSheet() }
         .fullScreenCover(isPresented: $showLog) { WeightLogScreen() }
         .fullScreenCover(isPresented: $showSettings) { SettingsScreen() }
@@ -82,6 +88,13 @@ struct ProgressScreen: View {
             HStack { Text("Nutrients").font(.yumo.title); Spacer(); Text("Fibre, sodium, iron + \(Nutrients.all.count - 3) more").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted); Text("›").font(.yumo.title).foregroundStyle(Color.yumo.inkMuted) }
                 .foregroundStyle(Color.yumo.ink).frame(height: 52).padding(.horizontal, Space.cardPad).background(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface)).lifted()
         }.buttonStyle(PlainPressStyle())
+    }
+    /// The tour scrolls each target into view (README §15: the Weight card to the top, the rest centred) — the scrim blocks user scrolling.
+    func scrollForTour(_ proxy: ScrollViewProxy) {
+        let t = Tour.shared; guard t.active else { return }
+        withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.45)) {
+            switch t.step { case 7: proxy.scrollTo("top", anchor: .top); case 8: proxy.scrollTo(Tour.Anchor.maintenanceCard, anchor: .center); case 9: proxy.scrollTo(Tour.Anchor.caloriesCard, anchor: .center); case 10: proxy.scrollTo(Tour.Anchor.nutrientsRow, anchor: UnitPoint(x: 0.5, y: 0.6)); default: break }
+        }
     }
     func reload() {
         let s = store; weights = s.weights(); targetKcal = s.targets().kcal; estimates = s.weeklyEstimates()

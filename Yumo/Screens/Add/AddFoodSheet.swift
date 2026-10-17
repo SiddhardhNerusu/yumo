@@ -55,8 +55,8 @@ struct AddFoodSheet: View {
             HStack(spacing: 12) {
                 Button { go(.scan) } label: { VStack(spacing: 12) { BarcodeGlyph(color: .white); Text("Scan barcode").font(.yumo.tile).foregroundStyle(.white) }.frame(maxWidth: .infinity).frame(height: 120) }
                     .buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: Lift.primary, radius: Radius.card))
-                Button { go(.search) } label: { VStack(spacing: 8) { KeyboardGlyph(color: .yumo.ink); Text("Type it").font(.yumo.tile).foregroundStyle(Color.yumo.ink); Text("chicken 180 rice 150").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }.frame(maxWidth: .infinity).frame(height: 120) }
-                    .buttonStyle(LiftButtonStyle(fill: .yumo.surface, edge: .yumo.surfaceEdge, lift: Lift.card, radius: Radius.card))
+                Button { go(.search); Tour.shared.didAct(.typeItTile) } label: { VStack(spacing: 8) { KeyboardGlyph(color: .yumo.ink); Text("Type it").font(.yumo.tile).foregroundStyle(Color.yumo.ink); Text("chicken 180 rice 150").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }.frame(maxWidth: .infinity).frame(height: 120) }
+                    .buttonStyle(LiftButtonStyle(fill: .yumo.surface, edge: .yumo.surfaceEdge, lift: Lift.card, radius: Radius.card)).tourAnchor(.typeItTile)
             }.padding(.horizontal, Space.gutter).padding(.top, 16)
             Spacer()
         }
@@ -65,7 +65,11 @@ struct AddFoodSheet: View {
         if s == .scan { scanOpen = true; return }
         scanOpen = false
         withAnimation(Motion.sheet) { step = s; detent = s == .pick ? .height(300) : .large }
-        if s == .search { yourFoods = store.mostLogged(); generic = []; branded = []; focused = true }
+        if s == .search {
+            yourFoods = store.mostLogged(); generic = []; branded = []
+            if Tour.shared.wantsPresetLine { query = Tour.presetLine; Task { try? await Task.sleep(for: .milliseconds(460)); focused = true } }   // tour stop 3: keyboard rises 460 ms after the sheet
+            else { focused = true }
+        }
     }
 
     // MARK: scan (full screen, rev 2): plain ✕, flashlight icon, corner brackets, no text, brackets go accent on read
@@ -107,12 +111,12 @@ struct AddFoodSheet: View {
     // MARK: search
     var search: some View {
         VStack(spacing: 0) {
-            SheetHeader(title: title, onClose: { dismiss() }) { Button { go(.scan) } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 44, height: 44).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()) }
+            SheetHeader(title: title, onClose: { Tour.shared.didAct(.sheetClose); dismiss() }, closeAnchor: Tour.shared.active) { Button { go(.scan) } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 44, height: 44).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()) }
             HStack(spacing: 10) {
                 MagnifierGlyph(color: .yumo.inkMuted, size: 18)
                 TextField("chicken 180 rice 150 — or a name", text: $query).font(.yumo.body).focused($focused).submitLabel(.search).autocorrectionDisabled()
             }.padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
-                .padding(.horizontal, Space.gutter).padding(.top, 14)
+                .tourAnchor(.typeItField).padding(.horizontal, Space.gutter).padding(.top, 14)
             if !store.profile().typeItHintSeen { Text("Foods and grams in one line. I learn your shorthand as we go — first time, I ask.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.gutter + 4).padding(.top, 8) }
             Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal, compact: true).padding(.horizontal, Space.gutter).padding(.top, 10)
             if typed {
