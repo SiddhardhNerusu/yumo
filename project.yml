@@ -32,7 +32,6 @@ targets:
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
-        UIUserInterfaceStyle: Light
         ITSAppUsesNonExemptEncryption: false
         NSCameraUsageDescription: Yumo uses the camera to scan food barcodes and to attach progress photos to weight entries.
         NSPhotoLibraryUsageDescription: Yumo lets you attach a photo from your library to a weight entry.

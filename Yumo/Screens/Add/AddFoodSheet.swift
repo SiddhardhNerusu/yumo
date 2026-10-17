@@ -45,7 +45,7 @@ struct AddFoodSheet: View {
         .presentationCornerRadius(Radius.sheet).presentationBackground(Color.yumo.bg).presentationDragIndicator(.hidden)
         .fullScreenCover(isPresented: $scanOpen) { scan }
         .sheet(item: $create) { d in CreateFoodScreen(draft: d) { f in log(f, serving: f.defaultServing, qty: 1) } }
-        .fullScreenCover(item: $detailFood) { f in FoodDetailScreen(food: f, meal: meal, dayKey: dayKey) { dismiss() } }
+        .pushCover(item: $detailFood) { f in FoodDetailScreen(food: f, meal: meal, dayKey: dayKey) { dismiss() } }
     }
 
     // MARK: pick

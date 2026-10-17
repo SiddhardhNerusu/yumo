@@ -106,13 +106,13 @@ struct RulerView: View {
                 }.onEnded { _ in
                     guard let dr = drag else { return }; drag = nil
                     let fine = step < 0.1
-                    if fine || abs(dr.v) < 0.4 { set((dr.raw / (fine ? 0.01 : 0.1)).rounded() * (fine ? 0.01 : 0.1)); return }
+                    if fine || abs(dr.v) < 0.4 { set((dr.raw / (fine ? 0.01 : 0.1)).rounded() * (fine ? 0.01 : 0.1)); UIImpactFeedbackGenerator(style: .rigid).impactOccurred(); return }
                     var v = dr.v, raw = dr.raw, last = Date()
                     coast = Timer.scheduledTimer(withTimeInterval: 1.0 / 60, repeats: true) { t in
                         let now = Date(), dt = Swift.min(0.04, now.timeIntervalSince(last)); last = now
                         v *= pow(0.0025, dt); raw = Swift.min(maxShown, Swift.max(minShown, raw + v * dt))
                         set((raw / 0.1).rounded() * 0.1)
-                        if abs(v) < 0.25 { t.invalidate(); coast = nil }
+                        if abs(v) < 0.25 { t.invalidate(); coast = nil; UIImpactFeedbackGenerator(style: .rigid).impactOccurred() }
                     }
                 })
             }.frame(height: 56).clipped()
@@ -124,6 +124,6 @@ struct RulerView: View {
     func set(_ s: Double) {
         let kg = lb ? s / 2.20462 : s
         value = Swift.min(max, Swift.max(min, kg))
-        let tick = Int((s / step).rounded()); if tick != lastTick { lastTick = tick; UISelectionFeedbackGenerator().selectionChanged() }
+        let tick = Int((s / step).rounded()); if tick != lastTick { lastTick = tick; if step < 0.05 { UIImpactFeedbackGenerator(style: .soft).impactOccurred() } else { UISelectionFeedbackGenerator().selectionChanged() } }
     }
 }

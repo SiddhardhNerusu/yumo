@@ -1,5 +1,15 @@
 # Yumo — changelog
 
+## 1.0 build 2026-10-17 night (FIDELITY_AUDIT pass)
+- Audit claims checked against the build by sampling rendered pixels: the + chip is 76/196/23 (#4CC417) on a #3BA40F edge, cards are #FFFBF3 on a 3 pt #D6CAB2 edge, the hero is 72/800. Those three "what was wrong in the sim" items described an earlier build, not this one.
+- **Dark mode** ("Lit from above"): every colour token now resolves per appearance with the audit's hex values; lifted elements get the 1 pt top highlight in dark; the forced light `UIUserInterfaceStyle` is gone.
+- **motion.push**: pushed pages fade in and rise 12 pt over 360 ms and play the reverse on back; the system slide is suppressed (`pushCover`). The barcode scanner keeps its cover.
+- **motion.swipeReveal**: the revealed danger follows the finger with a 32 pt feathered leading edge; the label fades in between 12 % and 32 % of the row; commit slides out over 360 ms (Today food rows, weight log rows).
+- **motion.nudge**: 0 → 22 → 0 → 10 → 0 pt over 1.4 s, 0.6 s after the row appears.
+- Ruler haptics: `.selection` per 0.1 / 0.05 step, `.soft` per 0.01, `.rigid` on settle; `.success` on Log (Type it, I prepped…).
+- Disabled PrimaryButton edge #A9E08C; remaining literal colours moved to tokens (tour scrim, floating shadow, chart scrub dot, status tints, on-accent labels); bars animate on the one curve.
+- Debug: Settings › About › **Design system** renders every token and component for a 1:1 comparison with `Design System.dc.html` (DEBUG builds only).
+
 ## 1.0 build 2026-10-17 evening (handoff rev 6 — I prepped… two-step, solver rewrite, fuzzy staples search)
 - **I prepped…** is a two-step sheet. Step 1 "What did you weigh?": staples grouped PROTEINS · CARBS · FATS · VEG, tap + or the row to unfold "How much did you weigh?" (InsetField · Done, motion.expand), weighed rows show a green-ringed weight pill and "weighed today" / "same as yesterday", Remove weight, catalogue search for non-staples ("from the catalogue · today only"), carry-over of the last weigh-in list within 14 days, footer "N foods weighed · everything else Yumo sizes" + Balance my day / Plan it all for me. Step 2 "Your day": summary card with a status tag, one card per meal with weighed / at max tags and the variant on a second line, Log N meals · Change.
 - **Entry** is a sparkle button in the hero's top-right. The dashed row is gone.

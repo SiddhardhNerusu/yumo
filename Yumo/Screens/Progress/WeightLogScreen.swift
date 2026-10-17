@@ -65,7 +65,7 @@ struct WeightRow: View {
     @State private var dx: CGFloat = 0
     var body: some View {
         ZStack(alignment: .trailing) {
-            Rectangle().fill(Color.yumo.danger).overlay(alignment: .trailing) { Text("Delete").font(.yumo.action).foregroundStyle(.white).padding(.trailing, 20) }.opacity(min(1, abs(dx) / 80))
+            SwipeReveal(dx: dx, label: "Delete").opacity(min(1, abs(dx) / 80))
             HStack(spacing: 12) {
                 if let d = w.photo, let img = UIImage(data: d) { Image(uiImage: img).resizable().scaledToFill().frame(width: 40, height: 40).clipShape(RoundedRectangle(cornerRadius: Radius.thumb)) }
                 Text(Fmt.dayTitle(w.date)).font(.yumo.bodyStrong)

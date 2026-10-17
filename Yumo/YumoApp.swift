@@ -12,7 +12,7 @@ struct YumoApp: App {
     @State private var session = Session()
     var body: some Scene {
         WindowGroup {
-            RootView().environment(toaster).environment(session).tint(.yumo.accent).preferredColorScheme(.light)
+            RootView().environment(toaster).environment(session).tint(.yumo.accent)
         }.modelContainer(container)
     }
 }

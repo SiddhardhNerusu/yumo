@@ -14,9 +14,9 @@ struct PrimaryButton: View {
                 if plus { Text("+").font(.nunito(26, .black)).offset(y: -2) }
                 Text(label).font(size.font)
             }
-            .foregroundStyle(Color.white).frame(maxWidth: .infinity).frame(height: size.height)
+            .foregroundStyle(Color.yumo.onAccent).frame(maxWidth: .infinity).frame(height: size.height)
         }
-        .buttonStyle(LiftButtonStyle(fill: disabled ? .yumo.accentSoft : .yumo.accent, edge: disabled ? .yumo.accentSoft : .yumo.accentEdge, lift: disabled ? 0 : Lift.primary, radius: size.radius))
+        .buttonStyle(LiftButtonStyle(fill: disabled ? .yumo.accentSoft : .yumo.accent, edge: disabled ? .yumo.accentSoftEdge : .yumo.accentEdge, lift: Lift.primary, radius: size.radius))
         .disabled(disabled)
     }
 }
@@ -100,7 +100,7 @@ struct Overline: View { var text: String
 }
 struct ToastView: View { var text: String
     var body: some View {
-        Text(text).font(.yumo.action).foregroundStyle(.white).tabular().padding(.horizontal, 18).padding(.vertical, 12)
+        Text(text).font(.yumo.action).foregroundStyle(Color.yumo.onAccent).tabular().padding(.horizontal, 18).padding(.vertical, 12)
             .background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.ink)).lifted(.yumo.toastEdge, lift: 3, radius: Radius.field)
     }
 }
@@ -147,9 +147,10 @@ struct ListCard<Content: View>: View {
 // MARK: - Nav header for pushed pages
 struct PageHeader: View {
     var back: String; var title: String; var onBack: () -> Void
+    @Environment(\.pushDismiss) private var pushDismiss
     var body: some View {
         ZStack {
-            HStack { Button(action: onBack) { HStack(spacing: 2) { Text("‹").font(.nunito(26, .extrabold)); Text(back).font(.yumo.title) }.foregroundStyle(Color.yumo.accent) }.buttonStyle(PlainPressStyle()); Spacer() }
+            HStack { Button(action: { if let pd = pushDismiss { pd(onBack) } else { onBack() } }) { HStack(spacing: 2) { Text("‹").font(.nunito(26, .extrabold)); Text(back).font(.yumo.title) }.foregroundStyle(Color.yumo.accent) }.buttonStyle(PlainPressStyle()); Spacer() }
             Text(title).font(.yumo.title)
         }.frame(height: 44)
     }
@@ -442,7 +443,7 @@ struct CalendarPopover: View {
         .background {
             // lift 4 + the system's one blurred shadow (floating layers only), composed as one shape so the edge and the shadow don't double up
             ZStack { RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surfaceEdge).offset(y: 4); RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface) }
-                .shadow(color: Color(red: 31/255, green: 28/255, blue: 23/255).opacity(0.18), radius: 20, y: 18)
+                .shadow(color: Color.yumo.floatingShadow, radius: 20, y: 18)
         }
     }
 }
@@ -461,7 +462,10 @@ struct SwipeHintRow: View {
             Spacer(); Text(Fmt.k(kcal)).font(.nunito(16, .extrabold)).tabular()
         }
         .frame(height: 60).offset(x: dx)
-        .onAppear { guard nudge else { return }; Task { try? await Task.sleep(for: .milliseconds(600)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)) { dx = 22 }; try? await Task.sleep(for: .milliseconds(700)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)) { dx = 0 } } }
+        .onAppear { guard nudge else { return }; Task {
+            try? await Task.sleep(for: .milliseconds(600))
+            for (v, ms) in [(22.0, 400), (0.0, 400), (10.0, 300), (0.0, 300)] { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: Double(ms) / 1000)) { dx = v }; try? await Task.sleep(for: .milliseconds(ms)) }   // motion.nudge
+        } }
     }
 }
 struct ArrowGlyph: View { var color: Color
@@ -543,5 +547,34 @@ struct SparkleGlyph: View { var color: Color
             ctx.fill(star(CGPoint(x: size.width * 0.44, y: size.height * 0.54), size.width * 0.26), with: .color(color))
             ctx.fill(star(CGPoint(x: size.width * 0.74, y: size.height * 0.3), size.width * 0.11), with: .color(color))
         }
+    }
+}
+
+// MARK: - motion.push (FIDELITY_AUDIT §5): every pushed page fades in and rises 12 → 0 pt over 360 ms; back is the exact reverse. No slide.
+
+private struct PushDismissKey: EnvironmentKey { static let defaultValue: ((@escaping () -> Void) -> Void)? = nil }
+extension EnvironmentValues { var pushDismiss: ((@escaping () -> Void) -> Void)? { get { self[PushDismissKey.self] } set { self[PushDismissKey.self] = newValue } } }
+
+/// Wraps a pushed page: enters on motion.push; `pushDismiss` in the environment plays the reverse before the real dismissal.
+struct PushPage<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+    @State private var shown = false
+    var body: some View {
+        content()
+            .opacity(shown ? 1 : 0).offset(y: shown ? 0 : 12)
+            .background(Color.yumo.bg.ignoresSafeArea())
+            .onAppear { withAnimation(Motion.push) { shown = true } }
+            .environment(\.pushDismiss, { completion in withAnimation(Motion.push) { shown = false }; Task { try? await Task.sleep(for: .milliseconds(360)); completion() } })
+    }
+}
+extension View {
+    /// A full-screen page presented without the system slide: the binding flips with animations disabled and PushPage animates the content.
+    func pushCover<C: View>(isPresented: Binding<Bool>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> C) -> some View {
+        let b = Binding(get: { isPresented.wrappedValue }, set: { v in var t = Transaction(); t.disablesAnimations = true; withTransaction(t) { isPresented.wrappedValue = v } })
+        return fullScreenCover(isPresented: b, onDismiss: onDismiss) { PushPage(content: content) }
+    }
+    func pushCover<I: Identifiable, C: View>(item: Binding<I?>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (I) -> C) -> some View {
+        let b = Binding(get: { item.wrappedValue }, set: { v in var t = Transaction(); t.disablesAnimations = true; withTransaction(t) { item.wrappedValue = v } })
+        return fullScreenCover(item: b, onDismiss: onDismiss) { i in PushPage { content(i) } }
     }
 }

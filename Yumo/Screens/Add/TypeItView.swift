@@ -88,6 +88,7 @@ struct TypeItView: View {
             if r.candidates.count > 1 { TypeToLog.confirm(word: r.group.words, meal: meal, food: f, store: store) }
         }
         let p = store.profile(); if !p.typeItHintSeen { p.typeItHintSeen = true; store.save() }
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
         onLogged(n)
     }
 }

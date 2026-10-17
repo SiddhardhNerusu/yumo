@@ -128,7 +128,7 @@ struct CheckinSheet: View {
             }.padding(Space.gutter).padding(.bottom, 24) }
         }
         .background(Color.yumo.bg)
-        .fullScreenCover(isPresented: $showHow) { HowThisWorksScreen() }
+        .pushCover(isPresented: $showHow) { HowThisWorksScreen() }
         .sheet(isPresented: $showWhy) { WhyThreeSheet().yumoSheet().presentationDetents([.medium]) }
     }
     /// Stall variant (README §7b, PRODUCT_BRIEF §13): three selectable tiles, button label follows the selection, never auto-applies.

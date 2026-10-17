@@ -9,7 +9,7 @@ struct TourOverlay: View {
             ZStack(alignment: .topLeading) {
                 if tour.active && !tour.finishing {
                     TourSpotlight(rect: tour.targetRect, radius: tour.targetRadius)
-                        .fill(Color(red: 31/255, green: 28/255, blue: 23/255).opacity(0.55), style: FillStyle(eoFill: true))
+                        .fill(Color.yumo.tourScrim, style: FillStyle(eoFill: true))
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
                         .onTapGesture { if !tour.stop.act { tour.advance() } }   // act stops: the scrim swallows every other tap

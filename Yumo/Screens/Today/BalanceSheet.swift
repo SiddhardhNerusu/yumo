@@ -37,7 +37,7 @@ struct BalanceSheet: View {
         .background(Color.yumo.bg)
         .onAppear(perform: load)
         .task(id: solveKey) { guard loaded else { return }; try? await Task.sleep(for: .milliseconds(200)); guard !Task.isCancelled else { return }; syncGrams(); solve() }
-        .fullScreenCover(isPresented: $staplesOpen, onDismiss: { gen += 1 }) { StaplesScreen(back: "I prepped…") }
+        .pushCover(isPresented: $staplesOpen, onDismiss: { gen += 1 }) { StaplesScreen(back: "I prepped…") }
     }
 
     // MARK: step 1
@@ -102,7 +102,7 @@ struct BalanceSheet: View {
                         Text("How much did you weigh?").font(.yumo.caption).foregroundStyle(Color.yumo.ink)
                         Spacer(minLength: 4)
                         InsetField(text: Binding(get: { gramsText[f.id] ?? "" }, set: { gramsText[f.id] = $0 }), unit: "g", width: 104)
-                        Button { done(f) } label: { Text("Done").font(.nunito(14, .black)).foregroundStyle(.white).padding(.horizontal, 14).frame(height: 42) }.buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: 3, radius: 12))
+                        Button { done(f) } label: { Text("Done").font(.nunito(14, .black)).foregroundStyle(Color.yumo.onAccent).padding(.horizontal, 14).frame(height: 42) }.buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: 3, radius: 12))
                     }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg))
                     if weighed { Button { remove(f) } label: { Text("Remove weight").font(.yumo.caption).foregroundStyle(Color.yumo.danger).padding(.vertical, 10).padding(.horizontal, 4) }.buttonStyle(PlainPressStyle()) }
                 }.padding(.trailing, 16).padding(.bottom, 12)
@@ -136,7 +136,7 @@ struct BalanceSheet: View {
                                 }.tabular().lineLimit(1).minimumScaleFactor(0.8)
                             }
                             Spacer(minLength: 8)
-                            Text(r.status).font(.yumo.caption).foregroundStyle(r.statusDanger ? Color.yumo.danger : .yumo.accent).multilineTextAlignment(.trailing).padding(.horizontal, 10).padding(.vertical, 6).background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(r.statusDanger ? Color(hex: 0xFBE9EA) : .yumo.accentTint))
+                            Text(r.status).font(.yumo.caption).foregroundStyle(r.statusDanger ? Color.yumo.danger : .yumo.accent).multilineTextAlignment(.trailing).padding(.horizontal, 10).padding(.vertical, 6).background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(r.statusDanger ? Color.yumo.dangerTint : .yumo.accentTint))
                         }.card(padding: EdgeInsets(top: 14, leading: 18, bottom: 14, trailing: 18), radius: 20)
                         ForEach(r.emptyMeals, id: \.rawValue) { m in
                             let rows = r.items.filter { $0.meal == m && $0.grams > 0 }
@@ -189,7 +189,7 @@ struct BalanceSheet: View {
     func logIt() {
         guard let r = result else { return }
         for it in r.items where it.grams > 0 { _ = store.log(food: it.food, meal: it.meal, dayKey: dayKey, quantity: it.grams / 100, serving: Serving(label: "100 g", grams: 100)) }
-        persist(); toaster.show("Logged · day at \(Fmt.k(r.projected.kcal))"); session.changed(); dismiss()
+        persist(); UINotificationFeedbackGenerator().notificationOccurred(.success); toaster.show("Logged · day at \(Fmt.k(r.projected.kcal))"); session.changed(); dismiss()
     }
 }
 extension String { func ifEmpty(_ alt: String) -> String { isEmpty ? alt : self } }

@@ -98,7 +98,7 @@ struct CalorieTargetScreen: View {
         }
         .onChange(of: mode) { pace = mode == .cut ? -0.5 : mode == .bulk ? 0.25 : 0; override = nil }
         .onChange(of: trainingOn) { if trainingOn && p.trainingKcal == 0 { trainingKcal = shown + 200; rebalance(shown) } }
-        .fullScreenCover(isPresented: $showAbout, onDismiss: { tick += 1 }) { AboutYouScreen(back: "Target") }
+        .pushCover(isPresented: $showAbout, onDismiss: { tick += 1 }) { AboutYouScreen(back: "Target") }
     }
 }
 

@@ -57,10 +57,10 @@ struct ProgressScreen: View {
         .onAppear(perform: reload).onChange(of: session.tick) { reload() }
         .onChange(of: Tour.shared.active) { if !Tour.shared.active { reload() } }
         .sheet(item: $logSheet) { k in LogWeightSheet(dayKey: k.id).yumoSheet() }
-        .fullScreenCover(isPresented: $showLog) { WeightLogScreen() }
-        .fullScreenCover(isPresented: $showSettings) { SettingsScreen() }
-        .fullScreenCover(isPresented: $showHow) { HowThisWorksScreen() }
-        .fullScreenCover(isPresented: $showNutrients) { ProgressNutrientsScreen() }
+        .pushCover(isPresented: $showLog) { WeightLogScreen() }
+        .pushCover(isPresented: $showSettings) { SettingsScreen() }
+        .pushCover(isPresented: $showHow) { HowThisWorksScreen() }
+        .pushCover(isPresented: $showNutrients) { ProgressNutrientsScreen() }
         .sheet(isPresented: $checkin) { CheckinSheet().yumoSheet().presentationDetents([.height(520)]) }
     }
     // MARK: Expenditure card (PRODUCT_BRIEF §3)
@@ -185,7 +185,7 @@ struct LineChart: View {
                     }
                     if let s = scrub, points.indices.contains(s) {
                         Path { p in p.move(to: CGPoint(x: x(s), y: -6)); p.addLine(to: CGPoint(x: x(s), y: H)) }.stroke(Color.yumo.ink, style: StrokeStyle(lineWidth: 1.5, dash: [3, 3]))
-                        Circle().fill(Color.yumo.accent).stroke(Color.white, lineWidth: 3).frame(width: 12, height: 12).position(x: x(s), y: y(points[s].1))
+                        Circle().fill(Color.yumo.accent).stroke(Color.yumo.surface, lineWidth: 3).frame(width: 12, height: 12).position(x: x(s), y: y(points[s].1))
                         Text("\(Fmt.kg(points[s].1)) \(unit) · \(Fmt.dayFormatter.string(from: points[s].0))").font(.yumo.footnote).tabular().foregroundStyle(.white).padding(.horizontal, 10).padding(.vertical, 6)
                             .background(RoundedRectangle(cornerRadius: 8).fill(Color.yumo.ink)).fixedSize()
                             .position(x: min(max(70, x(s)), W - 70), y: -14)

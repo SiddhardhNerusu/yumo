@@ -3,31 +3,43 @@ import SwiftUI
 // MARK: - Colour tokens (DESIGN_SYSTEM.md rev 2 › Colour — "Sand & ink"). Values taken from the rev 2 prototype, which wins over the doc.
 // All neutrals are one OKLCH hue family (h 81–85°); danger is the accent's triad (h 19°). Never introduce a hue outside this set.
 extension Color {
+    /// Every colour is a token; light and dark ("Lit from above") values from FIDELITY_AUDIT §1. Never a system colour.
     enum yumo {
-        static let accent      = Color(hex: 0x4CC417)   // oklch(0.72 0.22 139°)
-        static let accentEdge  = Color(hex: 0x3BA40F)
-        static let accentSoft  = Color(hex: 0xC4EFAE)
-        static let accentTint  = Color(hex: 0xE9F5DF)
-        static let accentTintEdge = Color(hex: 0xCFEFC0)
-        static let accentWash  = Color(hex: 0x8FE065)
-        static let danger      = Color(hex: 0xC8353F)   // triad of the accent
-        static let bg          = Color(hex: 0xEBE2D2)   // sand
-        static let surface     = Color(hex: 0xFFFBF3)   // parchment
-        static let surfaceEdge = Color(hex: 0xD6CAB2)
-        static let track       = Color(hex: 0xEFE7D8)
-        static let control     = Color(hex: 0xE2D8C5)
-        static let hairline    = Color(hex: 0xE6DCC8)
-        static let grabber     = Color(hex: 0xC9BFAA)
-        static let insetEdge   = Color(hex: 0xE6E1D6)   // InsetField inner edge
-        static let ink         = Color(hex: 0x1F1C17)   // warm black
-        static let inkMuted    = Color(hex: 0x8C8578)
-        static let toastEdge   = Color(hex: 0x0E0D0B)
-        static let torchOn     = Color(hex: 0xFFD84D)
+        static let accent      = Color(light: 0x4CC417, dark: 0x4CC417)   // oklch(0.72 0.22 139°)
+        static let accentEdge  = Color(light: 0x3BA40F, dark: 0x3BA40F)
+        static let accentSoft  = Color(light: 0xC4EFAE, dark: 0x35602A)
+        static let accentSoftEdge = Color(light: 0xA9E08C, dark: 0x2A4A22)   // disabled PrimaryButton edge
+        static let accentTint  = Color(light: 0xE9F5DF, dark: 0x2E4A24)
+        static let accentTintEdge = Color(light: 0xCFEFC0, dark: 0x243A1C)
+        static let accentWash  = Color(light: 0x8FE065, dark: 0x8FE065)
+        static let danger      = Color(light: 0xC8353F, dark: 0xE05A62)   // triad of the accent; text and swipe-remove only
+        static let dangerTint  = Color(light: 0xFBE9EA, dark: 0x4A2326)
+        static let bg          = Color(light: 0xEBE2D2, dark: 0x1A1917)   // sand
+        static let surface     = Color(light: 0xFFFBF3, dark: 0x2B2926)   // parchment
+        static let surfaceEdge = Color(light: 0xD6CAB2, dark: 0x0F0E0D)
+        static let track       = Color(light: 0xEFE7D8, dark: 0x3A3733)
+        static let control     = Color(light: 0xE2D8C5, dark: 0x3A3733)
+        static let hairline    = Color(light: 0xE6DCC8, dark: 0x3A3733)
+        static let grabber     = Color(light: 0xC9BFAA, dark: 0x4A463F)
+        static let insetEdge   = Color(light: 0xE6E1D6, dark: 0x3A3733)   // InsetField inner edge
+        static let ink         = Color(light: 0x1F1C17, dark: 0xF2EDE3)   // warm black / warm white
+        static let inkMuted    = Color(light: 0x8C8578, dark: 0xA39D92)
+        static let onAccent    = Color(light: 0xFFFFFF, dark: 0xFFFFFF)   // labels on accent fills
+        static let toastEdge   = Color(light: 0x0E0D0B, dark: 0x0E0D0B)
+        static let torchOn     = Color(light: 0xFFD84D, dark: 0xFFD84D)
+        static let liftHighlight = Color(hex: 0xFFFBF3).opacity(0.07)    // 1 pt top highlight on lifted elements in dark mode
+        static let floatingShadow = Color(hex: 0x1F1C17).opacity(0.18)   // the one blurred shadow (CalendarPopover)
+        static let tourScrim   = Color(hex: 0x1F1C17).opacity(0.55)
         static let backdrop    = Color.black.opacity(0.45)
         static let scanMask    = Color.black.opacity(0.35)
     }
     init(hex: UInt32) {
         self.init(.sRGB, red: Double((hex >> 16) & 0xFF) / 255, green: Double((hex >> 8) & 0xFF) / 255, blue: Double(hex & 0xFF) / 255, opacity: 1)
+    }
+    /// sRGB, resolved per appearance.
+    init(light: UInt32, dark: UInt32) {
+        self.init(uiColor: UIColor { tc in let h = tc.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: CGFloat((h >> 16) & 0xFF) / 255, green: CGFloat((h >> 8) & 0xFF) / 255, blue: CGFloat(h & 0xFF) / 255, alpha: 1) })
     }
 }
 
@@ -86,12 +98,12 @@ enum Space {
 }
 enum Motion {
     static let sheet = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.42)
-    static let push = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)     // rev 5: fade + 12 pt rise, 360 ms, one curve
+    static let push = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)     // pushed pages: fade + 12 pt rise, 360 ms, one curve
     static let expand = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)   // rev 5: every disclosure unfolds on this and nothing else
     static let snap = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.35)
-    static let remove = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.32)
+    static let remove = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)   // swipe commit slides the row out 360 ms
     static let add = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.30)
-    static let bar = Animation.easeInOut(duration: 0.4)
+    static let bar = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.4)
     static let toastIn = Animation.easeOut(duration: 0.25)
     static let toastHold: Double = 1.8
 }
@@ -99,14 +111,20 @@ enum Motion {
 // MARK: - Lift modifier: solid bottom edge, no blur. Pressed = translate down by the lift and edge → 0.
 struct Lifted: ViewModifier {
     var edge: Color; var lift: CGFloat; var radius: CGFloat; var pressed: Bool = false
+    @Environment(\.colorScheme) private var scheme
     func body(content: Content) -> some View {
         content
+            .overlay { if scheme == .dark { TopHighlight(radius: radius) } }   // dark: 1 pt top highlight keeps the lift legible
             .background(
                 RoundedRectangle(cornerRadius: radius, style: .continuous).fill(edge)
                     .offset(y: pressed ? 0 : lift)
             )
             .offset(y: pressed ? lift : 0)
     }
+}
+/// `inset 0 1 0 rgba(255,251,243,.07)`: a 1 pt highlight along the top edge, clipped to the shape.
+struct TopHighlight: View { var radius: CGFloat
+    var body: some View { RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.yumo.liftHighlight).mask(VStack { Rectangle().frame(height: 1); Spacer(minLength: 0) }).allowsHitTesting(false) }
 }
 extension View {
     func lifted(_ edge: Color = .yumo.surfaceEdge, lift: CGFloat = Lift.card, radius: CGFloat = Radius.card, pressed: Bool = false) -> some View {

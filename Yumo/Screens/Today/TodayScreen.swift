@@ -64,7 +64,7 @@ struct TodayScreen: View {
         .onChange(of: session.selectedDate) { reload() }
         .onChange(of: session.tick) { reload() }
         .sheet(item: $addMeal) { m in AddFoodSheet(meal: m, dayKey: dayKey).yumoSheet() }
-        .fullScreenCover(item: $detail) { e in FoodDetailScreen(entry: e, dayKey: dayKey) }
+        .pushCover(item: $detail) { e in FoodDetailScreen(entry: e, dayKey: dayKey) }
         .sheet(isPresented: $checkin) { CheckinSheet().yumoSheet().presentationDetents(Expenditure.stallCheck(store) != nil ? [.large] : [.height(520)]) }
         .sheet(isPresented: $balance) { BalanceSheet(dayKey: dayKey).yumoSheet().presentationDetents([.large]) }
         .onChange(of: session.selectedDate) { if calendarOpen { withAnimation(Motion.expand) { calendarOpen = false } } }
@@ -196,7 +196,7 @@ struct FoodRowView: View {
     @State private var committed = false
     var body: some View {
         ZStack(alignment: .trailing) {
-            Rectangle().fill(Color.yumo.danger).overlay(alignment: .trailing) { Text("Remove").font(.yumo.action).foregroundStyle(.white).padding(.trailing, 20) }.opacity(min(1, abs(dx) / 80))
+            SwipeReveal(dx: dx, label: "Remove")
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
                     let nd = Food.split(entry.foodName, state: entry.food?.state)
@@ -238,5 +238,20 @@ struct SwipeToAddRow: View {
                         .onEnded { _ in if dx >= w * 0.4 { withAnimation(Motion.add) { dx = w }; Task { try? await Task.sleep(for: .milliseconds(300)); onCommit() } } else { withAnimation(Motion.snap) { dx = 0 } } })
             }
         }.frame(height: h).clipped()
+    }
+}
+
+/// motion.swipeReveal: the revealed colour follows the finger with a 32 pt feathered leading edge (transparent → solid); the label fades in between 12 % and 32 % of the row width.
+struct SwipeReveal: View { var dx: CGFloat; var label: String
+    var body: some View {
+        GeometryReader { g in
+            let w = max(0, -dx), fade = min(1, max(0, (w / g.size.width - 0.12) / 0.20))
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+                LinearGradient(colors: [Color.yumo.danger.opacity(0), .yumo.danger], startPoint: .leading, endPoint: .trailing).frame(width: min(32, w))
+                Color.yumo.danger.frame(width: max(0, w - 32))
+            }
+            .overlay(alignment: .trailing) { Text(label).font(.yumo.action).foregroundStyle(Color.yumo.onAccent).padding(.trailing, 20).opacity(fade) }
+        }
     }
 }

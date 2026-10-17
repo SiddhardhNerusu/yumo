@@ -13,7 +13,7 @@ struct SettingsScreen: View {
     @State private var tick = 0
     @State private var timeEdit: TimeEdit? = nil
     struct TimeEdit: Identifiable { var id: String; var minutes: Int }
-    enum Page: String, Identifiable { case target, macros, nutrients, staples, savedMeals, myFoods, password; var id: String { rawValue } }
+    enum Page: String, Identifiable { case target, macros, nutrients, staples, savedMeals, myFoods, password, designSystem; var id: String { rawValue } }
     var store: Store { Store(ctx) }
     var body: some View {
         let p = store.profile(); let t = store.targets()
@@ -54,6 +54,9 @@ struct SettingsScreen: View {
                     section("About") {
                         SettingsRow(label: "Food data") { ChevronValue(value: "Open Food Facts · ODbL") }.contentShape(Rectangle()).onTapGesture { UIApplication.shared.open(URL(string: "https://world.openfoodfacts.org")!) }.hairline()
                         SettingsRow(label: "Version") { Text("\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))").font(.yumo.body).tabular().foregroundStyle(Color.yumo.inkMuted) }.hairline()
+                        #if DEBUG
+                        row("Design system", "tokens · components") { page = .designSystem }.hairline()
+                        #endif
                         SettingsRow(label: "Delete account", danger: true) { EmptyView() }.contentShape(Rectangle()).onTapGesture { confirmDelete = true }
                     }
                     Text("Product data © Open Food Facts contributors, available under the Open Database License.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 4).padding(.top, 4)
@@ -62,9 +65,9 @@ struct SettingsScreen: View {
         }
         .id(tick)
         .background(Color.yumo.bg.ignoresSafeArea())
-        .fullScreenCover(item: $page) { pg in
+        .pushCover(item: $page) { pg in
             switch pg {
-            case .target: CalorieTargetScreen(); case .macros: MacrosScreen(); case .nutrients: NutrientsSettingsScreen(); case .staples: StaplesScreen(onChange: { tick += 1 }); case .savedMeals: SavedMealsScreen(); case .myFoods: MyFoodsScreen(); case .password: ChangePasswordScreen()
+            case .target: CalorieTargetScreen(); case .macros: MacrosScreen(); case .nutrients: NutrientsSettingsScreen(); case .staples: StaplesScreen(onChange: { tick += 1 }); case .savedMeals: SavedMealsScreen(); case .myFoods: MyFoodsScreen(); case .password: ChangePasswordScreen(); case .designSystem: DesignSystemScreen()
             }
         }
         .onChange(of: page) { if page == nil { tick += 1 } }

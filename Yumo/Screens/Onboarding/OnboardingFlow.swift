@@ -61,7 +61,7 @@ struct OnboardingFlow: View {
         }
         .background(Color.yumo.bg.ignoresSafeArea())
         .animation(Motion.push, value: step)
-        .fullScreenCover(isPresented: $signIn) { SignInScreen() }
+        .pushCover(isPresented: $signIn) { SignInScreen() }
     }
 
     func page<C: View>(_ title: String, _ sub: String, @ViewBuilder _ c: () -> C) -> some View {
