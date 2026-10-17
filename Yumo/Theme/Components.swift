@@ -525,3 +525,23 @@ struct Expandable<Content: View>: View {
 struct ExpandChevron: View { var open: Bool
     var body: some View { Text("›").font(.nunito(16, .extrabold)).foregroundStyle(Color.yumo.grabber).rotationEffect(.degrees(open ? 90 : 0)).animation(Motion.expand, value: open) }
 }
+
+/// Rev 6: 40 pt tint circle with an accent sparkle (four-point star + small companion), lift 0 2 0 accent.tint.edge. The I prepped… entry on the hero card.
+struct SparkleButton: View { var action: () -> Void
+    var body: some View {
+        Button(action: action) { SparkleGlyph(color: .yumo.accent).frame(width: 40, height: 40) }
+            .buttonStyle(LiftButtonStyle(fill: .yumo.accentTint, edge: .yumo.accentTintEdge, lift: 2, radius: 20)).accessibilityLabel("I prepped…")
+    }
+}
+struct SparkleGlyph: View { var color: Color
+    var body: some View {
+        Canvas { ctx, size in
+            func star(_ c: CGPoint, _ r: CGFloat) -> Path { var p = Path(); let k = r * 0.28
+                p.move(to: CGPoint(x: c.x, y: c.y - r)); p.addQuadCurve(to: CGPoint(x: c.x + r, y: c.y), control: CGPoint(x: c.x + k, y: c.y - k))
+                p.addQuadCurve(to: CGPoint(x: c.x, y: c.y + r), control: CGPoint(x: c.x + k, y: c.y + k)); p.addQuadCurve(to: CGPoint(x: c.x - r, y: c.y), control: CGPoint(x: c.x - k, y: c.y + k))
+                p.addQuadCurve(to: CGPoint(x: c.x, y: c.y - r), control: CGPoint(x: c.x - k, y: c.y - k)); p.closeSubpath(); return p }
+            ctx.fill(star(CGPoint(x: size.width * 0.44, y: size.height * 0.54), size.width * 0.26), with: .color(color))
+            ctx.fill(star(CGPoint(x: size.width * 0.74, y: size.height * 0.3), size.width * 0.11), with: .color(color))
+        }
+    }
+}

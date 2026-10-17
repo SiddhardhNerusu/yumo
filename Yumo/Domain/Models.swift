@@ -218,7 +218,18 @@ struct SavedItem: Codable, Hashable { var foodId: String; var quantity: Double; 
 }
 
 /// Balance the day — prepped list for a day (PRODUCT_BRIEF §12).
-struct PrepItem: Codable, Hashable, Identifiable { var id = UUID(); var text: String; var grams: Double }
+struct PrepItem: Codable, Hashable, Identifiable { var id = UUID(); var text: String; var grams: Double; var foodId: String? = nil; var carried: Bool? = nil }
+extension Food {
+    /// Rev 6: every list renders the part before the first comma as the name and the rest (plus the state) as the detail line. Never a bare name.
+    static func split(_ name: String, state: String? = nil) -> (name: String, detail: String) {
+        let parts = name.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        let n = parts.first ?? name; var d = parts.dropFirst().joined(separator: ", ")
+        if let st = state, !st.isEmpty { d = d.isEmpty ? st : d + " · " + st }
+        return (n, d)
+    }
+    var shortName: String { Food.split(name, state: state).name }
+    var detail: String { Food.split(name, state: state).detail }
+}
 @Model final class PrepDay {
     @Attribute(.unique) var dayKey: String = ""
     var modeRaw: String = "prepped"

@@ -15,11 +15,7 @@ struct StaplesEditor: View {
     var store: Store { Store(ctx) }
 
     var staples: [(Staple, Food)] { store.staples().compactMap { s in store.food(id: s.foodId).map { (s, $0) } } }
-    var results: [Food] {
-        let q = line.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { return [] }
-        let g = store.groupedSearch(q); let have = Set(store.staples().map(\.foodId))
-        return (g.your + g.generic + g.chain).filter { !have.contains($0.id) && !$0.macrosUnknown }.sorted { TypeToLog.plainness($0) > TypeToLog.plainness($1) }
-    }
+    var results: [Food] { store.fuzzySearch(line, exclude: Set(store.staples().map(\.foodId))) }
     var suggestions: [Food] {
         guard mode == .settings, store.hasHistory(before: Date().adding(days: -6).dayKey) else { return [] }
         let have = Set(store.staples().map(\.foodId))
@@ -38,13 +34,13 @@ struct StaplesEditor: View {
                     ForEach(res.prefix(8), id: \.id) { f in
                         Button { store.addStaple(f); line = ""; tick += 1; onChange() } label: {
                             HStack(spacing: 10) {
-                                VStack(alignment: .leading, spacing: 1) { Text(f.name).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1); Text(tag(f) + (f.state.map { " · \($0)" } ?? "")).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }
+                                VStack(alignment: .leading, spacing: 1) { Text(f.shortName).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1); Text([tag(f), f.detail].filter { !$0.isEmpty }.joined(separator: " · ")).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }
                                 Spacer(); AddCircleButton { store.addStaple(f); line = ""; tick += 1; onChange() }
                             }.padding(.vertical, 10).padding(.trailing, 14).contentShape(Rectangle())
                         }.buttonStyle(PlainPressStyle()).hairline()
                     }
                     if res.count > 8 { Text("\(res.count - 8) more — keep typing to narrow it").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 10) }
-                    if res.isEmpty { Text("No match for \"\(line)\".").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12) }
+                    if res.isEmpty { Text("No match. Try another spelling, or a simpler word.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12) }
                 }.padding(.leading, Space.cardPad).listCard().padding(.top, 12)
             }
             let list = staples
@@ -66,35 +62,33 @@ struct StaplesEditor: View {
     }
 
     @ViewBuilder func stapleRow(_ s: Staple, _ f: Food) -> some View {
-        let k = Balance.classify(f); let canMax = k != .veg; let flexible = k == .carb || k == .fat
+        // Rev 6: every staple opens the same unfold — Flexible | Max — in Settings and onboarding alike; no amounts anywhere
+        let k = Balance.classify(f); let isOpen = open == s.foodId
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Button { if mode == .onboarding && flexible { withAnimation(Motion.expand) { open = open == s.foodId ? nil : s.foodId } } } label: {
+                Button { withAnimation(Motion.expand) { open = isOpen ? nil : s.foodId } } label: {
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(f.name).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
-                        HStack(spacing: 2) {
-                            Text(s.maxG.map { "Max \(Fmt.g($0)) g a day" } ?? tag(f)).font(.yumo.footnote).foregroundStyle(mode == .onboarding && k != .protein && k != .veg ? Color.yumo.accent : .yumo.inkMuted)
-                            if mode == .onboarding && flexible { Text("›").font(.yumo.footnote).foregroundStyle(Color.yumo.accent) }
+                        Text(f.shortName).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
+                        HStack(spacing: 3) {
+                            Text(s.maxG.map { "Max \(Fmt.g($0)) g a day" } ?? "\(tag(f)) · flexible").font(.yumo.footnote).foregroundStyle(Color.yumo.accent)
+                            Text("›").font(.yumo.footnote).foregroundStyle(Color.yumo.accent)
+                            if !f.detail.isEmpty { Text("· \(f.detail)").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
                 }.buttonStyle(PlainPressStyle())
-                if mode == .settings && canMax {
-                    InsetField(text: Binding(get: { maxText[s.foodId] ?? s.maxG.map { Fmt.g($0) } ?? "" }, set: { maxText[s.foodId] = $0; s.maxG = Double($0.replacingOccurrences(of: ",", with: ".")); store.save(); onChange() }), unit: "g", width: 92, placeholder: "Max")
-                }
                 Button { store.removeStaple(s); tick += 1; onChange() } label: { Text("✕").font(.nunito(16, .extrabold)).foregroundStyle(Color.yumo.inkMuted).frame(width: 32, height: 32) }.buttonStyle(PlainPressStyle())
             }.padding(.vertical, 10).padding(.trailing, 12)
-            if mode == .onboarding && flexible {
-                Expandable(open: open == s.foodId) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 10) {
-                            Segmented(options: [(false, "Flexible"), (true, "Max")], selection: Binding(get: { s.maxG != nil }, set: { s.maxG = $0 ? (s.maxG ?? 250) : nil; store.save(); tick += 1; onChange() }))
-                            if s.maxG != nil { InsetField(text: Binding(get: { maxText[s.foodId] ?? s.maxG.map { Fmt.g($0) } ?? "" }, set: { maxText[s.foodId] = $0; s.maxG = Double($0.replacingOccurrences(of: ",", with: ".")) ?? s.maxG; store.save(); onChange() }), unit: "g", width: 110) }
-                        }
-                        Text(s.maxG == nil ? "Yumo sizes this to whatever lands the day." : "Yumo never plans more than this in a day.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted)
-                    }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg)).padding(.trailing, 14).padding(.bottom, 12)
-                }
+            Expandable(open: isOpen) {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 10) {
+                        Segmented(options: [(false, "Flexible"), (true, "Max")], selection: Binding(get: { s.maxG != nil }, set: { s.maxG = $0 ? (s.maxG ?? 250) : nil; store.save(); tick += 1; onChange() }))
+                        if s.maxG != nil { InsetField(text: Binding(get: { maxText[s.foodId] ?? s.maxG.map { Fmt.g($0) } ?? "" }, set: { maxText[s.foodId] = $0; s.maxG = Double($0.replacingOccurrences(of: ",", with: ".")) ?? s.maxG; store.save(); onChange() }), unit: "g", width: 110) }
+                    }
+                    Text(s.maxG == nil ? "Yumo sizes this to whatever lands the day." : "Yumo never plans more than this in a day.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted)
+                }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg)).padding(.trailing, 14).padding(.bottom, 12)
             }
         }.hairline()
+        let _ = k
     }
 }
 

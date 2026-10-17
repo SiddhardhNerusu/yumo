@@ -48,6 +48,39 @@ struct Store {
         var n = 0; while logged.contains(d.dayKey) { n += 1; d = d.adding(days: -1) }
         return n
     }
+    // MARK: Fuzzy catalogue search (rev 6, `yumo-catalog.js`): every token must prefix-match a word of the name/state or sit within
+    // edit distance 1 (≤ 5 letters) / 2 of one; synonyms first; exact-prefix hits rank above fuzzy ones, then shorter names.
+    static let synonyms: [String: String] = ["protein powder": "whey", "protein": "whey", "shake": "whey", "pb": "peanut butter", "yoghurt": "yogurt", "spuds": "potato", "fries": "chips", "zucchini": "courgette", "eggplant": "aubergine", "rocket": "salad", "lettuce": "salad", "brocolli": "broccoli", "brocoli": "broccoli", "potatoes": "potato"]
+    static func lev(_ a: String, _ b: String) -> Int {
+        let a = Array(a), b = Array(b); if abs(a.count - b.count) > 2 { return 9 }
+        var prev = Array(0...b.count), cur = Array(repeating: 0, count: b.count + 1)
+        for i in 1...max(1, a.count) where i <= a.count { cur[0] = i; for j in 1...max(1, b.count) where j <= b.count { cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1)) }; swap(&prev, &cur) }
+        return a.isEmpty ? b.count : prev[b.count]
+    }
+    func fuzzySearch(_ query: String, tiers: Set<FoodTier> = [.generic, .user], exclude: Set<String> = []) -> [Food] {
+        var q = query.trimmingCharacters(in: .whitespaces).lowercased(); guard !q.isEmpty else { return [] }
+        for (k, v) in Store.synonyms where q == k || q.hasPrefix(k + " ") { q = v + q.dropFirst(k.count) }
+        let toks = q.split(separator: " ").map(String.init).filter { !$0.isEmpty }
+        var scored: [(Food, Int, Int)] = []
+        for f in foods() where tiers.contains(f.tier) && !exclude.contains(f.id) && !f.macrosUnknown {
+            let words = (f.name + " " + (f.state ?? "")).lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
+            var score = 0, ok = true
+            for t in toks {
+                if words.contains(where: { $0.hasPrefix(t) }) { score += 2; continue }
+                let tol = t.count <= 5 ? 1 : 2
+                if t.count >= 4, words.contains(where: { w in Store.lev(t, String(w.prefix(max(t.count, min(w.count, t.count + 1))))) <= tol || Store.lev(t, w) <= tol }) { score += 1; continue }
+                ok = false; break
+            }
+            if ok { scored.append((f, score, f.name.count)) }
+        }
+        return scored.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 < $1.2 }.map(\.0)
+    }
+    /// The most recent logged instance of a meal within the last 14 days before `dayKey` (rev 6 swipe row).
+    func recentMeal(_ meal: Meal, before dayKey: String) -> (entries: [FoodEntry], daysAgo: Int)? {
+        var d = Date.fromKey(dayKey)
+        for i in 1...14 { d = d.adding(days: -1); let es = entries(d.dayKey).filter { $0.meal == meal }; if !es.isEmpty { return (es, i) } }
+        return nil
+    }
     // MARK: Staples (rev 5)
     func staples() -> [Staple] { (try? ctx.fetch(FetchDescriptor<Staple>(sortBy: [SortDescriptor(\.order)]))) ?? [] }
     func addStaple(_ f: Food, maxG: Double? = nil) { guard !staples().contains(where: { $0.foodId == f.id }) else { return }; ctx.insert(Staple(foodId: f.id, maxG: maxG, order: (staples().map(\.order).max() ?? -1) + 1)); save() }

@@ -8,7 +8,7 @@ struct TodayScreen: View {
     @State private var addMeal: Meal? = nil
     @State private var detail: FoodEntry? = nil
     @State private var entries: [FoodEntry] = []
-    @State private var yesterday: [FoodEntry] = []
+    @State private var recent: [Meal: (entries: [FoodEntry], daysAgo: Int)] = [:]
     @State private var savedByMeal: [Meal: SavedMeal] = [:]
     @State private var targets: Targets? = nil
     @State private var removingIds: Set<String> = []
@@ -42,15 +42,14 @@ struct TodayScreen: View {
                     StreakPill(count: streak)
                 }.padding(.horizontal, 4).padding(.top, 6)
                 WeekStrip(days: (0..<7).reversed().map { i in let d = Date().startOfDay.adding(days: -i); return (d, loggedWeek.contains(d.dayKey)) }, selected: session.selectedDate) { session.selectedDate = $0.startOfDay }.padding(.horizontal, 4).padding(.top, 14)
-                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow).tourAnchor(.hero).padding(.top, 20) }
+                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow, onPrep: preppedRow ? { balance = true } : nil).tourAnchor(.hero).padding(.top, 20) }
                 VStack(spacing: 12) {
                     ForEach(Meal.allCases) { meal in
                         MealCardView(meal: meal, entries: entries.filter { $0.meal == meal && !removingIds.contains($0.id) },
-                                     yesterday: hasHistory ? yesterday.filter { $0.meal == meal } : [], saved: savedByMeal[meal], nudge: !store.profile().swipeHintSeen,
+                                     recent: hasHistory ? (recent[meal]?.entries ?? []) : [], recentLabel: recentLabel(meal), saved: savedByMeal[meal], nudge: !store.profile().swipeHintSeen,
                                      onAdd: { addMeal = meal; if meal == .breakfast { Tour.shared.didAct(.breakfastAdd) } }, tourAnchor: meal == .breakfast, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
                     }
                 }.padding(.top, 12)
-                if preppedRow { DashedEntryRow(title: "Prepped something?", body_: "Tell Yumo the weights and it balances the rest of the day.") { balance = true }.padding(.top, 16) }
             }
             .padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
         }
@@ -81,7 +80,9 @@ struct TodayScreen: View {
     func reload() {
         let s = store
         entries = s.entries(dayKey)
-        yesterday = s.entries(session.selectedDate.adding(days: -1).dayKey)
+        var rec: [Meal: (entries: [FoodEntry], daysAgo: Int)] = [:]
+        for m in Meal.allCases { if let r = s.recentMeal(m, before: dayKey) { rec[m] = r } }
+        recent = rec
         targets = s.targets()
         training = s.isTraining(dayKey)
         let p = s.profile()
@@ -107,7 +108,7 @@ struct TodayScreen: View {
         savedByMeal = map
         let totals = DayTotals(entries), day = session.selectedDate
         Task { await HealthSync.writeDay(totals, date: day) }
-        if hasHistory, !p.swipeHintSeen, !yesterday.isEmpty { Task { try? await Task.sleep(for: .seconds(3)); p.swipeHintSeen = true; s.save() } }
+        if hasHistory, !p.swipeHintSeen, !recent.isEmpty { Task { try? await Task.sleep(for: .seconds(3)); p.swipeHintSeen = true; s.save() } }
     }
     func remove(_ e: FoodEntry) {
         removingIds.insert(e.id)
@@ -115,8 +116,13 @@ struct TodayScreen: View {
         Task { try? await Task.sleep(for: .milliseconds(320)); store.remove(e); removingIds.remove(e.id); toaster.show("Removed \(name)"); session.changed() }
     }
     func addYesterday(_ meal: Meal) {
-        for e in yesterday where e.meal == meal { if let f = e.food { _ = store.log(food: f, meal: meal, dayKey: dayKey, quantity: e.quantity, serving: Serving(label: e.servingLabel, grams: e.servingGrams)) } }
-        toaster.show("Yesterday's \(meal.rawValue) added"); session.changed()
+        for e in recent[meal]?.entries ?? [] { if let f = e.food { _ = store.log(food: f, meal: meal, dayKey: dayKey, quantity: e.quantity, serving: Serving(label: e.servingLabel, grams: e.servingGrams)) } }
+        toaster.show("\(recentLabel(meal)) added"); session.changed()
+    }
+    /// Rev 6: the most recent instance within 14 days — "Yesterday's Breakfast", "Breakfast from 2 days ago", "Breakfast from Tue · 3 days ago".
+    func recentLabel(_ meal: Meal) -> String {
+        guard let r = recent[meal] else { return "" }
+        switch r.daysAgo { case 1: return "Yesterday's \(meal.rawValue)"; case 2: return "\(meal.rawValue) from 2 days ago"; default: return "\(meal.rawValue) from \(Fmt.weekday(session.selectedDate.adding(days: -r.daysAgo))) · \(r.daysAgo) days ago" }
     }
     func saveMeal(_ meal: Meal) {
         let wd = DateFormatter(); wd.locale = Locale(identifier: "en_GB"); wd.dateFormat = "EEE"
@@ -129,7 +135,7 @@ struct TodayScreen: View {
 extension Meal: Hashable {}
 
 struct HeroCard: View {
-    var totals: DayTotals; var targets: Targets; var dayKcal: Int? = nil; var pinned: String? = nil
+    var totals: DayTotals; var targets: Targets; var dayKcal: Int? = nil; var pinned: String? = nil; var onPrep: (() -> Void)? = nil
     var goal: Int { dayKcal ?? targets.kcal }
     var over: Bool { totals.kcal > Double(goal) }
     var body: some View {
@@ -145,6 +151,7 @@ struct HeroCard: View {
             if let pinned { Text(pinned).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1).padding(.top, 12) }
         }
         .card(padding: EdgeInsets(top: 24, leading: 24, bottom: 22, trailing: 24), radius: 24)
+        .overlay(alignment: .topTrailing) { if let onPrep { SparkleButton(action: onPrep).padding(16) } }
     }
     func stat(_ label: String, _ v: Double, _ goal: Int) -> some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -156,7 +163,7 @@ struct HeroCard: View {
 }
 
 struct MealCardView: View {
-    var meal: Meal; var entries: [FoodEntry]; var yesterday: [FoodEntry]; var saved: SavedMeal?; var nudge = false
+    var meal: Meal; var entries: [FoodEntry]; var recent: [FoodEntry]; var recentLabel: String; var saved: SavedMeal?; var nudge = false
     var onAdd: () -> Void; var tourAnchor = false; var onOpen: (FoodEntry) -> Void; var onRemove: (FoodEntry) -> Void; var onAddYesterday: () -> Void; var onSave: () -> Void
     var totals: DayTotals { DayTotals(entries) }
     @ViewBuilder var chip: some View { if tourAnchor { AddChip(action: onAdd).tourAnchor(.breakfastAdd) } else { AddChip(action: onAdd) } }
@@ -165,7 +172,7 @@ struct MealCardView: View {
             if entries.isEmpty {
                 HStack { Text(meal.rawValue).font(.nunito(18, .extrabold)); Spacer(); chip }
                     .padding(.vertical, 14).padding(.trailing, 14)
-                if !yesterday.isEmpty { SwipeToAddRow(label: "Yesterday's \(meal.rawValue)", count: yesterday.count, kcal: DayTotals(yesterday).kcal, hint: true, nudge: nudge, onCommit: onAddYesterday).padding(.leading, -Space.cardPad) }
+                if !recent.isEmpty { SwipeToAddRow(label: recentLabel, count: recent.count, kcal: DayTotals(recent).kcal, hint: true, nudge: nudge, onCommit: onAddYesterday).padding(.leading, -Space.cardPad) }
             } else {
                 HStack(alignment: .center, spacing: 8) {
                     VStack(alignment: .leading, spacing: 2) {
@@ -192,8 +199,9 @@ struct FoodRowView: View {
             Rectangle().fill(Color.yumo.danger).overlay(alignment: .trailing) { Text("Remove").font(.yumo.action).foregroundStyle(.white).padding(.trailing, 20) }.opacity(min(1, abs(dx) / 80))
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
-                    (Text(entry.foodName).font(.yumo.body) + Text("  " + entry.amountLabel).font(.yumo.detail).foregroundColor(.yumo.inkMuted)).lineLimit(1)
-                    Text(entry.food?.macrosUnknown == true ? "P — · C — · F —" : "P \(Fmt.g(entry.p)) · C \(Fmt.g(entry.c)) · F \(Fmt.g(entry.f))").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted)
+                    let nd = Food.split(entry.foodName, state: entry.food?.state)
+                    (Text(nd.name).font(.yumo.body) + Text("  " + entry.amountLabel).font(.yumo.detail).foregroundColor(.yumo.inkMuted)).lineLimit(1)
+                    Text((nd.detail.isEmpty ? "" : nd.detail + " · ") + (entry.food?.macrosUnknown == true ? "P — · C — · F —" : "P \(Fmt.g(entry.p)) · C \(Fmt.g(entry.c)) · F \(Fmt.g(entry.f))")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
                 }
                 Spacer(); Text(Fmt.k(entry.kcal)).font(.yumo.body).tabular()
             }
