@@ -60,12 +60,11 @@ struct WeightLogScreen: View {
     }
 }
 
+/// Weight row on the two-stage engine (rev 10 §3): swipe left → red bin; tap edits; press → color.pressed.
 struct WeightRow: View {
     var w: WeightEntry; var delta: Double?; var disp: Double; var unit: String; var onOpen: () -> Void; var onDelete: () -> Void
-    @State private var dx: CGFloat = 0
     var body: some View {
-        ZStack(alignment: .trailing) {
-            SwipeReveal(dx: dx, label: "Delete").opacity(min(1, abs(dx) / 80))
+        SwipeActionRow(id: "weight-\(w.dayKey)", edge: .trailing, onTap: onOpen, onCommit: onDelete) {
             HStack(spacing: 12) {
                 if let d = w.photo, let img = UIImage(data: d) { Image(uiImage: img).resizable().scaledToFill().frame(width: 40, height: 40).clipShape(RoundedRectangle(cornerRadius: Radius.thumb)) }
                 Text(Fmt.dayTitle(w.date)).font(.yumo.bodyStrong)
@@ -73,9 +72,8 @@ struct WeightRow: View {
                 if let d = delta { Text(Fmt.delta(unit == "lb" ? d * 2.20462 : d, unit: unit)).font(.nunito(13, .extrabold)).tabular().foregroundStyle(d < 0 ? Color.yumo.accent : d > 0 ? .yumo.danger : .yumo.inkMuted) }
                 Text("\(Fmt.kg(disp)) \(unit)").font(.yumo.title).tabular()
             }
-            .padding(.vertical, Space.rowSettings).padding(.horizontal, Space.cardPad).frame(minHeight: 52).background(Color.yumo.surface).contentShape(Rectangle()).offset(x: dx)
-            .onTapGesture(perform: onOpen)
-            .gesture(DragGesture(minimumDistance: 8).onChanged { v in if v.translation.width < 0 { dx = v.translation.width } }.onEnded { v in if v.translation.width < -110 { withAnimation(Motion.remove) { dx = -420 }; Task { try? await Task.sleep(for: .milliseconds(320)); onDelete() } } else { withAnimation(Motion.snap) { dx = 0 } } })
-        }.clipped().hairline()
+            .foregroundStyle(Color.yumo.ink)
+            .padding(.vertical, Space.rowSettings).padding(.horizontal, Space.cardPad).frame(minHeight: 52)
+        }.hairline()
     }
 }

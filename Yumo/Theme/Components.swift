@@ -166,11 +166,23 @@ struct CogGlyph: View {
         }
     }
 }
-struct TodayGlyph: View { var color: Color
-    var body: some View { RoundedRectangle(cornerRadius: 6).stroke(color, lineWidth: 2.5).overlay(Capsule().fill(color).frame(width: 6, height: 2.5)).frame(width: 18, height: 18) }
+/// Rev 10 tab glyph: calendar tile — 22 × 21 rounded rect at (2,3) r 6 stroke 2.6, header line y 9.5, the real day number 11.5/900 centred in the lower area. 28 pt box.
+struct CalendarTileGlyph: View { var color: Color; var day: Int
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 6, style: .continuous).stroke(color, lineWidth: 2.6).frame(width: 22, height: 21).offset(x: 2, y: 3)
+            Rectangle().fill(color).frame(width: 22, height: 2.6).offset(x: 2, y: 8.2)
+            Text("\(day)").font(.nunito(11.5, .black)).tabular().foregroundStyle(color).frame(width: 22, height: 14.5).offset(x: 2, y: 9.5)
+        }.frame(width: 28, height: 28, alignment: .topLeading)
+    }
 }
-struct ProgressGlyph: View { var color: Color
-    var body: some View { HStack(alignment: .bottom, spacing: 2) { ForEach([8, 13, 18], id: \.self) { h in RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 5, height: CGFloat(h)) } }.frame(width: 18, height: 18) }
+/// Rev 10 tab glyph: three bars 40 / 68 / 100 % of 28, gap 3, radius 3. motion.tabPop grows them from the baseline (400 ms, 70 ms stagger) on select.
+struct ProgressBarsGlyph: View { var active: Bool
+    @State private var grown = [true, true, true]
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 3) { ForEach(Array([0.40, 0.68, 1.0].enumerated()), id: \.offset) { i, f in RoundedRectangle(cornerRadius: 3, style: .continuous).fill(active ? Color.yumo.accent : .yumo.inkMuted).frame(width: 7, height: 28 * f).scaleEffect(y: grown[i] ? 1 : 0, anchor: .bottom) } }.frame(width: 28, height: 28, alignment: .bottom)
+            .onChange(of: active) { guard active else { return }; grown = [false, false, false]; for i in 0..<3 { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.4).delay(Double(i) * 0.07)) { grown[i] = true } } }
+    }
 }
 struct BarcodeGlyph: View { var color: Color
     var body: some View { HStack(spacing: 2) { ForEach(Array([3, 2, 4, 2, 3, 2, 5, 2, 3, 4].enumerated()), id: \.offset) { _, w in RoundedRectangle(cornerRadius: 1).fill(color).frame(width: CGFloat(w)) } }.frame(width: 40, height: 26) }
@@ -201,13 +213,22 @@ extension View {
 
 // MARK: - Rev 2 components (DESIGN_SYSTEM.md › Rev 2 component additions)
 
-/// 48 × 40, radius 14, accent fill, white "+" 26/900, lift 3 accent.edge. Meal headers only.
+/// Rev 10: 40 × 34, radius.control 12, accent fill, white "+" 22/900, lift.primary 3 pt (0 3 0 accent.edge); 44 × 44 hit area. Meal-card headers (empty and filled) and the Design System page.
 struct AddChip: View {
     var action: () -> Void
     var body: some View {
-        Button(action: action) { Text("+").font(.nunito(26, .black)).foregroundStyle(.white).offset(y: -1).frame(width: 48, height: 40) }
-            .buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: 3, radius: Radius.chip))
+        Button(action: action) { Text("+").font(.nunito(22, .black)).foregroundStyle(Color.yumo.onAccent).offset(y: -1) }
+            .buttonStyle(AddChipStyle())
             .accessibilityLabel("Add food")
+    }
+}
+struct AddChipStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.frame(width: 40, height: 34)
+            .background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.accent))
+            .lifted(.yumo.accentEdge, lift: Lift.card, radius: Radius.control, pressed: configuration.isPressed)
+            .animation(Motion.press, value: configuration.isPressed)
+            .frame(width: 44, height: 44).contentShape(Rectangle())
     }
 }
 
@@ -414,6 +435,24 @@ struct StreakPill: View { var count: Int
     }
 }
 
+/// Rev 10 §4.2: 24 × 24, radius 7, accent fill, lift 2 accent.edge, white "y" 15/900 tracking −0.5.
+struct YumoMark: View { var size: CGFloat = 24
+    var body: some View {
+        Text("y").font(.nunito(size * 15 / 24, .black)).kerning(-0.5).foregroundStyle(Color.yumo.onAccent).offset(y: -size * 0.06)
+            .frame(width: size, height: size).background(RoundedRectangle(cornerRadius: size * 7 / 24, style: .continuous).fill(Color.yumo.accent)).lifted(.yumo.accentEdge, lift: Lift.small, radius: size * 7 / 24)
+    }
+}
+/// Rev 10 §4.2: review chip — 36 pt, padding 0 12 0 6, surface, radius.control, lift.card: Yumo mark 24 · "Your week" 13/800 ink · "›" 13/800 accent. Header right slot, priority over the streak pill.
+struct ReviewChip: View { var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) { YumoMark(); Text("Your week").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.ink); Text("›").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }
+                .padding(.leading, 6).padding(.trailing, 12).frame(height: 36)
+        }.buttonStyle(LiftButtonStyle(fill: .yumo.surface, edge: .yumo.surfaceEdge, lift: Lift.card, radius: Radius.control))
+        .accessibilityLabel("Your weekly review")
+    }
+}
+
 /// Floating month grid: surface, radius 22, lift 4 + the system's one blurred shadow; 32 pt day circles, 5 pt accent dot on logged days, future muted.
 struct CalendarPopover: View {
     var month: Date; var selected: Date; var logged: Set<String>; var onPick: (Date) -> Void; var onToday: () -> Void
@@ -448,20 +487,24 @@ struct CalendarPopover: View {
     }
 }
 
-/// 60 pt row: 30 pt tint tile with an accent arrow, title + 12/800 accent sub-line "Swipe right to add it again"; nudges 22 pt once on appear.
+/// Rev 10 §2.2 repeat row content (60 pt): 30 pt tint tile with an accent arrow · "Swipe right to add it again" 16/700 ink · sub-line = first two food short-names (+ N other) 12/700 muted · kcal 16/800. Nudges 0 → 22 → 0 → 10 → 0 once (motion.nudge).
 struct SwipeHintRow: View {
-    var title: String; var count: String; var kcal: Double; var nudge: Bool
+    var foods: [String]; var kcal: Double; var nudge: Bool
     @State private var dx: CGFloat = 0
+    var subline: String {
+        let two = foods.prefix(2).joined(separator: ", "), rest = foods.count - 2
+        return rest > 0 ? "\(two) + \(rest) other\(rest == 1 ? "" : "s")" : two
+    }
     var body: some View {
         HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.yumo.accentTint).frame(width: 30, height: 30).overlay(ArrowGlyph(color: .yumo.accent))
             VStack(alignment: .leading, spacing: 1) {
-                HStack(spacing: 4) { Text(title).font(.nunito(16, .bold)).lineLimit(1); Text(count).font(.nunito(14, .semibold)).foregroundStyle(Color.yumo.inkMuted) }
-                Text("Swipe right to add it again").font(.nunito(12, .extrabold)).foregroundStyle(Color.yumo.accent)
+                Text("Swipe right to add it again").font(.nunito(16, .bold)).foregroundStyle(Color.yumo.ink).lineLimit(1)
+                Text(subline).font(.nunito(12, .bold)).foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
             }
-            Spacer(); Text(Fmt.k(kcal)).font(.nunito(16, .extrabold)).tabular()
+            Spacer(minLength: 8); Text(Fmt.k(kcal)).font(.nunito(16, .extrabold)).tabular().foregroundStyle(Color.yumo.ink)
         }
-        .frame(height: 60).offset(x: dx)
+        .padding(.leading, Space.cardPad).padding(.trailing, 14).frame(height: 60).offset(x: dx)
         .onAppear { guard nudge else { return }; Task {
             try? await Task.sleep(for: .milliseconds(600))
             for (v, ms) in [(22.0, 400), (0.0, 400), (10.0, 300), (0.0, 300)] { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: Double(ms) / 1000)) { dx = v }; try? await Task.sleep(for: .milliseconds(ms)) }   // motion.nudge

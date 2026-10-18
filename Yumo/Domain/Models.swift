@@ -64,6 +64,11 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var cutStartedAt: Date? = nil           // for the stall rule (cutting ≥ 8 weeks)
     var stallDecisionWeek: String? = nil    // week the user answered the stall check-in
     var dietBreakUntil: Date? = nil         // diet break: target = measured maintenance until this date
+    // rev 10 §7 — weekly review lifecycle
+    var reviewWeek: String? = nil           // week (Monday key) the current review is for
+    var reviewDone: Bool = true             // Apply / Keep / stall choice made (or the week had < 5 logged days)
+    var reviewOpened: Bool = false          // auto-presented once; afterwards only the chip reopens it
+    var reviewPage: Int = 0                 // reopens where you left off
     init() {}
     var nutrientOverrides: [String: [Double?]] { get { (try? JSONDecoder().decode([String: [Double?]].self, from: nutrientTargetsData)) ?? [:] } set { nutrientTargetsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var pinnedNutrients: [String] { get { (try? JSONDecoder().decode([String].self, from: pinnedNutrientsData)) ?? [] } set { pinnedNutrientsData = (try? JSONEncoder().encode(Array(newValue.prefix(3)))) ?? Data() } }

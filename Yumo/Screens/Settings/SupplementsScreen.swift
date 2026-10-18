@@ -32,23 +32,18 @@ struct SupplementsScreen: View {
         .sheet(item: $edit, onDismiss: { tick += 1; onChange() }) { s in AddSupplementSheet(editing: s).yumoSheet() }
     }
 }
+/// Supplement row on the two-stage engine (rev 10 §3): swipe left → red bin; › edits; press → color.pressed.
 struct SupplementRow: View {
     var s: Supplement; var onOpen: () -> Void; var onDelete: () -> Void
-    @State private var dx: CGFloat = 0
-    @State private var committed = false
     var sub: String { "\(s.doseLabel) · \(s.daysLabel) · " + (s.isNutrient ? "counts toward \(countsToward)" : "stack only") }
     var countsToward: String { let keys = s.nutrients.keys; return keys.count == 1 ? (Nutrients.by(keys.first!)?.name.components(separatedBy: " (").first ?? "") : "\(keys.count) nutrients" }
     var body: some View {
-        ZStack(alignment: .trailing) {
-            SwipeReveal(dx: dx, label: "Remove")
+        SwipeActionRow(id: "supp-\(s.id)", edge: .trailing, onTap: onOpen, onCommit: onDelete) {
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) { Text(s.name).font(.yumo.bodyStrong).lineLimit(1); Text(sub).font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }
                 Spacer(); Text("›").font(.yumo.title).foregroundStyle(Color.yumo.inkMuted)
-            }.padding(.vertical, 12).padding(.trailing, Space.cardPad).padding(.leading, 0).background(Color.yumo.surface.padding(.leading, -Space.cardPad)).contentShape(Rectangle())
-            .offset(x: dx).onTapGesture { if !committed { onOpen() } }
-            .gesture(DragGesture(minimumDistance: 8).onChanged { v in if v.translation.width < 0 { dx = v.translation.width } }
-                .onEnded { v in if v.translation.width < -110 { committed = true; withAnimation(Motion.remove) { dx = -420 }; Task { try? await Task.sleep(for: .milliseconds(360)); onDelete() } } else { withAnimation(Motion.snap) { dx = 0 } } })
-        }.clipped().hairline()
+            }.foregroundStyle(Color.yumo.ink).padding(.vertical, 12).padding(.horizontal, Space.cardPad)
+        }.padding(.leading, -Space.cardPad).hairline()
     }
 }
 

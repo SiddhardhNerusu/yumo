@@ -51,12 +51,6 @@ enum Expenditure {
         store.ctx.insert(e); store.save()
     }
 
-    /// True once per week on/after Sunday 18:00 when there is something to say.
-    static func checkinDue(_ p: UserProfile) -> Bool {
-        guard p.adaptiveOn, let wk = p.pendingWeek else { return false }
-        if let last = p.lastCheckinAt, last.dayKey >= wk { return false }
-        return true
-    }
     static func apply(_ store: Store, accept: Bool) {
         let p = store.profile()
         if accept, let to = p.pendingTo { p.overrideKcal = nil; p.adaptiveTarget = to }

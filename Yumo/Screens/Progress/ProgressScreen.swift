@@ -17,9 +17,9 @@ struct ProgressScreen: View {
     @State private var days: [(String, Double, Bool)] = []
     @State private var targetKcal = 2400
     @State private var estimates: [WeeklyEstimate] = []
-    @State private var showHow = false
+    @State private var showHow = false          // ⓘ → "How it's worked out" sheet (rev 10 §6.4)
+    @State private var showMaintenance = false  // card → Maintenance page (rev 10 §6)
     @State private var showNutrients = false
-    @State private var checkin = false
     var store: Store { Store(ctx) }
     var profile: UserProfile { store.profile() }
     var lb: Bool { profile.weightUnitLb }
@@ -49,6 +49,7 @@ struct ProgressScreen: View {
                 nutrientsRow.tourAnchor(.nutrientsRow).id(Tour.Anchor.nutrientsRow)
             }.padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
         }
+        .scrollBounceBehavior(.always)
         .onChange(of: session.scrollTopTick[.progress]) { withAnimation(Motion.push) { proxy.scrollTo("top", anchor: .top) } }
         .onChange(of: Tour.shared.step) { scrollForTour(proxy) }
         .onChange(of: Tour.shared.active) { if Tour.shared.active { scrollForTour(proxy) } }
@@ -60,16 +61,17 @@ struct ProgressScreen: View {
         .sheet(item: $logSheet) { k in LogWeightSheet(dayKey: k.id).yumoSheet() }
         .pushCover(isPresented: $showLog) { WeightLogScreen() }
         .pushCover(isPresented: $showSettings) { SettingsScreen() }
-        .pushCover(isPresented: $showHow) { HowThisWorksScreen() }
+        .pushCover(isPresented: $showMaintenance) { MaintenanceScreen() }
         .pushCover(isPresented: $showNutrients) { ProgressNutrientsScreen() }
-        .sheet(isPresented: $checkin) { CheckinSheet().yumoSheet().presentationDetents([.height(520)]) }
+        .sheet(isPresented: $showHow) { HowWorkedOutSheet(week: Review.week(store, weekStart: Expenditure.weekStart(Date()).adding(days: -7))).yumoSheet().presentationDetents([.large]) }
     }
-    // MARK: Expenditure card (PRODUCT_BRIEF §3)
+    // MARK: Maintenance card (PRODUCT_BRIEF §3; rev 10 §6: tap → Maintenance page, ⓘ → "How it's worked out"; no formula reference line)
     var expenditureCard: some View {
         let p = store.profile(); let t = store.targets()
         let formula = Calc.round50(t.tdee)
         let last = estimates.last
-        return VStack(alignment: .leading, spacing: 6) {
+        return Button { showMaintenance = true } label: {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Maintenance · measured").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
@@ -85,8 +87,9 @@ struct ProgressScreen: View {
                         if estimates.filter({ !$0.lowData }).count >= 2 { Sparkline(values: estimates.filter { !$0.lowData }.suffix(6).map(\.tdeeSmoothed)) }
                     }
                 }
-                Text(p.tdeeMeasured != nil ? "from \(p.weeklyUpdates) week\(p.weeklyUpdates == 1 ? "" : "s") of logging · formula said \(Fmt.k(formula))" : "\(t.formula) for now · Yumo starts measuring the real number after 2 weeks of logging and weigh-ins").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
+                Text(p.tdeeMeasured != nil ? "from \(p.weeklyUpdates) week\(p.weeklyUpdates == 1 ? "" : "s") of logging and weigh-ins" : "\(t.formula) for now · Yumo starts measuring the real number after 2 weeks of logging and weigh-ins").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
             }.foregroundStyle(Color.yumo.ink).frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 18, leading: 20, bottom: 16, trailing: 20))
+        }.buttonStyle(PlainPressStyle())
     }
     /// Rev 9 (README §7c): attention-first Nutrients card. Only whole-week problems get a row; low = amber dot, over = red. All fine = one line.
     var nutrientsRow: some View {

@@ -13,7 +13,9 @@ extension Color {
         static let accentTintEdge = Color(light: 0xCFEFC0, dark: 0x243A1C)
         static let accentWash  = Color(light: 0x8FE065, dark: 0x8FE065)
         static let danger      = Color(light: 0xC8353F, dark: 0xE05A62)   // triad of the accent; text and swipe-remove only
+        static let dangerFill  = Color(light: 0xC8353F, dark: 0xC8353F)   // rev 10: swipe-delete action fill (white bin on it)
         static let dangerTint  = Color(light: 0xFBE9EA, dark: 0x4A2326)
+        static let pressed     = Color(light: 0xF3EEE2, dark: 0x33302C)   // rev 10: row background while a finger is down (surface mixed 6 % toward ink)
         static let bg          = Color(light: 0xEBE2D2, dark: 0x1A1917)   // sand
         static let surface     = Color(light: 0xFFFBF3, dark: 0x2B2926)   // parchment
         static let surfaceEdge = Color(light: 0xD6CAB2, dark: 0x0F0E0D)
@@ -55,8 +57,10 @@ extension Font {
         return .system(size: size, weight: weight.system, design: .rounded)
     }
     enum yumo {
-        static let hero = Font.nunito(72, .extrabold)          // Today hero number, kerning −2.5
+        static let hero = Font.nunito(72, .extrabold)          // Today hero number, kerning −2.5 (heroXL)
         static let plan = Font.nunito(64, .extrabold)          // onboarding Daily target, Calorie target hero, kerning −2
+        static let verdict = Font.nunito(64, .extrabold)       // rev 10: weekly review page 1 number, kerning −2
+        static let headline = Font.nunito(28, .extrabold)      // rev 10: review page 1 line under the number, kerning −0.4
         static let display = Font.nunito(34, .extrabold)       // "Today ▾", "Progress", Maintenance value, kerning −0.4
         static let displayMuted = Font.nunito(20, .semibold)
         static let stat = Font.nunito(20, .extrabold)
@@ -80,7 +84,8 @@ extension Font {
         static let tile = Font.nunito(17, .black)
         static let segment = Font.nunito(13, .extrabold)
         static let tag = Font.nunito(12, .extrabold)
-        static let tabLabel = Font.nunito(10, .extrabold)
+        static let tabLabel = Font.nunito(11, .extrabold)      // rev 10: 11/800
+        static let inlineTitle = Font.nunito(17, .extrabold)   // rev 10: collapsed nav title
         static let wordmark = Font.nunito(48, .black)
     }
 }
@@ -93,23 +98,34 @@ enum Radius {
     static let buttonHero: CGFloat = 20, button: CGFloat = 18, field: CGFloat = 16
     static let chip: CGFloat = 14           // AddChip, chips
     static let panel: CGFloat = 14          // inset expand panels, AskList
-    static let control: CGFloat = 12        // segmented, ✕ circles, InsetField
+    static let control: CGFloat = 12        // segmented, ✕ circles, InsetField, AddChip (rev 10), review chip
+    static let action: CGFloat = 14         // rev 10: the swipe-action button inside a row
+    static let tile: CGFloat = 14           // rev 10: inset stat tiles (Logged / Weigh-ins / Confidence)
+    static let statCard: CGFloat = 16       // rev 10: review stat cards
     static let thumb: CGFloat = 10, bar: CGFloat = 8, tag: CGFloat = 6, track: CGFloat = 5
 }
 enum Lift { static let card: CGFloat = 3, primary: CGFloat = 4, small: CGFloat = 2 }
 enum Space {
     static let gutter: CGFloat = 16, cardPad: CGFloat = 20, heroGap: CGFloat = 12, gridGap: CGFloat = 14
     static let cardGap: CGFloat = 12, cardGapDense: CGFloat = 10          // Today · Progress/Settings
-    static let rowFood: CGFloat = 9, rowHeader: CGFloat = 14, rowHeaderDense: CGFloat = 11, rowSettings: CGFloat = 12, rowFooter: CGFloat = 10
-    static let bottomClear: CGFloat = 90, toastBottom: CGFloat = 100
+    static let rowFood: CGFloat = 9, rowHeader: CGFloat = 13 /* rev 10 §2.1: 13 + AddChip 34 + 13 = 60, the row height */, rowHeaderDense: CGFloat = 11, rowSettings: CGFloat = 12, rowFooter: CGFloat = 10
+    static let bottomClear: CGFloat = 105, bottomClearToday: CGFloat = 115, toastBottom: CGFloat = 100   // rev 10 §4.7: list ends 115 (Today) / 105 (Progress) above the screen bottom
 }
 enum Motion {
     static let sheet = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.42)
     static let push = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)     // pushed pages: fade + 12 pt rise, 360 ms, one curve
     static let expand = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)   // rev 5: every disclosure unfolds on this and nothing else
     static let snap = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.35)
-    static let remove = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)   // swipe commit slides the row out 360 ms
-    static let add = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.30)
+    // motion.swipeStage (rev 10 §3): open snap 320 ms spring curve · commit slide-out 260 ms one curve · glyph slide 200 ms spring · glyph scale 180 ms overshoot
+    static let swipeOpen = Animation.timingCurve(0.2, 0.9, 0.3, 1.1, duration: 0.32)
+    static let swipeCommit = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.26)
+    static let swipeGlyph = Animation.timingCurve(0.2, 0.9, 0.3, 1.1, duration: 0.20)
+    static let swipeGlyphScale = Animation.timingCurve(0.34, 1.5, 0.64, 1, duration: 0.18)
+    static let dayChange = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.32)   // motion.dayChange: ±14 pt slide + fade; also motion.reviewPage
+    static let titleCollapse = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.15) // motion.titleCollapse: only the momentum tail; otherwise linear with scroll
+    static let pressIn = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.10)      // motion.pressHighlight: rows → color.pressed 100 ms in
+    static let pressOut = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.20)     // … 200 ms out
+    static let tabPop = Animation.timingCurve(0.34, 1.5, 0.64, 1, duration: 0.40)    // motion.tabPop scale 1 → 1.12 → 1 (also the review verdict tick)
     static let bar = Animation.timingCurve(0.34, 1.3, 0.64, 1, duration: 0.45)   // motion.barFill: the one curve with ≈ +2 % overshoot
     static let countUp = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.5)
     static let press = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.12)

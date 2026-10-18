@@ -13,8 +13,13 @@ struct TodayScreen: View {
     @State private var targets: Targets? = nil
     @State private var removingIds: Set<String> = []
     @State private var pinnedRow: String? = nil
-    @State private var checkin = false
+    @State private var reviewPending = false
     @State private var balance = false
+    @State private var scrolled: CGFloat = 0
+    @State private var headerBase: CGFloat? = nil          // motion.titleCollapse: how far the content has scrolled under the inline bar
+    @State private var dayLayer = Date().startOfDay.dayKey   // motion.dayChange: the title + hero + meal cards re-enter as one layer
+    @State private var dayForward = true
+    @Environment(SwipeCoordinator.self) private var swipes
     @State private var hasHistory = false      // first run (README §1): no "Yesterday's …" rows and no Balance row until a food was logged on a previous day
     @State private var calendarOpen = false
     @State private var loggedWeek: Set<String> = []
@@ -29,33 +34,54 @@ struct TodayScreen: View {
     var isToday: Bool { Calendar.current.isDateInToday(session.selectedDate) }
 
     var body: some View {
+        let t = min(1, max(0, (scrolled - 8) / 44))   // motion.titleCollapse: linear with scroll across 8 → 52 pt
         ZStack(alignment: .top) {
         ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: 0) {
-                // rev 5 header: "Today ▾" + streak pill, week strip; the day stepper is gone
+                // rev 5 header: "Today ▾" + the right slot (rev 10 §4.2: review chip › streak pill ≥ 2 › nothing); week strip
                 HStack(alignment: .center) {
                     Button { withAnimation(Motion.expand) { calendarOpen.toggle() } } label: {
                         HStack(spacing: 8) { Text(Fmt.dayTitle(session.selectedDate)).font(.yumo.display).kerning(-0.4).tabular().foregroundStyle(Color.yumo.ink); Text("▾").font(.nunito(18, .extrabold)).foregroundStyle(Color.yumo.accent).rotationEffect(.degrees(calendarOpen ? 180 : 0)) }.frame(height: 44)
-                    }.buttonStyle(PlainPressStyle())
+                            .id(dayLayer).transition(dayTransition)
+                    }.buttonStyle(PlainPressStyle()).opacity(1 - t).offset(y: -8 * t)
                     Spacer()
-                    StreakPill(count: streak).id(streak).transition(.asymmetric(insertion: .modifier(active: FlipIn(angle: 90), identity: FlipIn(angle: 0)), removal: .opacity)).animation(Motion.expand, value: streak)   // motion.flipDigit
+                    if reviewPending { ReviewChip { session.showReview = true }.transition(.opacity.combined(with: .offset(y: 8))) }   // motion.rowIn
+                    else if streak >= 2 { StreakPill(count: streak).id(streak).transition(.asymmetric(insertion: .modifier(active: FlipIn(angle: 90), identity: FlipIn(angle: 0)), removal: .opacity)).animation(Motion.expand, value: streak) }   // motion.flipDigit
                 }.padding(.horizontal, 4).padding(.top, 6).id("todayTop")
+                .background { if #unavailable(iOS 18) { GeometryReader { g in Color.clear.preference(key: ScrollOffsetKey.self, value: g.frame(in: .global).minY) } } }
                 WeekStrip(days: (0..<7).reversed().map { i in let d = Date().startOfDay.adding(days: -i); return (d, loggedWeek.contains(d.dayKey)) }, selected: session.selectedDate) { session.selectedDate = $0.startOfDay }.padding(.horizontal, 4).padding(.top, 14)
-                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, pinned: pinnedRow, onPrep: preppedRow ? { balance = true } : nil).tourAnchor(.hero).padding(.top, 20) }
-                VStack(spacing: Space.cardGap) {
-                    ForEach(Meal.allCases) { meal in
-                        MealCardView(meal: meal, entries: entries.filter { $0.meal == meal && !removingIds.contains($0.id) },
-                                     recent: hasHistory ? (recent[meal]?.entries ?? []) : [], recentLabel: recentLabel(meal), saved: savedByMeal[meal], nudge: !store.profile().swipeHintSeen,
-                                     onAdd: { addMeal = meal; if meal == .breakfast { Tour.shared.didAct(.breakfastAdd) } }, tourAnchor: meal == .breakfast, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
-                    }
-                }.padding(.top, Space.heroGap).animation(Motion.expand, value: entries.map(\.id))
+                VStack(spacing: 0) {
+                    if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, pinned: pinnedRow, onPrep: preppedRow ? { balance = true } : nil).tourAnchor(.hero).padding(.top, 20) }
+                    VStack(spacing: Space.cardGap) {
+                        ForEach(Meal.allCases) { meal in
+                            MealCardView(meal: meal, entries: entries.filter { $0.meal == meal && !removingIds.contains($0.id) },
+                                         recent: hasHistory ? (recent[meal]?.entries ?? []) : [], saved: savedByMeal[meal], nudge: !store.profile().swipeHintSeen,
+                                         onAdd: { addMeal = meal; if meal == .breakfast { Tour.shared.didAct(.breakfastAdd) } }, tourAnchor: meal == .breakfast, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
+                        }
+                    }.padding(.top, Space.heroGap).animation(Motion.expand, value: entries.map(\.id))
+                }.id(dayLayer).transition(dayTransition)
             }
-            .padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
+            .padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClearToday)
         }
+        .onPreferenceChange(ScrollOffsetKey.self) { v in   // iOS 17: the header's resting position minus where it is now
+            if headerBase == nil { headerBase = v }
+            didScroll((headerBase ?? v) - v)
+        }
+        .modifier(ScrollOffsetModifier(onChange: didScroll))   // iOS 18+: contentOffset straight from the scroll geometry
+        .scrollBounceBehavior(.always)
         .scrollIndicators(.hidden)
         .onChange(of: session.scrollTopTick[.today]) { withAnimation(Motion.push) { proxy.scrollTo("todayTop", anchor: .top) } }
         }
+        // rev 10 §4.3 inline bar: surface @ .88 + blur once collapsed, hairline past 90 %, title 17/800 centred; only the title takes touches
+        VStack(spacing: 0) {
+            Button { withAnimation(Motion.expand) { calendarOpen.toggle() } } label: { HStack(spacing: 6) { Text(Fmt.dayTitle(session.selectedDate)).font(.yumo.inlineTitle).tabular().foregroundStyle(Color.yumo.ink); Text("▾").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }.frame(height: 44) }
+                .buttonStyle(PlainPressStyle()).opacity(t).offset(y: 6 * (1 - t)).allowsHitTesting(t > 0.5)
+        }
+        .frame(maxWidth: .infinity)
+        .background { Rectangle().fill(Color.yumo.surface.opacity(0.88 * t)).background(.ultraThinMaterial.opacity(t)).ignoresSafeArea(edges: .top).allowsHitTesting(false) }
+        .overlay(alignment: .bottom) { Rectangle().fill(Color.yumo.surfaceEdge).frame(height: 0.5).opacity(t > 0.9 ? 1 : 0).animation(Motion.titleCollapse, value: t > 0.9) }
+        .zIndex(1)
         if calendarOpen {
             Color.black.opacity(0.001).ignoresSafeArea().onTapGesture { withAnimation(Motion.expand) { calendarOpen = false } }
             CalendarPopover(month: session.selectedDate, selected: session.selectedDate, logged: loggedMonth, onPick: { d in session.selectedDate = d.startOfDay; withAnimation(Motion.expand) { calendarOpen = false } }, onToday: { session.selectedDate = Date().startOfDay; withAnimation(Motion.expand) { calendarOpen = false } })
@@ -63,11 +89,14 @@ struct TodayScreen: View {
         }
         }
         .onAppear(perform: reload)
-        .onChange(of: session.selectedDate) { reload() }
+        .onChange(of: session.selectedDate) { old, new in
+            // motion.dayChange: the layer slides in 14 pt from the direction of travel (+14 forward in time, −14 back) and fades, 320 ms
+            dayForward = new > old
+            withAnimation(Motion.dayChange) { dayLayer = new.dayKey; reload() }
+        }
         .onChange(of: session.tick) { reload() }
         .sheet(item: $addMeal) { m in AddFoodSheet(meal: m, dayKey: dayKey).yumoSheet() }
         .pushCover(item: $detail) { e in FoodDetailScreen(entry: e, dayKey: dayKey) }
-        .sheet(isPresented: $checkin) { CheckinSheet().yumoSheet().presentationDetents(Expenditure.stallCheck(store) != nil ? [.large] : [.height(520)]) }
         .sheet(isPresented: $balance) { BalanceSheet(dayKey: dayKey).yumoSheet().presentationDetents([.large]) }
         .onChange(of: session.selectedDate) { if calendarOpen { withAnimation(Motion.expand) { calendarOpen = false } } }
     }
@@ -78,6 +107,10 @@ struct TodayScreen: View {
         let empty = Meal.allCases.filter { m in !entries.contains { $0.meal == m } }
         return left > 150 && !empty.isEmpty && (hasStaples || hasHistory) && !Tour.shared.active
     }
+
+    /// motion.titleCollapse input; scrolling also closes an open swipe row.
+    func didScroll(_ sc: CGFloat) { if abs(sc - scrolled) > 2 { swipes.scrollTick &+= 1 }; scrolled = sc }
+    var dayTransition: AnyTransition { .asymmetric(insertion: .opacity.combined(with: .offset(x: dayForward ? 14 : -14)), removal: .opacity) }
 
     func reload() {
         let s = store
@@ -107,7 +140,9 @@ struct TodayScreen: View {
         streak = s.streak(today: today.dayKey)
         if !wasLogged, !entries.isEmpty, isToday, hadLoaded { UINotificationFeedbackGenerator().notificationOccurred(.success) }   // motion.tickStamp: the week circle fills and the tick draws on (WeekStrip animates), haptic .success
         hadLoaded = true
-        if Calendar.current.isDateInToday(session.selectedDate), !Tour.shared.active, Expenditure.checkinDue(p) || Expenditure.stallCheck(s) != nil { checkin = true }
+        // rev 10 §7.1 weekly review: pending → chip; auto-opens once, on the first return to Today after Monday 06:00, never over the tour or a sheet
+        reviewPending = Review.refresh(s)
+        if reviewPending, !p.reviewOpened, !Tour.shared.active, addMeal == nil, detail == nil, !balance, !session.reviewAutoShown { session.reviewAutoShown = true; Task { try? await Task.sleep(for: .milliseconds(400)); session.showReview = true } }
         var map: [Meal: SavedMeal] = [:]
         for m in Meal.allCases { if let sm = s.savedMeal(matching: entries.filter { $0.meal == m }) { map[m] = sm } }
         savedByMeal = map
@@ -116,18 +151,14 @@ struct TodayScreen: View {
         if hasHistory, !p.swipeHintSeen, !recent.isEmpty { Task { try? await Task.sleep(for: .seconds(3)); p.swipeHintSeen = true; s.save() } }
     }
     func remove(_ e: FoodEntry) {
-        removingIds.insert(e.id)
         let name = e.foodName
-        Task { try? await Task.sleep(for: .milliseconds(320)); store.remove(e); removingIds.remove(e.id); toaster.show("Removed \(name)"); session.changed() }
+        store.remove(e); toaster.show("Removed \(name)"); session.changed()
     }
     func addYesterday(_ meal: Meal) {
         for e in recent[meal]?.entries ?? [] { if let f = e.food { _ = store.log(food: f, meal: meal, dayKey: dayKey, quantity: e.quantity, serving: Serving(label: e.servingLabel, grams: e.servingGrams)) } }
-        toaster.show("\(recentLabel(meal)) added"); session.changed()
-    }
-    /// Rev 6: the most recent instance within 14 days — "Yesterday's Breakfast", "Breakfast from 2 days ago", "Breakfast from Tue · 3 days ago".
-    func recentLabel(_ meal: Meal) -> String {
-        guard let r = recent[meal] else { return "" }
-        switch r.daysAgo { case 1: return "Yesterday's \(meal.rawValue)"; case 2: return "\(meal.rawValue) from 2 days ago"; default: return "\(meal.rawValue) from \(Fmt.weekday(session.selectedDate.adding(days: -r.daysAgo))) · \(r.daysAgo) days ago" }
+        let daysAgo = recent[meal]?.daysAgo ?? 1
+        let f = DateFormatter(); f.locale = Locale(identifier: "en_GB"); f.dateFormat = "EEEE"
+        toaster.show("\(daysAgo == 1 ? "Yesterday" : f.string(from: session.selectedDate.adding(days: -daysAgo)))'s \(meal.rawValue.lowercased()) added"); session.changed()   // rev 10 §3: real weekday
     }
     func saveMeal(_ meal: Meal) {
         let wd = DateFormatter(); wd.locale = Locale(identifier: "en_GB"); wd.dateFormat = "EEE"
@@ -158,6 +189,7 @@ struct HeroCard: View {
                 CountUpText(value: Int(totals.kcal.rounded()), font: .yumo.hero, color: over ? .yumo.danger : (hit ? .yumo.accent : .yumo.ink), kerning: -2.5).animation(Motion.expand, value: hit)   // motion.countUp + motion.hitTarget
                 Text("/ \(Fmt.k(goal))").font(.yumo.displayMuted).tabular().foregroundStyle(Color.yumo.inkMuted)
             }
+            if totals.kcal == 0 { Text("Nothing logged yet").font(.nunito(14, .bold)).foregroundStyle(Color.yumo.inkMuted).padding(.top, 10) }   // rev 10 §4.1: everything else stays full ink
             Bar(fraction: totals.kcal / Double(max(1, goal)), height: 10, fill: over ? .yumo.danger : .yumo.accent).scaleEffect(x: pulse ? 1.03 : 1, y: pulse ? 1.3 : 1).padding(.top, Space.gridGap)
                 .onChange(of: totals.kcal) { old, new in checkHit(old, new) }
             HStack(spacing: Space.gridGap) {
@@ -178,23 +210,27 @@ struct HeroCard: View {
 }
 
 struct MealCardView: View {
-    var meal: Meal; var entries: [FoodEntry]; var recent: [FoodEntry]; var recentLabel: String; var saved: SavedMeal?; var nudge = false
+    var meal: Meal; var entries: [FoodEntry]; var recent: [FoodEntry]; var saved: SavedMeal?; var nudge = false
     var onAdd: () -> Void; var tourAnchor = false; var onOpen: (FoodEntry) -> Void; var onRemove: (FoodEntry) -> Void; var onAddYesterday: () -> Void; var onSave: () -> Void
     var totals: DayTotals { DayTotals(entries) }
     @ViewBuilder var chip: some View { if tourAnchor { AddChip(action: onAdd).tourAnchor(.breakfastAdd) } else { AddChip(action: onAdd) } }
     var body: some View {
         VStack(spacing: 0) {
             if entries.isEmpty {
-                HStack { Text(meal.rawValue).font(.nunito(18, .extrabold)); Spacer(); chip }
+                // rev 10 §2.1: header padding 13 14 13 0 → 60 pt, the same as the repeat row under it
+                HStack { Text(meal.rawValue).font(.nunito(18, .extrabold)); Spacer(); chip.padding(.trailing, -5) }
                     .padding(.vertical, Space.rowHeader).padding(.trailing, 14)
-                if !recent.isEmpty { SwipeToAddRow(label: recentLabel, count: recent.count, kcal: DayTotals(recent).kcal, hint: true, nudge: nudge, onCommit: onAddYesterday).padding(.leading, -Space.cardPad) }
+                if !recent.isEmpty {
+                    SwipeToAddRow(id: "repeat-\(meal.rawValue)", foods: recent.map { Food.split($0.foodName, state: $0.food?.state).name }, kcal: DayTotals(recent).kcal, nudge: nudge, onCommit: onAddYesterday)
+                        .overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5).padding(.leading, Space.cardPad) }.padding(.leading, -Space.cardPad)
+                }
             } else {
                 HStack(alignment: .center, spacing: 8) {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(alignment: .firstTextBaseline, spacing: 6) { Text(meal.rawValue).font(.yumo.title); Text("\(Fmt.k(totals.kcal)) kcal").font(.yumo.bodyStrong).tabular().foregroundStyle(Color.yumo.inkMuted); if let s = saved { Tag(label: s.name) } }
                         Text("P \(Fmt.g(totals.p)) · C \(Fmt.g(totals.c)) · F \(Fmt.g(totals.f))").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
                     }
-                    Spacer(); chip
+                    Spacer(); chip.padding(.trailing, -5)
                 }.padding(.top, 9).padding(.bottom, 8).padding(.trailing, 12).hairline()
                 ForEach(Array(entries.enumerated()), id: \.element.id) { i, e in FoodRowView(entry: e, last: i == entries.count - 1 && saved != nil, onOpen: { onOpen(e) }, onRemove: { onRemove(e) }).padding(.leading, -Space.cardPad) }
                 if saved == nil { HStack { TextAction(label: "Save as meal", action: onSave); Spacer() }.padding(.vertical, Space.rowFooter) }
@@ -204,14 +240,11 @@ struct MealCardView: View {
     }
 }
 
-/// Swipe left to reveal "Remove" (opacity = |dx|/80); release past −110 → slide to −420 over 320 ms, then delete. Tap opens.
+/// Food row on the two-stage engine (rev 10 §3): swipe left → inset red bin button; open at 72, arm at 50 %, release deletes. Tap opens; press → color.pressed.
 struct FoodRowView: View {
     var entry: FoodEntry; var last = false; var onOpen: () -> Void; var onRemove: () -> Void
-    @State private var dx: CGFloat = 0
-    @State private var committed = false
     var body: some View {
-        ZStack(alignment: .trailing) {
-            SwipeReveal(dx: dx, label: "Remove")
+        SwipeActionRow(id: entry.id, edge: .trailing, onTap: onOpen, onCommit: onRemove) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
                     let nd = Food.split(entry.foodName, state: entry.food?.state)
@@ -220,57 +253,31 @@ struct FoodRowView: View {
                 }
                 Spacer(); Text(Fmt.k(entry.kcal)).font(.yumo.body).tabular()
             }
-            .padding(.vertical, Space.rowFood).padding(.horizontal, Space.cardPad).background(Color.yumo.surface).contentShape(Rectangle())
-            .transition(.opacity.combined(with: .offset(y: 8)))   // motion.rowIn
-            .offset(x: dx)
-            .onTapGesture { if !committed { onOpen() } }
-            .gesture(DragGesture(minimumDistance: 8).onChanged { v in if v.translation.width < 0 { dx = v.translation.width } }
-                .onEnded { v in
-                    if v.translation.width < -110 { committed = true; withAnimation(Motion.remove) { dx = -420 }; onRemove() }
-                    else { withAnimation(Motion.snap) { dx = 0 } }
-                })
+            .foregroundStyle(Color.yumo.ink)
+            .padding(.vertical, Space.rowFood).padding(.horizontal, Space.cardPad)
         }
-        .clipped().overlay(alignment: .bottom) { if !last { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5) } }
+        .transition(.opacity.combined(with: .offset(y: 8)))   // motion.rowIn
+        .overlay(alignment: .bottom) { if !last { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5).padding(.leading, Space.cardPad) } }
     }
 }
 
-/// Drag right; a wash fills the revealed width with "Add" → "Release to add" past 40%. Release ≥ 40% commits.
+/// Repeat row on the same engine, mirrored (rev 10 §2.2 + §3): leading accent "+" action; commit inserts the remembered foods. No tint on press, no tap action.
 struct SwipeToAddRow: View {
-    var label: String; var count: Int; var kcal: Double; var hint = false; var nudge = false; var onCommit: () -> Void
-    @State private var dx: CGFloat = 0
-    var h: CGFloat { hint ? 60 : 52 }
+    var id: String; var foods: [String]; var kcal: Double; var nudge = false; var onCommit: () -> Void
     var body: some View {
-        GeometryReader { g in
-            let w = g.size.width; let past = dx >= w * 0.4
-            ZStack(alignment: .leading) {
-                LinearGradient(colors: [.yumo.accent, .yumo.accentWash], startPoint: .leading, endPoint: .trailing).frame(width: max(0, dx))
-                    .overlay { Text(past ? "Release to add" : "Add").font(.nunito(15, .black)).foregroundStyle(.white).frame(width: max(0, dx)).clipped() }
-                Group {
-                    if hint { SwipeHintRow(title: label, count: "\(count) food\(count == 1 ? "" : "s")", kcal: kcal, nudge: nudge) }
-                    else { HStack { (Text(label).font(.nunito(16, .bold)) + Text("  \(count) foods").font(.yumo.detail).foregroundColor(.yumo.inkMuted)); Spacer(); Text(Fmt.k(kcal)).font(.nunito(16, .extrabold)).tabular() } }
-                }
-                    .padding(.horizontal, Space.cardPad).frame(height: h).frame(maxWidth: .infinity).background(Color.yumo.surface).offset(x: dx)
-                    .gesture(DragGesture(minimumDistance: 8).onChanged { v in if v.translation.width > 0 { dx = v.translation.width } }
-                        .onEnded { _ in if dx >= w * 0.4 { withAnimation(Motion.add) { dx = w }; Task { try? await Task.sleep(for: .milliseconds(300)); onCommit() } } else { withAnimation(Motion.snap) { dx = 0 } } })
-            }
-        }.frame(height: h).clipped()
-    }
-}
-
-/// motion.swipeReveal: the revealed colour follows the finger with a 32 pt feathered leading edge (transparent → solid); the label fades in between 12 % and 32 % of the row width.
-struct SwipeReveal: View { var dx: CGFloat; var label: String
-    var body: some View {
-        GeometryReader { g in
-            let w = max(0, -dx), fade = min(1, max(0, (w / g.size.width - 0.12) / 0.20))
-            HStack(spacing: 0) {
-                Spacer(minLength: 0)
-                LinearGradient(colors: [Color.yumo.danger.opacity(0), .yumo.danger], startPoint: .leading, endPoint: .trailing).frame(width: min(32, w))
-                Color.yumo.danger.frame(width: max(0, w - 32))
-            }
-            .overlay(alignment: .trailing) { Text(label).font(.yumo.action).foregroundStyle(Color.yumo.onAccent).padding(.trailing, 20).opacity(fade) }
+        SwipeActionRow(id: id, edge: .leading, pressHighlight: false, onCommit: onCommit) {
+            SwipeHintRow(foods: foods, kcal: kcal, nudge: nudge)
         }
     }
 }
+
+struct ScrollOffsetModifier: ViewModifier { var onChange: (CGFloat) -> Void
+    func body(content: Content) -> some View {
+        if #available(iOS 18, *) { content.onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, new in onChange(new) } }
+        else { content }
+    }
+}
+struct ScrollOffsetKey: PreferenceKey { static var defaultValue: CGFloat = 0; static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() } }
 
 /// motion.flipDigit: the incoming value flips in from rotateX(90°).
 struct FlipIn: ViewModifier { var angle: Double
