@@ -28,9 +28,10 @@ extension Color {
         static let toastEdge   = Color(light: 0x0E0D0B, dark: 0x0E0D0B)
         static let torchOn     = Color(light: 0xFFD84D, dark: 0xFFD84D)
         static let liftHighlight = Color(hex: 0xFFFBF3).opacity(0.07)    // 1 pt top highlight on lifted elements in dark mode
-        static let floatingShadow = Color(hex: 0x1F1C17).opacity(0.18)   // the one blurred shadow (CalendarPopover)
+        static let floatingShadow = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor.black.withAlphaComponent(0.5) : UIColor(red: 31/255, green: 28/255, blue: 23/255, alpha: 0.18) })   // the one blurred shadow (CalendarPopover)
+        static let warning     = Color(light: 0xC9962A, dark: 0xD9A94A)   // tetrad −90°: ONLY the StatusDot for "low this week"; never text, fill or border
         static let tourScrim   = Color(hex: 0x1F1C17).opacity(0.55)
-        static let backdrop    = Color.black.opacity(0.45)
+        static let backdrop    = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor.black.withAlphaComponent(0.6) : UIColor.black.withAlphaComponent(0.45) })
         static let scanMask    = Color.black.opacity(0.35)
     }
     init(hex: UInt32) {
@@ -103,7 +104,9 @@ enum Motion {
     static let snap = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.35)
     static let remove = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.36)   // swipe commit slides the row out 360 ms
     static let add = Animation.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.30)
-    static let bar = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.4)
+    static let bar = Animation.timingCurve(0.34, 1.3, 0.64, 1, duration: 0.45)   // motion.barFill: the one curve with ≈ +2 % overshoot
+    static let countUp = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.5)
+    static let press = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.12)
     static let toastIn = Animation.easeOut(duration: 0.25)
     static let toastHold: Double = 1.8
 }
@@ -153,7 +156,7 @@ struct LiftButtonStyle: ButtonStyle {
         configuration.label
             .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(fill))
             .lifted(edge, lift: lift, radius: radius, pressed: configuration.isPressed)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(Motion.press, value: configuration.isPressed)   // motion.press: 120 ms so the spring-back is visible
     }
 }
 /// Plain press style: no visual change (text actions, arrows).

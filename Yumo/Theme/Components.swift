@@ -46,7 +46,7 @@ struct CloseButton: View {
 struct CogButton: View {
     var action: () -> Void
     var body: some View {
-        Button(action: action) { Image(systemName: "gearshape.fill").font(.system(size: 18, weight: .bold)).foregroundStyle(Color.yumo.ink).frame(width: 44, height: 44) }
+        Button(action: action) { Image(systemName: "gearshape").font(.system(size: 20, weight: .semibold)).foregroundStyle(Color.yumo.ink).frame(width: 44, height: 44) }   // rev 9: gear outline, not a dots glyph
             .buttonStyle(LiftButtonStyle(fill: .yumo.control, edge: .yumo.surfaceEdge, lift: Lift.small, radius: 22))
             .accessibilityLabel("Settings")
     }
@@ -532,9 +532,15 @@ struct ExpandChevron: View { var open: Bool
 
 /// Rev 6: 40 pt tint circle with an accent sparkle (four-point star + small companion), lift 0 2 0 accent.tint.edge. The I prepped… entry on the hero card.
 struct SparkleButton: View { var action: () -> Void
+    @State private var dim = false
+    @AppStorage("yumo.twinkleDay") private var twinkleDay = ""
     var body: some View {
-        Button(action: action) { SparkleGlyph(color: .yumo.accent).frame(width: 40, height: 40) }
+        Button(action: action) { SparkleGlyph(color: .yumo.accent).frame(width: 40, height: 40).opacity(dim ? 0.55 : 1).scaleEffect(dim ? 0.92 : 1) }
             .buttonStyle(LiftButtonStyle(fill: .yumo.accentTint, edge: .yumo.accentTintEdge, lift: 2, radius: 20)).accessibilityLabel("I prepped…")
+            .onAppear {   // motion.twinkle: once per day when it becomes available, then still
+                let today = Date().dayKey; guard twinkleDay != today else { return }; twinkleDay = today
+                Task { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.8)) { dim = true }; try? await Task.sleep(for: .milliseconds(800)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.8)) { dim = false } }
+            }
     }
 }
 struct SparkleGlyph: View { var color: Color
@@ -576,5 +582,69 @@ extension View {
     func pushCover<I: Identifiable, C: View>(item: Binding<I?>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (I) -> C) -> some View {
         let b = Binding(get: { item.wrappedValue }, set: { v in var t = Transaction(); t.disablesAnimations = true; withTransaction(t) { item.wrappedValue = v } })
         return fullScreenCover(item: b, onDismiss: onDismiss) { i in PushPage { content(i) } }
+    }
+}
+
+// MARK: - Rev 9 components
+
+/// 24 pt circle, 2 pt accent ring, italic serif "i" 13/900 accent. Replaces every "How ›" / "Why" link beside a computed number.
+struct InfoButton: View { var action: () -> Void
+    var body: some View {
+        Button(action: action) { Text("i").font(.system(size: 13, weight: .black, design: .serif)).italic().foregroundStyle(Color.yumo.accent).frame(width: 24, height: 24).overlay(Circle().strokeBorder(Color.yumo.accent, lineWidth: 2)).frame(width: 44, height: 44).contentShape(Rectangle()) }
+            .buttonStyle(PlainPressStyle()).accessibilityLabel("How this works")
+    }
+}
+/// 8 pt dot: warning (low this week) or danger (over an upper limit). Fine = no dot, no row.
+struct StatusDot: View { var over: Bool
+    var body: some View { Circle().fill(over ? Color.yumo.danger : .yumo.warning).frame(width: 8, height: 8) }
+}
+/// 64 pt ring: track stroke 7 pt, accent arc = share, count 16/800 centred.
+struct Ring: View { var fraction: Double; var label: String; var size: CGFloat = 64
+    @State private var shown = 0.0
+    var body: some View {
+        ZStack { Circle().stroke(Color.yumo.track, lineWidth: 7); Circle().trim(from: 0, to: shown).stroke(Color.yumo.accent, style: StrokeStyle(lineWidth: 7, lineCap: .round)).rotationEffect(.degrees(-90)); Text(label).font(.nunito(16, .extrabold)).tabular() }
+            .frame(width: size, height: size).onAppear { withAnimation(Motion.bar) { shown = fraction } }.onChange(of: fraction) { withAnimation(Motion.bar) { shown = fraction } }
+    }
+}
+/// motion.countUp: each digit is its own 0–9 column rolling to its value, 500 ms, 40 ms right-to-left stagger; separators static. Numbers never snap.
+struct CountUpText: View {
+    var value: Int; var font: Font; var color: Color; var kerning: CGFloat = 0
+    @State private var shown: Int
+    @State private var digitsShown: [Int] = []
+    init(value: Int, font: Font, color: Color, kerning: CGFloat = 0) { self.value = value; self.font = font; self.color = color; self.kerning = kerning; _shown = State(initialValue: value) }
+    var body: some View {
+        let text = Fmt.k(shown), chars = Array(text)
+        HStack(spacing: 0) {
+            ForEach(chars.indices, id: \.self) { i in
+                let ch = chars[i]
+                if let d = ch.wholeNumberValue { DigitColumn(digit: d, font: font, color: color, delay: Double(chars.count - 1 - i) * 0.04) }
+                else { Text(String(ch)).font(font).foregroundStyle(color) }
+            }
+        }.kerning(kerning).tabular().onChange(of: value) { shown = value }
+    }
+}
+private struct DigitColumn: View { var digit: Int; var font: Font; var color: Color; var delay: Double
+    @State private var current: Int
+    init(digit: Int, font: Font, color: Color, delay: Double) { self.digit = digit; self.font = font; self.color = color; self.delay = delay; _current = State(initialValue: digit) }
+    var body: some View {
+        Text("0").font(font).foregroundStyle(.clear).overlay(
+            GeometryReader { g in
+                VStack(spacing: 0) { ForEach(0..<10, id: \.self) { n in Text("\(n)").font(font).foregroundStyle(color).frame(height: g.size.height) } }
+                    .offset(y: -CGFloat(current) * g.size.height)
+            }.clipped()
+        ).tabular().onChange(of: digit) { withAnimation(Motion.countUp.delay(delay)) { current = digit } }
+    }
+}
+/// "Which days" picker: M T W T F S S, 28 pt circles — accent + white tick when on, 2 pt edge ring when off. The Today week strip, reused.
+struct DayDots: View { @Binding var days: [Bool]
+    var body: some View {
+        HStack { ForEach(0..<7, id: \.self) { i in
+            Button { days[i].toggle() } label: {
+                VStack(spacing: 5) {
+                    Text(Supplements.dayLetters[i]).font(.nunito(11, .extrabold)).foregroundStyle(Color.yumo.inkMuted)
+                    ZStack { Circle().fill(days[i] ? Color.yumo.accent : .clear); if !days[i] { Circle().strokeBorder(Color.yumo.surfaceEdge, lineWidth: 2) }; if days[i] { TickGlyph(color: .yumo.onAccent).scaleEffect(0.85) } }.frame(width: 28, height: 28).animation(Motion.expand, value: days[i])
+                }.frame(maxWidth: .infinity)
+            }.buttonStyle(PlainPressStyle())
+        } }
     }
 }

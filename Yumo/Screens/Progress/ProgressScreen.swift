@@ -68,11 +68,10 @@ struct ProgressScreen: View {
         let p = store.profile(); let t = store.targets()
         let formula = Calc.round50(t.tdee)
         let last = estimates.last
-        return Button { showHow = true } label: {
-            VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Maintenance · measured").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+                        HStack(spacing: 6) { Text("Maintenance · measured").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted); InfoButton { showHow = true }.frame(width: 24, height: 24) }
                         HStack(alignment: .firstTextBaseline, spacing: 4) { Text(Fmt.k(p.tdeeMeasured.map { Double(Calc.round50($0)) } ?? Double(formula))).font(.yumo.bigStat).kerning(-0.4).tabular(); Text("kcal").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
                     }
                     Spacer()
@@ -83,13 +82,47 @@ struct ProgressScreen: View {
                 }
                 Text(p.tdeeMeasured != nil ? "from \(p.weeklyUpdates) week\(p.weeklyUpdates == 1 ? "" : "s") of logging · formula said \(Fmt.k(formula))" : "\(t.formula) for now · Yumo starts measuring the real number after 2 weeks of logging and weigh-ins").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
             }.foregroundStyle(Color.yumo.ink).frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 18, leading: 20, bottom: 16, trailing: 20))
+    }
+    /// Rev 9 (README §7c): attention-first Nutrients card. Only whole-week problems get a row; low = amber dot, over = red. All fine = one line.
+    var nutrientsRow: some View {
+        let week = store.nutrientWeek(), tracked = week.filter(\.hasTarget)
+        let problems = tracked.filter { !$0.onTrack }
+        let onTrack = tracked.count - problems.count
+        let feeders = store.supplements().filter(\.isNutrient).map { $0.name.replacingOccurrences(of: "Vitamin ", with: "") }
+        return Button { showNutrients = true } label: {
+            if problems.isEmpty {
+                HStack(spacing: 14) {
+                    ZStack { Circle().fill(Color.yumo.accentTint); TickGlyph(color: .yumo.accent) }.frame(width: 40, height: 40)
+                    VStack(alignment: .leading, spacing: 2) { Text("Nutrients").font(.yumo.title); Text("All \(tracked.count) on track this week" + (feeders.isEmpty ? "" : " · \(feeders.joined(separator: ", ")) counted")).font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }
+                    Spacer(); Text("›").font(.yumo.title).foregroundStyle(Color.yumo.inkMuted)
+                }.foregroundStyle(Color.yumo.ink).padding(EdgeInsets(top: 14, leading: 20, bottom: 14, trailing: 20)).frame(maxWidth: .infinity).background(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface)).lifted()
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 14) {
+                        Ring(fraction: tracked.isEmpty ? 0 : Double(onTrack) / Double(tracked.count), label: "\(onTrack)")
+                        VStack(alignment: .leading, spacing: 2) { Text("Nutrients").font(.yumo.title); Text("\(onTrack) of \(tracked.count) on track · 7-day average").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
+                        Spacer(); Text("›").font(.yumo.title).foregroundStyle(Color.yumo.inkMuted)
+                    }
+                    Rectangle().fill(Color.yumo.hairline).frame(height: 0.5).padding(.top, 14)
+                    ForEach(problems) { r in
+                        HStack(alignment: .top, spacing: 10) {
+                            StatusDot(over: r.over).padding(.top, 6)
+                            VStack(alignment: .leading, spacing: 1) {
+                                HStack(spacing: 6) { Text(r.n.name.components(separatedBy: " (").first ?? r.n.name).font(.nunito(15, .bold)); Text(r.over ? "over the limit \(r.overDays) of 7 days" : "\(Int(((r.pct ?? 0) * 100).rounded())) % · low all week").font(.yumo.caption).foregroundStyle(r.over ? Color.yumo.danger : .yumo.inkMuted) }
+                                Text(fixLine(r)).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                            }
+                            Spacer(); Text("›").font(.yumo.title).foregroundStyle(Color.yumo.inkMuted)
+                        }.padding(.vertical, 9)
+                    }
+                }.foregroundStyle(Color.yumo.ink).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 8, trailing: 20))
+            }
         }.buttonStyle(PlainPressStyle())
     }
-    var nutrientsRow: some View {
-        Button { showNutrients = true } label: {
-            HStack { Text("Nutrients").font(.yumo.title); Spacer(); Text("Fibre, sodium, iron + \(Nutrients.all.count - 3) more").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted); Text("›").font(.yumo.title).foregroundStyle(Color.yumo.inkMuted) }
-                .foregroundStyle(Color.yumo.ink).frame(height: 52).padding(.horizontal, Space.cardPad).background(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface)).lifted()
-        }.buttonStyle(PlainPressStyle())
+    func fixLine(_ r: NutrientWeek) -> String {
+        let foods = NutInfo.info(r.n.key)?.foods.prefix(3).map { $0.0 } ?? []
+        if r.over { return NutInfo.info(r.n.key)?.over ?? "Cut the highest source this week" }
+        let supp = Supplements.catalogue.first { $0.nutrients[r.n.key] != nil && $0.nutrients.count <= 2 }.map { " — or a \($0.name.replacingOccurrences(of: "Vitamin ", with: "")) supplement" } ?? ""
+        return foods.isEmpty ? "Log a few more days" : foods.joined(separator: ", ") + supp
     }
     /// The tour scrolls each target into view (README §15: the Weight card to the top, the rest centred) — the scrim blocks user scrolling.
     func scrollForTour(_ proxy: ScrollViewProxy) {
@@ -153,6 +186,7 @@ struct DayKey: Identifiable { var id: String }
 struct LineChart: View {
     var points: [(Date, Double)]; var range: ChartRange; var unit: String; var average: [Double?] = []; var setup = false
     @State private var scrub: Int? = nil
+    @State private var drawn: CGFloat = 0   // motion.chartIn: the line draws left → right over 700 ms
     var body: some View {
         VStack(spacing: 8) {
             GeometryReader { g in
@@ -169,10 +203,10 @@ struct LineChart: View {
                     let trend = average.count == points.count && points.count > 1
                     if trend {
                         Path { p in var started = false; for (i, a) in average.enumerated() { guard let a else { continue }; let c = CGPoint(x: x(i), y: y(a)); if started { p.addLine(to: c) } else { p.move(to: c); started = true } } }
-                            .stroke(Color.yumo.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                            .trim(from: 0, to: drawn).stroke(Color.yumo.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
                     } else if points.count > 1 {
                         Path { p in for (i, pt) in points.enumerated() { let c = CGPoint(x: x(i), y: y(pt.1)); i == 0 ? p.move(to: c) : p.addLine(to: c) } }
-                            .stroke(Color.yumo.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                            .trim(from: 0, to: drawn).stroke(Color.yumo.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
                     }
                     if setup, let v = points.last?.1 {
                         // first run: dotted accent.soft line at the setup weight with a 6 pt accent dot at Today
@@ -192,6 +226,7 @@ struct LineChart: View {
                     }
                 }
                 .contentShape(Rectangle())
+                .onAppear { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.7)) { drawn = 1 } }
                 .gesture(DragGesture(minimumDistance: 0).onChanged { v in guard points.count > 0 else { return }; let i = points.indices.min { abs(x($0) - v.location.x) < abs(x($1) - v.location.x) }; scrub = i }.onEnded { _ in scrub = nil })
             }
             HStack { ForEach(ticks, id: \.self) { t in Text(t); if t != ticks.last { Spacer() } } }.font(.nunito(11, .bold)).foregroundStyle(Color.yumo.inkMuted).padding(.trailing, 34)
@@ -212,6 +247,7 @@ struct LineChart: View {
 /// 7 bars, value above each (today's ink), past days accent-soft, today accent, 8pt top radius. No goal line.
 struct BarRow: View {
     var days: [(String, Double, Bool)]
+    @State private var grown = false
     var body: some View {
         let mx = max(1, days.map(\.1).max() ?? 1)
         VStack(spacing: 6) {
@@ -219,10 +255,10 @@ struct BarRow: View {
                 ForEach(Array(days.enumerated()), id: \.offset) { _, d in
                     VStack(spacing: 4) {
                         Text(d.1 > 0 ? Fmt.k(d.1) : "–").font(.yumo.axis).tabular().foregroundStyle(d.2 ? Color.yumo.ink : .yumo.inkMuted)
-                        UnevenRoundedRectangle(topLeadingRadius: Radius.bar, topTrailingRadius: Radius.bar).fill(d.2 ? Color.yumo.accent : .yumo.accentSoft).frame(height: max(4, 72 * d.1 / mx)).animation(Motion.bar, value: d.1)
+                        UnevenRoundedRectangle(topLeadingRadius: Radius.bar, topTrailingRadius: Radius.bar).fill(d.2 ? Color.yumo.accent : .yumo.accentSoft).frame(height: max(4, 72 * d.1 / mx)).scaleEffect(y: grown ? 1 : 0, anchor: .bottom).animation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.5).delay(Double(days.firstIndex { $0.0 == d.0 } ?? 0) * 0.05), value: grown).animation(Motion.bar, value: d.1)
                     }.frame(maxWidth: .infinity)
                 }
-            }.frame(height: 96, alignment: .bottom)
+            }.frame(height: 96, alignment: .bottom).onAppear { grown = true }   // motion.chartIn
             HStack(spacing: 8) { ForEach(Array(days.enumerated()), id: \.offset) { _, d in Text(d.0).font(.nunito(11, .bold)).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity) } }
         }
     }

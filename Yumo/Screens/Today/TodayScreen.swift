@@ -23,6 +23,7 @@ struct TodayScreen: View {
     @State private var streak = 0
     @State private var hasStaples = false
     @State private var staplesOpen = false
+    @State private var hadLoaded = false
 
     var store: Store { Store(ctx) }
     var dayKey: String { session.selectedDate.dayKey }
@@ -39,7 +40,7 @@ struct TodayScreen: View {
                     }.buttonStyle(PlainPressStyle())
                     Spacer()
                     if let tr = training { Button { store.setTraining(dayKey, !tr); reload() } label: { Tag(label: tr ? "Training" : "Rest") }.buttonStyle(PlainPressStyle()).padding(.trailing, 8) }
-                    StreakPill(count: streak)
+                    StreakPill(count: streak).id(streak).transition(.asymmetric(insertion: .modifier(active: FlipIn(angle: 90), identity: FlipIn(angle: 0)), removal: .opacity)).animation(Motion.expand, value: streak)   // motion.flipDigit
                 }.padding(.horizontal, 4).padding(.top, 6)
                 WeekStrip(days: (0..<7).reversed().map { i in let d = Date().startOfDay.adding(days: -i); return (d, loggedWeek.contains(d.dayKey)) }, selected: session.selectedDate) { session.selectedDate = $0.startOfDay }.padding(.horizontal, 4).padding(.top, 14)
                 if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow, onPrep: preppedRow ? { balance = true } : nil).tourAnchor(.hero).padding(.top, 20) }
@@ -49,7 +50,7 @@ struct TodayScreen: View {
                                      recent: hasHistory ? (recent[meal]?.entries ?? []) : [], recentLabel: recentLabel(meal), saved: savedByMeal[meal], nudge: !store.profile().swipeHintSeen,
                                      onAdd: { addMeal = meal; if meal == .breakfast { Tour.shared.didAct(.breakfastAdd) } }, tourAnchor: meal == .breakfast, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
                     }
-                }.padding(.top, 12)
+                }.padding(.top, 12).animation(Motion.expand, value: entries.map(\.id))
             }
             .padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
         }
@@ -89,7 +90,7 @@ struct TodayScreen: View {
         if p.showNutrientsOnToday, !p.pinnedNutrients.isEmpty, let t = targets {
             pinnedRow = p.pinnedNutrients.compactMap { key -> String? in
                 guard let n = Nutrients.by(key) else { return nil }
-                let v = entries.compactMap { $0.micro(key) }.reduce(0, +)
+                let v = s.nutrientTotal(key, dayKey: dayKey, entries: entries) ?? 0
                 let (goal, ul) = Nutrients.target(n, profile: p, kcal: t.kcal)
                 let g = goal ?? ul
                 return "\(n.name.components(separatedBy: " (").first ?? n.name) \(Nutrients.format(v, unit: n.unit))\(g.map { " / \(Nutrients.format($0, unit: n.unit))" } ?? "") \(n.unit)"
@@ -98,10 +99,14 @@ struct TodayScreen: View {
         hasHistory = s.hasHistory(before: Date().dayKey)
         hasStaples = !s.staples().isEmpty
         let today = Date().startOfDay
+        let wasLoggedToday = loggedWeek.contains(today.dayKey); _ = wasLoggedToday
         loggedWeek = s.loggedDays(from: today.adding(days: -6).dayKey, to: today.dayKey)
         let cal = Calendar.current, first = cal.date(from: cal.dateComponents([.year, .month], from: session.selectedDate))!
         loggedMonth = s.loggedDays(from: first.dayKey, to: cal.date(byAdding: .month, value: 1, to: first)!.adding(days: -1).dayKey)
+        let wasLogged = wasLoggedToday
         streak = s.streak(today: today.dayKey)
+        if !wasLogged, !entries.isEmpty, isToday, hadLoaded { UINotificationFeedbackGenerator().notificationOccurred(.success) }   // motion.tickStamp: the week circle fills and the tick draws on (WeekStrip animates), haptic .success
+        hadLoaded = true
         if Calendar.current.isDateInToday(session.selectedDate), !Tour.shared.active, Expenditure.checkinDue(p) || Expenditure.stallCheck(s) != nil { checkin = true }
         var map: [Meal: SavedMeal] = [:]
         for m in Meal.allCases { if let sm = s.savedMeal(matching: entries.filter { $0.meal == m }) { map[m] = sm } }
@@ -137,14 +142,24 @@ extension Meal: Hashable {}
 struct HeroCard: View {
     var totals: DayTotals; var targets: Targets; var dayKcal: Int? = nil; var pinned: String? = nil; var onPrep: (() -> Void)? = nil
     var goal: Int { dayKcal ?? targets.kcal }
+    @State private var hit = false
+    @State private var pulse = false
+    /// motion.hitTarget: when eaten enters target ± 40 the number sits in accent for 0.8 s and the bar scales 1 → 1.03 → 1 once.
+    func checkHit(_ old: Double, _ new: Double) {
+        let inNow = abs(new - Double(goal)) <= 40, inBefore = abs(old - Double(goal)) <= 40
+        guard inNow && !inBefore else { return }
+        hit = true; withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.3)) { pulse = true }
+        Task { try? await Task.sleep(for: .milliseconds(300)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.3)) { pulse = false }; try? await Task.sleep(for: .milliseconds(500)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.6)) { hit = false } }
+    }
     var over: Bool { totals.kcal > Double(goal) }
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(Fmt.k(totals.kcal)).font(.nunito(72, .extrabold)).kerning(-2.5).tabular().foregroundStyle(over ? Color.yumo.danger : .yumo.ink)
+                CountUpText(value: Int(totals.kcal.rounded()), font: .nunito(72, .extrabold), color: over ? .yumo.danger : (hit ? .yumo.accent : .yumo.ink), kerning: -2.5).animation(Motion.expand, value: hit)   // motion.countUp + motion.hitTarget
                 Text("/ \(Fmt.k(goal))").font(.yumo.displayMuted).tabular().foregroundStyle(Color.yumo.inkMuted)
             }
-            Bar(fraction: totals.kcal / Double(max(1, goal)), height: 10, fill: over ? .yumo.danger : .yumo.accent).padding(.top, Space.gridGap)
+            Bar(fraction: totals.kcal / Double(max(1, goal)), height: 10, fill: over ? .yumo.danger : .yumo.accent).scaleEffect(x: pulse ? 1.03 : 1, y: pulse ? 1.3 : 1).padding(.top, Space.gridGap)
+                .onChange(of: totals.kcal) { old, new in checkHit(old, new) }
             HStack(spacing: Space.gridGap) {
                 stat("Protein", totals.p, targets.protein); stat("Carbs", totals.c, dayKcal.map { Calc.carbsFor(kcal: $0, protein: targets.protein, fat: targets.fat) } ?? targets.carbs); stat("Fat", totals.f, targets.fat)
             }.padding(.top, Space.gridGap)
@@ -206,6 +221,7 @@ struct FoodRowView: View {
                 Spacer(); Text(Fmt.k(entry.kcal)).font(.yumo.body).tabular()
             }
             .padding(.vertical, Space.rowFood).padding(.horizontal, Space.cardPad).background(Color.yumo.surface).contentShape(Rectangle())
+            .transition(.opacity.combined(with: .offset(y: 8)))   // motion.rowIn
             .offset(x: dx)
             .onTapGesture { if !committed { onOpen() } }
             .gesture(DragGesture(minimumDistance: 8).onChanged { v in if v.translation.width < 0 { dx = v.translation.width } }
@@ -254,4 +270,9 @@ struct SwipeReveal: View { var dx: CGFloat; var label: String
             .overlay(alignment: .trailing) { Text(label).font(.yumo.action).foregroundStyle(Color.yumo.onAccent).padding(.trailing, 20).opacity(fade) }
         }
     }
+}
+
+/// motion.flipDigit: the incoming value flips in from rotateX(90°).
+struct FlipIn: ViewModifier { var angle: Double
+    func body(content: Content) -> some View { content.rotation3DEffect(.degrees(angle), axis: (x: 1, y: 0, z: 0), perspective: 0.6).opacity(angle == 0 ? 1 : 0) }
 }

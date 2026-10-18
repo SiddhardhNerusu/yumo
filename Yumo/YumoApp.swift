@@ -4,15 +4,16 @@ import SwiftData
 @main
 struct YumoApp: App {
     let container: ModelContainer = {
-        let schema = Schema([UserProfile.self, Food.self, FoodEntry.self, WeightEntry.self, SavedMeal.self, DayFlag.self, WeeklyEstimate.self, LearnedPattern.self, UserAlias.self, PrepDay.self, Staple.self])
+        let schema = Schema([UserProfile.self, Food.self, FoodEntry.self, WeightEntry.self, SavedMeal.self, DayFlag.self, WeeklyEstimate.self, LearnedPattern.self, UserAlias.self, PrepDay.self, Staple.self, Supplement.self])
         do { return try ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema)]) }
         catch { fatalError("ModelContainer: \(error)") }
     }()
     @State private var toaster = Toaster()
     @State private var session = Session()
+    @AppStorage("yumo.appearance") private var appearance = "system"
     var body: some Scene {
         WindowGroup {
-            RootView().environment(toaster).environment(session).tint(.yumo.accent)
+            RootView().environment(toaster).environment(session).tint(.yumo.accent).preferredColorScheme(appearance == "light" ? .light : appearance == "dark" ? .dark : nil)
         }.modelContainer(container)
     }
 }
@@ -80,10 +81,11 @@ struct MainTabs: View {
 
 struct TabBar: View {
     @Binding var active: Session.Tab
+    @State private var todayPop = false
     var body: some View {
         HStack(spacing: 0) {
-            tab(.today, "Today") { TodayGlyph(color: active == .today ? .yumo.accent : .yumo.inkMuted) }
-            tab(.progress, "Progress") { ProgressGlyph(color: active == .progress ? .yumo.accent : .yumo.inkMuted) }.tourAnchor(.progressTab)
+            tab(.today, "Today") { TodayGlyph(color: active == .today ? .yumo.accent : .yumo.inkMuted).scaleEffect(todayPop ? 1.12 : 1) }
+            tab(.progress, "Progress") { GrowingProgressGlyph(active: active == .progress) }.tourAnchor(.progressTab)
         }
         .padding(.top, 3).frame(height: 50)
         .frame(maxWidth: .infinity)
@@ -91,9 +93,21 @@ struct TabBar: View {
         .overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5) }
     }
     func tab<G: View>(_ t: Session.Tab, _ label: String, @ViewBuilder glyph: () -> G) -> some View {
-        Button { active = t; if t == .progress { Tour.shared.didAct(.progressTab) } } label: {
+        Button {
+            active = t; if t == .progress { Tour.shared.didAct(.progressTab) }
+            if t == .today { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.12)) { todayPop = true }; Task { try? await Task.sleep(for: .milliseconds(120)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.12)) { todayPop = false } } }   // motion.tabPop
+        } label: {
             VStack(spacing: 3) { glyph(); Text(label).font(.yumo.tabLabel) }
                 .foregroundStyle(active == t ? Color.yumo.accent : .yumo.inkMuted).frame(maxWidth: .infinity).frame(height: 38)
         }.buttonStyle(PlainPressStyle())
+    }
+}
+
+/// motion.tabPop for Progress: the three bars grow from the baseline left → right (scaleY 0 → 1, 400 ms, 70 ms stagger) when the tab becomes active.
+struct GrowingProgressGlyph: View { var active: Bool
+    @State private var grown = [true, true, true]
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 2) { ForEach(Array([8, 13, 18].enumerated()), id: \.offset) { i, h in RoundedRectangle(cornerRadius: 2).fill(active ? Color.yumo.accent : .yumo.inkMuted).frame(width: 5, height: CGFloat(h)).scaleEffect(y: grown[i] ? 1 : 0, anchor: .bottom) } }.frame(width: 18, height: 18)
+            .onChange(of: active) { guard active else { return }; grown = [false, false, false]; for i in 0..<3 { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.4).delay(Double(i) * 0.07)) { grown[i] = true } } }
     }
 }

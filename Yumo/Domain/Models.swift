@@ -64,6 +64,7 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var swipeHintSeen: Bool = false          // the "Yesterday's …" row nudges once (rev 5)
     var planEdited: Bool = false             // Your plan macros were dragged in onboarding (rev 5)
     var tourDone: Bool = false               // first-run guided tour (README §15)
+    var suppNudgeAnswered: [String] = []     // nutrient keys whose "Taking a supplement?" nudge was answered (rev 9); never asked twice
     var tourStep: Int? = nil                 // persists if the app is killed mid-tour
     var cutStartedAt: Date? = nil           // for the stall rule (cutting ≥ 8 weeks)
     var stallDecisionWeek: String? = nil    // week the user answered the stall check-in
@@ -248,4 +249,28 @@ extension Food {
     var order: Int = 0
     var createdAt: Date = Date()
     init(foodId: String, maxG: Double? = nil, order: Int) { self.foodId = foodId; self.maxG = maxG; self.order = order }
+}
+
+/// Supplement (rev 9, README §7d). Two tiers: nutrient-feeding (counts toward nutrients on the days taken) or stack-only (kept on the list, changes nothing).
+@Model final class Supplement {
+    @Attribute(.unique) var id: String = UUID().uuidString
+    var name: String = ""
+    var tierRaw: String = "stack"            // nutrient | stack
+    var dose: Double = 0
+    var unit: String = "mg"
+    var daysData: Data = Data()              // [Bool × 7], Monday first
+    var nutrientsData: Data = Data()         // [key: amount per dose]
+    var catalogueId: String? = nil
+    var order: Int = 0
+    var createdAt: Date = Date()
+    init(name: String, tier: String, dose: Double, unit: String, days: [Bool], nutrients: [String: Double], catalogueId: String?, order: Int) {
+        self.name = name; tierRaw = tier; self.dose = dose; self.unit = unit; self.days = days; self.nutrients = nutrients; self.catalogueId = catalogueId; self.order = order
+    }
+    var isNutrient: Bool { tierRaw == "nutrient" }
+    var days: [Bool] { get { let d = (try? JSONDecoder().decode([Bool].self, from: daysData)) ?? []; return d.count == 7 ? d : Array(repeating: true, count: 7) } set { daysData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
+    /// Per-dose nutrient amounts in the app's nutrient units, scaled to the chosen dose by `Supplements.amounts`.
+    var nutrients: [String: Double] { get { (try? JSONDecoder().decode([String: Double].self, from: nutrientsData)) ?? [:] } set { nutrientsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
+    var everyDay: Bool { days.allSatisfy { $0 } }
+    var daysLabel: String { everyDay ? "daily" : "\(days.filter { $0 }.count) days a week" }
+    var doseLabel: String { Supplements.formatDose(dose, unit: unit) }
 }

@@ -11,9 +11,10 @@ struct SettingsScreen: View {
     @State private var confirmDelete = false
     @State private var confirmSignOut = false
     @State private var tick = 0
+    @AppStorage("yumo.appearance") private var appearance = "system"   // Settings › About › Appearance (rev 9): per device, applies immediately
     @State private var timeEdit: TimeEdit? = nil
     struct TimeEdit: Identifiable { var id: String; var minutes: Int }
-    enum Page: String, Identifiable { case target, macros, nutrients, staples, savedMeals, myFoods, password, designSystem; var id: String { rawValue } }
+    enum Page: String, Identifiable { case target, macros, nutrients, staples, supplements, savedMeals, myFoods, password, designSystem; var id: String { rawValue } }
     var store: Store { Store(ctx) }
     var body: some View {
         let p = store.profile(); let t = store.targets()
@@ -32,6 +33,7 @@ struct SettingsScreen: View {
                     }
                     section("Food") {
                         row("Staples", store.staples().isEmpty ? "None yet" : "\(store.staples().count) food\(store.staples().count == 1 ? "" : "s")") { page = .staples }.hairline()
+                        row("Supplements", store.supplements().isEmpty ? "None" : "\(store.supplements().count)") { page = .supplements }.hairline()
                         row("Saved meals", "\(store.savedMeals().count)") { page = .savedMeals }.hairline()
                         row("My foods", "\(store.foods().filter { $0.useCount > 0 || $0.source == .user }.count)") { page = .myFoods }
                     }
@@ -52,6 +54,7 @@ struct SettingsScreen: View {
                         SettingsRow(label: "Show me around") { ChevronValue(value: "Replay the tour") }.contentShape(Rectangle()).onTapGesture { let s = store; dismiss(); session.tab = .today; Task { try? await Task.sleep(for: .milliseconds(600)); Tour.shared.start(store: s, session: session) } }
                     }
                     section("About") {
+                        SettingsRow(label: "Appearance") { Segmented(options: [("system", "System"), ("light", "Light"), ("dark", "Dark")], selection: $appearance).frame(width: 190) }.hairline()
                         SettingsRow(label: "Food data") { ChevronValue(value: "Open Food Facts · ODbL") }.contentShape(Rectangle()).onTapGesture { UIApplication.shared.open(URL(string: "https://world.openfoodfacts.org")!) }.hairline()
                         SettingsRow(label: "Version") { Text("\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))").font(.yumo.body).tabular().foregroundStyle(Color.yumo.inkMuted) }.hairline()
                         #if DEBUG
@@ -67,7 +70,7 @@ struct SettingsScreen: View {
         .background(Color.yumo.bg.ignoresSafeArea())
         .pushCover(item: $page) { pg in
             switch pg {
-            case .target: CalorieTargetScreen(); case .macros: MacrosScreen(); case .nutrients: NutrientsSettingsScreen(); case .staples: StaplesScreen(onChange: { tick += 1 }); case .savedMeals: SavedMealsScreen(); case .myFoods: MyFoodsScreen(); case .password: ChangePasswordScreen(); case .designSystem: DesignSystemScreen()
+            case .target: CalorieTargetScreen(); case .macros: MacrosScreen(); case .nutrients: NutrientsSettingsScreen(); case .staples: StaplesScreen(onChange: { tick += 1 }); case .supplements: SupplementsScreen(onChange: { tick += 1 }); case .savedMeals: SavedMealsScreen(); case .myFoods: MyFoodsScreen(); case .password: ChangePasswordScreen(); case .designSystem: DesignSystemScreen()
             }
         }
         .onChange(of: page) { if page == nil { tick += 1 } }

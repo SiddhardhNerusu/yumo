@@ -6,7 +6,7 @@ struct OnboardingFlow: View {
     @Environment(\.modelContext) private var ctx
     @Environment(Session.self) private var session
     @Environment(Toaster.self) private var toaster
-    enum Step: Int, CaseIterable { case welcome, goal, about, weight, bodyFat, activity, pace, plan, staples, account, done }
+    enum Step: Int, CaseIterable { case welcome, goal, about, weight, bodyFat, activity, pace, plan, staples, supplements, account, done }
     @State private var step: Step = .welcome
     @State private var signIn = false
     // draft
@@ -53,6 +53,7 @@ struct OnboardingFlow: View {
                 case .activity: page("How active are you?", "Training sessions, not steps.") { activityStep }
                 case .pace: page(mode == .cut ? "How fast do you want to lose?" : "How fast do you want to gain?", "Slower keeps more muscle. You can change it later.") { paceStep }
                 case .plan: page("Your plan", mode == .cut ? "Eat this to lose \(abs(pace).formatted()) kg a week." : mode == .bulk ? "Eat this to gain \(pace.formatted()) kg a week." : "Eat this to stay where you are.") { plan }
+                case .supplements: page("Take anything daily?", "Yumo can't see pills. Add what you take and your nutrient numbers are right from day one. Optional.") { supplementsStep }
                 case .staples: page("Your staples", "The foods you eat most weeks. When your prep comes out different, Yumo works out the amounts of these that land the day. Optional.") { staplesStep }
                 case .account: page("Save your plan", "A username and password. Nothing else.") { account }
                 case .done: doneStep
@@ -190,6 +191,13 @@ struct OnboardingFlow: View {
         }.onAppear { stapleCount = store.staples().count }
     }
     @State private var stapleCount = 0
+    var supplementsStep: some View {
+        VStack(spacing: 0) {
+            ScrollView { SupplementsOnboardingEditor().padding(.bottom, 12) }
+            PrimaryButton(label: "Continue", action: next)
+            Text("Nothing to add? Just continue.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).padding(.top, 10).padding(.bottom, 8)
+        }
+    }
     var accountHint: String? {
         let u = username.trimmingCharacters(in: .whitespaces)
         if u.count < 3 { return "Username needs 3 or more characters." }
