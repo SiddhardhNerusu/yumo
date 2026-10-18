@@ -72,12 +72,16 @@ struct ProgressScreen: View {
         return VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 6) { Text("Maintenance · measured").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted); InfoButton { showHow = true }.frame(width: 24, height: 24) }
-                        HStack(alignment: .firstTextBaseline, spacing: 4) { Text(Fmt.k(p.tdeeMeasured.map { Double(Calc.round50($0)) } ?? Double(formula))).font(.yumo.display).kerning(-0.4).tabular(); Text("kcal").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
+                        Text("Maintenance · measured").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+                        HStack(alignment: .center, spacing: 6) {
+                            HStack(alignment: .firstTextBaseline, spacing: 4) { Text(Fmt.k(p.tdeeMeasured.map { Double(Calc.round50($0)) } ?? Double(formula))).font(.yumo.display).kerning(-0.4).tabular(); Text("kcal").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
+                            // tag sits inline after the value (README §7); the ⓘ owns the top-right
+                            if p.tdeeMeasured == nil { Tag(label: "Formula") } else if p.weeklyUpdates < 3 { Tag(label: "Estimate") } else if last?.lowData == true { Text("Low data").font(.yumo.tag).foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(Color.yumo.control)) }
+                        }
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 6) {
-                        if p.tdeeMeasured == nil { Tag(label: "Formula") } else if p.weeklyUpdates < 3 { Tag(label: "Estimate") } else if last?.lowData == true { Text("Low data").font(.yumo.tag).foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(Color.yumo.control)) }
+                        InfoButton { showHow = true }.frame(width: 24, height: 24).padding(.top, -4).padding(.trailing, -6)
                         if estimates.filter({ !$0.lowData }).count >= 2 { Sparkline(values: estimates.filter { !$0.lowData }.suffix(6).map(\.tdeeSmoothed)) }
                     }
                 }
