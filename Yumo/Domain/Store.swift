@@ -118,9 +118,11 @@ struct Store {
         let needle = q.lowercased()
         let words = needle.split(separator: " ").map(String.init)
         func matches(_ f: Food) -> Bool { let hay = (f.name + " " + (f.brand ?? "") + " " + (f.state ?? "") + " " + f.aliases).lowercased(); return words.allSatisfy { hay.contains($0) } }
-        func rank(_ a: Food, _ b: Food) -> Bool { a.useCount != b.useCount ? a.useCount > b.useCount : (a.name.lowercased().hasPrefix(needle) != b.name.lowercased().hasPrefix(needle) ? a.name.lowercased().hasPrefix(needle) : a.name.count < b.name.count) }
+        let first = words.first ?? needle
+        func tier(_ f: Food) -> Int { let n = f.name.lowercased(); if n.hasPrefix(needle) { return 0 }; if n.split(separator: " ").contains(where: { $0.hasPrefix(first) }) { return 1 }; return 2 }
+        func rank(_ a: Food, _ b: Food) -> Bool { if a.useCount != b.useCount { return a.useCount > b.useCount }; let ta = tier(a), tb = tier(b); if ta != tb { return ta < tb }; return a.name.count < b.name.count }
         let all = all.filter(matches)
-        return (all.filter { $0.tier == .user }.sorted(by: rank), Array(all.filter { $0.tier == .generic }.sorted(by: rank).prefix(40)), all.filter { $0.tier == .chain }.sorted(by: rank), all.filter { $0.tier == .branded }.sorted(by: rank))
+        return (all.filter { $0.tier == .user }.sorted(by: rank), all.filter { $0.tier == .generic }.sorted(by: rank) /* every variant shows — no cap */, all.filter { $0.tier == .chain }.sorted(by: rank), all.filter { $0.tier == .branded }.sorted(by: rank))
     }
     // MARK: Trend (EMA α 0.1) — recomputed on every weight save/delete
     func recomputeTrend() {

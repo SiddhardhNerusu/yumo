@@ -153,7 +153,7 @@ struct AddFoodSheet: View {
         .onAppear { if yourFoods.isEmpty && query.isEmpty { yourFoods = store.mostLogged() } }
     }
     func group(_ title: String, _ foods: [Food]) -> some View {
-        VStack(alignment: .leading, spacing: 8) { Overline(text: title).padding(.top, 4); VStack(spacing: 0) { ForEach(foods, id: \.id) { f in row(f) } }.padding(.leading, Space.cardPad).listCard() }
+        VStack(alignment: .leading, spacing: 8) { HStack { Overline(text: title); Spacer(); if foods.count > 12 { Text("\(foods.count)").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).padding(.trailing, 4) } }.padding(.top, 4); LazyVStack(spacing: 0) { ForEach(foods, id: \.id) { f in row(f) } }.padding(.leading, Space.cardPad).listCard() }
     }
     func row(_ f: Food) -> some View {
         let g = f.tier == .chain ? f.defaultServing.grams : 100
