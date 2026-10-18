@@ -39,8 +39,6 @@ enum Calc {
 struct Targets {
     var bmr: Double; var tdee: Double; var automatic: Int; var kcal: Int; var clamped: Bool
     var protein: Int; var fat: Int; var carbs: Int; var formula: String; var leanMass: Double?; var measured: Double? = nil
-    /// Target for a given day when training/rest targets are on.
-    func kcal(training: Bool?, profile p: UserProfile) -> Int { guard p.trainingOn, let t = training else { return kcal }; return t ? p.trainingKcal : p.restKcal }
     var sourceLine: String { measured != nil ? "Measured from your logs · adaptive" : "\(formula) × activity" }
     init(profile p: UserProfile, kg: Double) {
         bmr = Calc.bmr(sex: p.sex, kg: kg, cm: p.heightCm, age: p.age, bodyFat: p.bodyFatPct)
@@ -80,7 +78,4 @@ extension Calc {
         t = min(current + maxWeeklyChange, max(current - maxWeeklyChange, t))
         return max(floor(for: sex), round50(Double(t)))
     }
-    /// Training/rest split: protein and fat constant, carbs absorb the difference.
-    static func carbsFor(kcal: Int, protein: Int, fat: Int) -> Int { carbs(target: kcal, protein: protein, fat: fat) }
-    static func weeklyAverage(training: Int, rest: Int, days: [Bool]) -> Int { let n = days.filter { $0 }.count; return Int((Double(training * n + rest * (7 - n)) / 7).rounded()) }
 }

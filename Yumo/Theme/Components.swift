@@ -74,20 +74,20 @@ struct ArrowButton: View {
 
 // MARK: - Segmented
 struct Segmented<T: Hashable>: View {
-    var options: [(T, String)]; @Binding var selection: T; var compact = false; var dark = false
+    var options: [(T, String)]; @Binding var selection: T; var compact = false
     var body: some View {
         HStack(spacing: 0) {
             ForEach(options, id: \.0) { opt in
                 let on = opt.0 == selection
                 Button { withAnimation(Motion.snap) { selection = opt.0 } } label: {
                     Text(opt.1).font(.yumo.segment).tabular()
-                        .foregroundStyle(on ? Color.yumo.ink : (dark ? Color.white : Color.yumo.inkMuted))
+                        .foregroundStyle(on ? Color.yumo.ink : Color.yumo.inkMuted)
                         .frame(maxWidth: .infinity).padding(.vertical, compact ? 6 : 8)
                         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(on ? Color.yumo.surface : .clear).shadow(color: on ? .black.opacity(0.1) : .clear, radius: 1.5, y: 1))
                 }.buttonStyle(PlainPressStyle())
             }
         }
-        .padding(2).background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(dark ? Color.black.opacity(0.35) : Color.yumo.control))
+        .padding(2).background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.control))
     }
 }
 
@@ -206,7 +206,7 @@ struct AddChip: View {
     var action: () -> Void
     var body: some View {
         Button(action: action) { Text("+").font(.nunito(26, .black)).foregroundStyle(.white).offset(y: -1).frame(width: 48, height: 40) }
-            .buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: 3, radius: Radius.addChip))
+            .buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: 3, radius: Radius.chip))
             .accessibilityLabel("Add food")
     }
 }
@@ -220,8 +220,8 @@ struct InsetField: View {
             Text(unit).font(.nunito(17, .bold)).foregroundStyle(Color.yumo.inkMuted)
         }
         .padding(.horizontal, 12).frame(width: width, height: 40)
-        .background(RoundedRectangle(cornerRadius: Radius.inset, style: .continuous).fill(Color.yumo.track))
-        .overlay(RoundedRectangle(cornerRadius: Radius.inset, style: .continuous).stroke(Color.yumo.insetEdge, lineWidth: 2).mask(Rectangle().padding(.bottom, 36)))
+        .background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.track))
+        .overlay(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).stroke(Color.yumo.insetEdge, lineWidth: 2).mask(Rectangle().padding(.bottom, 36)))
     }
 }
 
@@ -309,7 +309,7 @@ struct AskList<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
             .padding(.vertical, 4).padding(.horizontal, 12)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg))
+            .background(RoundedRectangle(cornerRadius: Radius.panel, style: .continuous).fill(Color.yumo.bg))
     }
 }
 struct AskOption: View {
@@ -470,19 +470,6 @@ struct SwipeHintRow: View {
 }
 struct ArrowGlyph: View { var color: Color
     var body: some View { Path { p in p.move(to: CGPoint(x: 1, y: 6)); p.addLine(to: CGPoint(x: 13, y: 6)); p.move(to: CGPoint(x: 9, y: 1.5)); p.addLine(to: CGPoint(x: 13.5, y: 6)); p.addLine(to: CGPoint(x: 9, y: 10.5)) }.stroke(color, style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round)).frame(width: 16, height: 12) }
-}
-
-/// 2 pt dashed surface.edge outline, radius 20, 14×16 padding, 15/800 title + 13/700 muted body + accent ›.
-struct DashedEntryRow: View { var title: String; var body_: String; var action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) { Text(title).font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text(body_).font(.nunito(13, .bold)).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.leading) }
-                Spacer(); Text("›").font(.nunito(22, .extrabold)).foregroundStyle(Color.yumo.accent)
-            }.padding(EdgeInsets(top: 14, leading: 20, bottom: 14, trailing: 16)).contentShape(Rectangle())
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Color.yumo.surfaceEdge, style: StrokeStyle(lineWidth: 2, dash: [6, 5])))
-        }.buttonStyle(PlainPressStyle())
-    }
 }
 
 /// Surface tile with a ▲▼ glyph; vertical drag 10 pt = 5 g; the number turns danger below its floor.

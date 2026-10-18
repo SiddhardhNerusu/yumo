@@ -14,7 +14,7 @@ struct SavedMealsScreen: View {
         VStack(spacing: 0) {
             PageHeader(back: "Settings", title: "Saved meals", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
             ScrollView {
-                VStack(spacing: Space.cardGap) {
+                VStack(spacing: Space.cardGapDense) {
                     if meals.isEmpty { Text("No saved meals yet. Use \"Save as meal\" under a meal on Today.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 20) }
                     ForEach(meals, id: \.id) { m in
                         let foods = m.items.compactMap { store.food(id: $0.foodId) }

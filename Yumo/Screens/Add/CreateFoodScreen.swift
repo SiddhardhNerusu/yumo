@@ -18,7 +18,7 @@ struct CreateFoodScreen: View {
         VStack(spacing: 0) {
             SheetHeader(title: "Create a food", onClose: { dismiss() }) { Color.clear.frame(width: 44, height: 44) }
             ScrollView {
-                VStack(spacing: Space.cardGap) {
+                VStack(spacing: Space.cardGapDense) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(name.isEmpty ? "New food" : name).font(.yumo.title).lineLimit(1)
                         HStack(alignment: .firstTextBaseline, spacing: 6) { Text(kcal.isEmpty ? "0" : Fmt.k(Double(kcal) ?? 0)).font(.yumo.statBig).tabular(); Text("kcal · per \(serving) \(unit)").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }

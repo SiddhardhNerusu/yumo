@@ -29,7 +29,7 @@ struct FoodDetailScreen: View {
         VStack(spacing: 0) {
             PageHeader(back: entry == nil ? "Search" : Fmt.dayTitle(Date.fromKey(dayKey)), title: "", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
             ScrollView {
-                VStack(alignment: .leading, spacing: Space.cardGap) {
+                VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     Text(food.name).font(.yumo.pageTitle).lineLimit(2)
                     SourceLine(text: food.sourceLine, explainer: food.tier == .generic ? "Canonical entry from USDA FoodData Central (Foundation Foods / SR Legacy), public domain. Values per 100 g; raw and cooked are separate entries, never a multiplier." : food.tier == .branded ? "Branded product from \(food.source == .off ? "Open Food Facts (ODbL, crowd-sourced; values can be sparse)" : "USDA Branded Foods") keyed by its barcode. Cached on this phone; refreshed after 30 days." : "You created this food. Edit it from Settings › My foods.")
                     if food.state == "raw" { Text("Weighed raw. Cooked? Pick the cooked entry.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }

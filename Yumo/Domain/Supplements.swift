@@ -10,43 +10,15 @@ enum Supplements {
         var countsToward: String { nutrients.count == 1 ? (Nutrients.by(nutrients.keys.first!)?.name.components(separatedBy: " (").first ?? "") : "\(nutrients.count) nutrients" }
     }
     static let units = ["µg", "mg", "g", "IU", "tablet", "capsule", "scoop"]
-    /// A "multivitamin" tablet at common UK RDA-level amounts (12 nutrients).
-    static let multi: [String: Double] = ["vit_a_ug": 800, "vit_c_mg": 80, "vit_d_ug": 10, "vit_e_mg": 12, "b1_mg": 1.1, "b2_mg": 1.4, "b3_mg": 16, "b6_mg": 1.4, "folate_ug": 200, "b12_ug": 2.5, "zinc_mg": 10, "iron_mg": 14]
-    static let catalogue: [Item] = [
-        Item(id: "d3", name: "Vitamin D3", dose: 25, unit: "µg", nutrients: ["vit_d_ug": 25], aliases: ["d3", "vitamin d", "vit d", "cholecalciferol"]),
-        Item(id: "d3_1000", name: "Vitamin D3 1,000 IU", dose: 1000, unit: "IU", nutrients: ["vit_d_ug": 25], aliases: ["d3", "vitamin d", "1000 iu"]),
-        Item(id: "d3_4000", name: "Vitamin D3 4,000 IU", dose: 4000, unit: "IU", nutrients: ["vit_d_ug": 100], aliases: ["d3", "vitamin d", "4000 iu"]),
-        Item(id: "d3k2", name: "Vitamin D3 + K2", dose: 1, unit: "capsule", nutrients: ["vit_d_ug": 25, "vit_k_ug": 100], aliases: ["d3 k2", "vitamin d k2"]),
-        Item(id: "vitc", name: "Vitamin C", dose: 500, unit: "mg", nutrients: ["vit_c_mg": 500], aliases: ["vit c", "ascorbic acid", "vitamin c"]),
-        Item(id: "vitc1000", name: "Vitamin C 1,000 mg", dose: 1000, unit: "mg", nutrients: ["vit_c_mg": 1000], aliases: ["vit c", "vitamin c"]),
-        Item(id: "b12", name: "Vitamin B12", dose: 1000, unit: "µg", nutrients: ["b12_ug": 1000], aliases: ["b12", "cobalamin", "methylcobalamin"]),
-        Item(id: "bcomplex", name: "B-complex", dose: 1, unit: "tablet", nutrients: ["b1_mg": 25, "b2_mg": 25, "b3_mg": 50, "b6_mg": 25, "folate_ug": 400, "b12_ug": 100, "choline_mg": 50], aliases: ["b complex", "vitamin b", "b vitamins"]),
-        Item(id: "folate", name: "Folic acid", dose: 400, unit: "µg", nutrients: ["folate_ug": 400], aliases: ["folate", "folic", "b9"]),
-        Item(id: "b6", name: "Vitamin B6", dose: 10, unit: "mg", nutrients: ["b6_mg": 10], aliases: ["b6", "pyridoxine"]),
-        Item(id: "vita", name: "Vitamin A", dose: 800, unit: "µg", nutrients: ["vit_a_ug": 800], aliases: ["vit a", "retinol", "vitamin a"]),
-        Item(id: "vite", name: "Vitamin E", dose: 100, unit: "mg", nutrients: ["vit_e_mg": 100], aliases: ["vit e", "tocopherol", "vitamin e"]),
-        Item(id: "k2", name: "Vitamin K2", dose: 100, unit: "µg", nutrients: ["vit_k_ug": 100], aliases: ["k2", "mk-7", "mk7", "vitamin k"]),
-        Item(id: "multi", name: "Multivitamin", dose: 1, unit: "tablet", nutrients: multi, aliases: ["multi", "multivit", "a-z", "centrum", "wellman", "wellwoman"]),
-        Item(id: "multi_min", name: "Multivitamin & minerals", dose: 1, unit: "tablet", nutrients: multi.merging(["magnesium_mg": 100, "calcium_mg": 160, "selenium_ug": 55]) { a, _ in a }, aliases: ["multi", "multivitamin minerals", "a-z", "centrum"]),
-        Item(id: "iron", name: "Iron", dose: 14, unit: "mg", nutrients: ["iron_mg": 14], aliases: ["ferrous", "iron tablet", "ferrous sulphate", "ferrous fumarate"]),
-        Item(id: "iron_gentle", name: "Gentle iron (bisglycinate)", dose: 20, unit: "mg", nutrients: ["iron_mg": 20], aliases: ["iron", "bisglycinate", "gentle iron"]),
-        Item(id: "mag", name: "Magnesium", dose: 300, unit: "mg", nutrients: ["magnesium_mg": 300], aliases: ["mag", "magnesium citrate", "magnesium glycinate", "magnesium bisglycinate", "zma"]),
-        Item(id: "mag_malate", name: "Magnesium malate", dose: 400, unit: "mg", nutrients: ["magnesium_mg": 400], aliases: ["mag", "magnesium"]),
-        Item(id: "zinc", name: "Zinc", dose: 15, unit: "mg", nutrients: ["zinc_mg": 15], aliases: ["zinc picolinate", "zinc citrate", "zma"]),
-        Item(id: "zma", name: "ZMA", dose: 1, unit: "capsule", nutrients: ["zinc_mg": 10, "magnesium_mg": 150, "b6_mg": 3.5], aliases: ["zma", "zinc magnesium"]),
-        Item(id: "calcium", name: "Calcium", dose: 500, unit: "mg", nutrients: ["calcium_mg": 500], aliases: ["calcium carbonate", "calcium citrate"]),
-        Item(id: "cald", name: "Calcium + vitamin D", dose: 1, unit: "tablet", nutrients: ["calcium_mg": 600, "vit_d_ug": 10], aliases: ["calcium d", "adcal"]),
-        Item(id: "selenium", name: "Selenium", dose: 100, unit: "µg", nutrients: ["selenium_ug": 100], aliases: ["selenium"]),
-        Item(id: "potassium", name: "Potassium", dose: 99, unit: "mg", nutrients: ["potassium_mg": 99], aliases: ["potassium citrate", "potassium chloride"]),
-        Item(id: "electrolytes", name: "Electrolytes", dose: 1, unit: "scoop", nutrients: ["sodium_mg": 500, "potassium_mg": 200, "magnesium_mg": 60], aliases: ["electrolyte", "lmnt", "hydration tabs", "sis hydro", "rehydration"]),
-        Item(id: "choline", name: "Choline", dose: 250, unit: "mg", nutrients: ["choline_mg": 250], aliases: ["choline bitartrate", "alpha gpc", "citicoline"]),
-        Item(id: "omega3", name: "Omega-3 fish oil", dose: 1000, unit: "mg", nutrients: ["poly": 0.6], aliases: ["omega", "fish oil", "epa", "dha", "cod liver oil", "krill"]),
-        Item(id: "codliver", name: "Cod liver oil", dose: 1000, unit: "mg", nutrients: ["poly": 0.25, "vit_a_ug": 800, "vit_d_ug": 5], aliases: ["cod liver", "omega", "fish oil"]),
-        Item(id: "psyllium", name: "Psyllium husk", dose: 5, unit: "g", nutrients: ["fibre": 4], aliases: ["psyllium", "fibre supplement", "fiber", "husk"]),
-        Item(id: "inulin", name: "Inulin", dose: 5, unit: "g", nutrients: ["fibre": 4.5], aliases: ["inulin", "prebiotic fibre", "fibre"]),
-        Item(id: "caffeine", name: "Caffeine tablet", dose: 200, unit: "mg", nutrients: ["caffeine_mg": 200], aliases: ["caffeine", "pro plus", "pre workout caffeine"]),
-        Item(id: "salt", name: "Salt tablet", dose: 1, unit: "tablet", nutrients: ["sodium_mg": 400], aliases: ["salt", "sodium tablet", "saltstick"]),
-    ]
+    /// The nutrient-feeding catalogue ships as data (`Resources/Catalogue/supplements.json`, the `GET /supplements/catalogue` shape, versioned like foods),
+    /// not as Swift literals. Stack items are created client-side from typed text with tier "stack" and no nutrients.
+    private struct JSONItem: Decodable { let id: String; let name: String; let tier: String; let usualDose: Double; let unit: String; let nutrients: [String: Double]; let aliases: [String] }
+    private struct JSONFile: Decodable { let version: String; let items: [JSONItem] }
+    static let catalogue: [Item] = {
+        guard let url = Bundle.main.url(forResource: "supplements", withExtension: "json"), let data = try? Data(contentsOf: url), let f = try? JSONDecoder().decode(JSONFile.self, from: data) else { return [] }
+        return f.items.filter { $0.tier == "nutrient" }.map { Item(id: $0.id, name: $0.name, dose: $0.usualDose, unit: $0.unit, nutrients: $0.nutrients, aliases: $0.aliases) }
+    }()
+    static var catalogueVersion: String { (Bundle.main.url(forResource: "supplements", withExtension: "json").flatMap { try? Data(contentsOf: $0) }.flatMap { try? JSONDecoder().decode(JSONFile.self, from: $0) })?.version ?? "" }
     /// Everything the user types that is not above becomes a stack item: name + dose + unit + days, no nutrient mapping, no claims.
     static let stackSuggestions = ["Creatine", "Ashwagandha", "Tongkat ali", "Pre-workout", "Beta-alanine", "Citrulline", "Collagen", "Glucosamine", "Melatonin", "Probiotic", "Turmeric", "CoQ10", "L-theanine", "Glycine", "Taurine"]
 

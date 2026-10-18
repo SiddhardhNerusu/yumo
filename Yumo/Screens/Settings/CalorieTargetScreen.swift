@@ -13,9 +13,6 @@ struct CalorieTargetScreen: View {
     @State private var showAbout = false
     @State private var tick = 0
     @State private var adaptive = true
-    @State private var trainingOn = false
-    @State private var trainingKcal = 0; @State private var restKcal = 0; @State private var restEdited = false
-    @State private var days: [Bool] = [true, true, false, true, true, false, false]
     var store: Store { Store(ctx) }
     var body: some View {
         let p = store.profile(); let kg = store.currentKg()
@@ -23,15 +20,14 @@ struct CalorieTargetScreen: View {
         let formulaAuto = Calc.automaticTarget(tdee: tdee, mode: mode, pace: pace)
         let auto = (adaptive ? p.adaptiveTarget : nil) ?? formulaAuto
         let shown = override ?? auto; let floor = Calc.floor(for: p.sex)
-        let weeklyAvg = Calc.weeklyAverage(training: trainingKcal, rest: restKcal, days: days)
         VStack(spacing: 0) {
             PageHeader(back: "Settings", title: "Calorie target", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
             ScrollView {
-                VStack(spacing: Space.cardGap) {
+                VStack(spacing: Space.cardGapDense) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Daily target").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
                         HStack(alignment: .center) {
-                            HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(max(floor, shown))).font(.yumo.hero).kerning(-2).tabular().foregroundStyle(Color.yumo.accent); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
+                            HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(max(floor, shown))).font(.yumo.plan).kerning(-2).tabular().foregroundStyle(Color.yumo.accent); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
                             Spacer()
                             HStack(spacing: 8) { StepperButton(glyph: "−") { override = max(floor, shown - 50) }; StepperButton(glyph: "+") { override = shown + 50 } }
                         }
@@ -68,23 +64,8 @@ struct CalorieTargetScreen: View {
                             Spacer(); Text("Edit ›").font(.yumo.action).foregroundStyle(Color.yumo.accent)
                         }.frame(maxWidth: .infinity).card()
                     }.buttonStyle(PlainPressStyle())
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack { Text("Different target on training days").font(.yumo.bodyStrong); Spacer(); Toggle("", isOn: $trainingOn).labelsHidden().tint(.yumo.accent) }
-                        if trainingOn {
-                            HStack { Text("Training").font(.yumo.title); Spacer(); ValueStepper(value: Fmt.k(trainingKcal), onMinus: { trainingKcal -= 50; rebalance(shown) }, onPlus: { trainingKcal += 50; rebalance(shown) }) }
-                            HStack { Text("Rest").font(.yumo.title); Spacer(); ValueStepper(value: Fmt.k(restKcal), onMinus: { restKcal -= 50; restEdited = true }, onPlus: { restKcal += 50; restEdited = true }) }
-                            HStack(spacing: 8) {
-                                ForEach(0..<7, id: \.self) { i in
-                                    Button { days[i].toggle(); rebalance(shown) } label: { Text(["M", "T", "W", "T", "F", "S", "S"][i]).font(.yumo.segment).foregroundStyle(days[i] ? .white : Color.yumo.ink).frame(width: 36, height: 36).background(Circle().fill(days[i] ? Color.yumo.accent : .yumo.control)) }.buttonStyle(PlainPressStyle())
-                                }
-                            }
-                            let diff = weeklyAvg - shown
-                            Text(diff == 0 ? "Weekly average \(Fmt.k(weeklyAvg)) · on target" : "Weekly average \(Fmt.k(weeklyAvg)) · \(diff > 0 ? "+" : "−")\(Fmt.k(abs(diff))) \(diff > 0 ? "over" : "under")").font(.yumo.caption).tabular().foregroundStyle(diff == 0 ? Color.yumo.inkMuted : .yumo.danger)
-                        }
-                    }.card()
                     PrimaryButton(label: "Save") {
                         p.goalMode = mode; p.paceKgPerWeek = pace; p.overrideKcal = override; p.adaptiveOn = adaptive
-                        p.trainingOn = trainingOn; p.trainingKcal = trainingKcal; p.restKcal = restKcal; p.trainingDays = days
                         store.save(); toaster.show("Target \(Fmt.k(max(floor, shown)))"); session.changed(); dismiss()
                     }.padding(.top, 8)
                 }.padding(Space.gutter).padding(.bottom, 40)
@@ -94,20 +75,9 @@ struct CalorieTargetScreen: View {
         .background(Color.yumo.bg.ignoresSafeArea())
         .onAppear {
             mode = p.goalMode; pace = p.paceKgPerWeek; override = p.overrideKcal; adaptive = p.adaptiveOn
-            trainingOn = p.trainingOn; days = p.trainingDays; trainingKcal = p.trainingKcal > 0 ? p.trainingKcal : shown + 200; restKcal = p.restKcal > 0 ? p.restKcal : Calc.weeklyAverage(training: 0, rest: 0, days: days); if p.restKcal == 0 { rebalance(shown) }
         }
         .onChange(of: mode) { pace = mode == .cut ? -0.5 : mode == .bulk ? 0.25 : 0; override = nil }
-        .onChange(of: trainingOn) { if trainingOn && p.trainingKcal == 0 { trainingKcal = shown + 200; rebalance(shown) } }
         .pushCover(isPresented: $showAbout, onDismiss: { tick += 1 }) { AboutYouScreen(back: "Target") }
-    }
-}
-
-extension CalorieTargetScreen {
-    /// Rest auto-balances so the 7-day mean equals the target, unless the user edited Rest themselves.
-    func rebalance(_ target: Int) {
-        guard !restEdited else { return }
-        let n = days.filter { $0 }.count
-        restKcal = n == 7 ? trainingKcal : Int((Double(target * 7 - trainingKcal * n) / Double(7 - n)).rounded())
     }
 }
 
@@ -125,7 +95,7 @@ struct AboutYouScreen: View {
         VStack(spacing: 0) {
             PageHeader(back: back, title: "About you", onBack: { session.changed(); dismiss() }).padding(.horizontal, Space.gutter)
             ScrollView {
-                VStack(alignment: .leading, spacing: Space.cardGap) {
+                VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     ListCard {
                         SettingsRow(label: "Sex") { Segmented(options: Sex.allCases.map { ($0, $0.rawValue) }, selection: Binding(get: { p.sex }, set: { p.sex = $0; bump() })).frame(width: 160) }.hairline()
                         SettingsRow(label: "Age") { ValueStepper(value: "\(p.age)", onMinus: { p.age = max(14, p.age - 1); bump() }, onPlus: { p.age = min(90, p.age + 1); bump() }) }.hairline()

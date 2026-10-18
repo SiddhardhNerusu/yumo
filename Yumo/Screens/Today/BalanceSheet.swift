@@ -103,7 +103,7 @@ struct BalanceSheet: View {
                         Spacer(minLength: 4)
                         InsetField(text: Binding(get: { gramsText[f.id] ?? "" }, set: { gramsText[f.id] = $0 }), unit: "g", width: 104)
                         Button { done(f) } label: { Text("Done").font(.nunito(14, .black)).foregroundStyle(Color.yumo.onAccent).padding(.horizontal, 14).frame(height: 42) }.buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: 3, radius: 12))
-                    }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg))
+                    }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: Radius.panel, style: .continuous).fill(Color.yumo.bg))
                     if weighed { Button { remove(f) } label: { Text("Remove weight").font(.yumo.caption).foregroundStyle(Color.yumo.danger).padding(.vertical, 10).padding(.horizontal, 4) }.buttonStyle(PlainPressStyle()) }
                 }.padding(.trailing, 16).padding(.bottom, 12)
             }
@@ -127,12 +127,12 @@ struct BalanceSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
                     if let r = result {
-                        let t = store.targets(); let goal = t.kcal(training: store.isTraining(dayKey), profile: store.profile())
+                        let t = store.targets(); let goal = t.kcal
                         HStack(spacing: 10) {
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack(alignment: .firstTextBaseline, spacing: 4) { Text(Fmt.k(r.projected.kcal)).font(.nunito(28, .extrabold)).kerning(-0.5).tabular().foregroundStyle(r.statusDanger ? Color.yumo.danger : .yumo.ink); Text("/ \(Fmt.k(goal))").font(.nunito(14, .bold)).tabular().foregroundStyle(Color.yumo.inkMuted) }
                                 HStack(spacing: 0) {
-                                    Text("P ").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) + Text(Fmt.g(r.projected.p)).font(.yumo.caption).foregroundColor(r.projected.p < Double(t.protein) - 5 ? .yumo.danger : .yumo.ink) + Text(" / \(t.protein) · C ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(Fmt.g(r.projected.c)).font(.yumo.caption) + Text(" / \(Calc.carbsFor(kcal: goal, protein: t.protein, fat: t.fat)) · F ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(Fmt.g(r.projected.f)).font(.yumo.caption) + Text(" / \(t.fat)").font(.yumo.caption).foregroundColor(.yumo.inkMuted)
+                                    Text("P ").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) + Text(Fmt.g(r.projected.p)).font(.yumo.caption).foregroundColor(r.projected.p < Double(t.protein) - 5 ? .yumo.danger : .yumo.ink) + Text(" / \(t.protein) · C ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(Fmt.g(r.projected.c)).font(.yumo.caption) + Text(" / \(t.carbs) · F ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(Fmt.g(r.projected.f)).font(.yumo.caption) + Text(" / \(t.fat)").font(.yumo.caption).foregroundColor(.yumo.inkMuted)
                                 }.tabular().lineLimit(1).minimumScaleFactor(0.8)
                             }
                             Spacer(minLength: 8)

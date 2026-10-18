@@ -12,7 +12,6 @@ struct TodayScreen: View {
     @State private var savedByMeal: [Meal: SavedMeal] = [:]
     @State private var targets: Targets? = nil
     @State private var removingIds: Set<String> = []
-    @State private var training: Bool? = nil
     @State private var pinnedRow: String? = nil
     @State private var checkin = false
     @State private var balance = false
@@ -39,18 +38,17 @@ struct TodayScreen: View {
                         HStack(spacing: 8) { Text(Fmt.dayTitle(session.selectedDate)).font(.yumo.display).kerning(-0.4).tabular().foregroundStyle(Color.yumo.ink); Text("▾").font(.nunito(18, .extrabold)).foregroundStyle(Color.yumo.accent).rotationEffect(.degrees(calendarOpen ? 180 : 0)) }.frame(height: 44)
                     }.buttonStyle(PlainPressStyle())
                     Spacer()
-                    if let tr = training { Button { store.setTraining(dayKey, !tr); reload() } label: { Tag(label: tr ? "Training" : "Rest") }.buttonStyle(PlainPressStyle()).padding(.trailing, 8) }
                     StreakPill(count: streak).id(streak).transition(.asymmetric(insertion: .modifier(active: FlipIn(angle: 90), identity: FlipIn(angle: 0)), removal: .opacity)).animation(Motion.expand, value: streak)   // motion.flipDigit
                 }.padding(.horizontal, 4).padding(.top, 6)
                 WeekStrip(days: (0..<7).reversed().map { i in let d = Date().startOfDay.adding(days: -i); return (d, loggedWeek.contains(d.dayKey)) }, selected: session.selectedDate) { session.selectedDate = $0.startOfDay }.padding(.horizontal, 4).padding(.top, 14)
-                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, dayKcal: t.kcal(training: training, profile: store.profile()), pinned: pinnedRow, onPrep: preppedRow ? { balance = true } : nil).tourAnchor(.hero).padding(.top, 20) }
-                VStack(spacing: 12) {
+                if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, pinned: pinnedRow, onPrep: preppedRow ? { balance = true } : nil).tourAnchor(.hero).padding(.top, 20) }
+                VStack(spacing: Space.cardGap) {
                     ForEach(Meal.allCases) { meal in
                         MealCardView(meal: meal, entries: entries.filter { $0.meal == meal && !removingIds.contains($0.id) },
                                      recent: hasHistory ? (recent[meal]?.entries ?? []) : [], recentLabel: recentLabel(meal), saved: savedByMeal[meal], nudge: !store.profile().swipeHintSeen,
                                      onAdd: { addMeal = meal; if meal == .breakfast { Tour.shared.didAct(.breakfastAdd) } }, tourAnchor: meal == .breakfast, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
                     }
-                }.padding(.top, 12).animation(Motion.expand, value: entries.map(\.id))
+                }.padding(.top, Space.heroGap).animation(Motion.expand, value: entries.map(\.id))
             }
             .padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
         }
@@ -73,7 +71,7 @@ struct TodayScreen: View {
     /// Rev 5: the "Prepped something?" row at the bottom of Today — today only, > 150 kcal left, a meal empty, and either staples or history to balance from.
     var preppedRow: Bool {
         guard let t = targets, isToday else { return false }
-        let left = Double(t.kcal(training: training, profile: store.profile())) - DayTotals(entries).kcal
+        let left = Double(t.kcal) - DayTotals(entries).kcal
         let empty = Meal.allCases.filter { m in !entries.contains { $0.meal == m } }
         return left > 150 && !empty.isEmpty && (hasStaples || hasHistory) && !Tour.shared.active
     }
@@ -85,7 +83,6 @@ struct TodayScreen: View {
         for m in Meal.allCases { if let r = s.recentMeal(m, before: dayKey) { rec[m] = r } }
         recent = rec
         targets = s.targets()
-        training = s.isTraining(dayKey)
         let p = s.profile()
         if p.showNutrientsOnToday, !p.pinnedNutrients.isEmpty, let t = targets {
             pinnedRow = p.pinnedNutrients.compactMap { key -> String? in
@@ -140,8 +137,8 @@ struct TodayScreen: View {
 extension Meal: Hashable {}
 
 struct HeroCard: View {
-    var totals: DayTotals; var targets: Targets; var dayKcal: Int? = nil; var pinned: String? = nil; var onPrep: (() -> Void)? = nil
-    var goal: Int { dayKcal ?? targets.kcal }
+    var totals: DayTotals; var targets: Targets; var pinned: String? = nil; var onPrep: (() -> Void)? = nil
+    var goal: Int { targets.kcal }   // one daily target; training/rest split removed (DEVIATIONS_REV9 A1)
     @State private var hit = false
     @State private var pulse = false
     /// motion.hitTarget: when eaten enters target ± 40 the number sits in accent for 0.8 s and the bar scales 1 → 1.03 → 1 once.
@@ -155,17 +152,17 @@ struct HeroCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                CountUpText(value: Int(totals.kcal.rounded()), font: .nunito(72, .extrabold), color: over ? .yumo.danger : (hit ? .yumo.accent : .yumo.ink), kerning: -2.5).animation(Motion.expand, value: hit)   // motion.countUp + motion.hitTarget
+                CountUpText(value: Int(totals.kcal.rounded()), font: .yumo.hero, color: over ? .yumo.danger : (hit ? .yumo.accent : .yumo.ink), kerning: -2.5).animation(Motion.expand, value: hit)   // motion.countUp + motion.hitTarget
                 Text("/ \(Fmt.k(goal))").font(.yumo.displayMuted).tabular().foregroundStyle(Color.yumo.inkMuted)
             }
             Bar(fraction: totals.kcal / Double(max(1, goal)), height: 10, fill: over ? .yumo.danger : .yumo.accent).scaleEffect(x: pulse ? 1.03 : 1, y: pulse ? 1.3 : 1).padding(.top, Space.gridGap)
                 .onChange(of: totals.kcal) { old, new in checkHit(old, new) }
             HStack(spacing: Space.gridGap) {
-                stat("Protein", totals.p, targets.protein); stat("Carbs", totals.c, dayKcal.map { Calc.carbsFor(kcal: $0, protein: targets.protein, fat: targets.fat) } ?? targets.carbs); stat("Fat", totals.f, targets.fat)
+                stat("Protein", totals.p, targets.protein); stat("Carbs", totals.c, targets.carbs); stat("Fat", totals.f, targets.fat)
             }.padding(.top, Space.gridGap)
             if let pinned { Text(pinned).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1).padding(.top, 12) }
         }
-        .card(padding: EdgeInsets(top: 24, leading: 24, bottom: 22, trailing: 24), radius: 24)
+        .card(padding: EdgeInsets(top: 24, leading: 24, bottom: 22, trailing: 24), radius: Radius.card)
         .overlay(alignment: .topTrailing) { if let onPrep { SparkleButton(action: onPrep).padding(16) } }
     }
     func stat(_ label: String, _ v: Double, _ goal: Int) -> some View {
@@ -186,7 +183,7 @@ struct MealCardView: View {
         VStack(spacing: 0) {
             if entries.isEmpty {
                 HStack { Text(meal.rawValue).font(.nunito(18, .extrabold)); Spacer(); chip }
-                    .padding(.vertical, 14).padding(.trailing, 14)
+                    .padding(.vertical, Space.rowHeader).padding(.trailing, 14)
                 if !recent.isEmpty { SwipeToAddRow(label: recentLabel, count: recent.count, kcal: DayTotals(recent).kcal, hint: true, nudge: nudge, onCommit: onAddYesterday).padding(.leading, -Space.cardPad) }
             } else {
                 HStack(alignment: .center, spacing: 8) {
@@ -200,7 +197,7 @@ struct MealCardView: View {
                 if saved == nil { HStack { TextAction(label: "Save as meal", action: onSave); Spacer() }.padding(.vertical, Space.rowFooter) }
             }
         }
-        .padding(.leading, Space.cardPad).listCard(radius: 24)
+        .padding(.leading, Space.cardPad).listCard(radius: Radius.card)
     }
 }
 

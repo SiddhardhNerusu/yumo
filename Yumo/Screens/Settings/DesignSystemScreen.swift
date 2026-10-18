@@ -11,7 +11,7 @@ struct DesignSystemScreen: View {
         ("danger", .yumo.danger, "C8353F", "E05A62"), ("bg", .yumo.bg, "EBE2D2", "1A1917"), ("surface", .yumo.surface, "FFFBF3", "2B2926"), ("surface.edge", .yumo.surfaceEdge, "D6CAB2", "0F0E0D"),
         ("track", .yumo.track, "EFE7D8", "3A3733"), ("control", .yumo.control, "E2D8C5", "3A3733"), ("hairline", .yumo.hairline, "E6DCC8", "3A3733"), ("ink", .yumo.ink, "1F1C17", "F2EDE3"), ("ink.muted", .yumo.inkMuted, "8C8578", "A39D92"), ("grabber", .yumo.grabber, "C9BFAA", "4A463F"),
     ]
-    let type: [(String, Font, String)] = [("hero 72/800", .nunito(72, .extrabold), "2,400"), ("display 34/800", .yumo.display, "Today"), ("plan 64/800", .nunito(64, .extrabold), "2,300"), ("stat 20/800", .yumo.stat, "200"), ("title 18/800", .nunito(18, .extrabold), "Breakfast"), ("title 17/800", .yumo.title, "Add to Lunch"), ("body 17/700", .yumo.bodyStrong, "Chicken breast"), ("body.light 17/600", .yumo.body, "Oats  80 g"), ("action 15/800", .yumo.action, "See all ›"), ("detail 14/600", .yumo.detail, "80 g · raw"), ("caption 13/700", .yumo.caption, "P 33 · C 82 · F 6"), ("micro 12/700", .yumo.footnote, "weighed today"), ("overline 12/800", .yumo.overline, "PROTEINS"), ("button 18/900", .yumo.button, "Log it"), ("tab 10/800", .yumo.tabLabel, "Today")]
+    let type: [(String, Font, String)] = [("hero 72/800", .yumo.hero, "2,400"), ("display 34/800", .yumo.display, "Today"), ("plan 64/800", .yumo.plan, "2,300"), ("stat 20/800", .yumo.stat, "200"), ("title 18/800", .nunito(18, .extrabold), "Breakfast"), ("title 17/800", .yumo.title, "Add to Lunch"), ("body 17/700", .yumo.bodyStrong, "Chicken breast"), ("body.light 17/600", .yumo.body, "Oats  80 g"), ("action 15/800", .yumo.action, "See all ›"), ("detail 14/600", .yumo.detail, "80 g · raw"), ("caption 13/700", .yumo.caption, "P 33 · C 82 · F 6"), ("micro 12/700", .yumo.footnote, "weighed today"), ("overline 12/800", .yumo.overline, "PROTEINS"), ("button 18/900", .yumo.button, "Log it"), ("tab 10/800", .yumo.tabLabel, "Today")]
     var body: some View {
         VStack(spacing: 0) {
             PageHeader(back: "Settings", title: "Design system", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
@@ -29,7 +29,7 @@ struct DesignSystemScreen: View {
                         .padding(14).frame(maxWidth: .infinity, alignment: .leading).background(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface)).lifted()
                     Overline(text: "Lift · solid edges, no blur")
                     VStack(spacing: 12) {
-                        Text("Card · 0 3 0 surface.edge · radius 24").font(.yumo.caption).frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: 24)
+                        Text("Card · 0 3 0 surface.edge · radius 24").font(.yumo.caption).frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: Radius.card)
                         PrimaryButton(label: "PrimaryButton · 0 4 0 accent.edge") {}
                         PrimaryButton(label: "Disabled · accent.soft", disabled: true) {}
                         SecondaryButton(label: "SecondaryButton · 0 3 0", size: .regular) {}
@@ -46,7 +46,7 @@ struct DesignSystemScreen: View {
                         ToastView(text: "Oats → Lunch")
                     }.padding(14).background(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).fill(Color.yumo.surface)).lifted()
                     Overline(text: "Shape")
-                    HStack(spacing: 10) { ForEach([("card 24", 24.0), ("card 22", 22.0), ("button 18", 18.0), ("field 16", 16.0), ("control 12", 12.0), ("tag 6", 6.0)], id: \.0) { n, r in VStack(spacing: 4) { RoundedRectangle(cornerRadius: r, style: .continuous).fill(Color.yumo.surface).frame(height: 44).lifted(radius: r); Text(n).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) } } }
+                    HStack(spacing: 10) { ForEach([("card 24", Radius.card), ("cardDense 22", Radius.cardDense), ("button 18", Radius.button), ("field 16", Radius.field), ("panel 14", Radius.panel), ("control 12", Radius.control), ("tag 6", Radius.tag)], id: \.0) { n, r in VStack(spacing: 4) { RoundedRectangle(cornerRadius: r, style: .continuous).fill(Color.yumo.surface).frame(height: 44).lifted(radius: r); Text(n).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) } } }
                 }.padding(Space.gutter).padding(.bottom, 40)
             }
         }.background(Color.yumo.bg.ignoresSafeArea())

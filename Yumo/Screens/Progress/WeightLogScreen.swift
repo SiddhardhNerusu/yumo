@@ -34,7 +34,7 @@ struct WeightLogScreen: View {
     }
     func deltaFor(_ w: WeightEntry) -> Double? { guard let i = weights.firstIndex(where: { $0.dayKey == w.dayKey }), i + 1 < weights.count else { return nil }; return w.kg - weights[i + 1].kg }
     var list: some View {
-        VStack(alignment: .leading, spacing: Space.cardGap) {
+        VStack(alignment: .leading, spacing: Space.cardGapDense) {
             ForEach(months, id: \.0) { m in
                 Overline(text: m.0).padding(.top, 10)
                 ListCard { ForEach(m.1, id: \.dayKey) { w in WeightRow(w: w, delta: deltaFor(w), disp: disp(w.kg), unit: unit, onOpen: { edit = DayKey(id: w.dayKey) }, onDelete: { store.deleteWeight(w); toaster.show("Deleted \(Fmt.dayTitle(w.date))"); session.changed() }).padding(.leading, -Space.cardPad) } }

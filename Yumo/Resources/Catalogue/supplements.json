@@ -1,0 +1,544 @@
+{
+ "version": "2026-10-18.1",
+ "items": [
+  {
+   "id": "d3",
+   "name": "Vitamin D3",
+   "tier": "nutrient",
+   "usualDose": 25.0,
+   "unit": "µg",
+   "nutrients": {
+    "vit_d_ug": 25.0
+   },
+   "aliases": [
+    "d3",
+    "vitamin d",
+    "vit d",
+    "cholecalciferol"
+   ]
+  },
+  {
+   "id": "d3_1000",
+   "name": "Vitamin D3 1,000 IU",
+   "tier": "nutrient",
+   "usualDose": 1000.0,
+   "unit": "IU",
+   "nutrients": {
+    "vit_d_ug": 25.0
+   },
+   "aliases": [
+    "d3",
+    "vitamin d",
+    "1000 iu"
+   ]
+  },
+  {
+   "id": "d3_4000",
+   "name": "Vitamin D3 4,000 IU",
+   "tier": "nutrient",
+   "usualDose": 4000.0,
+   "unit": "IU",
+   "nutrients": {
+    "vit_d_ug": 100.0
+   },
+   "aliases": [
+    "d3",
+    "vitamin d",
+    "4000 iu"
+   ]
+  },
+  {
+   "id": "d3k2",
+   "name": "Vitamin D3 + K2",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "capsule",
+   "nutrients": {
+    "vit_d_ug": 25.0,
+    "vit_k_ug": 100.0
+   },
+   "aliases": [
+    "d3 k2",
+    "vitamin d k2"
+   ]
+  },
+  {
+   "id": "vitc",
+   "name": "Vitamin C",
+   "tier": "nutrient",
+   "usualDose": 500.0,
+   "unit": "mg",
+   "nutrients": {
+    "vit_c_mg": 500.0
+   },
+   "aliases": [
+    "vit c",
+    "ascorbic acid",
+    "vitamin c"
+   ]
+  },
+  {
+   "id": "vitc1000",
+   "name": "Vitamin C 1,000 mg",
+   "tier": "nutrient",
+   "usualDose": 1000.0,
+   "unit": "mg",
+   "nutrients": {
+    "vit_c_mg": 1000.0
+   },
+   "aliases": [
+    "vit c",
+    "vitamin c"
+   ]
+  },
+  {
+   "id": "b12",
+   "name": "Vitamin B12",
+   "tier": "nutrient",
+   "usualDose": 1000.0,
+   "unit": "µg",
+   "nutrients": {
+    "b12_ug": 1000.0
+   },
+   "aliases": [
+    "b12",
+    "cobalamin",
+    "methylcobalamin"
+   ]
+  },
+  {
+   "id": "bcomplex",
+   "name": "B-complex",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "tablet",
+   "nutrients": {
+    "b1_mg": 25.0,
+    "b2_mg": 25.0,
+    "b3_mg": 50.0,
+    "b6_mg": 25.0,
+    "folate_ug": 400.0,
+    "b12_ug": 100.0,
+    "choline_mg": 50.0
+   },
+   "aliases": [
+    "b complex",
+    "vitamin b",
+    "b vitamins"
+   ]
+  },
+  {
+   "id": "folate",
+   "name": "Folic acid",
+   "tier": "nutrient",
+   "usualDose": 400.0,
+   "unit": "µg",
+   "nutrients": {
+    "folate_ug": 400.0
+   },
+   "aliases": [
+    "folate",
+    "folic",
+    "b9"
+   ]
+  },
+  {
+   "id": "b6",
+   "name": "Vitamin B6",
+   "tier": "nutrient",
+   "usualDose": 10.0,
+   "unit": "mg",
+   "nutrients": {
+    "b6_mg": 10.0
+   },
+   "aliases": [
+    "b6",
+    "pyridoxine"
+   ]
+  },
+  {
+   "id": "vita",
+   "name": "Vitamin A",
+   "tier": "nutrient",
+   "usualDose": 800.0,
+   "unit": "µg",
+   "nutrients": {
+    "vit_a_ug": 800.0
+   },
+   "aliases": [
+    "vit a",
+    "retinol",
+    "vitamin a"
+   ]
+  },
+  {
+   "id": "vite",
+   "name": "Vitamin E",
+   "tier": "nutrient",
+   "usualDose": 100.0,
+   "unit": "mg",
+   "nutrients": {
+    "vit_e_mg": 100.0
+   },
+   "aliases": [
+    "vit e",
+    "tocopherol",
+    "vitamin e"
+   ]
+  },
+  {
+   "id": "k2",
+   "name": "Vitamin K2",
+   "tier": "nutrient",
+   "usualDose": 100.0,
+   "unit": "µg",
+   "nutrients": {
+    "vit_k_ug": 100.0
+   },
+   "aliases": [
+    "k2",
+    "mk-7",
+    "mk7",
+    "vitamin k"
+   ]
+  },
+  {
+   "id": "multi",
+   "name": "Multivitamin",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "tablet",
+   "nutrients": {
+    "vit_a_ug": 800,
+    "vit_c_mg": 80,
+    "vit_d_ug": 10,
+    "vit_e_mg": 12,
+    "b1_mg": 1.1,
+    "b2_mg": 1.4,
+    "b3_mg": 16,
+    "b6_mg": 1.4,
+    "folate_ug": 200,
+    "b12_ug": 2.5,
+    "zinc_mg": 10,
+    "iron_mg": 14
+   },
+   "aliases": [
+    "multi",
+    "multivit",
+    "a-z",
+    "centrum",
+    "wellman",
+    "wellwoman"
+   ]
+  },
+  {
+   "id": "multi_min",
+   "name": "Multivitamin & minerals",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "tablet",
+   "nutrients": {
+    "vit_a_ug": 800,
+    "vit_c_mg": 80,
+    "vit_d_ug": 10,
+    "vit_e_mg": 12,
+    "b1_mg": 1.1,
+    "b2_mg": 1.4,
+    "b3_mg": 16,
+    "b6_mg": 1.4,
+    "folate_ug": 200,
+    "b12_ug": 2.5,
+    "zinc_mg": 10,
+    "iron_mg": 14,
+    "magnesium_mg": 100,
+    "calcium_mg": 160,
+    "selenium_ug": 55
+   },
+   "aliases": [
+    "multi",
+    "multivitamin minerals",
+    "a-z",
+    "centrum"
+   ]
+  },
+  {
+   "id": "iron",
+   "name": "Iron",
+   "tier": "nutrient",
+   "usualDose": 14.0,
+   "unit": "mg",
+   "nutrients": {
+    "iron_mg": 14.0
+   },
+   "aliases": [
+    "ferrous",
+    "iron tablet",
+    "ferrous sulphate",
+    "ferrous fumarate"
+   ]
+  },
+  {
+   "id": "iron_gentle",
+   "name": "Gentle iron (bisglycinate)",
+   "tier": "nutrient",
+   "usualDose": 20.0,
+   "unit": "mg",
+   "nutrients": {
+    "iron_mg": 20.0
+   },
+   "aliases": [
+    "iron",
+    "bisglycinate",
+    "gentle iron"
+   ]
+  },
+  {
+   "id": "mag",
+   "name": "Magnesium",
+   "tier": "nutrient",
+   "usualDose": 300.0,
+   "unit": "mg",
+   "nutrients": {
+    "magnesium_mg": 300.0
+   },
+   "aliases": [
+    "mag",
+    "magnesium citrate",
+    "magnesium glycinate",
+    "magnesium bisglycinate",
+    "zma"
+   ]
+  },
+  {
+   "id": "mag_malate",
+   "name": "Magnesium malate",
+   "tier": "nutrient",
+   "usualDose": 400.0,
+   "unit": "mg",
+   "nutrients": {
+    "magnesium_mg": 400.0
+   },
+   "aliases": [
+    "mag",
+    "magnesium"
+   ]
+  },
+  {
+   "id": "zinc",
+   "name": "Zinc",
+   "tier": "nutrient",
+   "usualDose": 15.0,
+   "unit": "mg",
+   "nutrients": {
+    "zinc_mg": 15.0
+   },
+   "aliases": [
+    "zinc picolinate",
+    "zinc citrate",
+    "zma"
+   ]
+  },
+  {
+   "id": "zma",
+   "name": "ZMA",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "capsule",
+   "nutrients": {
+    "zinc_mg": 10.0,
+    "magnesium_mg": 150.0,
+    "b6_mg": 3.5
+   },
+   "aliases": [
+    "zma",
+    "zinc magnesium"
+   ]
+  },
+  {
+   "id": "calcium",
+   "name": "Calcium",
+   "tier": "nutrient",
+   "usualDose": 500.0,
+   "unit": "mg",
+   "nutrients": {
+    "calcium_mg": 500.0
+   },
+   "aliases": [
+    "calcium carbonate",
+    "calcium citrate"
+   ]
+  },
+  {
+   "id": "cald",
+   "name": "Calcium + vitamin D",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "tablet",
+   "nutrients": {
+    "calcium_mg": 600.0,
+    "vit_d_ug": 10.0
+   },
+   "aliases": [
+    "calcium d",
+    "adcal"
+   ]
+  },
+  {
+   "id": "selenium",
+   "name": "Selenium",
+   "tier": "nutrient",
+   "usualDose": 100.0,
+   "unit": "µg",
+   "nutrients": {
+    "selenium_ug": 100.0
+   },
+   "aliases": [
+    "selenium"
+   ]
+  },
+  {
+   "id": "potassium",
+   "name": "Potassium",
+   "tier": "nutrient",
+   "usualDose": 99.0,
+   "unit": "mg",
+   "nutrients": {
+    "potassium_mg": 99.0
+   },
+   "aliases": [
+    "potassium citrate",
+    "potassium chloride"
+   ]
+  },
+  {
+   "id": "electrolytes",
+   "name": "Electrolytes",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "scoop",
+   "nutrients": {
+    "sodium_mg": 500.0,
+    "potassium_mg": 200.0,
+    "magnesium_mg": 60.0
+   },
+   "aliases": [
+    "electrolyte",
+    "lmnt",
+    "hydration tabs",
+    "sis hydro",
+    "rehydration"
+   ]
+  },
+  {
+   "id": "choline",
+   "name": "Choline",
+   "tier": "nutrient",
+   "usualDose": 250.0,
+   "unit": "mg",
+   "nutrients": {
+    "choline_mg": 250.0
+   },
+   "aliases": [
+    "choline bitartrate",
+    "alpha gpc",
+    "citicoline"
+   ]
+  },
+  {
+   "id": "omega3",
+   "name": "Omega-3 fish oil",
+   "tier": "nutrient",
+   "usualDose": 1000.0,
+   "unit": "mg",
+   "nutrients": {
+    "poly": 0.6
+   },
+   "aliases": [
+    "omega",
+    "fish oil",
+    "epa",
+    "dha",
+    "cod liver oil",
+    "krill"
+   ]
+  },
+  {
+   "id": "codliver",
+   "name": "Cod liver oil",
+   "tier": "nutrient",
+   "usualDose": 1000.0,
+   "unit": "mg",
+   "nutrients": {
+    "poly": 0.25,
+    "vit_a_ug": 800.0,
+    "vit_d_ug": 5.0
+   },
+   "aliases": [
+    "cod liver",
+    "omega",
+    "fish oil"
+   ]
+  },
+  {
+   "id": "psyllium",
+   "name": "Psyllium husk",
+   "tier": "nutrient",
+   "usualDose": 5.0,
+   "unit": "g",
+   "nutrients": {
+    "fibre": 4.0
+   },
+   "aliases": [
+    "psyllium",
+    "fibre supplement",
+    "fiber",
+    "husk"
+   ]
+  },
+  {
+   "id": "inulin",
+   "name": "Inulin",
+   "tier": "nutrient",
+   "usualDose": 5.0,
+   "unit": "g",
+   "nutrients": {
+    "fibre": 4.5
+   },
+   "aliases": [
+    "inulin",
+    "prebiotic fibre",
+    "fibre"
+   ]
+  },
+  {
+   "id": "caffeine",
+   "name": "Caffeine tablet",
+   "tier": "nutrient",
+   "usualDose": 200.0,
+   "unit": "mg",
+   "nutrients": {
+    "caffeine_mg": 200.0
+   },
+   "aliases": [
+    "caffeine",
+    "pro plus",
+    "pre workout caffeine"
+   ]
+  },
+  {
+   "id": "salt",
+   "name": "Salt tablet",
+   "tier": "nutrient",
+   "usualDose": 1.0,
+   "unit": "tablet",
+   "nutrients": {
+    "sodium_mg": 400.0
+   },
+   "aliases": [
+    "salt",
+    "sodium tablet",
+    "saltstick"
+   ]
+  }
+ ]
+}

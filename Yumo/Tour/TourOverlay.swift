@@ -15,7 +15,7 @@ struct TourOverlay: View {
                         .onTapGesture { if !tour.stop.act { tour.advance() } }   // act stops: the scrim swallows every other tap
                     if tour.bubbleVisible && tour.ready {
                         let place = placement(in: geo.size, safeTop: geo.safeAreaInsets.top)
-                        TourBubble(stop: tour.stop, step: tour.step, total: Tour.stops.count, arrowX: place.arrowX, arrowUp: place.arrowUp, showArrow: place.arrow,
+                        TourBubble(stop: tour.stop, body_: tour.currentBody, cue: tour.currentCue, step: tour.step, total: Tour.stops.count, arrowX: place.arrowX, arrowUp: place.arrowUp, showArrow: place.arrow,
                                    onSkip: { tour.skip() }, onNext: { tour.advance() })
                             .background(GeometryReader { g in Color.clear.onAppear { bubbleHeight = g.size.height }.onChange(of: g.size.height) { bubbleHeight = g.size.height } })
                             .frame(width: geo.size.width - 32)
@@ -54,16 +54,16 @@ struct TourSpotlight: Shape {
 
 /// Ink bubble: title + "n of 10", body, Skip tour · Got it / cue, progress dots; 14 pt rotated-square arrow toward the target.
 struct TourBubble: View {
-    var stop: Tour.Stop; var step: Int; var total: Int; var arrowX: CGFloat; var arrowUp: Bool; var showArrow: Bool
+    var stop: Tour.Stop; var body_: String; var cue: String?; var step: Int; var total: Int; var arrowX: CGFloat; var arrowUp: Bool; var showArrow: Bool
     var onSkip: () -> Void; var onNext: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) { Text(stop.title).font(.nunito(15, .extrabold)).foregroundStyle(.white); Spacer(); Text("\(step) of \(total)").font(.nunito(12, .extrabold)).foregroundStyle(.white.opacity(0.55)) }
-            Text(stop.body).font(.nunito(14, .semibold)).foregroundStyle(.white.opacity(0.85)).lineSpacing(14 * 0.45).fixedSize(horizontal: false, vertical: true)
+            Text(body_).font(.nunito(14, .semibold)).foregroundStyle(.white.opacity(0.85)).lineSpacing(14 * 0.45).fixedSize(horizontal: false, vertical: true)
             HStack {
                 Button(action: onSkip) { Text("Skip tour").font(.nunito(13, .extrabold)).foregroundStyle(.white.opacity(0.55)).padding(.vertical, 6) }.buttonStyle(PlainPressStyle())
                 Spacer()
-                if stop.act, let cue = stop.cue { Text(cue).font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }
+                if stop.act, let cue { Text(cue).font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }
                 else { Button(action: onNext) { Text(stop.button).font(.nunito(14, .black)).foregroundStyle(.white).padding(.vertical, 10).padding(.horizontal, 18) }
                         .buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: 3, radius: 100)) }
             }.padding(.top, 2)

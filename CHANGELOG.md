@@ -1,5 +1,19 @@
 # Yumo — changelog
 
+## 1.0 build 2026-10-18 pm (DEVIATIONS_REV9 pass)
+- **A1 Training / rest targets removed entirely**: profile fields, the DayFlag model, the weekly-average split, the Calorie target card and the Today tag are gone. One daily target everywhere.
+- **A2** Creatine was already stack-only (it was only ever a stack suggestion, never in the nutrient catalogue). No change.
+- **A3** DashedEntryRow deleted.
+- **A4 Tour trimmed to the settled nine**: 1 hero · 2 Breakfast + (opens Type it for real with "oats 80 banana 1") · 3 the field · 4 ✕ then the Progress tab under one counter (two-phase stop) · 5 Weight · 6 Maintenance · 7 Calories · 8 Nutrients · 9 cog → Settings, then "Good luck!". Counter reads "n of 9". Settings closes when the tour finishes.
+- **B1** `hero` = 72/800 (HeroCard uses the token); the 64/800 style is `plan` (onboarding Daily target, Calorie target hero). No ad-hoc 72 or 64 outside the token file.
+- **B2** Today is the default: `Space.cardGap` 12, `rowHeader` 14, `Radius.card` 24; dense tokens `cardGapDense` 10, `rowHeaderDense` 11, `Radius.cardDense` 22 for Progress / Settings / list pages (the `card()` and `listCard()` defaults). No literal 10 / 11 / 22 / 24 for these roles in views.
+- **B3** LineChart data dots were already r = 3 (surface fill, 2 pt ink stroke) and the scrub dot r = 6; the spec page said "6 pt dots" meaning diameter. Wording fixed, no code change.
+- **B4** Segmented has no dark variant; the scanner's meal segmented uses the standard tokens.
+- **B5** `bigStat` deleted; Maintenance and the check-in use `display`.
+- **B6** `Radius.addChip` → `chip`, `Radius.inset` → `control`; new `Radius.panel` 14 for inset expand panels and AskList.
+- **B8** The nutrient-feeding supplement catalogue ships as `Resources/Catalogue/supplements.json` (version, items {id, name, tier, usualDose, unit, nutrients, aliases}) and is decoded at launch; stack items stay client-side with no nutrients.
+- Token counts after this pass: 23 dynamic + 5 alpha colour tokens · 27 type styles (−bigStat, +plan) · 14 radii (−addChip −inset +cardDense +panel) · 9 timing-curve motion tokens.
+
 ## 1.0 build 2026-10-18 (handoff rev 7–9 — Supplements, Nutrients card, polish motion, Appearance)
 - Rev 7 (dark mode "Lit from above", feathered swipe reveal) and rev 8 (FIDELITY_AUDIT) were already in the previous build.
 - **Supplements** (`Domain/Supplements.swift`, `Screens/Settings/SupplementsScreen.swift`): two tiers — a nutrient-feeding catalogue (D3, C, B12, K2, B-complex, multivitamin → 12 nutrients, iron, magnesium, zinc, ZMA, calcium, selenium, electrolytes, omega-3, psyllium, …) with usual dose, unit and what each dose counts toward; anything else is a stack item (name + dose + unit + days, no nutrient mapping, no claims). Day picker = the week-strip dots with "Every day"; no Daily/Some days, no training days. Three doors: the Supplements row at the top of Progress › Nutrients ("Add ›" / "3 ›"), Settings › Food › Supplements (list, swipe to remove, › edits, "Add a supplement"), and onboarding "Take anything daily?" after Staples (Continue only). Daily nutrient totals = food + supplements taken that weekday; supplements never add calories or appear in meals.

@@ -92,7 +92,7 @@ struct ProgressNutrientsScreen: View {
                         Text(limit ? "Your biggest sources" : "Best sources").font(.yumo.overline).kerning(0.6).textCase(.uppercase).foregroundStyle(Color.yumo.inkMuted).padding(.top, 10)
                         ForEach(foods.indices, id: \.self) { i in HStack(alignment: .firstTextBaseline) { Text(foods[i].0).font(.nunito(14, .bold)) + Text("  \(foods[i].1)").font(.nunito(13, .semibold)).foregroundColor(.yumo.inkMuted); Spacer(); Text(foods[i].2).font(.nunito(14, .extrabold)).tabular() }.padding(.vertical, 6) }
                     }
-                }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg)).padding(.trailing, Space.cardPad).padding(.bottom, 12)
+                }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: Radius.panel, style: .continuous).fill(Color.yumo.bg)).padding(.trailing, Space.cardPad).padding(.bottom, 12)
             }
         }
         .hairline()
@@ -129,7 +129,7 @@ struct CheckinSheet: View {
         let stall = Expenditure.stallCheck(store)
         VStack(spacing: 0) {
             SheetHeader(title: "Your week", onClose: { if stall != nil { Expenditure.applyStall(store, choice: nil) } else { Expenditure.apply(store, accept: false) }; dismiss() }) { Color.clear.frame(width: 44, height: 44) }
-            ScrollView { VStack(spacing: Space.cardGap) {
+            ScrollView { VStack(spacing: Space.cardGapDense) {
                 if let st = stall { stallBody(st, p) }
                 else if let e, !e.lowData {
                     let (label, ok) = Expenditure.trendLabel(e, pace: p.paceKgPerWeek)
@@ -141,7 +141,7 @@ struct CheckinSheet: View {
                     if let from = p.pendingFrom, let to = p.pendingTo {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Target").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
-                            Text("\(Fmt.k(from)) → \(Fmt.k(to))").font(.yumo.bigStat).kerning(-0.4).tabular()
+                            Text("\(Fmt.k(from)) → \(Fmt.k(to))").font(.yumo.display).kerning(-0.4).tabular()
                         }.frame(maxWidth: .infinity, alignment: .leading).card()
                         PrimaryButton(label: "Apply \(Fmt.k(to))") { Expenditure.apply(store, accept: true); toaster.show("Target \(Fmt.k(to))"); session.changed(); dismiss() }
                         SecondaryButton(label: "Keep \(Fmt.k(from))", size: .regular) { Expenditure.apply(store, accept: false); dismiss() }

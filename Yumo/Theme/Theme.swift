@@ -55,9 +55,9 @@ extension Font {
         return .system(size: size, weight: weight.system, design: .rounded)
     }
     enum yumo {
-        static let hero = Font.nunito(64, .extrabold)
-        static let display = Font.nunito(34, .extrabold)
-        static let bigStat = Font.nunito(34, .extrabold)
+        static let hero = Font.nunito(72, .extrabold)          // Today hero number, kerning −2.5
+        static let plan = Font.nunito(64, .extrabold)          // onboarding Daily target, Calorie target hero, kerning −2
+        static let display = Font.nunito(34, .extrabold)       // "Today ▾", "Progress", Maintenance value, kerning −0.4
         static let displayMuted = Font.nunito(20, .semibold)
         static let stat = Font.nunito(20, .extrabold)
         static let statBig = Font.nunito(44, .extrabold)
@@ -87,14 +87,20 @@ extension Font {
 
 // MARK: - Shape, lift, spacing, motion
 enum Radius {
-    static let card: CGFloat = 22, sheet: CGFloat = 30, found: CGFloat = 26
-    static let buttonHero: CGFloat = 20, button: CGFloat = 18, field: CGFloat = 16, chip: CGFloat = 14, control: CGFloat = 12
-    static let thumb: CGFloat = 10, bar: CGFloat = 8, tag: CGFloat = 6, track: CGFloat = 5, addChip: CGFloat = 14, inset: CGFloat = 12
+    static let card: CGFloat = 24           // Today cards, hero, sheets' inner cards (the primary value)
+    static let cardDense: CGFloat = 22      // Progress / Settings / list pages
+    static let sheet: CGFloat = 30, found: CGFloat = 26
+    static let buttonHero: CGFloat = 20, button: CGFloat = 18, field: CGFloat = 16
+    static let chip: CGFloat = 14           // AddChip, chips
+    static let panel: CGFloat = 14          // inset expand panels, AskList
+    static let control: CGFloat = 12        // segmented, ✕ circles, InsetField
+    static let thumb: CGFloat = 10, bar: CGFloat = 8, tag: CGFloat = 6, track: CGFloat = 5
 }
 enum Lift { static let card: CGFloat = 3, primary: CGFloat = 4, small: CGFloat = 2 }
 enum Space {
-    static let gutter: CGFloat = 16, cardPad: CGFloat = 20, cardGap: CGFloat = 10, heroGap: CGFloat = 12, gridGap: CGFloat = 14
-    static let rowFood: CGFloat = 9, rowHeader: CGFloat = 11, rowSettings: CGFloat = 12, rowFooter: CGFloat = 10
+    static let gutter: CGFloat = 16, cardPad: CGFloat = 20, heroGap: CGFloat = 12, gridGap: CGFloat = 14
+    static let cardGap: CGFloat = 12, cardGapDense: CGFloat = 10          // Today · Progress/Settings
+    static let rowFood: CGFloat = 9, rowHeader: CGFloat = 14, rowHeaderDense: CGFloat = 11, rowSettings: CGFloat = 12, rowFooter: CGFloat = 10
     static let bottomClear: CGFloat = 90, toastBottom: CGFloat = 100
 }
 enum Motion {
@@ -130,15 +136,15 @@ struct TopHighlight: View { var radius: CGFloat
     var body: some View { RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.yumo.liftHighlight).mask(VStack { Rectangle().frame(height: 1); Spacer(minLength: 0) }).allowsHitTesting(false) }
 }
 extension View {
-    func lifted(_ edge: Color = .yumo.surfaceEdge, lift: CGFloat = Lift.card, radius: CGFloat = Radius.card, pressed: Bool = false) -> some View {
+    func lifted(_ edge: Color = .yumo.surfaceEdge, lift: CGFloat = Lift.card, radius: CGFloat = Radius.cardDense, pressed: Bool = false) -> some View {
         modifier(Lifted(edge: edge, lift: lift, radius: radius, pressed: pressed))
     }
-    func card(padding: EdgeInsets = EdgeInsets(top: Space.cardPad, leading: Space.cardPad, bottom: Space.cardPad, trailing: Space.cardPad), radius: CGFloat = Radius.card) -> some View {
+    func card(padding: EdgeInsets = EdgeInsets(top: Space.cardPad, leading: Space.cardPad, bottom: Space.cardPad, trailing: Space.cardPad), radius: CGFloat = Radius.cardDense) -> some View {
         self.padding(padding)
             .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.yumo.surface))
             .lifted(radius: radius)
     }
-    func listCard(radius: CGFloat = Radius.card) -> some View {
+    func listCard(radius: CGFloat = Radius.cardDense) -> some View {
         self.background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.yumo.surface))
             .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
             .lifted(radius: radius)

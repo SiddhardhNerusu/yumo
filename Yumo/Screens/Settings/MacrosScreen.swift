@@ -18,7 +18,7 @@ struct MacrosScreen: View {
         VStack(spacing: 0) {
             PageHeader(back: "Settings", title: "Macros", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
             ScrollView {
-                VStack(spacing: Space.cardGap) {
+                VStack(spacing: Space.cardGapDense) {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Target").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
                         HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(t.kcal)).font(.nunito(40, .extrabold)).kerning(-1).tabular(); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }

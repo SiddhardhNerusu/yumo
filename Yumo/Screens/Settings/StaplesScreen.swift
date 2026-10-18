@@ -85,7 +85,7 @@ struct StaplesEditor: View {
                         if s.maxG != nil { InsetField(text: Binding(get: { maxText[s.foodId] ?? s.maxG.map { Fmt.g($0) } ?? "" }, set: { maxText[s.foodId] = $0; s.maxG = Double($0.replacingOccurrences(of: ",", with: ".")) ?? s.maxG; store.save(); onChange() }), unit: "g", width: 110) }
                     }
                     Text(s.maxG == nil ? "Yumo sizes this to whatever lands the day." : "Yumo never plans more than this in a day.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted)
-                }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.yumo.bg)).padding(.trailing, 14).padding(.bottom, 12)
+                }.padding(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)).background(RoundedRectangle(cornerRadius: Radius.panel, style: .continuous).fill(Color.yumo.bg)).padding(.trailing, 14).padding(.bottom, 12)
             }
         }.hairline()
         let _ = k

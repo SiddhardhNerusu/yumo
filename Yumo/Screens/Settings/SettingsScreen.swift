@@ -21,7 +21,7 @@ struct SettingsScreen: View {
         VStack(spacing: 0) {
             PageHeader(back: "Progress", title: "Settings", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
             ScrollView {
-                VStack(alignment: .leading, spacing: Space.cardGap) {
+                VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     section("Goals") {
                         row("Calorie target", "\(Fmt.k(t.kcal)) · \(p.goalMode.rawValue)\(p.goalMode == .maintain ? "" : " \(Fmt.delta(p.paceKgPerWeek, unit: "kg/wk"))")") { page = .target }.hairline()
                         row("Macros", "P \(t.protein) · C \(t.carbs) · F \(t.fat)") { page = .macros }.hairline()
@@ -147,7 +147,7 @@ struct NutrientsSettingsScreen: View {
         VStack(spacing: 0) {
             PageHeader(back: "Settings", title: "Nutrients", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
             ScrollView {
-                VStack(alignment: .leading, spacing: Space.cardGap) {
+                VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     ListCard { SettingsRow(label: "Show on Today", sub: "Up to 3 pinned nutrients under the macros") { Toggle("", isOn: Binding(get: { p.showNutrientsOnToday }, set: { p.showNutrientsOnToday = $0; store.save(); tick += 1 })).labelsHidden().tint(.yumo.accent) } }
                     Overline(text: "Targets · NIH DRI by sex and age").padding(.top, 10)
                     ListCard {

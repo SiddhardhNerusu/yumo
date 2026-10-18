@@ -129,17 +129,6 @@ struct Store {
         for w in asc { w.trendKg = t[w.dayKey] }
         try? ctx.save()
     }
-    // MARK: Training/rest day flag
-    func isTraining(_ dayKey: String) -> Bool? {
-        let p = profile(); guard p.trainingOn else { return nil }
-        if let f = try? ctx.fetch(FetchDescriptor<DayFlag>(predicate: #Predicate { $0.dayKey == dayKey })).first { return f.isTraining }
-        let wd = (Calendar.current.component(.weekday, from: Date.fromKey(dayKey)) + 5) % 7   // Monday = 0
-        return p.trainingDays[wd]
-    }
-    func setTraining(_ dayKey: String, _ on: Bool) {
-        if let f = try? ctx.fetch(FetchDescriptor<DayFlag>(predicate: #Predicate { $0.dayKey == dayKey })).first { f.isTraining = on } else { ctx.insert(DayFlag(dayKey: dayKey, isTraining: on)) }
-        try? ctx.save()
-    }
     func weeklyEstimates() -> [WeeklyEstimate] { (try? ctx.fetch(FetchDescriptor<WeeklyEstimate>(sortBy: [SortDescriptor(\.weekStart)]))) ?? [] }
 
     // MARK: Saved meals
@@ -166,7 +155,6 @@ struct Store {
         for m in savedMeals() { ctx.delete(m) }
         if let p = try? ctx.fetch(FetchDescriptor<UserProfile>()).first { ctx.delete(p) }
         for e in weeklyEstimates() { ctx.delete(e) }
-        for f in (try? ctx.fetch(FetchDescriptor<DayFlag>())) ?? [] { ctx.delete(f) }
         try? ctx.save(); UserDefaults.standard.removeObject(forKey: Catalogue.versionKey)
     }
     private func entries() -> [FoodEntry] { (try? ctx.fetch(FetchDescriptor<FoodEntry>())) ?? [] }

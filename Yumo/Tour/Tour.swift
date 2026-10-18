@@ -7,23 +7,24 @@ import UIKit
 @Observable final class Tour {
     static let shared = Tour()
 
-    enum Anchor: String { case hero, breakfastAdd, typeItTile, typeItField, sheetClose, progressTab, weightCard, maintenanceCard, caloriesCard, nutrientsRow
+    enum Anchor: String { case hero, breakfastAdd, typeItField, sheetClose, progressTab, weightCard, maintenanceCard, caloriesCard, nutrientsRow, cog
         /// Spotlight padding: buttons +6, fields +4, cards 0.
-        var pad: CGFloat { switch self { case .breakfastAdd, .sheetClose, .progressTab: 6; case .typeItField: 4; case .typeItTile: 6; default: 0 } }
-        var radius: CGFloat { switch self { case .breakfastAdd: Radius.addChip + 6; case .sheetClose, .progressTab: 22 + 6; case .typeItField: Radius.field + 4; case .typeItTile: Radius.card + 6; case .nutrientsRow, .hero, .weightCard, .maintenanceCard, .caloriesCard: Radius.card } }
+        var pad: CGFloat { switch self { case .breakfastAdd, .sheetClose, .progressTab, .cog: 6; case .typeItField: 4; default: 0 } }
+        var radius: CGFloat { switch self { case .breakfastAdd: Radius.chip + 6; case .sheetClose, .progressTab, .cog: 22 + 6; case .typeItField: Radius.field + 4; case .nutrientsRow, .weightCard, .maintenanceCard, .caloriesCard: Radius.cardDense; case .hero: Radius.card } }
     }
-    struct Stop { var anchor: Anchor; var act: Bool; var title: String; var body: String; var cue: String?; var waitMs: Int = 520; var button = "Got it" }
+    /// A stop lights one control; a two-phase stop (4) lights a second control under the same counter once the first has fired.
+    struct Stop { var anchor: Anchor; var act: Bool; var title: String; var body: String; var cue: String?; var waitMs: Int = 520; var button = "Got it"; var second: Anchor? = nil; var secondBody: String? = nil; var secondCue: String? = nil }
+    /// The settled nine (DEVIATIONS_REV9 A4): hero · Breakfast + (opens Type it for real) · the field · ✕ then Progress · Weight · Maintenance · Calories · Nutrients · cog → Settings, then "Good luck!".
     static let stops: [Stop] = [
         Stop(anchor: .hero, act: false, title: "Your day in one place", body: "Calories and macros from your plan. Everything you log fills these bars.", cue: nil),
-        Stop(anchor: .breakfastAdd, act: true, title: "This is how you add food", body: "Every meal has a +. Tap it now.", cue: "Tap the +"),
-        Stop(anchor: .typeItTile, act: true, title: "Two ways in", body: "Scan a barcode for packaged food. For everything else, Type it. Tap it.", cue: "Tap Type it", waitMs: 1000),
-        Stop(anchor: .typeItField, act: false, title: "One line, all your foods", body: "Foods and grams together — “oats 80 banana 1” becomes two rows. When a word could mean two things, Yumo asks once and remembers. Type a name on its own and it's your search.", cue: nil),
-        Stop(anchor: .sheetClose, act: true, title: "Close this for now", body: "Nothing is logged until you tap Log. Tap ✕.", cue: "Tap ✕"),
-        Stop(anchor: .progressTab, act: true, title: "Now your progress", body: "Weight, maintenance and the week live here. Tap Progress.", cue: "Tap Progress"),
+        Stop(anchor: .breakfastAdd, act: true, title: "This is how you add food", body: "Every meal has a +. Tap it now.", cue: "Tap the +", waitMs: 1000),
+        Stop(anchor: .typeItField, act: false, title: "One line, all your foods", body: "Foods and grams together — “oats 80 banana 1” becomes two rows. When a word could mean two things, Yumo asks once and remembers. Type a name on its own and it's your search. Scan a barcode for anything packaged.", cue: nil),
+        Stop(anchor: .sheetClose, act: true, title: "Close this for now", body: "Nothing is logged until you tap Log. Tap ✕.", cue: "Tap ✕", second: .progressTab, secondBody: "Weight, maintenance and the week live on the other tab. Tap Progress.", secondCue: "Tap Progress"),
         Stop(anchor: .weightCard, act: false, title: "Weigh in most mornings", body: "Log it here. The line is your 7-day trend, so one heavy day never fools you. Hold the chart to read any point.", cue: nil),
         Stop(anchor: .maintenanceCard, act: false, title: "Measured maintenance", body: "After a few weeks of logging and weigh-ins, Yumo works out what you actually burn — not what a formula guesses — and adjusts your target each week. You always approve the change.", cue: nil),
         Stop(anchor: .caloriesCard, act: false, title: "Your week", body: "Each day's calories against your target. Green is today.", cue: nil),
-        Stop(anchor: .nutrientsRow, act: false, title: "Beyond macros", body: "Fibre, sodium, iron and 24 more against daily targets. Pin up to three to Today.", cue: nil, button: "Finish"),
+        Stop(anchor: .nutrientsRow, act: false, title: "Beyond macros", body: "Fibre, sodium, iron and 24 more against daily targets. Pin up to three to Today.", cue: nil),
+        Stop(anchor: .cog, act: true, title: "Everything else lives here", body: "Targets, macros, staples, supplements, units. Tap the cog.", cue: "Tap the cog", waitMs: 700),
     ]
     static let presetLine = "oats 80 banana 1"
 
@@ -36,6 +37,10 @@ import UIKit
     var settled = false                       // the spotlight has arrived; the bubble may appear
     var ready = false                         // frames available for the current step
     var stop: Stop { Tour.stops[step - 1] }
+    private(set) var phase = 0                // 0, or 1 on a two-phase stop once its first control fired
+    var currentAnchor: Anchor { phase == 1 ? (stop.second ?? stop.anchor) : stop.anchor }
+    var currentBody: String { phase == 1 ? (stop.secondBody ?? stop.body) : stop.body }
+    var currentCue: String? { phase == 1 ? stop.secondCue : stop.cue }
     var summaryTarget: Int = 0
 
     @ObservationIgnored private var probes: [Anchor: WeakBox] = [:]    // bookkeeping, never drives a render (an observed dictionary here re-rendered every probe forever)
@@ -52,9 +57,9 @@ import UIKit
         ctx = store.ctx; self.session = session
         summaryTarget = store.targets().kcal
         var s = resumeAt ?? 1
-        if (2...5).contains(s) { s = 2 }       // the sheet is gone after a relaunch; replay from the + stop
-        step = s; finishing = false; active = true; settled = false; ready = false; bubbleVisible = false
-        if s >= 6 { session.tab = .progress } else { session.tab = .today }
+        if (2...4).contains(s) { s = 2 }       // the sheet is gone after a relaunch; replay from the + stop
+        step = s; phase = 0; finishing = false; active = true; settled = false; ready = false; bubbleVisible = false
+        if s >= 5 { session.tab = .progress } else { session.tab = .today }
         persist(step: s)
         showWindow()
         startLink()
@@ -77,15 +82,20 @@ import UIKit
     }
     /// Act stops: the real control fired. Advances only when that control is the lit one.
     @MainActor func didAct(_ a: Anchor) {
-        guard active, !finishing, stop.act, stop.anchor == a else { return }
+        guard active, !finishing, stop.act, currentAnchor == a else { return }
         let wait = stop.waitMs
         bubbleVisible = false; settled = false
         advanceTask?.cancel()
+        if phase == 0, stop.second != nil {
+            // two-phase stop: same counter, the second control lights after the first action lands
+            advanceTask = Task { try? await Task.sleep(for: .milliseconds(wait)); guard !Task.isCancelled else { return }; self.phase = 1; self.enter(step: self.step, glide: true) }
+            return
+        }
         advanceTask = Task { try? await Task.sleep(for: .milliseconds(wait)); guard !Task.isCancelled else { return }; go(to: step + 1) }
     }
     @MainActor private func go(to s: Int) {
         guard s <= Tour.stops.count else { finish(); return }
-        step = s; persist(step: s)
+        step = s; phase = 0; persist(step: s)
         enter(step: s, glide: true)
     }
     @MainActor private func enter(step s: Int, glide: Bool) {
@@ -106,8 +116,8 @@ import UIKit
     private func profile() -> UserProfile? { try? ctx?.fetch(FetchDescriptor<UserProfile>()).first }
     private func persist(step: Int) { if let p = profile() { p.tourStep = step; try? ctx?.save() } }
 
-    /// Is this the tour's own moment for the preset line? (stop 3 → Type it opens with "oats 80 banana 1").
-    var wantsPresetLine: Bool { active && step == 3 }
+    /// Stop 2's + opens Type it for real with "oats 80 banana 1"; the sheet skips the pick during the tour.
+    var wantsPresetLine: Bool { active && (step == 2 || step == 3) }
     var isAct: Bool { active && !finishing && stop.act }
 
     // MARK: frames
@@ -119,7 +129,7 @@ import UIKit
     }
     @objc private func tick() {
         guard active, !finishing else { return }
-        let a = stop.anchor
+        let a = currentAnchor
         guard let v = probes[a]?.view, v.window != nil else { return }
         let r = v.convert(v.bounds, to: nil).insetBy(dx: -a.pad, dy: -a.pad)
         guard r.width > 1, r.height > 1 else { return }

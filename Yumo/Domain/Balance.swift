@@ -33,7 +33,7 @@ enum Balance {
 
     @MainActor static func solve(dayKey: String, weighed: [PrepItem], store: Store) -> Result {
         let p = store.profile(); let t = store.targets()
-        let target = (kcal: Double(t.kcal(training: store.isTraining(dayKey), profile: p)), p: Double(t.protein), c: Double(t.carbs), f: Double(t.fat))
+        let target = (kcal: Double(t.kcal), p: Double(t.protein), c: Double(t.carbs), f: Double(t.fat))
         let logged = store.entries(dayKey); let eaten = DayTotals(logged)
         let empty = Meal.allCases.filter { m in !logged.contains { $0.meal == m } }
         let mains = empty.filter { $0 == .lunch || $0 == .dinner }

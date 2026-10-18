@@ -46,6 +46,7 @@ struct AddFoodSheet: View {
         .fullScreenCover(isPresented: $scanOpen) { scan }
         .sheet(item: $create) { d in CreateFoodScreen(draft: d) { f in log(f, serving: f.defaultServing, qty: 1) } }
         .pushCover(item: $detailFood) { f in FoodDetailScreen(food: f, meal: meal, dayKey: dayKey) { dismiss() } }
+        .onAppear { if Tour.shared.wantsPresetLine { go(.search) } }   // tour stop 2: the + opens Type it for real
     }
 
     // MARK: pick
@@ -55,8 +56,8 @@ struct AddFoodSheet: View {
             HStack(spacing: 12) {
                 Button { go(.scan) } label: { VStack(spacing: 12) { BarcodeGlyph(color: .white); Text("Scan barcode").font(.yumo.tile).foregroundStyle(.white) }.frame(maxWidth: .infinity).frame(height: 120) }
                     .buttonStyle(LiftButtonStyle(fill: .yumo.accent, edge: .yumo.accentEdge, lift: Lift.primary, radius: Radius.card))
-                Button { go(.search); Tour.shared.didAct(.typeItTile) } label: { VStack(spacing: 8) { KeyboardGlyph(color: .yumo.ink); Text("Type it").font(.yumo.tile).foregroundStyle(Color.yumo.ink); Text("chicken 180 rice 150").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }.frame(maxWidth: .infinity).frame(height: 120) }
-                    .buttonStyle(LiftButtonStyle(fill: .yumo.surface, edge: .yumo.surfaceEdge, lift: Lift.card, radius: Radius.card)).tourAnchor(.typeItTile)
+                Button { go(.search) } label: { VStack(spacing: 8) { KeyboardGlyph(color: .yumo.ink); Text("Type it").font(.yumo.tile).foregroundStyle(Color.yumo.ink); Text("chicken 180 rice 150").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }.frame(maxWidth: .infinity).frame(height: 120) }
+                    .buttonStyle(LiftButtonStyle(fill: .yumo.surface, edge: .yumo.surfaceEdge, lift: Lift.card, radius: Radius.card))
             }.padding(.horizontal, Space.gutter).padding(.top, 16)
             Spacer()
         }
@@ -90,7 +91,7 @@ struct AddFoodSheet: View {
                 Spacer()
                 if let f = found { FoundCardView(found: f, meal: meal, onRescan: { found = nil }, onLog: { food in log(food, serving: food.defaultServing, qty: 1) }, onCreate: { create = CreateFoodDraft(barcode: f.barcode); found = nil; scanOpen = false }).padding(.horizontal, 12).padding(.bottom, 12).transition(.move(edge: .bottom)) }
                 Button { scanOpen = false; go(.search) } label: { Text("Type barcode or search instead").font(.yumo.action).underline().foregroundStyle(.white) }.buttonStyle(PlainPressStyle()).padding(.bottom, 16)
-                Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal, dark: true).padding(.horizontal, Space.gutter).padding(.bottom, 48)
+                Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal).padding(.horizontal, Space.gutter).padding(.bottom, 48)
             }
         }
         .background(Color.black.ignoresSafeArea())

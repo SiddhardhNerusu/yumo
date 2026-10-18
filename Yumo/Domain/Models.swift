@@ -50,11 +50,6 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var pendingFrom: Int? = nil             // proposal: target from → to
     var pendingTo: Int? = nil
     var pendingWeek: String? = nil
-    // rev 2 — training/rest days (PRODUCT_BRIEF §5)
-    var trainingOn: Bool = false
-    var trainingKcal: Int = 0
-    var restKcal: Int = 0
-    var trainingDaysData: Data = Data()     // [Bool] ×7, Monday first
     // rev 2 — nutrients (PRODUCT_BRIEF §4)
     var nutrientTargetsData: Data = Data()  // [key: [rda, ul]] overrides
     var pinnedNutrientsData: Data = Data()  // [key] ≤ 3
@@ -70,7 +65,6 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var stallDecisionWeek: String? = nil    // week the user answered the stall check-in
     var dietBreakUntil: Date? = nil         // diet break: target = measured maintenance until this date
     init() {}
-    var trainingDays: [Bool] { get { (try? JSONDecoder().decode([Bool].self, from: trainingDaysData)) ?? [true, true, false, true, true, false, false] } set { trainingDaysData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var nutrientOverrides: [String: [Double?]] { get { (try? JSONDecoder().decode([String: [Double?]].self, from: nutrientTargetsData)) ?? [:] } set { nutrientTargetsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var pinnedNutrients: [String] { get { (try? JSONDecoder().decode([String].self, from: pinnedNutrientsData)) ?? [] } set { pinnedNutrientsData = (try? JSONEncoder().encode(Array(newValue.prefix(3)))) ?? Data() } }
 }
@@ -178,13 +172,6 @@ struct SavedItem: Codable, Hashable { var foodId: String; var quantity: Double; 
     init(name: String, meal: Meal, items: [SavedItem]) { self.name = name; self.mealRaw = meal.rawValue; self.items = items }
     var meal: Meal { Meal(rawValue: mealRaw) ?? .breakfast }
     var items: [SavedItem] { get { (try? JSONDecoder().decode([SavedItem].self, from: itemsData)) ?? [] } set { itemsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
-}
-
-/// Per-day override of the training/rest tag (default comes from the weekly schedule).
-@Model final class DayFlag {
-    @Attribute(.unique) var dayKey: String = ""
-    var isTraining: Bool = false
-    init(dayKey: String, isTraining: Bool) { self.dayKey = dayKey; self.isTraining = isTraining }
 }
 
 /// One row per weekly expenditure estimate (PRODUCT_BRIEF §3.2).

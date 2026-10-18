@@ -41,8 +41,8 @@ struct ProgressScreen: View {
     var body: some View {
         ScrollViewReader { proxy in
         ScrollView {
-            VStack(spacing: Space.cardGap) {
-                HStack { Text("Progress").font(.yumo.display).kerning(-0.4); Spacer(); CogButton { showSettings = true } }.frame(height: 56).id("top")
+            VStack(spacing: Space.cardGapDense) {
+                HStack { Text("Progress").font(.yumo.display).kerning(-0.4); Spacer(); CogButton { showSettings = true; Tour.shared.didAct(.cog) }.tourAnchor(.cog) }.frame(height: 56).id("top")
                 weightCard.tourAnchor(.weightCard).id(Tour.Anchor.weightCard)
                 expenditureCard.tourAnchor(.maintenanceCard).id(Tour.Anchor.maintenanceCard)
                 caloriesCard.tourAnchor(.caloriesCard).id(Tour.Anchor.caloriesCard)
@@ -55,7 +55,7 @@ struct ProgressScreen: View {
         }
         .scrollIndicators(.hidden)
         .onAppear(perform: reload).onChange(of: session.tick) { reload() }
-        .onChange(of: Tour.shared.active) { if !Tour.shared.active { reload() } }
+        .onChange(of: Tour.shared.active) { if !Tour.shared.active { reload(); showSettings = false } }   // the tour ends on the cog; Settings closes with it
         .sheet(item: $logSheet) { k in LogWeightSheet(dayKey: k.id).yumoSheet() }
         .pushCover(isPresented: $showLog) { WeightLogScreen() }
         .pushCover(isPresented: $showSettings) { SettingsScreen() }
@@ -72,7 +72,7 @@ struct ProgressScreen: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 6) { Text("Maintenance · measured").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted); InfoButton { showHow = true }.frame(width: 24, height: 24) }
-                        HStack(alignment: .firstTextBaseline, spacing: 4) { Text(Fmt.k(p.tdeeMeasured.map { Double(Calc.round50($0)) } ?? Double(formula))).font(.yumo.bigStat).kerning(-0.4).tabular(); Text("kcal").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
+                        HStack(alignment: .firstTextBaseline, spacing: 4) { Text(Fmt.k(p.tdeeMeasured.map { Double(Calc.round50($0)) } ?? Double(formula))).font(.yumo.display).kerning(-0.4).tabular(); Text("kcal").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 6) {
@@ -128,7 +128,7 @@ struct ProgressScreen: View {
     func scrollForTour(_ proxy: ScrollViewProxy) {
         let t = Tour.shared; guard t.active else { return }
         withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.45)) {
-            switch t.step { case 7: proxy.scrollTo("top", anchor: .top); case 8: proxy.scrollTo(Tour.Anchor.maintenanceCard, anchor: .center); case 9: proxy.scrollTo(Tour.Anchor.caloriesCard, anchor: .center); case 10: proxy.scrollTo(Tour.Anchor.nutrientsRow, anchor: UnitPoint(x: 0.5, y: 0.6)); default: break }
+            switch t.step { case 5, 9: proxy.scrollTo("top", anchor: .top); case 6: proxy.scrollTo(Tour.Anchor.maintenanceCard, anchor: .center); case 7: proxy.scrollTo(Tour.Anchor.caloriesCard, anchor: .center); case 8: proxy.scrollTo(Tour.Anchor.nutrientsRow, anchor: UnitPoint(x: 0.5, y: 0.6)); default: break }
         }
     }
     func reload() {

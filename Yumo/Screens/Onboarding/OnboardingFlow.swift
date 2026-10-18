@@ -109,7 +109,7 @@ struct OnboardingFlow: View {
     var weight: some View {
         VStack(spacing: 0) {
             VStack(spacing: 8) {
-                HStack(alignment: .firstTextBaseline, spacing: 6) { Text(String(format: "%.2f", kg)).font(.nunito(72, .extrabold)).kerning(-2.5).tabular(); Text("kg").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
+                HStack(alignment: .firstTextBaseline, spacing: 6) { Text(String(format: "%.2f", kg)).font(.yumo.rulerValue).kerning(-2.5).tabular(); Text("kg").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
                 RulerView(value: $kg, min: 30, max: 250, lb: false)
             }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 18, leading: 0, bottom: 12, trailing: 0))
             Spacer(); cta()
@@ -157,7 +157,7 @@ struct OnboardingFlow: View {
         VStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Daily target").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
-                HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(target)).font(.yumo.hero).kerning(-2).tabular().foregroundStyle(Color.yumo.accent); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
+                HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(target)).font(.yumo.plan).kerning(-2).tabular().foregroundStyle(Color.yumo.accent); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
                 Text(mode == .maintain ? "Maintenance" : "\(Fmt.k(Calc.round50(tdee))) maintenance \(pace < 0 ? "−" : "+") \(Fmt.k(abs(Calc.paceKcal(pace))))").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
             }.frame(maxWidth: .infinity, alignment: .leading).card()
             HStack(spacing: 10) {

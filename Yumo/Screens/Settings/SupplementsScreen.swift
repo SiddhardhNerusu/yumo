@@ -118,7 +118,7 @@ struct AddSupplementSheet: View {
                     Rectangle().fill(Color.yumo.hairline).frame(height: 0.5).padding(.vertical, 4)
                     HStack { Text("Dose").font(.yumo.bodyStrong); Spacer()
                         InsetField(text: $doseText, unit: "", width: 92)
-                        Menu { ForEach(Supplements.units, id: \.self) { u in Button(u) { unit = u } } } label: { HStack(spacing: 4) { Text(unit).font(.nunito(17, .bold)); Text("▾").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }.foregroundStyle(Color.yumo.ink).padding(.horizontal, 12).frame(height: 40).background(RoundedRectangle(cornerRadius: Radius.inset, style: .continuous).fill(Color.yumo.track)) }
+                        Menu { ForEach(Supplements.units, id: \.self) { u in Button(u) { unit = u } } } label: { HStack(spacing: 4) { Text(unit).font(.nunito(17, .bold)); Text("▾").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }.foregroundStyle(Color.yumo.ink).padding(.horizontal, 12).frame(height: 40).background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.track)) }
                     }
                     Rectangle().fill(Color.yumo.hairline).frame(height: 0.5).padding(.vertical, 4)
                     HStack { Text("Which days").font(.yumo.bodyStrong); Spacer(); Button { days = Array(repeating: true, count: 7) } label: { Text("Every day").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }.buttonStyle(PlainPressStyle()) }
