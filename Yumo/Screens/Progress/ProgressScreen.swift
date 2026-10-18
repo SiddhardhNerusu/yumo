@@ -49,6 +49,7 @@ struct ProgressScreen: View {
                 nutrientsRow.tourAnchor(.nutrientsRow).id(Tour.Anchor.nutrientsRow)
             }.padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
         }
+        .onChange(of: session.scrollTopTick[.progress]) { withAnimation(Motion.push) { proxy.scrollTo("top", anchor: .top) } }
         .onChange(of: Tour.shared.step) { scrollForTour(proxy) }
         .onChange(of: Tour.shared.active) { if Tour.shared.active { scrollForTour(proxy) } }
         .onAppear { Task { try? await Task.sleep(for: .milliseconds(350)); scrollForTour(proxy) } }

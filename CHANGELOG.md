@@ -1,6 +1,7 @@
 # Yumo — changelog
 
 ## 1.0 build 2026-10-18 pm (DEVIATIONS_REV9 pass)
+- Tapping the tab you are already on scrolls that screen back to the top (Today and Progress), 360 ms on the one curve.
 - **Search shows every variant.** The generic group no longer caps at 40 rows ("chicken" has 174: every cut, skin/bone and cooking state; "walnuts" shows black, English, dry roasted, kernel only). Ranking: your most-logged first, then names starting with the query, then names containing a word that starts with it, then shorter names. Long groups render lazily and show their count.
 - **A1 Training / rest targets removed entirely**: profile fields, the DayFlag model, the weekly-average split, the Calorie target card and the Today tag are gone. One daily target everywhere.
 - **A2** Creatine was already stack-only (it was only ever a stack suggestion, never in the nutrient catalogue). No change.

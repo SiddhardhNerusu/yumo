@@ -26,6 +26,8 @@ struct YumoApp: App {
     var tick = 0                       // bump to re-query after mutations
     var presentSettings = false
     var startTour = false              // set by onboarding's "Open Today"; MainTabs starts the tour once it is on screen
+    var scrollTopTick: [Tab: Int] = [:] // bumped when the active tab is tapped again → that screen scrolls to the top (standard iOS)
+    func scrollToTop(_ t: Tab) { scrollTopTick[t, default: 0] &+= 1 }
     func changed() { tick &+= 1 }
     enum Tab { case today, progress }
 }
@@ -81,6 +83,7 @@ struct MainTabs: View {
 
 struct TabBar: View {
     @Binding var active: Session.Tab
+    @Environment(Session.self) private var session
     @State private var todayPop = false
     var body: some View {
         HStack(spacing: 0) {
@@ -94,6 +97,7 @@ struct TabBar: View {
     }
     func tab<G: View>(_ t: Session.Tab, _ label: String, @ViewBuilder glyph: () -> G) -> some View {
         Button {
+            if active == t { session.scrollToTop(t) }   // re-tap the active tab → scroll to top
             active = t; if t == .progress { Tour.shared.didAct(.progressTab) }
             if t == .today { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.12)) { todayPop = true }; Task { try? await Task.sleep(for: .milliseconds(120)); withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.12)) { todayPop = false } } }   // motion.tabPop
         } label: {

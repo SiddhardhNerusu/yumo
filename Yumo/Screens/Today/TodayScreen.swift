@@ -30,6 +30,7 @@ struct TodayScreen: View {
 
     var body: some View {
         ZStack(alignment: .top) {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: 0) {
                 // rev 5 header: "Today ▾" + streak pill, week strip; the day stepper is gone
@@ -39,7 +40,7 @@ struct TodayScreen: View {
                     }.buttonStyle(PlainPressStyle())
                     Spacer()
                     StreakPill(count: streak).id(streak).transition(.asymmetric(insertion: .modifier(active: FlipIn(angle: 90), identity: FlipIn(angle: 0)), removal: .opacity)).animation(Motion.expand, value: streak)   // motion.flipDigit
-                }.padding(.horizontal, 4).padding(.top, 6)
+                }.padding(.horizontal, 4).padding(.top, 6).id("todayTop")
                 WeekStrip(days: (0..<7).reversed().map { i in let d = Date().startOfDay.adding(days: -i); return (d, loggedWeek.contains(d.dayKey)) }, selected: session.selectedDate) { session.selectedDate = $0.startOfDay }.padding(.horizontal, 4).padding(.top, 14)
                 if let t = targets { HeroCard(totals: DayTotals(entries), targets: t, pinned: pinnedRow, onPrep: preppedRow ? { balance = true } : nil).tourAnchor(.hero).padding(.top, 20) }
                 VStack(spacing: Space.cardGap) {
@@ -53,6 +54,8 @@ struct TodayScreen: View {
             .padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
         }
         .scrollIndicators(.hidden)
+        .onChange(of: session.scrollTopTick[.today]) { withAnimation(Motion.push) { proxy.scrollTo("todayTop", anchor: .top) } }
+        }
         if calendarOpen {
             Color.black.opacity(0.001).ignoresSafeArea().onTapGesture { withAnimation(Motion.expand) { calendarOpen = false } }
             CalendarPopover(month: session.selectedDate, selected: session.selectedDate, logged: loggedMonth, onPick: { d in session.selectedDate = d.startOfDay; withAnimation(Motion.expand) { calendarOpen = false } }, onToday: { session.selectedDate = Date().startOfDay; withAnimation(Motion.expand) { calendarOpen = false } })
