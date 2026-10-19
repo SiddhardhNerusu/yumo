@@ -5,11 +5,14 @@ enum OpenFoodFacts {
     struct Product { var name: String; var brand: String?; var barcode: String?; var kcal100: Double; var p100: Double; var c100: Double; var f100: Double; var servings: [Serving]
         var fibre: Double?; var sugar: Double?; var salt: Double?; var satFat: Double?
         var sourceRef: String? = nil; var micros: [String: Double] = [:]
+        var quantity: String? = nil      // pack size as printed ("2kg", "300 g") — what tells two bags of the same name apart
+        var image: URL? = nil            // front-of-pack photo (Open Food Facts) — the other thing that tells them apart
         /// Atwater check: 4P + 4C + 9F within 30 % of the stated kcal (alcohol-free foods). A potato at "79 kcal, C 1" fails and is not shown.
         var plausible: Bool { let a = 4 * p100 + 4 * c100 + 9 * f100; return abs(a - kcal100) <= max(25, kcal100 * 0.30) }
         func makeFood() -> Food {
             let f = Food(name: name, brand: brand, barcode: barcode, source: sourceRef?.hasPrefix("USDA") == true ? .usdaBranded : .off, servings: servings, kcal100: kcal100, p100: p100, c100: c100, f100: f100)
             f.fibre100 = fibre; f.sugar100 = sugar; f.salt100 = salt; f.satFat100 = satFat; f.tier = .branded; f.micros = micros
+            f.state = quantity   // shows as the detail line: "Potatoes · 2 kg"
             let df = DateFormatter(); df.locale = Locale(identifier: "en_GB"); df.dateFormat = "d MMM"
             f.sourceRef = sourceRef ?? "Open Food Facts · updated \(df.string(from: Date()))"; return f
         }
@@ -21,7 +24,7 @@ enum OpenFoodFacts {
         return (try JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
     }
     static func barcode(_ ean: String) async -> Product? {
-        guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(ean).json?fields=product_name,brands,nutriments,serving_size,serving_quantity,code") else { return nil }
+        guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(ean).json?fields=product_name,brands,nutriments,serving_size,serving_quantity,code,quantity,image_front_small_url") else { return nil }
         guard let json = try? await get(url), (json["status"] as? Int) == 1, let p = json["product"] as? [String: Any] else { return nil }
         return parse(p)
     }
@@ -29,7 +32,7 @@ enum OpenFoodFacts {
     static func search(_ q: String, limit: Int = 20) async -> [Product] {
         var c = URLComponents(string: "https://search.openfoodfacts.org/search")!
         // UK first (the product rule): products sold in the UK, English names. Barcode lookups are not filtered.
-        c.queryItems = [.init(name: "q", value: q + " countries_tags:\"en:united-kingdom\""), .init(name: "langs", value: "en"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity")]
+        c.queryItems = [.init(name: "q", value: q + " countries_tags:\"en:united-kingdom\""), .init(name: "langs", value: "en"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity,quantity,image_front_small_url")]
         guard let url = c.url, let json = try? await get(url), let items = json["hits"] as? [[String: Any]] else { return [] }
         return items.compactMap(parse).filter(\.plausible)   // crowd-sourced rows whose macros can't add up to their calories are left out (never a wrong macro)
     }
@@ -45,6 +48,10 @@ enum OpenFoodFacts {
         var prod = Product(name: name, brand: brand, barcode: p["code"] as? String, kcal100: kcal, p100: d("proteins_100g") ?? 0, c100: d("carbohydrates_100g") ?? 0, f100: d("fat_100g") ?? 0, servings: servings, fibre: d("fiber_100g"), sugar: d("sugars_100g"), salt: d("salt_100g"), satFat: d("saturated-fat_100g"))
         let map: [(String, String, Double)] = [("fiber_100g", "fibre", 1), ("sugars_100g", "sugars", 1), ("saturated-fat_100g", "sat_fat", 1), ("monounsaturated-fat_100g", "mono", 1), ("polyunsaturated-fat_100g", "poly", 1), ("trans-fat_100g", "trans", 1), ("cholesterol_100g", "cholesterol_mg", 1000), ("sodium_100g", "sodium_mg", 1000), ("potassium_100g", "potassium_mg", 1000), ("calcium_100g", "calcium_mg", 1000), ("iron_100g", "iron_mg", 1000), ("magnesium_100g", "magnesium_mg", 1000), ("zinc_100g", "zinc_mg", 1000), ("phosphorus_100g", "phosphorus_mg", 1000), ("selenium_100g", "selenium_ug", 1_000_000), ("vitamin-a_100g", "vit_a_ug", 1_000_000), ("vitamin-c_100g", "vit_c_mg", 1000), ("vitamin-d_100g", "vit_d_ug", 1_000_000), ("vitamin-e_100g", "vit_e_mg", 1000), ("vitamin-k_100g", "vit_k_ug", 1_000_000), ("vitamin-b1_100g", "b1_mg", 1000), ("vitamin-b2_100g", "b2_mg", 1000), ("vitamin-pp_100g", "b3_mg", 1000), ("vitamin-b6_100g", "b6_mg", 1000), ("vitamin-b9_100g", "folate_ug", 1_000_000), ("vitamin-b12_100g", "b12_ug", 1_000_000), ("choline_100g", "choline_mg", 1000), ("caffeine_100g", "caffeine_mg", 1000), ("alcohol_100g", "alcohol_g", 1)]
         for (src, key, mult) in map { if let v = d(src) { prod.micros[key] = v * mult } }
+        if let q = (p["quantity"] as? String)?.trimmingCharacters(in: .whitespaces), q.contains(where: \.isNumber) {
+            prod.quantity = q.replacingOccurrences(of: #"(\d)([a-zA-Z])"#, with: "$1 $2", options: .regularExpression)   // "2kg" → "2 kg"
+        }
+        if let u = p["image_front_small_url"] as? String, let url = URL(string: u) { prod.image = url }
         return prod
     }
 }

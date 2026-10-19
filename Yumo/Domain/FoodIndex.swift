@@ -125,7 +125,12 @@ extension FoodIndex.Snapshot {
         let scored: [(OpenFoodFacts.Product, Double, Double)] = products.compactMap { p in
             FoodIndex.score(name: p.name, words: FoodIndex.words(p.name), brand: FoodIndex.words(p.brand ?? ""), raw: false, useCount: 0, toks: toks, rarity: rarity).map { (p, $0.matched, $0.score) }
         }
-        return scored.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 > $1.2 }.map(\.0)
+        // identical records (same name, brand, pack size and nutrition) are one product entered twice — show it once
+        var seen = Set<String>()
+        return scored.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 > $1.2 }.map(\.0).filter { p in
+            let key = [p.name.lowercased(), (p.brand ?? "").lowercased(), p.quantity ?? "", String(Int(p.kcal100)), String(Int(p.p100)), String(Int(p.c100)), String(Int(p.f100))].joined(separator: "|")
+            return seen.insert(key).inserted
+        }
     }
     /// The typed words (≥ 3 letters, after synonyms) that no catalogue row carries — a variety, a brand. When any exist, packaged results lead.
     func uncovered(_ query: String) -> [String] {

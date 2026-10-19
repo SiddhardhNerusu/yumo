@@ -154,9 +154,13 @@ struct BalanceSheet: View {
             VStack(spacing: 0) {
                 ForEach(Array(online.enumerated()), id: \.offset) { _, p in
                     HStack(spacing: 12) {
+                        if let image = p.image {
+                            AsyncImage(url: image) { img in img.resizable().scaledToFill() } placeholder: { Color.yumo.track }
+                                .frame(width: 40, height: 40).clipShape(RoundedRectangle(cornerRadius: Radius.thumb, style: .continuous))
+                        }
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(p.name).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
-                            Text([p.brand, "\(Fmt.k(p.kcal100)) kcal · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100)) per 100 g"].compactMap { $0 }.joined(separator: " · ")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                            (Text(p.name).font(.yumo.bodyStrong).foregroundColor(.yumo.ink) + Text([p.brand, p.quantity].compactMap { $0 }.map { "  " + $0 }.joined()).font(.yumo.detail).foregroundColor(.yumo.inkMuted)).lineLimit(1)
+                            Text("\(Fmt.k(p.kcal100)) kcal · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100)) per 100 g").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
                         }.frame(maxWidth: .infinity, alignment: .leading)
                         AddCircleButton { keep(store.upsert(p.makeFood())) }
                     }.padding(.vertical, 11).padding(.trailing, 16).hairline()

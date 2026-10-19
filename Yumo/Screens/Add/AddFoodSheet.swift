@@ -139,7 +139,7 @@ struct AddFoodSheet: View {
                         if brandedOpen {
                             Overline(text: "Branded · Open Food Facts").padding(.top, 4)
                             if remote.isEmpty && !searching { Text("No branded match. Scan the barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
-                            else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: p.brand, meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
+                            else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: [p.brand, p.quantity].compactMap { $0 }.joined(separator: " · "), meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, image: p.image, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
                             if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
                         } else {
                             // Generic words keep branded noise out; one quiet line brings it in when wanted.
@@ -158,7 +158,7 @@ struct AddFoodSheet: View {
     @ViewBuilder var remoteGroup: some View {
         Overline(text: "Branded · Open Food Facts").padding(.top, 4)
         if remote.isEmpty && !searching { Text("No packaged product by that name on Open Food Facts — scan its barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
-        else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: p.brand, meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
+        else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: [p.brand, p.quantity].compactMap { $0 }.joined(separator: " · "), meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, image: p.image, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
         if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
     }
     func group(_ title: String, _ foods: [Food]) -> some View {
@@ -220,9 +220,13 @@ struct AddFoodSheet: View {
 }
 
 struct ResultRow: View {
-    var name: String; var brand: String?; var meta: String; var kcal: Double; var onAdd: () -> Void; var onOpen: () -> Void
+    var name: String; var brand: String?; var meta: String; var kcal: Double; var image: URL? = nil; var onAdd: () -> Void; var onOpen: () -> Void
     var body: some View {
         HStack(spacing: 12) {
+            if let image {   // packaged products: the pack photo is what tells two "Potatoes · Albert Bartlett" apart
+                AsyncImage(url: image) { img in img.resizable().scaledToFill() } placeholder: { Color.yumo.track }
+                    .frame(width: 40, height: 40).clipShape(RoundedRectangle(cornerRadius: Radius.thumb, style: .continuous))
+            }
             VStack(alignment: .leading, spacing: 2) {
                 (Text(name).font(.yumo.bodyStrong) + Text(brand.map { "  \($0)" } ?? "").font(.yumo.detail).foregroundColor(.yumo.inkMuted)).lineLimit(1)
                 Text(meta).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
