@@ -66,11 +66,7 @@ struct BalanceSheet: View {
                     guard q.count >= 3, lastDone else { online = []; onlineBusy = false; onlineFirst = false; return }
                     onlineBusy = true
                     try? await Task.sleep(for: .milliseconds(350)); guard !Task.isCancelled else { return }
-                    var products = await OpenFoodFacts.search(q, limit: 12)
-                    if !missing.isEmpty, missing.joined(separator: " ") != q.lowercased() {   // Open Food Facts' own ranking of a long line drops the bag you mean
-                        let have = Set(products.compactMap(\.barcode))
-                        products += await OpenFoodFacts.search(missing.joined(separator: " "), limit: 12).filter { $0.barcode.map { !have.contains($0) } ?? true }
-                    }
+                    let products = await OpenFoodFacts.searchMerged(q, terms: missing)
                     guard !Task.isCancelled else { return }
                     let localCodes = Set(hits.compactMap(\.barcode))
                     online = snap.rank(products.filter { $0.barcode.map { !localCodes.contains($0) } ?? true }, query: q)

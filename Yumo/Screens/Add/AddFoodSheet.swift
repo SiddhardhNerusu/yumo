@@ -143,7 +143,7 @@ struct AddFoodSheet: View {
                             if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
                         } else {
                             // Generic words keep branded noise out; one quiet line brings it in when wanted.
-                            HStack(spacing: 4) { Text("Looking for a packaged product?").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted); TextAction(label: "Show branded") { brandedOpen = true; runBranded() } }
+                            HStack(spacing: 4) { Text("Looking for a packaged product?").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted); TextAction(label: "Show branded") { showBranded() } }
                         }
                     }
                     HStack(spacing: 4) { Text(query.isEmpty ? "" : "Still not here?").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted); TextAction(label: "Create a food") { create = CreateFoodDraft(name: query.allSatisfy(\.isNumber) ? "" : query, barcode: query.allSatisfy(\.isNumber) && query.count >= 8 ? query : nil) } }.padding(.top, 4)
@@ -157,7 +157,7 @@ struct AddFoodSheet: View {
     /// The Open Food Facts group when it leads (a word the catalogue can't cover).
     @ViewBuilder var remoteGroup: some View {
         Overline(text: "Branded · Open Food Facts").padding(.top, 4)
-        if remote.isEmpty && !searching { Text("No packaged product by that name on Open Food Facts — scan its barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
+        if remote.isEmpty && !searching { Text(OpenFoodFacts.lastFailure.map { Date().timeIntervalSince($0) < 60 } == true ? "Open Food Facts didn't answer — try again in a moment, or scan the barcode." : "No packaged product by that name on Open Food Facts — scan its barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
         else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: [p.brand, p.quantity].compactMap { $0 }.joined(separator: " · "), meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, image: p.image, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
         if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
     }
@@ -184,6 +184,7 @@ struct AddFoodSheet: View {
         }
         // One scorer for every group (FoodIndex), off the main thread. Live Open Food Facts joins in automatically when the line names a brand
         // (PRODUCT_BRIEF §2) or a word the catalogue can't cover (a variety, a brand it has never seen), or on the explicit "Show branded" tap.
+        // The whole pipeline is one task for one captured line, so a keystroke cancels every stale lookup — never results for "alber".
         let s = store, snap = FoodIndex.shared.snapshot(s)
         searchTask = Task {
             try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
@@ -191,28 +192,25 @@ struct AddFoodSheet: View {
             guard !Task.isCancelled else { return }
             let all = s.foods(ids: hits.map(\.id))
             yourFoods = all.filter { $0.tier == .user }; generic = all.filter { $0.tier == .generic }; chains = all.filter { $0.tier == .chain }; branded = all.filter { $0.tier == .branded }; searching = false
-            if Catalogue.hasBrandToken(q) || !missing.isEmpty { brandedOpen = true; brandedFirst = !missing.isEmpty; runBranded(missing: missing) }
+            if Catalogue.hasBrandToken(q) || !missing.isEmpty { brandedOpen = true; brandedFirst = !missing.isEmpty; await fetchBranded(q, missing: missing, snap: snap) }
         }
     }
-    /// Live Open Food Facts search, ranked by the same scorer. A second lookup on the uncovered words alone ("albert rooster") when there are any.
-    func runBranded(missing: [String] = []) {
-        let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty, (q.split(separator: " ").last?.count ?? 0) >= 3 else { return }
+    /// The explicit "Show branded" tap.
+    func showBranded() {
+        let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { return }
+        let snap = FoodIndex.shared.snapshot(store)
+        brandedOpen = true; searchTask?.cancel(); searchTask = Task { await fetchBranded(q, missing: snap.uncovered(q), snap: snap) }
+    }
+    /// Live Open Food Facts search for one captured line, ranked by the same scorer; one lookup per uncovered word merged by barcode.
+    func fetchBranded(_ q: String, missing: [String], snap: FoodIndex.Snapshot) async {
+        guard (q.split(separator: " ").last?.count ?? 0) >= 3 else { return }   // wait for a complete word
         searching = true
-        let s = store, snap = FoodIndex.shared.snapshot(s)
-        let fetch = Task {
-            try? await Task.sleep(for: .milliseconds(300)); guard !Task.isCancelled else { return }
-            var products = await OpenFoodFacts.search(q)
-            if !missing.isEmpty, missing.joined(separator: " ") != q.lowercased() {
-                let have = Set(products.compactMap(\.barcode))
-                products += await OpenFoodFacts.search(missing.joined(separator: " ")).filter { $0.barcode.map { !have.contains($0) } ?? true }
-            }
-            guard !Task.isCancelled else { return }
-            let have = Set(branded.compactMap(\.barcode))
-            remote = snap.rank(products.filter { $0.barcode.map { !have.contains($0) } ?? true }, query: q); searching = false
-        }
-        brandedTask?.cancel(); brandedTask = fetch
+        try? await Task.sleep(for: .milliseconds(300)); guard !Task.isCancelled else { return }
+        let products = await OpenFoodFacts.searchMerged(q, terms: missing)
+        guard !Task.isCancelled else { return }
+        let have = Set(branded.compactMap(\.barcode))
+        remote = snap.rank(products.filter { $0.barcode.map { !have.contains($0) } ?? true }, query: q); searching = false
     }
-    @State private var brandedTask: Task<Void, Never>? = nil
     func log(_ f: Food, serving: Serving, qty: Double) {
         _ = store.log(food: f, meal: meal, dayKey: dayKey, quantity: qty, serving: serving)
         toaster.show("\(f.name) → \(meal.rawValue)"); session.changed(); dismiss()
