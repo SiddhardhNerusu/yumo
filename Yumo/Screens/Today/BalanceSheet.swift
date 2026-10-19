@@ -70,7 +70,14 @@ struct BalanceSheet: View {
                     guard q.count >= 3, lastDone else { online = []; onlineBusy = false; onlineFirst = false; return }
                     onlineBusy = true
                     try? await Task.sleep(for: .milliseconds(350)); guard !Task.isCancelled else { return }
-                    let products = await OpenFoodFacts.search(q, limit: 12)
+                    // two lookups when the catalogue can't cover part of the query: the full line and the uncovered words alone ("albert rooster"),
+                    // merged by barcode — Open Food Facts' own ranking of a long query drops the bags you actually mean
+                    var products = await OpenFoodFacts.search(q, limit: 12)
+                    if !missing.isEmpty, missing.joined(separator: " ") != q.lowercased() {
+                        let extra = await OpenFoodFacts.search(missing.joined(separator: " "), limit: 12)
+                        let have = Set(products.compactMap(\.barcode))
+                        products += extra.filter { $0.barcode.map { !have.contains($0) } ?? true }
+                    }
                     guard !Task.isCancelled else { return }
                     let localCodes = Set(hits.compactMap(\.barcode))
                     let stems = words.filter { $0.count >= 3 }
@@ -81,7 +88,9 @@ struct BalanceSheet: View {
                         guard p.barcode.map({ !localCodes.contains($0) }) ?? true else { return nil }
                         let hay = (p.name + " " + (p.brand ?? "")).lowercased()
                         guard must.contains(where: { hay.contains($0) }) else { return nil }
-                        return (p, stems.filter { hay.contains($0) }.count)
+                        // words named ×10, uncovered words named ×5, shorter names first ("Potatoes · Albert Bartlett" above "Sweet Potato Fries - Albert Bartlett")
+                        let score = stems.filter { hay.contains($0) }.count * 10 + missing.filter { hay.contains($0) }.count * 5 - min(9, p.name.count / 8)
+                        return (p, score)
                     }.sorted { $0.1 > $1.1 }.map(\.0)
                     onlineBusy = false; onlineFirst = uncovered && !online.isEmpty
                 }
