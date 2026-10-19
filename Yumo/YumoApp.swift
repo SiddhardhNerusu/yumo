@@ -102,7 +102,9 @@ struct TabBar: View {
     }
     func tab<G: View>(_ t: Session.Tab, _ label: String, @ViewBuilder glyph: () -> G) -> some View {
         Button {
-            if active == t { session.scrollToTop(t) }   // re-tap the active tab → scroll to top
+            if active == t {   // re-tap: on a past day the Today tab returns to today (rev 11, iOS pop-to-root); otherwise scroll to the top
+                if t == .today, !Calendar.current.isDateInToday(session.selectedDate) { session.selectedDate = Date().startOfDay } else { session.scrollToTop(t) }
+            }
             active = t; if t == .progress { Tour.shared.didAct(.progressTab) }
             if t == .today { withAnimation(Motion.tabPop) { todayPop = true }; Task { try? await Task.sleep(for: .milliseconds(200)); withAnimation(Motion.tabPop) { todayPop = false } } }   // motion.tabPop
         } label: {

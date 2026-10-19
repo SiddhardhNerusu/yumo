@@ -166,13 +166,13 @@ struct CogGlyph: View {
         }
     }
 }
-/// Rev 10 tab glyph: calendar tile — 22 × 21 rounded rect at (2,3) r 6 stroke 2.6, header line y 9.5, the real day number 11.5/900 centred in the lower area. 28 pt box.
+/// Tab glyph (rev 11 §5): calendar tile in a 28 box — rounded rect 23 × 22 at (2.5,3.5) r 6 stroke 2.2, header line y 10 stroke 2.2, the real day number 10.5/800 tracking −0.3 centred in the pane below the line (11 → 26).
 struct CalendarTileGlyph: View { var color: Color; var day: Int
     var body: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 6, style: .continuous).stroke(color, lineWidth: 2.6).frame(width: 22, height: 21).offset(x: 2, y: 3)
-            Rectangle().fill(color).frame(width: 22, height: 2.6).offset(x: 2, y: 8.2)
-            Text("\(day)").font(.nunito(11.5, .black)).tabular().foregroundStyle(color).frame(width: 22, height: 14.5).offset(x: 2, y: 9.5)
+            RoundedRectangle(cornerRadius: 6, style: .continuous).stroke(color, lineWidth: 2.2).frame(width: 23, height: 22).offset(x: 2.5, y: 3.5)
+            Rectangle().fill(color).frame(width: 23, height: 2.2).offset(x: 2.5, y: 8.9)
+            Text("\(day)").font(.nunito(10.5, .extrabold)).kerning(-0.3).tabular().foregroundStyle(color).frame(width: 23, height: 15).offset(x: 2.5, y: 11)
         }.frame(width: 28, height: 28, alignment: .topLeading)
     }
 }
@@ -434,6 +434,19 @@ struct StreakPill: View { var count: Int
             .padding(.vertical, 8).padding(.horizontal, 12).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.yumo.surface)).lifted(radius: 12)
     }
 }
+
+/// Rev 11 §4.2: Today chip — 36 pt, padding 0 12, surface, radius.control, lift.card: "Today" 13/800 ink · gap 6 · return arrow 14 pt accent. Header right slot whenever the viewed day ≠ today; outranks the review chip and streak pill.
+struct TodayChip: View { var action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) { Text("Today").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.ink); Image(systemName: "arrow.counterclockwise").font(.system(size: 13, weight: .heavy)).foregroundStyle(Color.yumo.accent).frame(width: 14, height: 14) }
+                .padding(.horizontal, 12).frame(height: 36)
+        }.buttonStyle(LiftButtonStyle(fill: .yumo.surface, edge: .yumo.surfaceEdge, lift: Lift.card, radius: Radius.control))
+        .accessibilityLabel("Back to today")
+    }
+}
+/// Rev 11 §4.8: text actions that only fade while pressed (opacity .6).
+struct FadePressStyle: ButtonStyle { func makeBody(configuration: Configuration) -> some View { configuration.label.contentShape(Rectangle()).opacity(configuration.isPressed ? 0.6 : 1) } }
 
 /// Rev 10 §4.2: 24 × 24, radius 7, accent fill, lift 2 accent.edge, white "y" 15/900 tracking −0.5.
 struct YumoMark: View { var size: CGFloat = 24

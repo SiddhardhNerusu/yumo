@@ -15,6 +15,7 @@ struct TodayScreen: View {
     @State private var pinnedRow: String? = nil
     @State private var reviewPending = false
     @State private var balance = false
+    @State private var summary = false
     @State private var scrolled: CGFloat = 0
     @State private var headerBase: CGFloat? = nil          // motion.titleCollapse: how far the content has scrolled under the inline bar
     @State private var dayLayer = Date().startOfDay.dayKey   // motion.dayChange: the title + hero + meal cards re-enter as one layer
@@ -34,7 +35,8 @@ struct TodayScreen: View {
     var isToday: Bool { Calendar.current.isDateInToday(session.selectedDate) }
 
     var body: some View {
-        let t = min(1, max(0, (scrolled - 8) / 44))   // motion.titleCollapse: linear with scroll across 8 → 52 pt
+        // motion.titleCollapse (rev 11: sequenced, never both visible) — large title out across 8 → 34 pt, inline title in across 34 → 52 pt
+        let tOut = min(1, max(0, (scrolled - 8) / 26)), t = min(1, max(0, (scrolled - 34) / 18))
         ZStack(alignment: .top) {
         ScrollViewReader { proxy in
         ScrollView {
@@ -44,9 +46,11 @@ struct TodayScreen: View {
                     Button { withAnimation(Motion.expand) { calendarOpen.toggle() } } label: {
                         HStack(spacing: 8) { Text(Fmt.dayTitle(session.selectedDate)).font(.yumo.display).kerning(-0.4).tabular().foregroundStyle(Color.yumo.ink); Text("▾").font(.nunito(18, .extrabold)).foregroundStyle(Color.yumo.accent).rotationEffect(.degrees(calendarOpen ? 180 : 0)) }.frame(height: 44)
                             .id(dayLayer).transition(dayTransition)
-                    }.buttonStyle(PlainPressStyle()).opacity(1 - t).offset(y: -8 * t)
+                    }.buttonStyle(PlainPressStyle()).opacity(1 - tOut).offset(y: -8 * tOut)
                     Spacer()
-                    if reviewPending { ReviewChip { session.showReview = true }.transition(.opacity.combined(with: .offset(y: 8))) }   // motion.rowIn
+                    // rev 11 §4.2: Today chip whenever the viewed day ≠ today; the review chip and streak pill describe today, so only then
+                    if !isToday { TodayChip { session.selectedDate = Date().startOfDay }.transition(.opacity.combined(with: .offset(y: 8))) }
+                    else if reviewPending { ReviewChip { session.showReview = true }.transition(.opacity.combined(with: .offset(y: 8))) }   // motion.rowIn
                     else if streak >= 2 { StreakPill(count: streak).id(streak).transition(.asymmetric(insertion: .modifier(active: FlipIn(angle: 90), identity: FlipIn(angle: 0)), removal: .opacity)).animation(Motion.expand, value: streak) }   // motion.flipDigit
                 }.padding(.horizontal, 4).padding(.top, 6).id("todayTop")
                 .background { if #unavailable(iOS 18) { GeometryReader { g in Color.clear.preference(key: ScrollOffsetKey.self, value: g.frame(in: .global).minY) } } }
@@ -60,6 +64,9 @@ struct TodayScreen: View {
                                          onAdd: { addMeal = meal; if meal == .breakfast { Tour.shared.didAct(.breakfastAdd) } }, tourAnchor: meal == .breakfast, onOpen: { detail = $0 }, onRemove: remove, onAddYesterday: { addYesterday(meal) }, onSave: { saveMeal(meal) })
                         }
                     }.padding(.top, Space.heroGap).animation(Motion.expand, value: entries.map(\.id))
+                    // rev 11 §4.8: always the last element — centred text action, no card
+                    Button { summary = true } label: { HStack(spacing: 4) { Text("View summary").font(.yumo.action); Text("›").font(.nunito(18, .extrabold)) }.foregroundStyle(Color.yumo.accent).frame(maxWidth: .infinity).frame(height: 44) }
+                        .buttonStyle(FadePressStyle()).padding(.top, 16)
                 }.id(dayLayer).transition(dayTransition)
             }
             .padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClearToday)
@@ -79,8 +86,8 @@ struct TodayScreen: View {
                 .buttonStyle(PlainPressStyle()).opacity(t).offset(y: 6 * (1 - t)).allowsHitTesting(t > 0.5)
         }
         .frame(maxWidth: .infinity)
-        .background { Rectangle().fill(Color.yumo.surface.opacity(0.88 * t)).background(.ultraThinMaterial.opacity(t)).ignoresSafeArea(edges: .top).allowsHitTesting(false) }
-        .overlay(alignment: .bottom) { Rectangle().fill(Color.yumo.surfaceEdge).frame(height: 0.5).opacity(t > 0.9 ? 1 : 0).animation(Motion.titleCollapse, value: t > 0.9) }
+        .background { Rectangle().fill(Color.yumo.surface.opacity(0.88 * min(1, scrolled / 44))).background(.ultraThinMaterial.opacity(min(1, scrolled / 44))).ignoresSafeArea(edges: .top).allowsHitTesting(false) }
+        .overlay(alignment: .bottom) { Rectangle().fill(Color.yumo.surfaceEdge).frame(height: 0.5).opacity(scrolled > 48 ? 1 : 0).animation(Motion.titleCollapse, value: scrolled > 48) }
         .zIndex(1)
         if calendarOpen {
             Color.black.opacity(0.001).ignoresSafeArea().onTapGesture { withAnimation(Motion.expand) { calendarOpen = false } }
@@ -98,6 +105,7 @@ struct TodayScreen: View {
         .sheet(item: $addMeal) { m in AddFoodSheet(meal: m, dayKey: dayKey).yumoSheet() }
         .pushCover(item: $detail) { e in FoodDetailScreen(entry: e, dayKey: dayKey) }
         .sheet(isPresented: $balance) { BalanceSheet(dayKey: dayKey).yumoSheet().presentationDetents([.large]) }
+        .pushCover(isPresented: $summary, onDismiss: { reload() }) { SummaryScreen(dayKey: dayKey) }
         .onChange(of: session.selectedDate) { if calendarOpen { withAnimation(Motion.expand) { calendarOpen = false } } }
     }
     /// Rev 5: the "Prepped something?" row at the bottom of Today — today only, > 150 kcal left, a meal empty, and either staples or history to balance from.

@@ -6,6 +6,7 @@ struct ProgressNutrientsScreen: View {
     @Environment(\.modelContext) private var ctx
     @Environment(\.dismiss) private var dismiss
     @Environment(Toaster.self) private var toaster
+    var back = "Progress"
     @State private var window = 7
     @State private var tick = 0
     @State private var open: String? = nil
@@ -18,7 +19,7 @@ struct ProgressNutrientsScreen: View {
     var body: some View {
         let p = store.profile()
         VStack(spacing: 0) {
-            PageHeader(back: "Progress", title: "Nutrients", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
+            PageHeader(back: back, title: "Nutrients", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
             Segmented(options: [(7, "7 days"), (30, "30 days")], selection: $window).padding(.horizontal, Space.gutter).padding(.top, 6)
             ScrollView {
                 let all = rows, pinnedKeys = p.pinnedNutrients
