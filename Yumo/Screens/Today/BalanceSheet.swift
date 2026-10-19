@@ -62,14 +62,26 @@ struct BalanceSheet: View {
                     let found = await Task.detached(priority: .userInitiated) { FoodIndex.searchHits(q, in: snap, exclude: ex, limit: 40) }.value
                     guard !Task.isCancelled else { return }
                     hits = s.foods(ids: found.map(\.id))
-                    onlineFirst = FoodIndex.coverage(q, hits: found) < 1   // a word the tables don't carry (a variety, a brand) → packaged results lead
-                    // then the packaged world by name — Open Food Facts — deduped against what is already local
-                    guard q.count >= 3 else { online = []; onlineBusy = false; return }
+                    // the packaged world by name — Open Food Facts — only once the last word is complete (≥ 3 letters), after a longer pause,
+                    // and only products that actually name one of the typed words; deduped against what is already local
+                    let words = q.lowercased().split(separator: " ").map(String.init), lastDone = (words.last?.count ?? 0) >= 3
+                    let uncovered = FoodIndex.coverage(q, hits: found) < 1
+                    guard q.count >= 3, lastDone else { online = []; onlineBusy = false; onlineFirst = false; return }
                     onlineBusy = true
-                    let products = await OpenFoodFacts.search(q, limit: 10)
+                    try? await Task.sleep(for: .milliseconds(350)); guard !Task.isCancelled else { return }
+                    let products = await OpenFoodFacts.search(q, limit: 12)
                     guard !Task.isCancelled else { return }
                     let localCodes = Set(hits.compactMap(\.barcode))
-                    online = products.filter { $0.barcode.map { !localCodes.contains($0) } ?? true }; onlineBusy = false
+                    let stems = words.filter { $0.count >= 3 }
+                    // keep products that name all (or all but one) of the typed words, most words first — "rooster potatoes", not "tempura chicken chunks" by Rooster
+                    let need = max(1, stems.count - 1)
+                    online = products.compactMap { p -> (OpenFoodFacts.Product, Int)? in
+                        guard p.barcode.map({ !localCodes.contains($0) }) ?? true else { return nil }
+                        let hay = (p.name + " " + (p.brand ?? "")).lowercased()
+                        let n = stems.filter { hay.contains($0) }.count
+                        return n >= need ? (p, n) : nil
+                    }.sorted { $0.1 > $1.1 }.map(\.0)
+                    onlineBusy = false; onlineFirst = uncovered && !online.isEmpty
                 }
                 .fullScreenCover(isPresented: $scanOpen) { StapleScanScreen { f in keep(f); scanOpen = false } }
             ScrollView {

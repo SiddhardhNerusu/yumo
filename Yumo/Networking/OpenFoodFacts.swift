@@ -26,7 +26,8 @@ enum OpenFoodFacts {
     /// Name search on search.openfoodfacts.org (search-a-licious). The legacy cgi/search.pl endpoint answers 503 most of the time, so it is not used.
     static func search(_ q: String, limit: Int = 20) async -> [Product] {
         var c = URLComponents(string: "https://search.openfoodfacts.org/search")!
-        c.queryItems = [.init(name: "q", value: q), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity")]
+        // UK first (the product rule): products sold in the UK, English names. Barcode lookups are not filtered.
+        c.queryItems = [.init(name: "q", value: q + " countries_tags:\"en:united-kingdom\""), .init(name: "langs", value: "en"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity")]
         guard let url = c.url, let json = try? await get(url), let items = json["hits"] as? [[String: Any]] else { return [] }
         return items.compactMap(parse)
     }
