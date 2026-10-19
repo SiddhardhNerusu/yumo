@@ -12,6 +12,8 @@ struct BalanceSheet: View {
     @State private var step: Step = .weigh
     @State private var query = ""
     @State private var hits: [Food] = []
+    @State private var online: [OpenFoodFacts.Product] = []   // packaged products by name (Open Food Facts) — every food reachable, one row per barcode
+    @State private var scanOpen = false
     @State private var open: String? = nil            // foodId whose weight panel is unfolded
     @State private var items: [PrepItem] = []          // weighed foods (foodId, grams)
     @State private var gramsText: [String: String] = [:]
@@ -44,7 +46,10 @@ struct BalanceSheet: View {
     // MARK: step 1
     var weigh: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 10) { TextField("Search your staples or the catalogue", text: $query).font(.yumo.bodyStrong).autocorrectionDisabled().submitLabel(.done) }
+            HStack(spacing: 10) {
+                TextField("Search your staples or the catalogue", text: $query).font(.yumo.bodyStrong).autocorrectionDisabled().submitLabel(.done)
+                Button { scanOpen = true } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 36, height: 36).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()).accessibilityLabel("Scan a barcode")
+            }
                 .padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
                 .padding(.horizontal, Space.gutter).padding(.top, 14)
                 .task(id: query) {   // debounced, off the main thread (FoodIndex)
@@ -55,25 +60,30 @@ struct BalanceSheet: View {
                     let ids = await Task.detached(priority: .userInitiated) { FoodIndex.search(q, in: snap, exclude: ex, limit: 12) }.value
                     guard !Task.isCancelled else { return }
                     hits = s.foods(ids: ids)
+                    // then the packaged world by name — Open Food Facts — deduped against what is already local
+                    guard q.count >= 3 else { online = []; return }
+                    let found = await OpenFoodFacts.search(q, limit: 8)
+                    guard !Task.isCancelled else { return }
+                    let localCodes = Set(hits.compactMap(\.barcode))
+                    online = found.filter { $0.barcode.map { !localCodes.contains($0) } ?? true }
                 }
+                .fullScreenCover(isPresented: $scanOpen) { StapleScanScreen { f in keep(f); scanOpen = false } }
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     let q = query.trimmingCharacters(in: .whitespaces).lowercased()
                     let stapleIds = Set(store.staples().map(\.foodId))
                     // FROM THE CATALOGUE: search hits that are not staples, or the weighed extras when there is no query
                     let extras: [Food] = q.isEmpty ? items.compactMap { $0.foodId }.filter { !stapleIds.contains($0) }.compactMap { store.food(id: $0) } : hits
-                    if !extras.isEmpty { group("From the catalogue", extras, inStaples: false) }
+                    if !extras.isEmpty { group(q.isEmpty ? "Also weighed" : "From the catalogue", extras, inStaples: false) }
+                    if !q.isEmpty, !online.isEmpty { onlineGroup }
                     ForEach([(Balance.Kind.protein, "Proteins"), (.carb, "Carbs"), (.fat, "Fats"), (.veg, "Veg")], id: \.1) { k, label in
                         let list = staples.map(\.1).filter { Balance.classify($0) == k && (q.isEmpty || $0.name.lowercased().contains(q)) }
                         if !list.isEmpty { group(label, list, inStaples: true) }
                     }
                     if !hasStaples {
-                        Button { staplesOpen = true } label: {
-                            HStack(spacing: 12) {
-                                VStack(alignment: .leading, spacing: 2) { Text("Add your staples first").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text("The foods you eat most weeks. Yumo balances from those.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.leading) }
-                                Spacer(); Text("›").font(.nunito(22, .extrabold)).foregroundStyle(Color.yumo.accent)
-                            }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: 20)
-                        }.buttonStyle(PlainPressStyle()).padding(.top, 16)
+                        // no page to go to: searching or scanning above adds straight to your staples
+                        VStack(alignment: .leading, spacing: 2) { Text("Add your staples first").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text("The foods you eat most weeks. Search or scan one above and tap + — Yumo balances from those.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
+                            .frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: 20).padding(.top, 16)
                     }
                 }.padding(.horizontal, Space.gutter).padding(.bottom, 16)
             }.scrollDismissesKeyboard(.interactively)
@@ -95,7 +105,7 @@ struct BalanceSheet: View {
     @ViewBuilder func weighRow(_ f: Food, inStaples: Bool) -> some View {
         let it = item(f); let weighed = (it?.grams ?? 0) > 0; let isOpen = open == f.id
         let staple = store.staples().first { $0.foodId == f.id }
-        let sub: String = weighed ? ((it?.carried ?? false) ? "same as yesterday" : "weighed today") : inStaples ? [f.detail, staple?.maxG.map { "max \(Fmt.g($0)) g" } ?? ""].filter { !$0.isEmpty }.joined(separator: " · ").ifEmpty(Balance.className(Balance.classify(f))) : [f.detail, "today only"].filter { !$0.isEmpty }.joined(separator: " · ")
+        let sub: String = weighed ? ((it?.carried ?? false) ? "same as yesterday" : "weighed today") : inStaples ? [f.detail, staple?.maxG.map { "max \(Fmt.g($0)) g" } ?? ""].filter { !$0.isEmpty }.joined(separator: " · ").ifEmpty(Balance.className(Balance.classify(f))) : [f.detail, "+ keeps it as a staple"].filter { !$0.isEmpty }.joined(separator: " · ")
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 Button { toggle(f) } label: {
@@ -104,7 +114,7 @@ struct BalanceSheet: View {
                 }.buttonStyle(PlainPressStyle())
                 if weighed {
                     Button { toggle(f) } label: { HStack(spacing: 6) { Text(Fmt.g(it!.grams)).font(.nunito(17, .extrabold)).tabular(); Text("g").font(.nunito(17, .bold)).foregroundStyle(Color.yumo.inkMuted) }.foregroundStyle(Color.yumo.ink).padding(.horizontal, 12).frame(height: 40).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.yumo.accentTint)).overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.yumo.accent, lineWidth: 2)) }.buttonStyle(PlainPressStyle())
-                } else { AddCircleButton { toggle(f) } }
+                } else { AddCircleButton { if inStaples { toggle(f) } else { keep(f) } } }
             }.padding(.vertical, 11).padding(.trailing, 16)
             Expandable(open: isOpen) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -118,6 +128,30 @@ struct BalanceSheet: View {
                 }.padding(.trailing, 16).padding(.bottom, 12)
             }
         }.hairline()
+    }
+    /// Search / scan → staple: saved for good, shown in its class group, and the weight field unfolds right away.
+    func keep(_ f: Food) {
+        store.addStaple(f); gen += 1; query = ""; hits = []; online = []
+        if item(f) == nil { items.append(PrepItem(text: f.name, grams: 0, foodId: f.id, carried: false)) }
+        withAnimation(Motion.expand) { open = f.id }
+        toaster.show("\(f.shortName) is a staple now")
+    }
+    /// Packaged products found by name on Open Food Facts; + saves the product locally (one row per barcode) and keeps it as a staple.
+    var onlineGroup: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Overline(text: "Packaged · Open Food Facts").padding(.top, 16)
+            VStack(spacing: 0) {
+                ForEach(Array(online.enumerated()), id: \.offset) { _, p in
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(p.name).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
+                            Text([p.brand, "\(Fmt.k(p.kcal100)) kcal · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100)) per 100 g"].compactMap { $0 }.joined(separator: " · ")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                        }.frame(maxWidth: .infinity, alignment: .leading)
+                        AddCircleButton { keep(store.upsert(p.makeFood())) }
+                    }.padding(.vertical, 11).padding(.trailing, 16).hairline()
+                }
+            }.padding(.leading, 18).listCard(radius: 20)
+        }
     }
     func toggle(_ f: Food) {
         if item(f) == nil { items.append(PrepItem(text: f.name, grams: 0, foodId: f.id, carried: false)) }

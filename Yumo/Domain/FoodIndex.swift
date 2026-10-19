@@ -11,9 +11,10 @@ final class FoodIndex: @unchecked Sendable {
     private let lock = NSLock()
 
     /// Per-token synonyms, applied after the phrase synonyms: UK potato varieties don't exist as catalogue rows, CoFID files them as "old" / "new".
+    /// A value may hold several words ("potato old") or be empty (a word to drop, "piper").
     static let tokenSynonyms: [String: String] = [
-        "maris": "old", "piper": "old", "king": "old", "edward": "old", "edwards": "old", "desiree": "old", "rooster": "old", "estima": "old", "wilja": "old",
-        "charlotte": "new", "jersey": "new", "royals": "new", "royal": "new", "baby": "new",
+        "maris": "potato old", "piper": "", "king": "potato old", "edward": "", "edwards": "", "desiree": "potato old", "rooster": "potato red", "estima": "potato old", "wilja": "potato old",
+        "charlotte": "potato new", "jersey": "potato new", "royals": "", "royal": "", "albert": "potato", "bartlett": "",
         "potatoes": "potato", "spuds": "potato", "spud": "potato", "yoghurt": "yogurt", "brocolli": "broccoli", "brocoli": "broccoli", "zucchini": "courgette", "eggplant": "aubergine",
     ]
 
@@ -35,8 +36,12 @@ final class FoodIndex: @unchecked Sendable {
     static func search(_ query: String, in entries: [Entry], tiers: Set<FoodTier> = [.generic, .user], exclude: Set<String> = [], limit: Int = 60) -> [String] {
         var q = query.trimmingCharacters(in: .whitespaces).lowercased(); guard !q.isEmpty else { return [] }
         for (k, v) in Store.synonyms where q == k || q.hasPrefix(k + " ") { q = v + q.dropFirst(k.count) }
-        let toks = q.split(separator: " ").map { tokenSynonyms[String($0)] ?? String($0) }.filter { !$0.isEmpty }
+        var seen = Set<String>()
+        let toks = q.split(separator: " ").flatMap { (tokenSynonyms[String($0)] ?? String($0)).split(separator: " ").map(String.init) }.filter { !$0.isEmpty && seen.insert($0).inserted }
         guard !toks.isEmpty else { return [] }
+        return rank(toks, entries, tiers: tiers, exclude: exclude, limit: limit, retry: true)
+    }
+    private static func rank(_ toks: [String], _ entries: [Entry], tiers: Set<FoodTier>, exclude: Set<String>, limit: Int, retry: Bool) -> [String] {
         var scored: [(Entry, Int)] = []
         for e in entries where tiers.contains(e.tier) && !e.macrosUnknown && !exclude.contains(e.id) {
             var score = 0, ok = true
@@ -49,6 +54,12 @@ final class FoodIndex: @unchecked Sendable {
                 ok = false; break
             }
             if ok { scored.append((e, score * 10 + (e.raw ? 3 : 0))) }
+        }
+        // Nothing matched every word (a variety or brand the tables don't carry, "potato albert"): keep the words that match something and search again,
+        // so the user still sees every potato row rather than nothing.
+        if scored.isEmpty, retry, toks.count > 1 {
+            let kept = toks.filter { t in entries.contains { e in e.words.contains { $0.hasPrefix(t) } } }
+            if !kept.isEmpty, kept.count < toks.count { return rank(kept, entries, tiers: tiers, exclude: exclude, limit: limit, retry: false) }
         }
         scored.sort { a, b in
             if a.0.useCount != b.0.useCount { return a.0.useCount > b.0.useCount }
