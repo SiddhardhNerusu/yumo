@@ -11,6 +11,7 @@ struct BalanceSheet: View {
     enum Step { case weigh, day }
     @State private var step: Step = .weigh
     @State private var query = ""
+    @State private var hits: [Food] = []
     @State private var open: String? = nil            // foodId whose weight panel is unfolded
     @State private var items: [PrepItem] = []          // weighed foods (foodId, grams)
     @State private var gramsText: [String: String] = [:]
@@ -46,12 +47,21 @@ struct BalanceSheet: View {
             HStack(spacing: 10) { TextField("Search your staples or the catalogue", text: $query).font(.yumo.bodyStrong).autocorrectionDisabled().submitLabel(.done) }
                 .padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
                 .padding(.horizontal, Space.gutter).padding(.top, 14)
+                .task(id: query) {   // debounced, off the main thread (FoodIndex)
+                    let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { hits = []; return }
+                    try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
+                    let s = store; FoodIndex.shared.refresh(s)
+                    let snap = FoodIndex.shared.snapshot, ex = Set(s.staples().map(\.foodId))
+                    let ids = await Task.detached(priority: .userInitiated) { FoodIndex.search(q, in: snap, exclude: ex, limit: 12) }.value
+                    guard !Task.isCancelled else { return }
+                    hits = s.foods(ids: ids)
+                }
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     let q = query.trimmingCharacters(in: .whitespaces).lowercased()
                     let stapleIds = Set(store.staples().map(\.foodId))
                     // FROM THE CATALOGUE: search hits that are not staples, or the weighed extras when there is no query
-                    let extras: [Food] = q.isEmpty ? items.compactMap { $0.foodId }.filter { !stapleIds.contains($0) }.compactMap { store.food(id: $0) } : Array(store.fuzzySearch(q, exclude: stapleIds).prefix(6))
+                    let extras: [Food] = q.isEmpty ? items.compactMap { $0.foodId }.filter { !stapleIds.contains($0) }.compactMap { store.food(id: $0) } : hits
                     if !extras.isEmpty { group("From the catalogue", extras, inStaples: false) }
                     ForEach([(Balance.Kind.protein, "Proteins"), (.carb, "Carbs"), (.fat, "Fats"), (.veg, "Veg")], id: \.1) { k, label in
                         let list = staples.map(\.1).filter { Balance.classify($0) == k && (q.isEmpty || $0.name.lowercased().contains(q)) }
@@ -85,7 +95,7 @@ struct BalanceSheet: View {
     @ViewBuilder func weighRow(_ f: Food, inStaples: Bool) -> some View {
         let it = item(f); let weighed = (it?.grams ?? 0) > 0; let isOpen = open == f.id
         let staple = store.staples().first { $0.foodId == f.id }
-        let sub: String = weighed ? ((it?.carried ?? false) ? "same as yesterday" : "weighed today") : inStaples ? [f.detail, staple?.maxG.map { "max \(Fmt.g($0)) g" } ?? ""].filter { !$0.isEmpty }.joined(separator: " · ").ifEmpty(Balance.className(Balance.classify(f))) : "from the catalogue · today only"
+        let sub: String = weighed ? ((it?.carried ?? false) ? "same as yesterday" : "weighed today") : inStaples ? [f.detail, staple?.maxG.map { "max \(Fmt.g($0)) g" } ?? ""].filter { !$0.isEmpty }.joined(separator: " · ").ifEmpty(Balance.className(Balance.classify(f))) : [f.detail, "today only"].filter { !$0.isEmpty }.joined(separator: " · ")
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 Button { toggle(f) } label: {
@@ -141,6 +151,15 @@ struct BalanceSheet: View {
                         ForEach(r.emptyMeals, id: \.rawValue) { m in
                             let rows = r.items.filter { $0.meal == m && $0.grams > 0 }
                             if !rows.isEmpty { mealCard(m, rows) }
+                        }
+                        if r.statusDanger, r.status.contains("add a carb or fat staple") {
+                            // the day can't land from the staples you have: say so and open the editor right here
+                            Button { staplesOpen = true } label: {
+                                HStack(spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 2) { Text("Add a carb or fat staple").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text("Yumo only sizes the foods you keep as staples — rice, oats, oil… — so it needs one to fill the rest of the day.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.leading) }
+                                    Spacer(); Text("›").font(.nunito(22, .extrabold)).foregroundStyle(Color.yumo.accent)
+                                }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: 20)
+                            }.buttonStyle(PlainPressStyle())
                         }
                         Text("Weighed foods are fixed · everything else was sized to land the day").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 4)
                     } else { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 30) }

@@ -50,30 +50,25 @@ struct Store {
     }
     // MARK: Fuzzy catalogue search (rev 6, `yumo-catalog.js`): every token must prefix-match a word of the name/state or sit within
     // edit distance 1 (≤ 5 letters) / 2 of one; synonyms first; exact-prefix hits rank above fuzzy ones, then shorter names.
-    static let synonyms: [String: String] = ["protein powder": "whey", "protein": "whey", "shake": "whey", "pb": "peanut butter", "yoghurt": "yogurt", "spuds": "potato", "fries": "chips", "zucchini": "courgette", "eggplant": "aubergine", "rocket": "salad", "lettuce": "salad", "brocolli": "broccoli", "brocoli": "broccoli", "potatoes": "potato"]
-    static func lev(_ a: String, _ b: String) -> Int {
+    nonisolated static let synonyms: [String: String] = ["protein powder": "whey", "protein": "whey", "shake": "whey", "pb": "peanut butter", "yoghurt": "yogurt", "spuds": "potato", "fries": "chips", "zucchini": "courgette", "eggplant": "aubergine", "rocket": "salad", "lettuce": "salad", "brocolli": "broccoli", "brocoli": "broccoli", "potatoes": "potato"]
+    nonisolated static func lev(_ a: String, _ b: String) -> Int {
         let a = Array(a), b = Array(b); if abs(a.count - b.count) > 2 { return 9 }
         var prev = Array(0...b.count), cur = Array(repeating: 0, count: b.count + 1)
         for i in 1...max(1, a.count) where i <= a.count { cur[0] = i; for j in 1...max(1, b.count) where j <= b.count { cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1)) }; swap(&prev, &cur) }
         return a.isEmpty ? b.count : prev[b.count]
     }
+    /// Fuzzy catalogue search on the in-memory FoodIndex (see FoodIndex.search for the rules). Main-thread convenience; views search off-thread via `fuzzyIDs`.
     func fuzzySearch(_ query: String, tiers: Set<FoodTier> = [.generic, .user], exclude: Set<String> = []) -> [Food] {
-        var q = query.trimmingCharacters(in: .whitespaces).lowercased(); guard !q.isEmpty else { return [] }
-        for (k, v) in Store.synonyms where q == k || q.hasPrefix(k + " ") { q = v + q.dropFirst(k.count) }
-        let toks = q.split(separator: " ").map(String.init).filter { !$0.isEmpty }
-        var scored: [(Food, Int, Int)] = []
-        for f in foods() where tiers.contains(f.tier) && !exclude.contains(f.id) && !f.macrosUnknown {
-            let words = (f.name + " " + (f.state ?? "")).lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
-            var score = 0, ok = true
-            for t in toks {
-                if words.contains(where: { $0.hasPrefix(t) }) { score += 2; continue }
-                let tol = t.count <= 5 ? 1 : 2
-                if t.count >= 4, words.contains(where: { w in Store.lev(t, String(w.prefix(max(t.count, min(w.count, t.count + 1))))) <= tol || Store.lev(t, w) <= tol }) { score += 1; continue }
-                ok = false; break
-            }
-            if ok { scored.append((f, score, f.name.count)) }
-        }
-        return scored.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 < $1.2 }.map(\.0)
+        FoodIndex.shared.refresh(self)
+        return foods(ids: FoodIndex.search(query, in: FoodIndex.shared.snapshot, tiers: tiers, exclude: exclude))
+    }
+    /// Foods for a list of ids, in that order (one fetch).
+    func foods(ids: [String]) -> [Food] {
+        guard !ids.isEmpty else { return [] }
+        let set = Set(ids)
+        let hits = (try? ctx.fetch(FetchDescriptor<Food>(predicate: #Predicate { set.contains($0.id) }))) ?? []
+        let by = Dictionary(uniqueKeysWithValues: hits.map { ($0.id, $0) })
+        return ids.compactMap { by[$0] }
     }
     /// The most recent logged instance of a meal within the last 14 days before `dayKey` (rev 6 swipe row).
     func recentMeal(_ meal: Meal, before dayKey: String) -> (entries: [FoodEntry], daysAgo: Int)? {
@@ -108,7 +103,7 @@ struct Store {
     }
     func upsert(_ f: Food) -> Food {
         if let bc = f.barcode, let existing = food(barcode: bc) { return existing }
-        ctx.insert(f); try? ctx.save(); return f
+        ctx.insert(f); try? ctx.save(); FoodIndex.shared.invalidate(); return f
     }
     func mostLogged(limit: Int = 10) -> [Food] { Array(foods().filter { $0.useCount > 0 }.prefix(limit)) }
     /// Grouped search (PRODUCT_BRIEF §2): your foods → generic (one per canonical) → branded.
@@ -157,7 +152,7 @@ struct Store {
         for m in savedMeals() { ctx.delete(m) }
         if let p = try? ctx.fetch(FetchDescriptor<UserProfile>()).first { ctx.delete(p) }
         for e in weeklyEstimates() { ctx.delete(e) }
-        try? ctx.save(); UserDefaults.standard.removeObject(forKey: Catalogue.versionKey)
+        try? ctx.save(); UserDefaults.standard.removeObject(forKey: Catalogue.versionKey); FoodIndex.shared.invalidate()
     }
     private func entries() -> [FoodEntry] { (try? ctx.fetch(FetchDescriptor<FoodEntry>())) ?? [] }
 }

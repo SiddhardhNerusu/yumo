@@ -1,5 +1,13 @@
 # Yumo — changelog
 
+## 1.0 build 2026-10-19 pm (device feedback — search lag, staples, the planner's empty states)
+- **Typing lag fixed.** The fuzzy matcher used to re-fetch all 4,160 foods and re-split every name on every keystroke, on the main thread. Search now runs on an in-memory `FoodIndex` (built once per launch, rebuilt when the food count changes) in a background task with a 120 ms debounce — I prepped… search and the Staples editor both.
+- **I prepped… entry always shows on today**, staples or not; with none, the sheet leads to "Add your staples first". Before, the sparkle was hidden until you had staples or history, so new users never learned it existed.
+- **Weigh-search rows show the variant** ("canned, drained solids", "old, flesh only · raw") instead of "from the catalogue"; two rows no longer read as duplicates. Raw rows rank above canned / frozen / fried for the same words.
+- **UK potato varieties**: Maris Piper, King Edward, Desiree, Rooster, Estima, Wilja → the CoFID "old" rows; Charlotte, Jersey Royals, baby → "new". There is no per-variety nutrition in any public table; this is what every UK database does.
+- **Scan a barcode into your staples**: the barcode button in the Staples search field opens the scanner (Open Food Facts → USDA Branded) with "Add as a staple".
+- **Short day from the planner** now shows an "Add a carb or fat staple ›" card that opens the Staples editor, instead of only a red status tag. The planner still only sizes staples — it never invents foods.
+
 ## 1.0 build 2026-10-19 (handoff rev 11 — Today return chip, Summary page, sequenced title)
 - **Today chip**: whenever the viewed day isn't today, a 36 pt surface chip "Today ↺" (13/800 + 14 pt accent return arrow) takes the header's right slot and outranks the review chip and streak pill (both describe today, so they only show on today). Tap → today with the forward day-change slide. Re-tapping the Today tab while on a past day also returns to today (iOS pop-to-root); on today it still scrolls to the top (your earlier request — the spec says "nothing", scroll-to-top kept).
 - **"View summary ›"** is always the last element of the Today list: centred 44 pt text action (15/800 accent + "›" 18), margin-top 16, no card, fades to .6 while pressed. Snacks is always rendered.

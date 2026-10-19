@@ -15,7 +15,8 @@ struct StaplesEditor: View {
     var store: Store { Store(ctx) }
 
     var staples: [(Staple, Food)] { store.staples().compactMap { s in store.food(id: s.foodId).map { (s, $0) } } }
-    var results: [Food] { store.fuzzySearch(line, exclude: Set(store.staples().map(\.foodId))) }
+    @State private var results: [Food] = []
+    @State private var scanOpen = false
     var suggestions: [Food] {
         guard mode == .settings, store.hasHistory(before: Date().adding(days: -6).dayKey) else { return [] }
         let have = Set(store.staples().map(\.foodId))
@@ -27,7 +28,18 @@ struct StaplesEditor: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 10) {
                 TextField("Type here…", text: $line).font(.yumo.bodyStrong).focused($focused).autocorrectionDisabled().submitLabel(.done)
+                Button { scanOpen = true } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 36, height: 36).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()).accessibilityLabel("Scan a barcode")
             }.padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
+            .task(id: line) {   // debounced, off the main thread: the index is a value snapshot
+                let q = line.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { results = []; return }
+                try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
+                let s = store; FoodIndex.shared.refresh(s)
+                let snap = FoodIndex.shared.snapshot, ex = Set(s.staples().map(\.foodId))
+                let ids = await Task.detached(priority: .userInitiated) { FoodIndex.search(q, in: snap, exclude: ex) }.value
+                guard !Task.isCancelled else { return }
+                results = s.foods(ids: ids)
+            }
+            .fullScreenCover(isPresented: $scanOpen) { StapleScanScreen { f in store.addStaple(f); scanOpen = false; tick += 1; onChange() } }
             let res = results
             if !line.trimmingCharacters(in: .whitespaces).isEmpty {
                 VStack(spacing: 0) {
@@ -107,5 +119,60 @@ struct StaplesScreen: View {
                 }.padding(Space.gutter).padding(.bottom, 40)
             }.scrollDismissesKeyboard(.interactively)
         }.background(Color.yumo.bg.ignoresSafeArea())
+    }
+}
+
+
+/// Rev 11.1: scan a packaged product straight into your staples (the same scanner as Add food, the same Open Food Facts → USDA Branded lookup).
+struct StapleScanScreen: View {
+    @Environment(\.modelContext) private var ctx
+    @Environment(\.dismiss) private var dismiss
+    var onAdd: (Food) -> Void
+    @State private var torch = false
+    @State private var code: String? = nil
+    @State private var food: Food? = nil
+    @State private var missing = false
+    var store: Store { Store(ctx) }
+    var body: some View {
+        ZStack {
+            BarcodeScannerView(torch: torch) { c in handle(c) }.ignoresSafeArea()
+            Color.yumo.scanMask.ignoresSafeArea().mask { Rectangle().overlay { RoundedRectangle(cornerRadius: 22).frame(width: 300, height: 190).offset(y: -40).blendMode(.destinationOut) }.compositingGroup() }
+            CornerBrackets(locked: code != nil).frame(width: 300, height: 190).offset(y: -40)
+            VStack(spacing: 0) {
+                ZStack {
+                    HStack {
+                        Button { dismiss() } label: { Text("✕").font(.nunito(22, .extrabold)).foregroundStyle(.white).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle())
+                        Spacer()
+                        Button { torch.toggle() } label: { TorchIcon(on: torch).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle())
+                    }
+                    Text("Scan a staple").font(.yumo.title).foregroundStyle(.white)
+                }.padding(.horizontal, Space.gutter).padding(.top, 12)
+                Spacer()
+                if let code {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Overline(text: food != nil ? "Found" : missing ? "Not found" : "Looking up…")
+                        if let f = food {
+                            Text(f.name).font(.yumo.title).foregroundStyle(Color.yumo.ink)
+                            Text([f.brand, "\(Fmt.k(f.kcal100)) kcal · P \(Fmt.g(f.p100)) · C \(Fmt.g(f.c100)) · F \(Fmt.g(f.f100)) per 100 g"].compactMap { $0 }.joined(separator: " · ")).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
+                            HStack(spacing: 10) { PrimaryButton(label: "Add as a staple", size: .compact) { onAdd(f) }; SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
+                        } else if missing {
+                            Text("Barcode \(code) isn't in Open Food Facts or USDA yet.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
+                            HStack(spacing: 10) { SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
+                        } else { ProgressView().tint(.yumo.inkMuted) }
+                    }.frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: Radius.found).padding(.horizontal, Space.gutter).padding(.bottom, 40)
+                }
+            }
+        }.background(Color.black.ignoresSafeArea())
+    }
+    func reset() { withAnimation(Motion.snap) { code = nil; food = nil; missing = false } }
+    func handle(_ c: String) {
+        guard code == nil else { return }
+        withAnimation(Motion.snap) { code = c }
+        let s = store
+        if let f = s.food(barcode: c) { food = f; return }
+        Task {
+            var hit = await OpenFoodFacts.barcode(c); if hit == nil { hit = await USDABranded.barcode(c) }
+            if let p = hit { withAnimation(Motion.snap) { food = s.upsert(p.makeFood()) } } else { withAnimation(Motion.snap) { missing = true } }
+        }
     }
 }

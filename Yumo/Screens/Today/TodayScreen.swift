@@ -109,12 +109,8 @@ struct TodayScreen: View {
         .onChange(of: session.selectedDate) { if calendarOpen { withAnimation(Motion.expand) { calendarOpen = false } } }
     }
     /// Rev 5: the "Prepped something?" row at the bottom of Today — today only, > 150 kcal left, a meal empty, and either staples or history to balance from.
-    var preppedRow: Bool {
-        guard let t = targets, isToday else { return false }
-        let left = Double(t.kcal) - DayTotals(entries).kcal
-        let empty = Meal.allCases.filter { m in !entries.contains { $0.meal == m } }
-        return left > 150 && !empty.isEmpty && (hasStaples || hasHistory) && !Tour.shared.active
-    }
+    /// The I prepped… entry is always there on today (even with no staples yet — the sheet then leads to "Add your staples first"), so new users learn it exists.
+    var preppedRow: Bool { isToday && targets != nil && !Tour.shared.active }
 
     /// motion.titleCollapse input; scrolling also closes an open swipe row.
     func didScroll(_ sc: CGFloat) { if abs(sc - scrolled) > 2 { swipes.scrollTick &+= 1 }; scrolled = sc }
