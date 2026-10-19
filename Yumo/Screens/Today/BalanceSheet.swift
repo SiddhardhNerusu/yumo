@@ -54,45 +54,27 @@ struct BalanceSheet: View {
             }
                 .padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
                 .padding(.horizontal, Space.gutter).padding(.top, 14)
-                .task(id: query) {   // debounced, off the main thread (FoodIndex)
-                    let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { hits = []; return }
+                .task(id: query) {   // debounced, off the main thread; one scorer for the catalogue and for Open Food Facts (FoodIndex)
+                    let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { hits = []; online = []; onlineFirst = false; return }
                     try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
-                    let s = store; FoodIndex.shared.refresh(s)
-                    let snap = FoodIndex.shared.snapshot, ex = Set(s.staples().map(\.foodId))
-                    let found = await Task.detached(priority: .userInitiated) { FoodIndex.searchHits(q, in: snap, exclude: ex, limit: 40) }.value
+                    let s = store, snap = FoodIndex.shared.snapshot(s), ex = Set(s.staples().map(\.foodId))
+                    let (found, missing) = await Task.detached(priority: .userInitiated) { (snap.search(q, exclude: ex, limit: 40), snap.uncovered(q)) }.value
                     guard !Task.isCancelled else { return }
                     hits = s.foods(ids: found.map(\.id))
-                    // the packaged world by name — Open Food Facts — only once the last word is complete (≥ 3 letters), after a longer pause,
-                    // and only products that actually name one of the typed words; deduped against what is already local
-                    let words = q.lowercased().split(separator: " ").map(String.init), lastDone = (words.last?.count ?? 0) >= 3
-                    let missing = await Task.detached(priority: .userInitiated) { FoodIndex.uncovered(q, in: snap) }.value
-                    let uncovered = !missing.isEmpty
+                    // the packaged world by name — once the last word is complete (≥ 3 letters) and after a pause; deduped against local rows
+                    let lastDone = (q.split(separator: " ").last?.count ?? 0) >= 3
                     guard q.count >= 3, lastDone else { online = []; onlineBusy = false; onlineFirst = false; return }
                     onlineBusy = true
                     try? await Task.sleep(for: .milliseconds(350)); guard !Task.isCancelled else { return }
-                    // two lookups when the catalogue can't cover part of the query: the full line and the uncovered words alone ("albert rooster"),
-                    // merged by barcode — Open Food Facts' own ranking of a long query drops the bags you actually mean
                     var products = await OpenFoodFacts.search(q, limit: 12)
-                    if !missing.isEmpty, missing.joined(separator: " ") != q.lowercased() {
-                        let extra = await OpenFoodFacts.search(missing.joined(separator: " "), limit: 12)
+                    if !missing.isEmpty, missing.joined(separator: " ") != q.lowercased() {   // Open Food Facts' own ranking of a long line drops the bag you mean
                         let have = Set(products.compactMap(\.barcode))
-                        products += extra.filter { $0.barcode.map { !have.contains($0) } ?? true }
+                        products += await OpenFoodFacts.search(missing.joined(separator: " "), limit: 12).filter { $0.barcode.map { !have.contains($0) } ?? true }
                     }
                     guard !Task.isCancelled else { return }
                     let localCodes = Set(hits.compactMap(\.barcode))
-                    let stems = words.filter { $0.count >= 3 }
-                    // a product must name one of the words the catalogue can't cover ("albert", "rooster"); with none uncovered, any typed word.
-                    // Ordered by how many typed words it names — "Potatoes · Albert Bartlett" and "Rooster Potatoes", not "Kartoffeln".
-                    let must = missing.isEmpty ? stems : missing
-                    online = products.compactMap { p -> (OpenFoodFacts.Product, Int)? in
-                        guard p.barcode.map({ !localCodes.contains($0) }) ?? true else { return nil }
-                        let hay = (p.name + " " + (p.brand ?? "")).lowercased()
-                        guard must.contains(where: { hay.contains($0) }) else { return nil }
-                        // words named ×10, uncovered words named ×5, shorter names first ("Potatoes · Albert Bartlett" above "Sweet Potato Fries - Albert Bartlett")
-                        let score = stems.filter { hay.contains($0) }.count * 10 + missing.filter { hay.contains($0) }.count * 5 - min(9, p.name.count / 8)
-                        return (p, score)
-                    }.sorted { $0.1 > $1.1 }.map(\.0)
-                    onlineBusy = false; onlineFirst = uncovered && !online.isEmpty
+                    online = snap.rank(products.filter { $0.barcode.map { !localCodes.contains($0) } ?? true }, query: q)
+                    onlineBusy = false; onlineFirst = !missing.isEmpty && !online.isEmpty
                 }
                 .fullScreenCover(isPresented: $scanOpen) { StapleScanScreen { f in keep(f); scanOpen = false } }
             ScrollView {

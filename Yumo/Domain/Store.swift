@@ -59,8 +59,7 @@ struct Store {
     }
     /// Fuzzy catalogue search on the in-memory FoodIndex (see FoodIndex.search for the rules). Main-thread convenience; views search off-thread via `fuzzyIDs`.
     func fuzzySearch(_ query: String, tiers: Set<FoodTier> = [.generic, .user], exclude: Set<String> = []) -> [Food] {
-        FoodIndex.shared.refresh(self)
-        return foods(ids: FoodIndex.search(query, in: FoodIndex.shared.snapshot, tiers: tiers, exclude: exclude))
+        foods(ids: FoodIndex.shared.snapshot(self).search(query, tiers: tiers, exclude: exclude).map(\.id))
     }
     /// Foods for a list of ids, in that order (one fetch).
     func foods(ids: [String]) -> [Food] {
@@ -107,7 +106,12 @@ struct Store {
     }
     func mostLogged(limit: Int = 10) -> [Food] { Array(foods().filter { $0.useCount > 0 }.prefix(limit)) }
     /// Grouped search (PRODUCT_BRIEF §2): your foods → generic (one per canonical) → branded.
-    func groupedSearch(_ q: String) -> (your: [Food], generic: [Food], chain: [Food], branded: [Food]) { groupedSearch(q, in: foods()) }
+    /// Grouped by tier, every group ranked by the one scorer (FoodIndex). No cap: every variant shows.
+    func groupedSearch(_ q: String) -> (your: [Food], generic: [Food], chain: [Food], branded: [Food]) {
+        let hits = FoodIndex.shared.snapshot(self).search(q, tiers: [.user, .generic, .chain, .branded], limit: 400)
+        let all = foods(ids: hits.map(\.id))
+        return (all.filter { $0.tier == .user }, all.filter { $0.tier == .generic }, all.filter { $0.tier == .chain }, all.filter { $0.tier == .branded })
+    }
     /// Same search over an already-fetched list (type-to-log resolves several words against one fetch).
     func groupedSearch(_ q: String, in all: [Food]) -> (your: [Food], generic: [Food], chain: [Food], branded: [Food]) {
         let needle = q.lowercased()

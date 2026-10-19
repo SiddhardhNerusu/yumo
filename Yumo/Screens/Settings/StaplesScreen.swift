@@ -33,9 +33,8 @@ struct StaplesEditor: View {
             .task(id: line) {   // debounced, off the main thread: the index is a value snapshot
                 let q = line.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { results = []; return }
                 try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
-                let s = store; FoodIndex.shared.refresh(s)
-                let snap = FoodIndex.shared.snapshot, ex = Set(s.staples().map(\.foodId))
-                let ids = await Task.detached(priority: .userInitiated) { FoodIndex.search(q, in: snap, exclude: ex) }.value
+                let s = store, snap = FoodIndex.shared.snapshot(s), ex = Set(s.staples().map(\.foodId))
+                let ids = await Task.detached(priority: .userInitiated) { snap.search(q, exclude: ex).map(\.id) }.value
                 guard !Task.isCancelled else { return }
                 results = s.foods(ids: ids)
             }

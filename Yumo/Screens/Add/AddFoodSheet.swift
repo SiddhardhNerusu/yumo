@@ -23,7 +23,8 @@ struct AddFoodSheet: View {
     @State private var searchTask: Task<Void, Never>?
     @State private var scanOpen = false
     @State private var yourFoods: [Food] = []; @State private var generic: [Food] = []; @State private var chains: [Food] = []; @State private var branded: [Food] = []
-    @State private var brandedOpen = false      // the explicit "Search branded" toggle: only then do live Open Food Facts results appear
+    @State private var brandedOpen = false      // live Open Food Facts results: automatic when the line names a brand or a word the catalogue can't cover, or on "Show branded"
+    @State private var brandedFirst = false     // a word the catalogue can't cover → the packaged group leads
     @FocusState private var focused: Bool
     struct Found: Identifiable { var id = UUID(); var barcode: String; var food: Food? }
 
@@ -127,13 +128,14 @@ struct AddFoodSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if !yourFoods.isEmpty { group("Your foods", yourFoods) }
+                    if brandedFirst, !query.isEmpty { remoteGroup }
                     if !generic.isEmpty { group("Generic", generic) }
                     if !chains.isEmpty { group("Chains", chains) }
                     if !branded.isEmpty { group("Scanned products", branded) }
                     if yourFoods.isEmpty && generic.isEmpty && chains.isEmpty && branded.isEmpty && !query.isEmpty && !brandedOpen {
                         Text("No generic match for \"\(query)\".").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 8)
                     }
-                    if !query.isEmpty {
+                    if !query.isEmpty, !brandedFirst {
                         if brandedOpen {
                             Overline(text: "Branded · Open Food Facts").padding(.top, 4)
                             if remote.isEmpty && !searching { Text("No branded match. Scan the barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
@@ -152,6 +154,13 @@ struct AddFoodSheet: View {
         .onChange(of: query) { runSearch() }
         .onAppear { if yourFoods.isEmpty && query.isEmpty { yourFoods = store.mostLogged() } }
     }
+    /// The Open Food Facts group when it leads (a word the catalogue can't cover).
+    @ViewBuilder var remoteGroup: some View {
+        Overline(text: "Branded · Open Food Facts").padding(.top, 4)
+        if remote.isEmpty && !searching { Text("No packaged product by that name on Open Food Facts — scan its barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
+        else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: p.brand, meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
+        if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
+    }
     func group(_ title: String, _ foods: [Food]) -> some View {
         VStack(alignment: .leading, spacing: 8) { HStack { Overline(text: title); Spacer(); if foods.count > 12 { Text("\(foods.count)").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).padding(.trailing, 4) } }.padding(.top, 4); LazyVStack(spacing: 0) { ForEach(foods, id: \.id) { f in row(f) } }.padding(.leading, Space.cardPad).listCard() }
     }
@@ -161,7 +170,7 @@ struct AddFoodSheet: View {
         return ResultRow(name: f.name, brand: f.tier == .user ? nil : (f.tier == .chain ? f.brand : (f.state ?? f.brand)), meta: "\(f.tier == .chain ? f.defaultServing.label : "100 g") · \(macros)", kcal: f.kcal(for: f.defaultServing.grams), onAdd: { log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = f })
     }
     func runSearch() {
-        searchTask?.cancel(); brandedOpen = false; remote = []
+        searchTask?.cancel(); brandedOpen = false; brandedFirst = false; remote = []
         let q = query.trimmingCharacters(in: .whitespaces)
         if typed { return }
         if q.isEmpty { yourFoods = store.mostLogged(); generic = []; chains = []; branded = []; searching = false; return }
@@ -173,17 +182,37 @@ struct AddFoodSheet: View {
             searchTask = Task { try? await Task.sleep(for: .milliseconds(150)); guard !Task.isCancelled else { return }; var hit = await OpenFoodFacts.barcode(q); if hit == nil { hit = await USDABranded.barcode(q) }; if let p = hit { branded = [store.upsert(p.makeFood())] }; searching = false }
             return
         }
-        // Text search is local only: your foods, the canonical generics, chains. Live Open Food Facts joins in
-        // automatically only when the query names a brand (PRODUCT_BRIEF §2), or on the explicit "Show branded" tap.
-        let g = store.groupedSearch(q); yourFoods = g.your; generic = g.generic; chains = g.chain; branded = g.branded; searching = false
-        if Catalogue.hasBrandToken(q) { brandedOpen = true; runBranded() }
+        // One scorer for every group (FoodIndex), off the main thread. Live Open Food Facts joins in automatically when the line names a brand
+        // (PRODUCT_BRIEF §2) or a word the catalogue can't cover (a variety, a brand it has never seen), or on the explicit "Show branded" tap.
+        let s = store, snap = FoodIndex.shared.snapshot(s)
+        searchTask = Task {
+            try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
+            let (hits, missing) = await Task.detached(priority: .userInitiated) { (snap.search(q, tiers: [.user, .generic, .chain, .branded], limit: 400), snap.uncovered(q)) }.value
+            guard !Task.isCancelled else { return }
+            let all = s.foods(ids: hits.map(\.id))
+            yourFoods = all.filter { $0.tier == .user }; generic = all.filter { $0.tier == .generic }; chains = all.filter { $0.tier == .chain }; branded = all.filter { $0.tier == .branded }; searching = false
+            if Catalogue.hasBrandToken(q) || !missing.isEmpty { brandedOpen = true; brandedFirst = !missing.isEmpty; runBranded(missing: missing) }
+        }
     }
-    /// Live Open Food Facts search: brand-token queries and the explicit "Show branded" tap only.
-    func runBranded() {
-        let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { return }
+    /// Live Open Food Facts search, ranked by the same scorer. A second lookup on the uncovered words alone ("albert rooster") when there are any.
+    func runBranded(missing: [String] = []) {
+        let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty, (q.split(separator: " ").last?.count ?? 0) >= 3 else { return }
         searching = true
-        searchTask = Task { try? await Task.sleep(for: .milliseconds(250)); guard !Task.isCancelled else { return }; let r = await OpenFoodFacts.search(q); guard !Task.isCancelled else { return }; let have = Set(branded.compactMap(\.barcode)); remote = r.filter { $0.barcode.map { !have.contains($0) } ?? true }; searching = false }
+        let s = store, snap = FoodIndex.shared.snapshot(s)
+        let fetch = Task {
+            try? await Task.sleep(for: .milliseconds(300)); guard !Task.isCancelled else { return }
+            var products = await OpenFoodFacts.search(q)
+            if !missing.isEmpty, missing.joined(separator: " ") != q.lowercased() {
+                let have = Set(products.compactMap(\.barcode))
+                products += await OpenFoodFacts.search(missing.joined(separator: " ")).filter { $0.barcode.map { !have.contains($0) } ?? true }
+            }
+            guard !Task.isCancelled else { return }
+            let have = Set(branded.compactMap(\.barcode))
+            remote = snap.rank(products.filter { $0.barcode.map { !have.contains($0) } ?? true }, query: q); searching = false
+        }
+        brandedTask?.cancel(); brandedTask = fetch
     }
+    @State private var brandedTask: Task<Void, Never>? = nil
     func log(_ f: Food, serving: Serving, qty: Double) {
         _ = store.log(food: f, meal: meal, dayKey: dayKey, quantity: qty, serving: serving)
         toaster.show("\(f.name) → \(meal.rawValue)"); session.changed(); dismiss()
