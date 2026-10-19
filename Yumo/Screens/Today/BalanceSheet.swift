@@ -65,7 +65,8 @@ struct BalanceSheet: View {
                     // the packaged world by name — Open Food Facts — only once the last word is complete (≥ 3 letters), after a longer pause,
                     // and only products that actually name one of the typed words; deduped against what is already local
                     let words = q.lowercased().split(separator: " ").map(String.init), lastDone = (words.last?.count ?? 0) >= 3
-                    let uncovered = FoodIndex.coverage(q, hits: found) < 1
+                    let missing = await Task.detached(priority: .userInitiated) { FoodIndex.uncovered(q, in: snap) }.value
+                    let uncovered = !missing.isEmpty
                     guard q.count >= 3, lastDone else { online = []; onlineBusy = false; onlineFirst = false; return }
                     onlineBusy = true
                     try? await Task.sleep(for: .milliseconds(350)); guard !Task.isCancelled else { return }
@@ -73,13 +74,14 @@ struct BalanceSheet: View {
                     guard !Task.isCancelled else { return }
                     let localCodes = Set(hits.compactMap(\.barcode))
                     let stems = words.filter { $0.count >= 3 }
-                    // keep products that name all (or all but one) of the typed words, most words first — "rooster potatoes", not "tempura chicken chunks" by Rooster
-                    let need = max(1, stems.count - 1)
+                    // a product must name one of the words the catalogue can't cover ("albert", "rooster"); with none uncovered, any typed word.
+                    // Ordered by how many typed words it names — "Potatoes · Albert Bartlett" and "Rooster Potatoes", not "Kartoffeln".
+                    let must = missing.isEmpty ? stems : missing
                     online = products.compactMap { p -> (OpenFoodFacts.Product, Int)? in
                         guard p.barcode.map({ !localCodes.contains($0) }) ?? true else { return nil }
                         let hay = (p.name + " " + (p.brand ?? "")).lowercased()
-                        let n = stems.filter { hay.contains($0) }.count
-                        return n >= need ? (p, n) : nil
+                        guard must.contains(where: { hay.contains($0) }) else { return nil }
+                        return (p, stems.filter { hay.contains($0) }.count)
                     }.sorted { $0.1 > $1.1 }.map(\.0)
                     onlineBusy = false; onlineFirst = uncovered && !online.isEmpty
                 }

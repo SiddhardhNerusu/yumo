@@ -132,6 +132,7 @@ struct StapleScanScreen: View {
     @State private var code: String? = nil
     @State private var food: Food? = nil
     @State private var missing = false
+    @State private var create: CreateFoodDraft? = nil
     var store: Store { Store(ctx) }
     var body: some View {
         ZStack {
@@ -156,13 +157,14 @@ struct StapleScanScreen: View {
                             Text([f.brand, "\(Fmt.k(f.kcal100)) kcal · P \(Fmt.g(f.p100)) · C \(Fmt.g(f.c100)) · F \(Fmt.g(f.f100)) per 100 g"].compactMap { $0 }.joined(separator: " · ")).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
                             HStack(spacing: 10) { PrimaryButton(label: "Add as a staple", size: .compact) { onAdd(f) }; SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
                         } else if missing {
-                            Text("Barcode \(code) isn't in Open Food Facts or USDA yet.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
-                            HStack(spacing: 10) { SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
+                            Text("Barcode \(code) isn't in Open Food Facts or USDA yet. Type the label's numbers once and it's yours for good.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
+                            HStack(spacing: 10) { PrimaryButton(label: "Add it from the label", size: .compact) { create = CreateFoodDraft(barcode: code) }; SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
                         } else { ProgressView().tint(.yumo.inkMuted) }
                     }.frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: Radius.found).padding(.horizontal, Space.gutter).padding(.bottom, 40)
                 }
             }
         }.background(Color.black.ignoresSafeArea())
+        .sheet(item: $create) { d in CreateFoodScreen(draft: d) { f in create = nil; onAdd(f) } }
     }
     func reset() { withAnimation(Motion.snap) { code = nil; food = nil; missing = false } }
     func handle(_ c: String) {

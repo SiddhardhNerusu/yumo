@@ -64,6 +64,10 @@ final class FoodIndex: @unchecked Sendable {
         }
         return scored.prefix(limit).map { Hit(id: $0.0.id, matched: $0.1) }
     }
+    /// The typed words (≥ 3 letters) that no catalogue row carries at all — a variety, a brand ("albert", "rooster"). These are what a packaged product must name.
+    static func uncovered(_ query: String, in entries: [Entry]) -> [String] {
+        query.lowercased().split(separator: " ").map(String.init).filter { w in w.count >= 3 && !entries.contains { e in e.words.contains { $0.hasPrefix(w) } } }
+    }
     /// How many of the query's words the best catalogue row matched, against the words typed — < 1 means the catalogue has no row for part of it.
     static func coverage(_ query: String, hits: [Hit]) -> Double {
         let n = max(1, query.split(separator: " ").count)
