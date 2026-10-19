@@ -23,10 +23,11 @@ enum OpenFoodFacts {
         guard let json = try? await get(url), (json["status"] as? Int) == 1, let p = json["product"] as? [String: Any] else { return nil }
         return parse(p)
     }
+    /// Name search on search.openfoodfacts.org (search-a-licious). The legacy cgi/search.pl endpoint answers 503 most of the time, so it is not used.
     static func search(_ q: String, limit: Int = 20) async -> [Product] {
-        var c = URLComponents(string: "https://world.openfoodfacts.org/cgi/search.pl")!
-        c.queryItems = [.init(name: "search_terms", value: q), .init(name: "search_simple", value: "1"), .init(name: "action", value: "process"), .init(name: "json", value: "1"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,nutriments,serving_size,serving_quantity,code")]  // OFF nutriments are in g (or IU-free SI units), scaled above
-        guard let url = c.url, let json = try? await get(url), let items = json["products"] as? [[String: Any]] else { return [] }
+        var c = URLComponents(string: "https://search.openfoodfacts.org/search")!
+        c.queryItems = [.init(name: "q", value: q), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity")]
+        guard let url = c.url, let json = try? await get(url), let items = json["hits"] as? [[String: Any]] else { return [] }
         return items.compactMap(parse)
     }
     private static func parse(_ p: [String: Any]) -> Product? {
@@ -36,7 +37,8 @@ enum OpenFoodFacts {
         guard kcal > 0 else { return nil }
         var servings = [Serving(label: "100 g", grams: 100)]
         if let sq = d("serving_quantity"), sq > 0 { let label = (p["serving_size"] as? String) ?? "1 serving (\(Int(sq)) g)"; servings.insert(Serving(label: "1 × \(label)", grams: sq), at: 0) }
-        let brand = (p["brands"] as? String)?.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) }
+        let brandRaw = (p["brands"] as? String) ?? (p["brands"] as? [String])?.joined(separator: ",")   // a string on the legacy API, an array on search-a-licious
+        let brand = brandRaw?.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) }
         var prod = Product(name: name, brand: brand, barcode: p["code"] as? String, kcal100: kcal, p100: d("proteins_100g") ?? 0, c100: d("carbohydrates_100g") ?? 0, f100: d("fat_100g") ?? 0, servings: servings, fibre: d("fiber_100g"), sugar: d("sugars_100g"), salt: d("salt_100g"), satFat: d("saturated-fat_100g"))
         let map: [(String, String, Double)] = [("fiber_100g", "fibre", 1), ("sugars_100g", "sugars", 1), ("saturated-fat_100g", "sat_fat", 1), ("monounsaturated-fat_100g", "mono", 1), ("polyunsaturated-fat_100g", "poly", 1), ("trans-fat_100g", "trans", 1), ("cholesterol_100g", "cholesterol_mg", 1000), ("sodium_100g", "sodium_mg", 1000), ("potassium_100g", "potassium_mg", 1000), ("calcium_100g", "calcium_mg", 1000), ("iron_100g", "iron_mg", 1000), ("magnesium_100g", "magnesium_mg", 1000), ("zinc_100g", "zinc_mg", 1000), ("phosphorus_100g", "phosphorus_mg", 1000), ("selenium_100g", "selenium_ug", 1_000_000), ("vitamin-a_100g", "vit_a_ug", 1_000_000), ("vitamin-c_100g", "vit_c_mg", 1000), ("vitamin-d_100g", "vit_d_ug", 1_000_000), ("vitamin-e_100g", "vit_e_mg", 1000), ("vitamin-k_100g", "vit_k_ug", 1_000_000), ("vitamin-b1_100g", "b1_mg", 1000), ("vitamin-b2_100g", "b2_mg", 1000), ("vitamin-pp_100g", "b3_mg", 1000), ("vitamin-b6_100g", "b6_mg", 1000), ("vitamin-b9_100g", "folate_ug", 1_000_000), ("vitamin-b12_100g", "b12_ug", 1_000_000), ("choline_100g", "choline_mg", 1000), ("caffeine_100g", "caffeine_mg", 1000), ("alcohol_100g", "alcohol_g", 1)]
         for (src, key, mult) in map { if let v = d(src) { prod.micros[key] = v * mult } }

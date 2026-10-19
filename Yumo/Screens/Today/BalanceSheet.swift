@@ -13,6 +13,8 @@ struct BalanceSheet: View {
     @State private var query = ""
     @State private var hits: [Food] = []
     @State private var online: [OpenFoodFacts.Product] = []   // packaged products by name (Open Food Facts) — every food reachable, one row per barcode
+    @State private var onlineFirst = false                      // the catalogue didn't match every word → the packaged group leads
+    @State private var onlineBusy = false
     @State private var scanOpen = false
     @State private var open: String? = nil            // foodId whose weight panel is unfolded
     @State private var items: [PrepItem] = []          // weighed foods (foodId, grams)
@@ -57,15 +59,17 @@ struct BalanceSheet: View {
                     try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
                     let s = store; FoodIndex.shared.refresh(s)
                     let snap = FoodIndex.shared.snapshot, ex = Set(s.staples().map(\.foodId))
-                    let ids = await Task.detached(priority: .userInitiated) { FoodIndex.search(q, in: snap, exclude: ex, limit: 12) }.value
+                    let found = await Task.detached(priority: .userInitiated) { FoodIndex.searchHits(q, in: snap, exclude: ex, limit: 40) }.value
                     guard !Task.isCancelled else { return }
-                    hits = s.foods(ids: ids)
+                    hits = s.foods(ids: found.map(\.id))
+                    onlineFirst = FoodIndex.coverage(q, hits: found) < 1   // a word the tables don't carry (a variety, a brand) → packaged results lead
                     // then the packaged world by name — Open Food Facts — deduped against what is already local
-                    guard q.count >= 3 else { online = []; return }
-                    let found = await OpenFoodFacts.search(q, limit: 8)
+                    guard q.count >= 3 else { online = []; onlineBusy = false; return }
+                    onlineBusy = true
+                    let products = await OpenFoodFacts.search(q, limit: 10)
                     guard !Task.isCancelled else { return }
                     let localCodes = Set(hits.compactMap(\.barcode))
-                    online = found.filter { $0.barcode.map { !localCodes.contains($0) } ?? true }
+                    online = products.filter { $0.barcode.map { !localCodes.contains($0) } ?? true }; onlineBusy = false
                 }
                 .fullScreenCover(isPresented: $scanOpen) { StapleScanScreen { f in keep(f); scanOpen = false } }
             ScrollView {
@@ -74,8 +78,10 @@ struct BalanceSheet: View {
                     let stapleIds = Set(store.staples().map(\.foodId))
                     // FROM THE CATALOGUE: search hits that are not staples, or the weighed extras when there is no query
                     let extras: [Food] = q.isEmpty ? items.compactMap { $0.foodId }.filter { !stapleIds.contains($0) }.compactMap { store.food(id: $0) } : hits
+                    if !q.isEmpty, onlineFirst, !online.isEmpty { onlineGroup }
                     if !extras.isEmpty { group(q.isEmpty ? "Also weighed" : "From the catalogue", extras, inStaples: false) }
-                    if !q.isEmpty, !online.isEmpty { onlineGroup }
+                    if !q.isEmpty, !onlineFirst, !online.isEmpty { onlineGroup }
+                    if !q.isEmpty, online.isEmpty { Text(onlineBusy ? "Looking for packaged products…" : q.count >= 3 ? "No packaged product by that name on Open Food Facts — scan its barcode to add it." : "").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).padding(.top, 12).padding(.horizontal, 4) }
                     ForEach([(Balance.Kind.protein, "Proteins"), (.carb, "Carbs"), (.fat, "Fats"), (.veg, "Veg")], id: \.1) { k, label in
                         let list = staples.map(\.1).filter { Balance.classify($0) == k && (q.isEmpty || $0.name.lowercased().contains(q)) }
                         if !list.isEmpty { group(label, list, inStaples: true) }
