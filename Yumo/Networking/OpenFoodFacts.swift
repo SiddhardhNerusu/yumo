@@ -5,6 +5,8 @@ enum OpenFoodFacts {
     struct Product { var name: String; var brand: String?; var barcode: String?; var kcal100: Double; var p100: Double; var c100: Double; var f100: Double; var servings: [Serving]
         var fibre: Double?; var sugar: Double?; var salt: Double?; var satFat: Double?
         var sourceRef: String? = nil; var micros: [String: Double] = [:]
+        /// Atwater check: 4P + 4C + 9F within 30 % of the stated kcal (alcohol-free foods). A potato at "79 kcal, C 1" fails and is not shown.
+        var plausible: Bool { let a = 4 * p100 + 4 * c100 + 9 * f100; return abs(a - kcal100) <= max(25, kcal100 * 0.30) }
         func makeFood() -> Food {
             let f = Food(name: name, brand: brand, barcode: barcode, source: sourceRef?.hasPrefix("USDA") == true ? .usdaBranded : .off, servings: servings, kcal100: kcal100, p100: p100, c100: c100, f100: f100)
             f.fibre100 = fibre; f.sugar100 = sugar; f.salt100 = salt; f.satFat100 = satFat; f.tier = .branded; f.micros = micros
@@ -29,7 +31,7 @@ enum OpenFoodFacts {
         // UK first (the product rule): products sold in the UK, English names. Barcode lookups are not filtered.
         c.queryItems = [.init(name: "q", value: q + " countries_tags:\"en:united-kingdom\""), .init(name: "langs", value: "en"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity")]
         guard let url = c.url, let json = try? await get(url), let items = json["hits"] as? [[String: Any]] else { return [] }
-        return items.compactMap(parse)
+        return items.compactMap(parse).filter(\.plausible)   // crowd-sourced rows whose macros can't add up to their calories are left out (never a wrong macro)
     }
     private static func parse(_ p: [String: Any]) -> Product? {
         guard let name = (p["product_name"] as? String)?.trimmingCharacters(in: .whitespaces), !name.isEmpty, let n = p["nutriments"] as? [String: Any] else { return nil }
