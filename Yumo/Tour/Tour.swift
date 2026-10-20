@@ -7,18 +7,21 @@ import UIKit
 @Observable final class Tour {
     static let shared = Tour()
 
-    enum Anchor: String { case hero, breakfastAdd, typeItField, sheetClose, progressTab, weightCard, maintenanceCard, caloriesCard, nutrientsRow, cog
+    enum Anchor: String { case hero, breakfastAdd, searchField, sheetClose, progressTab, weightCard, maintenanceCard, caloriesCard, nutrientsRow, cog
         /// Spotlight padding: buttons +6, fields +4, cards 0.
-        var pad: CGFloat { switch self { case .breakfastAdd, .sheetClose, .progressTab, .cog: 6; case .typeItField: 4; default: 0 } }
-        var radius: CGFloat { switch self { case .breakfastAdd: Radius.chip + 6; case .sheetClose, .progressTab, .cog: 22 + 6; case .typeItField: Radius.field + 4; case .nutrientsRow, .weightCard, .maintenanceCard, .caloriesCard: Radius.cardDense; case .hero: Radius.card } }
+        var pad: CGFloat { switch self { case .breakfastAdd, .sheetClose, .progressTab, .cog: 6; case .searchField: 4; default: 0 } }
+        var radius: CGFloat { switch self { case .breakfastAdd: Radius.chip + 6; case .sheetClose, .progressTab, .cog: 22 + 6; case .searchField: Radius.field + 4; case .nutrientsRow, .weightCard, .maintenanceCard, .caloriesCard: Radius.cardDense; case .hero: Radius.card } }
     }
     /// A stop lights one control; a two-phase stop (4) lights a second control under the same counter once the first has fired.
     struct Stop { var anchor: Anchor; var act: Bool; var title: String; var body: String; var cue: String?; var waitMs: Int = 520; var button = "Got it"; var second: Anchor? = nil; var secondBody: String? = nil; var secondCue: String? = nil }
     /// The settled nine (DEVIATIONS_REV9 A4): hero · Breakfast + (opens Type it for real) · the field · ✕ then Progress · Weight · Maintenance · Calories · Nutrients · cog → Settings, then "Good luck!".
+    static let presetLine = "oats 80 banana 1"
     static let stops: [Stop] = [
         Stop(anchor: .hero, act: false, title: "Your day in one place", body: "Calories and macros from your plan. Everything you log fills these bars.", cue: nil),
         Stop(anchor: .breakfastAdd, act: true, title: "This is how you add food", body: "Every meal has a +. Tap it now.", cue: "Tap the +", waitMs: 1000),
-        Stop(anchor: .typeItField, act: false, title: "One line, all your foods", body: "Foods and grams together — “oats 80 banana 1” becomes two rows. When a word could mean two things, Yumo asks once and remembers. Type a name on its own and it's your search. Scan a barcode for anything packaged.", cue: nil),
+        Features.typeIt
+            ? Stop(anchor: .searchField, act: false, title: "One line, all your foods", body: "Foods and grams together — “oats 80 banana 1” becomes two rows. When a word could mean two things, Yumo asks once and remembers.", cue: nil)
+            : Stop(anchor: .searchField, act: false, title: "Find any food", body: "What you log sits at the top. + logs a serving; tap the row to set grams. The barcode scans a packet.", cue: nil),
         Stop(anchor: .sheetClose, act: true, title: "Close this for now", body: "Nothing is logged until you tap Log. Tap ✕.", cue: "Tap ✕", second: .progressTab, secondBody: "Weight, maintenance and the week live on the other tab. Tap Progress.", secondCue: "Tap Progress"),
         Stop(anchor: .weightCard, act: false, title: "Weigh in most mornings", body: "Log it here. The line is your 7-day trend, so one heavy day never fools you. Hold the chart to read any point.", cue: nil),
         Stop(anchor: .maintenanceCard, act: false, title: "Measured maintenance", body: "After a few weeks of logging and weigh-ins, Yumo works out what you actually burn — not what a formula guesses — and adjusts your target each week. You always approve the change.", cue: nil),
@@ -26,7 +29,6 @@ import UIKit
         Stop(anchor: .nutrientsRow, act: false, title: "Beyond macros", body: "Fibre, sodium, iron and 24 more against daily targets. Pin up to three to Today.", cue: nil),
         Stop(anchor: .cog, act: true, title: "Everything else lives here", body: "Targets, macros, staples, supplements, units. Tap the cog.", cue: "Tap the cog", waitMs: 700),
     ]
-    static let presetLine = "oats 80 banana 1"
 
     private(set) var active = false
     private(set) var step = 1                 // 1…10
@@ -81,6 +83,7 @@ import UIKit
         go(to: step + 1)
     }
     /// Act stops: the real control fired. Advances only when that control is the lit one.
+    var wantsPresetLine: Bool { Features.typeIt && active && (step == 2 || step == 3) }
     @MainActor func didAct(_ a: Anchor) {
         guard active, !finishing, stop.act, currentAnchor == a else { return }
         let wait = stop.waitMs
@@ -117,7 +120,6 @@ import UIKit
     private func persist(step: Int) { if let p = profile() { p.tourStep = step; try? ctx?.save() } }
 
     /// Stop 2's + opens Type it for real with "oats 80 banana 1"; the sheet skips the pick during the tour.
-    var wantsPresetLine: Bool { active && (step == 2 || step == 3) }
     var isAct: Bool { active && !finishing && stop.act }
 
     // MARK: frames

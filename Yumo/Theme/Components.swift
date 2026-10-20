@@ -184,6 +184,13 @@ struct ProgressBarsGlyph: View { var active: Bool
             .onChange(of: active) { guard active else { return }; grown = [false, false, false]; for i in 0..<3 { withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 0.4).delay(Double(i) * 0.07)) { grown[i] = true } } }
     }
 }
+/// Type it tile glyph (Features.typeIt).
+struct KeyboardGlyph: View { var color: Color
+    var body: some View {
+        VStack(spacing: 3) { ForEach(0..<3, id: \.self) { r in HStack(spacing: 3) { ForEach(0..<(r == 2 ? 1 : 6), id: \.self) { _ in RoundedRectangle(cornerRadius: 2).fill(color).frame(width: r == 2 ? 30 : 5, height: 5) } } } }
+            .padding(5).overlay(RoundedRectangle(cornerRadius: 6).stroke(color, lineWidth: 2.5)).frame(width: 44, height: 32)
+    }
+}
 struct BarcodeGlyph: View { var color: Color
     var body: some View { HStack(spacing: 2) { ForEach(Array([3, 2, 4, 2, 3, 2, 5, 2, 3, 4].enumerated()), id: \.offset) { _, w in RoundedRectangle(cornerRadius: 1).fill(color).frame(width: CGFloat(w)) } }.frame(width: 40, height: 26) }
 }
@@ -314,15 +321,6 @@ struct TorchIcon: View {
 // MARK: - Rev 3 components (DESIGN_SYSTEM.md › Rev 3)
 
 /// Keyboard glyph for the Type it tile.
-struct KeyboardGlyph: View { var color: Color
-    var body: some View {
-        VStack(spacing: 3) {
-            HStack(spacing: 3) { ForEach(0..<5, id: \.self) { _ in RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 5, height: 5) } }
-            HStack(spacing: 3) { ForEach(0..<5, id: \.self) { _ in RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 5, height: 5) } }
-            RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 25, height: 5)
-        }.padding(5).overlay(RoundedRectangle(cornerRadius: 6).stroke(color, lineWidth: 2.5)).frame(height: 26)
-    }
-}
 
 /// Inset disambiguation list: bg fill, radius 14, padding 4 × 12; rows 10 pt vertical with a 22 pt ring; footer rows 14/800 accent ›.
 struct AskList<Content: View>: View {

@@ -1,7 +1,8 @@
 import SwiftUI
 import SwiftData
 
-/// Add food: pick (two tiles) → scan (camera + Found card) | search (field + results). One sheet, three steps.
+/// Add food: one searchable list — recents on top, every catalogue group below, the barcode scanner top-right. The meal is the one whose + you tapped;
+/// + logs a serving, the row opens the Food page to set grams. Features.typeIt brings back the pick tiles and the one-line parser; Features.mealSwitcherInAdd the meal segmented.
 struct AddFoodSheet: View {
     @Environment(\.modelContext) private var ctx
     @Environment(\.dismiss) private var dismiss
@@ -10,8 +11,8 @@ struct AddFoodSheet: View {
     @State var meal: Meal
     var dayKey: String
     enum Step { case pick, scan, search }
-    @State private var step: Step = .pick
-    @State private var detent: PresentationDetent = .height(300)
+    @State private var step: Step = Features.typeIt ? .pick : .search
+    @State private var detent: PresentationDetent = Features.typeIt ? .height(300) : .large
     @State private var query = ""
     @State private var local: [Food] = []
     @State private var remote: [OpenFoodFacts.Product] = []
@@ -30,8 +31,8 @@ struct AddFoodSheet: View {
 
     var store: Store { Store(ctx) }
     var title: String { "Add to \(meal.rawValue)" }
-    /// Mode is decided by the text: a digit anywhere (and not a bare barcode) → type-to-log.
-    var typed: Bool { let q = query.trimmingCharacters(in: .whitespaces); return TypeToLog.hasNumbers(q) && !(q.count >= 8 && q.allSatisfy(\.isNumber)) }
+    /// Features.typeIt: a digit anywhere (and not a bare barcode) → the line parser.
+    var typed: Bool { guard Features.typeIt else { return false }; let q = query.trimmingCharacters(in: .whitespaces); return TypeToLog.hasNumbers(q) && !(q.count >= 8 && q.allSatisfy(\.isNumber)) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -42,15 +43,18 @@ struct AddFoodSheet: View {
             }
         }
         .background(Color.yumo.bg)
-        .presentationDetents([.height(300), .large], selection: $detent)
+        .presentationDetents(Features.typeIt ? [.height(300), .large] : [.large], selection: $detent)
         .presentationCornerRadius(Radius.sheet).presentationBackground(Color.yumo.bg).presentationDragIndicator(.hidden)
         .fullScreenCover(isPresented: $scanOpen) { scan }
         .sheet(item: $create) { d in CreateFoodScreen(draft: d) { f in log(f, serving: f.defaultServing, qty: 1) } }
         .pushCover(item: $detailFood) { f in FoodDetailScreen(food: f, meal: meal, dayKey: dayKey) { dismiss() } }
-        .onAppear { if Tour.shared.wantsPresetLine { go(.search) } }   // tour stop 2: the + opens Type it for real
+        .onAppear {
+            if Features.typeIt { if Tour.shared.wantsPresetLine { go(.search) }; return }   // tour stop 2: the + opens Type it for real
+            yourFoods = store.mostLogged(); Task { try? await Task.sleep(for: .milliseconds(Tour.shared.active ? 460 : 150)); focused = true }   // keyboard rises with the sheet (later during the tour so the spotlight settles)
+        }
     }
 
-    // MARK: pick
+    // MARK: pick (Features.typeIt)
     var pick: some View {
         VStack(spacing: 0) {
             SheetHeader(title: title, onClose: { dismiss() }) { Color.clear.frame(width: 44, height: 44) }
@@ -91,8 +95,8 @@ struct AddFoodSheet: View {
                 }.padding(.horizontal, Space.gutter).padding(.top, 12)
                 Spacer()
                 if let f = found { FoundCardView(found: f, meal: meal, onRescan: { found = nil }, onLog: { food in log(food, serving: food.defaultServing, qty: 1) }, onCreate: { create = CreateFoodDraft(barcode: f.barcode); found = nil; scanOpen = false }).padding(.horizontal, 12).padding(.bottom, 12).transition(.move(edge: .bottom)) }
-                Button { scanOpen = false; go(.search) } label: { Text("Type barcode or search instead").font(.yumo.action).underline().foregroundStyle(.white) }.buttonStyle(PlainPressStyle()).padding(.bottom, 16)
-                Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal).padding(.horizontal, Space.gutter).padding(.bottom, 48)
+                Button { scanOpen = false; if Features.typeIt { go(.search) } } label: { Text("Type barcode or search instead").font(.yumo.action).underline().foregroundStyle(.white) }.buttonStyle(PlainPressStyle()).padding(.bottom, Features.mealSwitcherInAdd ? 16 : 48)
+                if Features.mealSwitcherInAdd { Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal).padding(.horizontal, Space.gutter).padding(.bottom, 48) }
             }
         }
         .background(Color.black.ignoresSafeArea())
@@ -113,21 +117,22 @@ struct AddFoodSheet: View {
     // MARK: search
     var search: some View {
         VStack(spacing: 0) {
-            SheetHeader(title: title, onClose: { Tour.shared.didAct(.sheetClose); dismiss() }, closeAnchor: Tour.shared.active) { Button { go(.scan) } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 44, height: 44).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()) }
+            SheetHeader(title: title, onClose: { Tour.shared.didAct(.sheetClose); dismiss() }, closeAnchor: Tour.shared.active) { Button { scanOpen = true } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 44, height: 44).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()) }
             HStack(spacing: 10) {
                 MagnifierGlyph(color: .yumo.inkMuted, size: 18)
-                TextField("chicken 180 rice 150 — or a name", text: $query).font(.yumo.body).focused($focused).submitLabel(.search).autocorrectionDisabled()
+                TextField(Features.typeIt ? "chicken 180 rice 150 — or a name" : "Search foods", text: $query).font(.yumo.body).focused($focused).submitLabel(.search).autocorrectionDisabled()
             }.padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
-                .tourAnchor(.typeItField).padding(.horizontal, Space.gutter).padding(.top, 14)
-            if !store.profile().typeItHintSeen { Text("Foods and grams in one line. I learn your shorthand as we go — first time, I ask.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.gutter + 4).padding(.top, 8) }
-            Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal, compact: true).padding(.horizontal, Space.gutter).padding(.top, 10)
+                .tourAnchor(.searchField).padding(.horizontal, Space.gutter).padding(.top, 14)
+            if Features.typeIt, !store.profile().typeItHintSeen { Text("Foods and grams in one line. I learn your shorthand as we go — first time, I ask.").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.gutter + 4).padding(.top, 8) }
+            if Features.mealSwitcherInAdd { Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal, compact: true).padding(.horizontal, Space.gutter).padding(.top, 10) }
             if typed {
                 // Type-to-log (README §4a): the line has numbers → rows, ask / learned, Log N foods
                 ScrollView { TypeItView(line: query, meal: meal, dayKey: dayKey, onSearchAll: { w in query = w }, onLogged: { n in toaster.show("\(n) food\(n == 1 ? "" : "s") → \(meal.rawValue)"); session.changed(); dismiss() }).padding(.horizontal, Space.gutter).padding(.vertical, 14).padding(.bottom, 40) }.scrollDismissesKeyboard(.interactively)
             } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    if !yourFoods.isEmpty { group("Your foods", yourFoods) }
+                    if query.isEmpty && yourFoods.isEmpty { Text("Foods you log show up here first. Search anything, or scan a packet.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 8) }
+                    if !yourFoods.isEmpty { group(query.isEmpty ? "Recent" : "Your foods", yourFoods) }
                     if brandedFirst, !query.isEmpty { remoteGroup }
                     if !generic.isEmpty { group("Generic", generic) }
                     if !chains.isEmpty { group("Chains", chains) }
@@ -152,7 +157,6 @@ struct AddFoodSheet: View {
             }
         }
         .onChange(of: query) { runSearch() }
-        .onAppear { if yourFoods.isEmpty && query.isEmpty { yourFoods = store.mostLogged() } }
     }
     /// The Open Food Facts group when it leads (a word the catalogue can't cover).
     @ViewBuilder var remoteGroup: some View {

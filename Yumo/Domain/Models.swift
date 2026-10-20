@@ -55,7 +55,7 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var pinnedNutrientsData: Data = Data()  // [key] ≤ 3
     var showNutrientsOnToday: Bool = false
     var isPlus: Bool = true                 // every feature unlocked in v1
-    var typeItHintSeen: Bool = false        // first-time line under the Type it field
+    var typeItHintSeen: Bool = false        // first-time line under the Type it field (Features.typeIt)
     var swipeHintSeen: Bool = false          // the "Yesterday's …" row nudges once (rev 5)
     var planEdited: Bool = false             // Your plan macros were dragged in onboarding (rev 5)
     var tourDone: Bool = false               // first-run guided tour (README §15)

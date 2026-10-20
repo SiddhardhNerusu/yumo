@@ -1,6 +1,9 @@
 # Yumo — changelog
 
 ## 1.0 build 2026-10-20
+- **Add food is a plain searchable list.** The + on a meal opens straight into search: "Search foods" field, Recent on top, every catalogue group below, the barcode scanner top-right. + logs a serving, the row opens the Food page to set grams. A new user with no history sees "Foods you log show up here first. Search anything, or scan a packet." The Scan · Type it pick tiles, the one-line parser, its hint and the Breakfast · Lunch · Dinner · Snacks switcher (in the sheet and the scanner) are off — the + already chose the meal.
+- Nothing was deleted: `Domain/Features.swift` holds `typeIt` and `mealSwitcherInAdd`; flipping either to `true` restores the tiles, the parser (TypeItView, the hint, the tour's pre-typed "oats 80 banana 1" and its stop copy) or the meal switcher. The resolver in TypeToLog stays in use by I prepped….
+- Tour stop 3 now reads "Find any food — what you log sits at the top. + logs a serving; tap the row to set grams. The barcode scans a packet."
 - Food page: the servings count rounds to 2 decimals ("1.44", not "1.436782"). Checked the raw chicken breast row against USDA Foundation 2646170 live: 106 kcal · P 22.5 · F 1.93 per 100 g, identical — the numbers in the app are the source's, not a raw/cooked mix.
 
 ## 1.0 build 2026-10-19 evening (one search engine)
