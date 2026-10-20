@@ -1,8 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// Food detail (20 Oct): name + state in grey · source · "Did you mean cooked? Grilled › · Braised ›" when the catalogue has the food in other
-/// states (each opens that row's page) · kcal + macros · Amount in grams (100 g for anything you weigh) · Servings (unit picker + ½ steps) · Nutrients · Log / Save · Remove.
+/// Food detail (20 Oct): name + state in grey · source · "Switch to cooked?" (the link opens the catalogue's everyday cooked row; "Switch to raw?" on a cooked row) · kcal + macros · Amount in grams (100 g for anything you weigh) · Servings (unit picker + ½ steps) · Nutrients · Log / Save · Remove.
 struct FoodDetailScreen: View {
     @Environment(\.modelContext) private var ctx
     @Environment(\.dismiss) private var dismiss
@@ -30,6 +29,13 @@ struct FoodDetailScreen: View {
     }
     var grams: Double { serving.grams * quantity }
     static let plain = Serving(label: "100 g", grams: 100)
+    /// The one other state worth offering: raw → the most everyday cooked method; cooked → raw.
+    static let methodOrder = ["Grilled", "Roasted", "Baked", "Boiled", "Cooked", "Fried", "Steamed", "Poached", "Braised", "Stewed", "Microwaved", "Barbecued"]
+    var switchTarget: Food? {
+        let here = food.stateLabel
+        if here == "Raw" || here == "Dry" { return siblings.min { (Self.methodOrder.firstIndex(of: $0.stateLabel ?? "") ?? 99) < (Self.methodOrder.firstIndex(of: $1.stateLabel ?? "") ?? 99) } }
+        return siblings.first { $0.stateLabel == "Raw" || $0.stateLabel == "Dry" }
+    }
     /// 100 g first, then the row's named units ("1 medium · 118 g", "1 breast · 174 g") — the Servings picker.
     var servingOptions: [Serving] { var s = [Self.plain]; for sv in food.servings where !(sv.grams == 100 && sv.label.hasSuffix(" g")) { s.append(sv) }; return s }
 
@@ -40,15 +46,13 @@ struct FoodDetailScreen: View {
                 VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     (Text(food.name).font(.yumo.pageTitle) + Text(food.state.map { ", " + $0 } ?? "").font(.yumo.pageTitle).foregroundColor(.yumo.inkMuted)).lineLimit(3)
                     SourceLine(text: food.sourceLine, explainer: food.tier == .generic ? "Canonical entry from USDA FoodData Central (Foundation Foods / SR Legacy), public domain. Values per 100 g; raw and cooked are separate entries, never a multiplier." : food.tier == .branded ? "Branded product from \(food.source == .off ? "Open Food Facts (ODbL, crowd-sourced; values can be sparse)" : "USDA Branded Foods") keyed by its barcode. Cached on this phone; refreshed after 30 days." : "You created this food. Edit it from Settings › My foods.")
-                    if !siblings.isEmpty {
-                        // one quiet line: the same food in its other states — each a different catalogue row, never a multiplier
-                        let cookedHere = food.stateLabel != "Raw" && food.stateLabel != "Dry"
-                        HStack(spacing: 6) {
-                            Text(cookedHere ? "Weighed it raw?" : "Did you mean cooked?").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
-                            ForEach(Array(siblings.prefix(3).enumerated()), id: \.element.id) { i, g in
-                                if i > 0 { Text("·").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
-                                TextAction(label: "\(g.stateLabel ?? "Other") ›") { sibling = g }
-                            }
+                    if let other = switchTarget {
+                        // one sentence, one link: "Switch to cooked?" — the everyday method when the catalogue has several (grilled before braised)
+                        let toRaw = other.stateLabel == "Raw" || other.stateLabel == "Dry"
+                        HStack(spacing: 4) {
+                            Text("Switch to").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+                            TextAction(label: toRaw ? "raw" : "cooked") { sibling = other }
+                            Text("?").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
                         }
                     }
                     if food.macrosUnknown { Text("This chain publishes calories only. Protein, carbs and fat are not counted for this item.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
