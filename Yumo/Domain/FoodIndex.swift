@@ -14,7 +14,7 @@ import SwiftData
 ///    (ingredients you weigh); long names lose 0.01 per character so "Potatoes" beats "Sweet Potato Fries - Albert Bartlett" on a tie.
 /// Pure and value-typed: the Snapshot is searched on a background task; the index rebuilds when the food count changes.
 final class FoodIndex: @unchecked Sendable {
-    struct Entry: Sendable { let id: String; let name: String; let words: [String]; let brand: [String]; let tier: FoodTier; let raw: Bool; let useCount: Int; let macrosUnknown: Bool }
+    struct Entry: Sendable { let id: String; let name: String; let words: [String]; let brand: [String]; let tier: FoodTier; let raw: Bool; let useCount: Int; let macrosUnknown: Bool; let prior: Double }
     struct Hit: Sendable { let id: String; let matched: Double; let score: Double }
     struct Snapshot: Sendable {
         let entries: [Entry]; let df: [String: Int]; let n: Int
@@ -45,6 +45,19 @@ final class FoodIndex: @unchecked Sendable {
     }
     nonisolated static func words(_ s: String) -> [String] { s.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map { stem(String($0)) } }
 
+    /// Query-independent prior (the "is anyone likely to want this row" half of a search engine, PageRank's job). Until aggregate usage
+    /// exists, it comes from the data: by-products and offal rank down, common cuts and whole foods up, rows USDA / CoFID gave real portions up.
+    static let byProducts: Set<String> = ["skin", "feet", "foot", "giblets", "giblet", "neck", "back", "gizzard", "heart", "liver", "kidney", "tail", "head", "bone", "fat", "separable", "tip", "tips", "carcass", "blood", "tongue", "tripe", "brain", "lung", "marrow", "trimmings", "rind", "dripping", "drippings", "lard", "tallow", "suet", "stock", "leaves", "stalk", "stalks", "peel", "shell", "husk", "bran", "flour", "powder", "dried", "dehydrated", "freeze", "baby", "food", "infant", "formula", "canned", "tinned", "unenriched", "enriched", "industrial", "restaurant", "fast"]
+    static let staples: Set<String> = ["breast", "thigh", "leg", "drumstick", "wing", "mince", "ground", "fillet", "steak", "chop", "loin", "sirloin", "rump", "whole", "egg", "white", "brown", "basmati", "rolled", "porridge", "greek", "natural", "semi", "skimmed", "cheddar", "banana", "apple", "avocado", "broccoli", "spinach", "sweet", "olive", "peanut", "almond"]
+    nonisolated static func prior(name: String, hasPortion: Bool) -> Double {
+        let w = Set(words(name))
+        var p = 0.0
+        p -= Double(min(2, w.intersection(byProducts).count)) * 1.2
+        p += Double(min(2, w.intersection(staples).count)) * 0.5
+        if hasPortion { p += 0.3 }
+        return p
+    }
+
     /// Rebuilds when the number of foods changed (catalogue sync, a scanned product, a created food, delete account).
     @MainActor func refresh(_ store: Store) {
         let count = (try? store.ctx.fetchCount(FetchDescriptor<Food>())) ?? 0
@@ -53,7 +66,7 @@ final class FoodIndex: @unchecked Sendable {
         let built = store.foods().map { f -> Entry in
             let w = FoodIndex.words(f.name + " " + (f.state ?? "")), b = FoodIndex.words(f.brand ?? "")
             for x in Set(w + b) { df[x, default: 0] += 1 }
-            return Entry(id: f.id, name: f.name, words: w, brand: b, tier: f.tier, raw: f.state?.lowercased() == "raw", useCount: f.useCount, macrosUnknown: f.macrosUnknown)
+            return Entry(id: f.id, name: f.name, words: w, brand: b, tier: f.tier, raw: f.state?.lowercased() == "raw", useCount: f.useCount, macrosUnknown: f.macrosUnknown, prior: FoodIndex.prior(name: f.name, hasPortion: !f.portions.isEmpty))
         }
         lock.lock(); snap = Snapshot(entries: built, df: df, n: built.count); builtCount = count; lock.unlock()
     }
@@ -88,12 +101,15 @@ final class FoodIndex: @unchecked Sendable {
         return best
     }
     /// Score any candidate (a catalogue row or an online product) for a token list. nil = below the coverage bar.
-    nonisolated static func score(name: String, words: [String], brand: [String], raw: Bool, useCount: Int, toks: [String], rarity: (String) -> Double) -> (matched: Double, score: Double)? {
+    nonisolated static func score(name: String, words: [String], brand: [String], raw: Bool, useCount: Int, prior: Double = 0, toks: [String], rarity: (String) -> Double) -> (matched: Double, score: Double)? {
         guard !toks.isEmpty else { return nil }
         var matched = 0.0, total = 0.0
         for (i, t) in toks.enumerated() {
-            var best = match(t, in: words).map { ($0.0, rarity($0.1)) }
-            if let b = match(t, in: brand) { let s = (b.0, rarity(b.1)); if best == nil || s.0 * s.1 > best!.0 * best!.1 { best = s } }   // a brand word is as good as a name word
+            // a prefix / fuzzy hit on a rarer word ("egg" → "eggnog") never earns more rarity than the typed word itself has
+            let own = rarity(t)
+            func r(_ hit: String) -> Double { hit == t ? own : min(own, rarity(hit)) }
+            var best = match(t, in: words).map { ($0.0, r($0.1)) }
+            if let b = match(t, in: brand) { let s = (b.0, r(b.1)); if best == nil || s.0 * s.1 > best!.0 * best!.1 { best = s } }   // a brand word is as good as a name word
             guard let (q, r) = best else { continue }
             // a 1–2 letter word is still being typed: it counts half, and never earns a rarity bonus ("ro" must not pick "round")
             let short = t.count < 3
@@ -103,7 +119,7 @@ final class FoodIndex: @unchecked Sendable {
         guard matched >= need else { return nil }
         let cover = matched / Double(toks.count)
         let lower = name.lowercased(), line = toks.joined(separator: " ")
-        total += cover * cover * 2 + (lower.hasPrefix(line) ? 2 : lower.contains(line) ? 1 : 0) + log(1 + Double(useCount)) * 1.2 + (raw ? 0.4 : 0) - Double(name.count) * 0.02
+        total += cover * cover * 2 + (lower.hasPrefix(line) ? 2 : lower.contains(line) ? 1 : 0) + log(1 + Double(useCount)) * 1.2 + (raw ? 0.4 : 0) + prior - Double(name.count) * 0.02
         return (matched, total)
     }
 }
@@ -114,7 +130,7 @@ extension FoodIndex.Snapshot {
         let toks = FoodIndex.tokens(query); guard !toks.isEmpty else { return [] }
         var hits: [FoodIndex.Hit] = []
         for e in entries where tiers.contains(e.tier) && !e.macrosUnknown && !exclude.contains(e.id) {
-            if let (m, s) = FoodIndex.score(name: e.name, words: e.words, brand: e.brand, raw: e.raw, useCount: e.useCount, toks: toks, rarity: rarity) { hits.append(.init(id: e.id, matched: m, score: s)) }
+            if let (m, s) = FoodIndex.score(name: e.name, words: e.words, brand: e.brand, raw: e.raw, useCount: e.useCount, prior: e.prior, toks: toks, rarity: rarity) { hits.append(.init(id: e.id, matched: m, score: s)) }
         }
         hits.sort { $0.matched != $1.matched ? $0.matched > $1.matched : $0.score > $1.score }
         return Array(hits.prefix(limit))
@@ -127,8 +143,10 @@ extension FoodIndex.Snapshot {
         }
         // identical records (same name, brand, pack size and nutrition) are one product entered twice — show it once
         var seen = Set<String>()
-        return scored.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 > $1.2 }.map(\.0).filter { p in
-            let key = [p.name.lowercased(), (p.brand ?? "").lowercased(), p.quantity ?? "", String(Int(p.kcal100)), String(Int(p.p100)), String(Int(p.c100)), String(Int(p.f100))].joined(separator: "|")
+        let ordered = scored.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 > $1.2 }.map(\.0)
+        return ordered.filter { p in
+            let macros = "\(Int(p.kcal100))|\(Int(p.p100))|\(Int(p.c100))|\(Int(p.f100))"
+            let key = p.name.lowercased() + "|" + (p.brand ?? "").lowercased() + "|" + (p.quantity ?? "") + "|" + macros
             return seen.insert(key).inserted
         }
     }

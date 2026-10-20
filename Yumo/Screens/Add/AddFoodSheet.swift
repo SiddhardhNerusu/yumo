@@ -171,7 +171,8 @@ struct AddFoodSheet: View {
     func row(_ f: Food) -> some View {
         let g = f.quickServing.grams
         let macros = f.macrosUnknown ? "macros not published" : "P \(Fmt.g(f.p100 * g / 100)) · C \(Fmt.g(f.c100 * g / 100)) · F \(Fmt.g(f.f100 * g / 100))"
-        return ResultRow(name: f.name, brand: f.tier == .user ? nil : (f.tier == .chain ? f.brand : (f.state ?? f.brand)), meta: "\(f.quickServing.label) · \(macros)", kcal: f.kcal(for: f.quickServing.grams), onAdd: { log(f, serving: f.quickServing, qty: 1) }, onOpen: { detailFood = f })
+        // the state sits after the macros ("… · F 2 · raw") so raw vs grilled reads at a glance and the name keeps its width (20 Oct)
+        return ResultRow(name: f.name, brand: f.tier == .user ? nil : (f.tier == .chain ? f.brand : f.brand), meta: [f.quickServing.label, macros, f.tier == .generic ? f.state : nil].compactMap { $0 }.joined(separator: " · "), kcal: f.kcal(for: f.quickServing.grams), onAdd: { log(f, serving: f.quickServing, qty: 1) }, onOpen: { detailFood = f })
     }
     func runSearch() {
         searchTask?.cancel(); brandedOpen = false; brandedFirst = false; remote = []

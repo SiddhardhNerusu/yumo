@@ -225,7 +225,7 @@ extension Food {
 
     /// Units people count (20 Oct): a serving whose label starts "1 <word>" where the word is a piece, not a cut you weigh.
     /// "1 medium · 118 g" and "1 scoop · 30 g" are portions; "1 breast · 174 g" is not — you weigh chicken.
-    static let countedUnits: Set<String> = ["small", "medium", "large", "extra", "egg", "slice", "item", "bar", "biscuit", "cookie", "cracker", "roll", "bun", "wrap", "pot", "can", "bottle", "sachet", "scoop", "tbsp", "tsp", "cup", "portion", "serving", "pack", "packet", "bag", "tin", "tub", "stick", "square", "cube", "sprig", "clove", "leaf", "head", "ear", "pod", "fruit", "nut", "date", "fig", "wedge", "sheet", "rasher", "sausage", "burger", "patty", "fillet", "drumstick", "wing", "thigh"]
+    static let countedUnits: Set<String> = ["small", "medium", "large", "extra", "egg", "slice", "item", "bar", "biscuit", "cookie", "cracker", "roll", "bun", "wrap", "pot", "can", "bottle", "sachet", "scoop", "tbsp", "tsp", "cup", "portion", "serving", "pack", "packet", "bag", "tin", "tub", "stick", "square", "cube", "sprig", "clove", "leaf", "head", "ear", "pod", "fruit", "nut", "date", "fig", "wedge", "sheet", "rasher", "sausage", "burger", "patty"]
     var portions: [Serving] {
         servings.filter { sv in
             guard !(sv.label.hasSuffix(" g") || sv.label.hasSuffix(" ml")) || sv.label.hasPrefix("1 ") else { return false }

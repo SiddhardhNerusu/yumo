@@ -1,8 +1,8 @@
 import SwiftUI
 import SwiftData
 
-/// Food detail (20 Oct): name + state in grey · source · Raw · Grilled · Braised switch when the catalogue has the food in other states ·
-/// kcal + macros · Amount in grams (100 g for anything you weigh) with portion chips for things you count · Nutrients · Log / Save · Remove.
+/// Food detail (20 Oct): name + state in grey · source · "Did you mean cooked? Grilled › · Braised ›" when the catalogue has the food in other
+/// states (each opens that row's page) · kcal + macros · Amount in grams (100 g for anything you weigh) · Servings (unit picker + ½ steps) · Nutrients · Log / Save · Remove.
 struct FoodDetailScreen: View {
     @Environment(\.modelContext) private var ctx
     @Environment(\.dismiss) private var dismiss
@@ -11,7 +11,9 @@ struct FoodDetailScreen: View {
     var entry: FoodEntry?; var dayKey: String; var onLogged: (() -> Void)?
     @State var food: Food
     @State private var serving: Serving; @State private var quantity: Double; @State private var meal: Meal
-    @State private var states: [Food] = []     // this food + its siblings in other states, raw first
+    @State private var siblings: [Food] = []   // the same food in its other states, raw first
+    @State private var sibling: Food? = nil    // pushed "did you mean" page
+    @State private var showServings = false
     @State private var gramsText = ""
     @State private var nutrientsOpen = false
     @State private var targets: Targets? = nil
@@ -20,12 +22,16 @@ struct FoodDetailScreen: View {
         self.entry = entry; _food = State(initialValue: entry.food ?? Food(name: entry.foodName, source: .user, servings: [], kcal100: 0, p100: 0, c100: 0, f100: 0)); self.dayKey = dayKey
         _serving = State(initialValue: Serving(label: entry.servingLabel, grams: entry.servingGrams)); _quantity = State(initialValue: entry.quantity); _meal = State(initialValue: entry.meal)
     }
-    init(food: Food, meal: Meal, dayKey: String, onLogged: @escaping () -> Void) {
+    /// `grams`: a "did you mean" page opens on the grams you had typed on the other state's page.
+    init(food: Food, meal: Meal, dayKey: String, grams: Double? = nil, onLogged: @escaping () -> Void) {
         self.entry = nil; _food = State(initialValue: food); self.dayKey = dayKey; self.onLogged = onLogged
-        _serving = State(initialValue: food.quickServing); _quantity = State(initialValue: 1); _meal = State(initialValue: meal)
+        let sv = grams == nil ? food.quickServing : Self.plain
+        _serving = State(initialValue: sv); _quantity = State(initialValue: grams.map { $0 / 100 } ?? 1); _meal = State(initialValue: meal)
     }
     var grams: Double { serving.grams * quantity }
     static let plain = Serving(label: "100 g", grams: 100)
+    /// 100 g first, then the row's named units ("1 medium · 118 g", "1 breast · 174 g") — the Servings picker.
+    var servingOptions: [Serving] { var s = [Self.plain]; for sv in food.servings where !(sv.grams == 100 && sv.label.hasSuffix(" g")) { s.append(sv) }; return s }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,9 +40,16 @@ struct FoodDetailScreen: View {
                 VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     (Text(food.name).font(.yumo.pageTitle) + Text(food.state.map { ", " + $0 } ?? "").font(.yumo.pageTitle).foregroundColor(.yumo.inkMuted)).lineLimit(3)
                     SourceLine(text: food.sourceLine, explainer: food.tier == .generic ? "Canonical entry from USDA FoodData Central (Foundation Foods / SR Legacy), public domain. Values per 100 g; raw and cooked are separate entries, never a multiplier." : food.tier == .branded ? "Branded product from \(food.source == .off ? "Open Food Facts (ODbL, crowd-sourced; values can be sparse)" : "USDA Branded Foods") keyed by its barcode. Cached on this phone; refreshed after 30 days." : "You created this food. Edit it from Settings › My foods.")
-                    if states.count > 1 {
-                        // the state switch: the catalogue row for the same food raw / grilled / braised… — a different row, never a multiplier
-                        Segmented(options: states.prefix(4).map { ($0.id, $0.stateLabel ?? "—") }, selection: Binding(get: { food.id }, set: { id in if let g = states.first(where: { $0.id == id }) { switchTo(g) } }), compact: true).padding(.top, 2)
+                    if !siblings.isEmpty {
+                        // one quiet line: the same food in its other states — each a different catalogue row, never a multiplier
+                        let cookedHere = food.stateLabel != "Raw" && food.stateLabel != "Dry"
+                        HStack(spacing: 6) {
+                            Text(cookedHere ? "Weighed it raw?" : "Did you mean cooked?").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+                            ForEach(Array(siblings.prefix(3).enumerated()), id: \.element.id) { i, g in
+                                if i > 0 { Text("·").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
+                                TextAction(label: "\(g.stateLabel ?? "Other") ›") { sibling = g }
+                            }
+                        }
                     }
                     if food.macrosUnknown { Text("This chain publishes calories only. Protein, carbs and fat are not counted for this item.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
                     VStack(alignment: .leading, spacing: 14) {
@@ -44,17 +57,12 @@ struct FoodDetailScreen: View {
                         HStack(spacing: Space.gridGap) { macro("Protein", food.p100); macro("Carbs", food.c100); macro("Fat", food.f100) }
                     }.frame(maxWidth: .infinity, alignment: .leading).card().padding(.top, 8)
                     ListCard {
-                        let portions = food.portions
-                        SettingsRow(label: "Amount", sub: portions.isEmpty ? "per 100 \(unit) · type what you weighed" : "or tap a portion") { InsetField(text: $gramsText, unit: unit) }
-                        if !portions.isEmpty {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 8) {
-                                    ForEach(portions, id: \.self) { sv in
-                                        let on = serving == sv && quantity == 1
-                                        Button { serving = sv; quantity = 1; gramsText = Fmt.g(sv.grams) } label: { Text(sv.label).font(.yumo.segment).tabular().foregroundStyle(on ? Color.yumo.onAccent : .yumo.ink).padding(.horizontal, 12).frame(height: 32).background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(on ? Color.yumo.accent : .yumo.track)) }.buttonStyle(PlainPressStyle())
-                                    }
-                                }.padding(.trailing, Space.cardPad)
-                            }.padding(.bottom, 12)
+                        SettingsRow(label: "Amount", sub: "type what you weighed") { InsetField(text: $gramsText, unit: unit) }.hairline()
+                        SettingsRow(label: "Servings", sub: "steps of ½") {
+                            HStack(spacing: 8) {
+                                Button { showServings = true } label: { Text(serving.label).font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }.buttonStyle(PlainPressStyle())
+                                ValueStepper(value: quantity.formatted(.number.precision(.fractionLength(0...2))), onMinus: { setQuantity((max(0.5, quantity - 0.5) * 2).rounded() / 2) }, onPlus: { setQuantity(((quantity + 0.5) * 2).rounded() / 2) })
+                            }
                         }
                     }
                     Button { withAnimation(Motion.snap) { nutrientsOpen.toggle() } } label: {
@@ -76,17 +84,14 @@ struct FoodDetailScreen: View {
             }
         }
         .background(Color.yumo.bg.ignoresSafeArea())
-        .onAppear { gramsText = Fmt.g(grams); targets = Store(ctx).targets(); states = [food] + Store(ctx).siblings(of: food) }
-        .onChange(of: gramsText) { if let g = Double(gramsText), g > 0, abs(g - grams) > 0.01 { serving = Self.plain; quantity = g / 100 } }   // typing grams always logs in grams
+        .confirmationDialog("Serving", isPresented: $showServings, titleVisibility: .visible) { ForEach(servingOptions, id: \.self) { s in Button(s.label) { serving = s; setQuantity(quantity) } } }
+        .pushCover(item: $sibling) { g in FoodDetailScreen(food: g, meal: meal, dayKey: dayKey, grams: grams, onLogged: { dismiss(); onLogged?() }) }
+        .onAppear { gramsText = Fmt.g(grams); targets = Store(ctx).targets(); siblings = Store(ctx).siblings(of: food) }
+        .onChange(of: gramsText) { if let g = Double(gramsText), g > 0, abs(g - grams) > 0.01 { quantity = g / serving.grams } }
         .scrollDismissesKeyboard(.interactively)
     }
     var unit: String { serving.label.hasSuffix(" ml") ? "ml" : "g" }
-    /// Raw → Grilled: the other catalogue row, same grams. The page re-renders for the new food; states keep their order.
-    func switchTo(_ g: Food) {
-        let keep = grams
-        withAnimation(Motion.snap) { food = g }
-        serving = Self.plain; quantity = keep / 100; gramsText = Fmt.g(keep)
-    }
+    func setQuantity(_ q: Double) { quantity = q; gramsText = Fmt.g(serving.grams * q) }
     func macro(_ l: String, _ per100: Double) -> some View {
         VStack(alignment: .leading, spacing: 2) { Text(l).font(.yumo.captionLight).foregroundStyle(Color.yumo.inkMuted); Text(food.macrosUnknown ? "—" : "\(Fmt.g(per100 * grams / 100)) g").font(.yumo.stat).tabular() }.frame(maxWidth: .infinity, alignment: .leading)
     }
