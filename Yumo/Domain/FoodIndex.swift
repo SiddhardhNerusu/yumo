@@ -155,7 +155,8 @@ extension FoodIndex.Snapshot {
         query.lowercased().split(separator: " ").map(String.init).filter { raw in
             let t = FoodIndex.stem(raw)
             guard t.count >= 3, !FoodIndex.spellings.contains(raw), !FoodIndex.spellings.contains(t), Store.synonyms[raw] == nil else { return false }   // a spelling synonym is a known word
-            return !entries.contains { e in e.words.contains { $0.hasPrefix(t) } || e.brand.contains { $0.hasPrefix(t) } }
+            // covered by a prefix on any word, or by a fuzzy hit ("chcieken" is a typo of chicken, not a brand)
+            return !entries.contains { e in FoodIndex.match(t, in: e.words) != nil || FoodIndex.match(t, in: e.brand) != nil }
         }
     }
 }

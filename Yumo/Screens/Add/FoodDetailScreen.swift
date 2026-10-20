@@ -24,8 +24,8 @@ struct FoodDetailScreen: View {
     /// `grams`: a "did you mean" page opens on the grams you had typed on the other state's page.
     init(food: Food, meal: Meal, dayKey: String, grams: Double? = nil, onLogged: @escaping () -> Void) {
         self.entry = nil; _food = State(initialValue: food); self.dayKey = dayKey; self.onLogged = onLogged
-        let sv = grams == nil ? food.quickServing : Self.plain
-        _serving = State(initialValue: sv); _quantity = State(initialValue: grams.map { $0 / 100 } ?? 1); _meal = State(initialValue: meal)
+        let (sv, q) = grams == nil ? food.quickAmount : (Self.plain, grams! / 100)
+        _serving = State(initialValue: sv); _quantity = State(initialValue: q); _meal = State(initialValue: meal)
     }
     var grams: Double { serving.grams * quantity }
     static let plain = Serving(label: "100 g", grams: 100)

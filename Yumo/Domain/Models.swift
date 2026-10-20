@@ -100,6 +100,9 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var microsData: Data = Data()           // [key: per-100 g] — Nutrients.keys; absent = unknown ("—")
     var aliases: String = ""
     var macrosUnknown: Bool = false       // chain items where only kcal is published
+    var lastServingLabel: String? = nil   // the amount you logged last time (20 Oct): Recent rows and the Food page open on it
+    var lastServingGrams: Double? = nil
+    var lastQuantity: Double? = nil
     init(name: String, brand: String? = nil, barcode: String? = nil, source: FoodSource, servings: [Serving], kcal100: Double, p100: Double, c100: Double, f100: Double) {
         self.name = name; self.brand = brand; self.barcode = barcode; self.sourceRaw = source.rawValue; self.servings = servings
         self.kcal100 = kcal100; self.p100 = p100; self.c100 = c100; self.f100 = f100
@@ -238,6 +241,17 @@ extension Food {
     var quickServing: Serving {
         if tier == .chain || tier == .branded { return defaultServing }
         return portions.first ?? Serving(label: "100 g", grams: 100)
+    }
+    /// The amount you logged last time, else quickServing × 1. "250 g" of chicken stays 250 g in Recent and on the page.
+    var quickAmount: (serving: Serving, quantity: Double) {
+        if let l = lastServingLabel, let g = lastServingGrams, let q = lastQuantity, g > 0, q > 0 { return (Serving(label: l, grams: g), q) }
+        return (quickServing, 1)
+    }
+    var quickGrams: Double { quickAmount.serving.grams * quickAmount.quantity }
+    var quickAmountLabel: String {
+        let (sv, q) = quickAmount
+        if sv.label.hasSuffix(" g") || sv.label.hasSuffix(" ml") || q != 1 { return "\(Fmt.g(sv.grams * q)) \(sv.label.hasSuffix(" ml") ? "ml" : "g")" }
+        return sv.label
     }
     /// "Raw" · "Grilled" · "Boiled" · "Dry" — the one word for the state switch on the Food page.
     /// Words that describe how a food was cooked rather than what it is — ignored when matching a food to its other states.

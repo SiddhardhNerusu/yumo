@@ -29,8 +29,10 @@ struct Store {
         return (try? ctx.fetch(d)) ?? []
     }
     func log(food: Food, meal: Meal, dayKey: String, quantity: Double = 1, serving: Serving? = nil) -> FoodEntry {
-        let e = FoodEntry(dayKey: dayKey, meal: meal, food: food, quantity: quantity, serving: serving ?? food.defaultServing)
+        let sv = serving ?? food.defaultServing
+        let e = FoodEntry(dayKey: dayKey, meal: meal, food: food, quantity: quantity, serving: sv)
         food.lastUsedAt = Date(); food.useCount += 1
+        food.lastServingLabel = sv.label; food.lastServingGrams = sv.grams; food.lastQuantity = quantity
         ctx.insert(e); try? ctx.save(); return e
     }
     func remove(_ e: FoodEntry) { ctx.delete(e); try? ctx.save() }

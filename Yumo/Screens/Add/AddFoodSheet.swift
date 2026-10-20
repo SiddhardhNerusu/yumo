@@ -26,6 +26,7 @@ struct AddFoodSheet: View {
     @State private var yourFoods: [Food] = []; @State private var generic: [Food] = []; @State private var chains: [Food] = []; @State private var branded: [Food] = []
     @State private var brandedOpen = false      // live Open Food Facts results: automatic when the line names a brand or a word the catalogue can't cover, or on "Show branded"
     @State private var brandedFirst = false     // a word the catalogue can't cover → the packaged group leads
+    @State private var searchedFor = ""         // the line the current lists answer; empty-state copy only once this matches the field
     @FocusState private var focused: Bool
     struct Found: Identifiable { var id = UUID(); var barcode: String; var food: Food? }
 
@@ -137,14 +138,14 @@ struct AddFoodSheet: View {
                     if !generic.isEmpty { group("Generic", generic) }
                     if !chains.isEmpty { group("Chains", chains) }
                     if !branded.isEmpty { group("Scanned products", branded) }
-                    if yourFoods.isEmpty && generic.isEmpty && chains.isEmpty && branded.isEmpty && !query.isEmpty && !brandedOpen {
+                    if yourFoods.isEmpty && generic.isEmpty && chains.isEmpty && branded.isEmpty && !query.isEmpty && !brandedOpen && searchedFor == query.trimmingCharacters(in: .whitespaces) {
                         Text("No generic match for \"\(query)\".").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 8)
                     }
-                    if !query.isEmpty, !brandedFirst {
+                    if !query.isEmpty, !brandedFirst, searchedFor == query.trimmingCharacters(in: .whitespaces) {
                         if brandedOpen {
                             Overline(text: "Branded · Open Food Facts").padding(.top, 4)
                             if remote.isEmpty && !searching { Text("No branded match. Scan the barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
-                            else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: [p.brand, p.quantity].compactMap { $0 }.joined(separator: " · "), meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, image: p.image, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
+                            else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: ([p.brand, p.quantity].compactMap { $0 } + ["100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"]).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
                             if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
                         } else {
                             // Generic words keep branded noise out; one quiet line brings it in when wanted.
@@ -162,23 +163,24 @@ struct AddFoodSheet: View {
     @ViewBuilder var remoteGroup: some View {
         Overline(text: "Branded · Open Food Facts").padding(.top, 4)
         if remote.isEmpty && !searching { Text(OpenFoodFacts.lastFailure.map { Date().timeIntervalSince($0) < 60 } == true ? "Open Food Facts didn't answer — try again in a moment, or scan the barcode." : "No packaged product by that name on Open Food Facts — scan its barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
-        else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: [p.brand, p.quantity].compactMap { $0 }.joined(separator: " · "), meta: "100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))", kcal: p.kcal100 * p.servings[0].grams / 100, image: p.image, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
+        else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: ([p.brand, p.quantity].compactMap { $0 } + ["100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"]).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
         if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
     }
     func group(_ title: String, _ foods: [Food]) -> some View {
         VStack(alignment: .leading, spacing: 8) { HStack { Overline(text: title); Spacer(); if foods.count > 12 { Text("\(foods.count)").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).padding(.trailing, 4) } }.padding(.top, 4); LazyVStack(spacing: 0) { ForEach(foods, id: \.id) { f in row(f) } }.padding(.leading, Space.cardPad).listCard() }
     }
     func row(_ f: Food) -> some View {
-        let g = f.quickServing.grams
+        let g = f.quickGrams
         let macros = f.macrosUnknown ? "macros not published" : "P \(Fmt.g(f.p100 * g / 100)) · C \(Fmt.g(f.c100 * g / 100)) · F \(Fmt.g(f.f100 * g / 100))"
         // the state sits after the macros ("… · F 2 · raw") so raw vs grilled reads at a glance and the name keeps its width (20 Oct)
-        return ResultRow(name: f.name, brand: f.tier == .user ? nil : (f.tier == .chain ? f.brand : f.brand), meta: [f.quickServing.label, macros, f.tier == .generic ? f.state : nil].compactMap { $0 }.joined(separator: " · "), kcal: f.kcal(for: f.quickServing.grams), onAdd: { log(f, serving: f.quickServing, qty: 1) }, onOpen: { detailFood = f })
+        // the shop / brand leads the meta line so it never truncates behind a long name; generic rows end with the state
+        return ResultRow(name: f.name, brand: nil, meta: [f.tier == .user ? nil : f.brand, f.quickAmountLabel, macros, f.tier == .generic ? f.state : nil].compactMap { $0 }.joined(separator: " · "), kcal: f.kcal(for: f.quickGrams), onAdd: { log(f, serving: f.quickAmount.serving, qty: f.quickAmount.quantity) }, onOpen: { detailFood = f })
     }
     func runSearch() {
         searchTask?.cancel(); brandedOpen = false; brandedFirst = false; remote = []
         let q = query.trimmingCharacters(in: .whitespaces)
         if typed { return }
-        if q.isEmpty { yourFoods = store.mostLogged(); generic = []; chains = []; branded = []; searching = false; return }
+        if q.isEmpty { yourFoods = store.mostLogged(); generic = []; chains = []; branded = []; searching = false; searchedFor = ""; return }
         // 8–14 digit numeric input → barcode lookup (the one way a branded product appears without asking).
         if q.count >= 8, q.count <= 14, q.allSatisfy(\.isNumber) {
             yourFoods = []; generic = []; chains = []
@@ -196,7 +198,7 @@ struct AddFoodSheet: View {
             let (hits, missing) = await Task.detached(priority: .userInitiated) { (snap.search(q, tiers: [.user, .generic, .chain, .branded], limit: 400), snap.uncovered(q)) }.value
             guard !Task.isCancelled else { return }
             let all = s.foods(ids: hits.map(\.id))
-            yourFoods = all.filter { $0.tier == .user }; generic = all.filter { $0.tier == .generic }; chains = all.filter { $0.tier == .chain }; branded = all.filter { $0.tier == .branded }; searching = false
+            yourFoods = all.filter { $0.tier == .user }; generic = all.filter { $0.tier == .generic }; chains = all.filter { $0.tier == .chain }; branded = all.filter { $0.tier == .branded }; searching = false; searchedFor = q
             if Catalogue.hasBrandToken(q) || !missing.isEmpty { brandedOpen = true; brandedFirst = !missing.isEmpty; await fetchBranded(q, missing: missing, snap: snap) }
         }
     }
@@ -223,13 +225,9 @@ struct AddFoodSheet: View {
 }
 
 struct ResultRow: View {
-    var name: String; var brand: String?; var meta: String; var kcal: Double; var image: URL? = nil; var onAdd: () -> Void; var onOpen: () -> Void
+    var name: String; var brand: String?; var meta: String; var kcal: Double; var onAdd: () -> Void; var onOpen: () -> Void
     var body: some View {
         HStack(spacing: 12) {
-            if let image {   // packaged products: the pack photo is what tells two "Potatoes · Albert Bartlett" apart
-                AsyncImage(url: image) { img in img.resizable().scaledToFill() } placeholder: { Color.yumo.track }
-                    .frame(width: 40, height: 40).clipShape(RoundedRectangle(cornerRadius: Radius.thumb, style: .continuous))
-            }
             VStack(alignment: .leading, spacing: 2) {
                 (Text(name).font(.yumo.bodyStrong) + Text(brand.map { "  \($0)" } ?? "").font(.yumo.detail).foregroundColor(.yumo.inkMuted)).lineLimit(1)
                 Text(meta).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)

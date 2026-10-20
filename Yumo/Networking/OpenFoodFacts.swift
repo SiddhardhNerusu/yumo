@@ -6,7 +6,7 @@ enum OpenFoodFacts {
         var fibre: Double?; var sugar: Double?; var salt: Double?; var satFat: Double?
         var sourceRef: String? = nil; var micros: [String: Double] = [:]
         var quantity: String? = nil      // pack size as printed ("2kg", "300 g") — what tells two bags of the same name apart
-        var image: URL? = nil            // front-of-pack photo (Open Food Facts) — the other thing that tells them apart
+        var image: URL? = nil            // front-of-pack photo (Open Food Facts) — fetched, not shown (Sid: no images); the shop + pack size tell bags apart
         /// Atwater check: 4P + 4C + 9F within 30 % of the stated kcal (alcohol-free foods). A potato at "79 kcal, C 1" fails and is not shown.
         var plausible: Bool { let a = 4 * p100 + 4 * c100 + 9 * f100; return abs(a - kcal100) <= max(25, kcal100 * 0.30) }
         func makeFood() -> Food {

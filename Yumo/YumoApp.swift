@@ -57,6 +57,7 @@ struct RootView: View {
             session.onboarded = store.profile().onboarded
             Reminders.reschedule(store.profile())
             ready = true
+            Task { try? await Task.sleep(for: .milliseconds(400)); FoodIndex.shared.refresh(Store(ctx)) }   // build the search index now, not on the first keystroke
         }
         .onChange(of: phase) { if phase == .active { Task { let n = await PendingLookups.retry(Store(ctx)); if n > 0 { toaster.show(n == 1 ? "1 scanned food found" : "\(n) scanned foods found") } } } }
     }
