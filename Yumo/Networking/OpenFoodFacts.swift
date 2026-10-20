@@ -6,7 +6,6 @@ enum OpenFoodFacts {
         var fibre: Double?; var sugar: Double?; var salt: Double?; var satFat: Double?
         var sourceRef: String? = nil; var micros: [String: Double] = [:]
         var quantity: String? = nil      // pack size as printed ("2kg", "300 g") — what tells two bags of the same name apart
-        var image: URL? = nil            // front-of-pack photo (Open Food Facts) — fetched, not shown (Sid: no images); the shop + pack size tell bags apart
         /// Atwater check: 4P + 4C + 9F within 30 % of the stated kcal (alcohol-free foods). A potato at "79 kcal, C 1" fails and is not shown.
         var plausible: Bool { let a = 4 * p100 + 4 * c100 + 9 * f100; return abs(a - kcal100) <= max(25, kcal100 * 0.30) }
         func makeFood() -> Food {
@@ -30,7 +29,7 @@ enum OpenFoodFacts {
         return json
     }
     static func barcode(_ ean: String) async -> Product? {
-        guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(ean).json?fields=product_name,brands,nutriments,serving_size,serving_quantity,code,quantity,image_front_small_url") else { return nil }
+        guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(ean).json?fields=product_name,brands,nutriments,serving_size,serving_quantity,code,quantity") else { return nil }
         guard let json = try? await get(url), (json["status"] as? Int) == 1, let p = json["product"] as? [String: Any] else { return nil }
         return parse(p)
     }
@@ -38,7 +37,7 @@ enum OpenFoodFacts {
     static func search(_ q: String, limit: Int = 20) async -> [Product] {
         var c = URLComponents(string: "https://search.openfoodfacts.org/search")!
         // UK first (the product rule): products sold in the UK, English names. Barcode lookups are not filtered.
-        c.queryItems = [.init(name: "q", value: q + " countries_tags:\"en:united-kingdom\""), .init(name: "langs", value: "en"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity,quantity,image_front_small_url")]
+        c.queryItems = [.init(name: "q", value: q + " countries_tags:\"en:united-kingdom\""), .init(name: "langs", value: "en"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity,quantity")]
         let key = q.lowercased() + "|\(limit)"
         cacheLock.lock(); let hit = cache[key]; cacheLock.unlock()
         if let hit, Date().timeIntervalSince(hit.0) < 600 { return hit.1 }   // retyping the same word within 10 min costs no request (search is rate-limited)
@@ -73,11 +72,26 @@ enum OpenFoodFacts {
         var prod = Product(name: name, brand: brand, barcode: p["code"] as? String, kcal100: kcal, p100: d("proteins_100g") ?? 0, c100: d("carbohydrates_100g") ?? 0, f100: d("fat_100g") ?? 0, servings: servings, fibre: d("fiber_100g"), sugar: d("sugars_100g"), salt: d("salt_100g"), satFat: d("saturated-fat_100g"))
         let map: [(String, String, Double)] = [("fiber_100g", "fibre", 1), ("sugars_100g", "sugars", 1), ("saturated-fat_100g", "sat_fat", 1), ("monounsaturated-fat_100g", "mono", 1), ("polyunsaturated-fat_100g", "poly", 1), ("trans-fat_100g", "trans", 1), ("cholesterol_100g", "cholesterol_mg", 1000), ("sodium_100g", "sodium_mg", 1000), ("potassium_100g", "potassium_mg", 1000), ("calcium_100g", "calcium_mg", 1000), ("iron_100g", "iron_mg", 1000), ("magnesium_100g", "magnesium_mg", 1000), ("zinc_100g", "zinc_mg", 1000), ("phosphorus_100g", "phosphorus_mg", 1000), ("selenium_100g", "selenium_ug", 1_000_000), ("vitamin-a_100g", "vit_a_ug", 1_000_000), ("vitamin-c_100g", "vit_c_mg", 1000), ("vitamin-d_100g", "vit_d_ug", 1_000_000), ("vitamin-e_100g", "vit_e_mg", 1000), ("vitamin-k_100g", "vit_k_ug", 1_000_000), ("vitamin-b1_100g", "b1_mg", 1000), ("vitamin-b2_100g", "b2_mg", 1000), ("vitamin-pp_100g", "b3_mg", 1000), ("vitamin-b6_100g", "b6_mg", 1000), ("vitamin-b9_100g", "folate_ug", 1_000_000), ("vitamin-b12_100g", "b12_ug", 1_000_000), ("choline_100g", "choline_mg", 1000), ("caffeine_100g", "caffeine_mg", 1000), ("alcohol_100g", "alcohol_g", 1)]
         for (src, key, mult) in map { if let v = d(src) { prod.micros[key] = v * mult } }
-        if let q = (p["quantity"] as? String)?.trimmingCharacters(in: .whitespaces), q.contains(where: \.isNumber) {
-            prod.quantity = q.replacingOccurrences(of: #"(\d)([a-zA-Z])"#, with: "$1 $2", options: .regularExpression)   // "2kg" → "2 kg"
+        if let q = (p["quantity"] as? String)?.trimmingCharacters(in: .whitespaces), q.contains(where: \.isNumber), q.contains(where: \.isLetter) {   // "395g" yes, a bare "2" no
+            prod.quantity = tidyQuantity(q)
         }
-        if let u = p["image_front_small_url"] as? String, let url = URL(string: u) { prod.image = url }
         return prod
+    }
+    /// One way to write a pack size, so two bags compare at a glance: "2kg" → "2 kg", "400 grams" / "400G" → "400 g", "1 litre" → "1 L".
+    /// Unknown words ("x", "pack") stay as printed.
+    static func tidyQuantity(_ q: String) -> String {
+        let units = ["g": "g", "gr": "g", "grs": "g", "gm": "g", "gms": "g", "gram": "g", "grams": "g", "gramme": "g", "grammes": "g",
+                     "kg": "kg", "kgs": "kg", "kilo": "kg", "kilos": "kg", "kilogram": "kg", "kilograms": "kg", "kilogramme": "kg", "kilogrammes": "kg",
+                     "ml": "ml", "mls": "ml", "millilitre": "ml", "millilitres": "ml", "milliliter": "ml", "milliliters": "ml", "cl": "cl",
+                     "l": "L", "lt": "L", "ltr": "L", "ltrs": "L", "litre": "L", "litres": "L", "liter": "L", "liters": "L"]
+        guard let re = try? NSRegularExpression(pattern: #"(\d)\s*([A-Za-z]+)\b"#) else { return q }
+        var out = q
+        for m in re.matches(in: q, range: NSRange(q.startIndex..., in: q)).reversed() {   // back to front, so earlier ranges stay valid
+            guard let whole = Range(m.range, in: out), let d = Range(m.range(at: 1), in: q), let u = Range(m.range(at: 2), in: q) else { continue }
+            let unit = String(q[u])
+            out.replaceSubrange(whole, with: q[d] + " " + (units[unit.lowercased()] ?? unit))
+        }
+        return out
     }
 }
 

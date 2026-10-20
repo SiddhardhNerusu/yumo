@@ -33,9 +33,33 @@ struct Store {
         let e = FoodEntry(dayKey: dayKey, meal: meal, food: food, quantity: quantity, serving: sv)
         food.lastUsedAt = Date(); food.useCount += 1
         food.lastServingLabel = sv.label; food.lastServingGrams = sv.grams; food.lastQuantity = quantity
+        FoodIndex.shared.noteUse(id: food.id, useCount: food.useCount)
         ctx.insert(e); try? ctx.save(); return e
     }
-    func remove(_ e: FoodEntry) { ctx.delete(e); try? ctx.save() }
+    /// Removing an entry takes back what logging it gave the food, so a mistake never lingers in Recent.
+    func remove(_ e: FoodEntry) {
+        if let f = e.food { takeBack(e, from: f) }
+        ctx.delete(e); try? ctx.save()
+    }
+    /// "Switch to cooked?" on a logged entry swaps the entry's food (never a second entry); the use moves with it.
+    func switchFood(of e: FoodEntry, from old: Food, to food: Food) {
+        guard old.id != food.id else { return }
+        takeBack(e, from: old)
+        e.food = food; e.foodName = food.name
+        food.lastUsedAt = Date(); food.useCount += 1
+        FoodIndex.shared.noteUse(id: food.id, useCount: food.useCount)
+    }
+    /// `f` loses the entry `gone`: one use fewer, and Recent's time and remembered amount come from its newest remaining entry (none → it leaves Recent).
+    private func takeBack(_ gone: FoodEntry, from f: Food) {
+        let fid = f.id, gid = gone.id
+        let d = FetchDescriptor<FoodEntry>(predicate: #Predicate { $0.food?.id == fid }, sortBy: [SortDescriptor(\.loggedAt, order: .reverse)])
+        let rest = ((try? ctx.fetch(d)) ?? []).filter { $0.id != gid }
+        f.useCount = max(rest.count, f.useCount - 1)
+        let last = rest.first
+        f.lastUsedAt = last?.loggedAt
+        f.lastServingLabel = last?.servingLabel; f.lastServingGrams = last?.servingGrams; f.lastQuantity = last?.quantity
+        FoodIndex.shared.noteUse(id: f.id, useCount: f.useCount)
+    }
     func save() { try? ctx.save() }
     /// Day keys in [from, to] that have at least one food (week strip, calendar, streak).
     func loggedDays(from: String, to: String) -> Set<String> {
@@ -106,7 +130,21 @@ struct Store {
         if let bc = f.barcode, let existing = food(barcode: bc) { return existing }
         ctx.insert(f); try? ctx.save(); FoodIndex.shared.invalidate(); return f
     }
-    func mostLogged(limit: Int = 10) -> [Food] { Array(foods().filter { $0.useCount > 0 }.prefix(limit)) }
+    /// Recent (Add food with an empty search): the foods you logged most recently, newest first.
+    func recentlyLogged(limit: Int = 15) -> [Food] {
+        let used = (try? ctx.fetch(FetchDescriptor<Food>(predicate: #Predicate { $0.useCount > 0 }))) ?? []
+        return Array(used.sorted { ($0.lastUsedAt ?? .distantPast) > ($1.lastUsedAt ?? .distantPast) }.prefix(limit))
+    }
+    /// Foods logged before the remembered amount existed (20 Oct) take it from their most recent entry, once.
+    func backfillLastAmounts() {
+        let es = (try? ctx.fetch(FetchDescriptor<FoodEntry>(sortBy: [SortDescriptor(\.loggedAt, order: .reverse)]))) ?? []
+        var seen = Set<String>(), changed = false
+        for e in es {
+            guard let f = e.food, seen.insert(f.id).inserted, f.lastServingLabel == nil, e.servingGrams > 0, e.quantity > 0 else { continue }
+            f.lastServingLabel = e.servingLabel; f.lastServingGrams = e.servingGrams; f.lastQuantity = e.quantity; changed = true
+        }
+        if changed { try? ctx.save() }
+    }
     /// Grouped search (PRODUCT_BRIEF §2): your foods → generic (one per canonical) → branded.
     /// Grouped by tier, every group ranked by the one scorer (FoodIndex). No cap: every variant shows.
     func groupedSearch(_ q: String) -> (your: [Food], generic: [Food], chain: [Food], branded: [Food]) {

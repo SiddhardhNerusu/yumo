@@ -55,9 +55,10 @@ struct BalanceSheet: View {
                 .padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
                 .padding(.horizontal, Space.gutter).padding(.top, 14)
                 .task(id: query) {   // debounced, off the main thread; one scorer for the catalogue and for Open Food Facts (FoodIndex)
-                    let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { hits = []; online = []; onlineFirst = false; return }
+                    let q = query.trimmingCharacters(in: .whitespaces); guard q.count >= 2 else { hits = []; online = []; onlineFirst = false; return }
                     try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
-                    let s = store, snap = FoodIndex.shared.snapshot(s), ex = Set(s.staples().map(\.foodId))
+                    let s = store, ex = Set(s.staples().map(\.foodId)), count = (try? s.ctx.fetchCount(FetchDescriptor<Food>())) ?? 0
+                    let snap = await FoodIndex.shared.snapshot(for: s.ctx.container, count: count); guard !Task.isCancelled else { return }
                     let (found, missing) = await Task.detached(priority: .userInitiated) { (snap.search(q, exclude: ex, limit: 40), snap.uncovered(q)) }.value
                     guard !Task.isCancelled else { return }
                     hits = s.foods(ids: found.map(\.id))
@@ -151,8 +152,8 @@ struct BalanceSheet: View {
                 ForEach(Array(online.enumerated()), id: \.offset) { _, p in
                     HStack(spacing: 12) {
                         VStack(alignment: .leading, spacing: 1) {
-                            (Text(p.name).font(.yumo.bodyStrong).foregroundColor(.yumo.ink) + Text([p.brand, p.quantity].compactMap { $0 }.map { "  " + $0 }.joined()).font(.yumo.detail).foregroundColor(.yumo.inkMuted)).lineLimit(1)
-                            Text("\(Fmt.k(p.kcal100)) kcal · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100)) per 100 g").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                            Text(p.name).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
+                            Text((["100 g · \(Fmt.k(p.kcal100)) kcal · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · ")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
                         }.frame(maxWidth: .infinity, alignment: .leading)
                         AddCircleButton { keep(store.upsert(p.makeFood())) }
                     }.padding(.vertical, 11).padding(.trailing, 16).hairline()

@@ -16,6 +16,7 @@ struct StaplesEditor: View {
 
     var staples: [(Staple, Food)] { store.staples().compactMap { s in store.food(id: s.foodId).map { (s, $0) } } }
     @State private var results: [Food] = []
+    @State private var searchedLine = ""        // the line `results` answers; "No match" only once it equals the field
     @State private var scanOpen = false
     var suggestions: [Food] {
         guard mode == .settings, store.hasHistory(before: Date().adding(days: -6).dayKey) else { return [] }
@@ -31,16 +32,17 @@ struct StaplesEditor: View {
                 Button { scanOpen = true } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 36, height: 36).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()).accessibilityLabel("Scan a barcode")
             }.padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
             .task(id: line) {   // debounced, off the main thread: the index is a value snapshot
-                let q = line.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { results = []; return }
+                let q = line.trimmingCharacters(in: .whitespaces); guard q.count >= 2 else { results = []; searchedLine = ""; return }
                 try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
-                let s = store, snap = FoodIndex.shared.snapshot(s), ex = Set(s.staples().map(\.foodId))
+                let s = store, ex = Set(s.staples().map(\.foodId)), count = (try? s.ctx.fetchCount(FetchDescriptor<Food>())) ?? 0
+                let snap = await FoodIndex.shared.snapshot(for: s.ctx.container, count: count); guard !Task.isCancelled else { return }
                 let ids = await Task.detached(priority: .userInitiated) { snap.search(q, exclude: ex).map(\.id) }.value
                 guard !Task.isCancelled else { return }
-                results = s.foods(ids: ids)
+                results = s.foods(ids: ids); searchedLine = q
             }
             .fullScreenCover(isPresented: $scanOpen) { StapleScanScreen { f in store.addStaple(f); scanOpen = false; tick += 1; onChange() } }
             let res = results
-            if !line.trimmingCharacters(in: .whitespaces).isEmpty {
+            if line.trimmingCharacters(in: .whitespaces).count >= 2, !res.isEmpty || searchedLine == line.trimmingCharacters(in: .whitespaces) {
                 VStack(spacing: 0) {
                     ForEach(res.prefix(8), id: \.id) { f in
                         Button { store.addStaple(f); line = ""; tick += 1; onChange() } label: {

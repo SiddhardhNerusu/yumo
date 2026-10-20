@@ -240,7 +240,8 @@ struct AddChipStyle: ButtonStyle {
 }
 
 /// Numeric entry: 40 pt, radius 12, track fill, inner edge inset 0 2 0, value 17/800 right-aligned, unit 17/700 muted.
-/// The field is a UIKit text field (NumberField): decimal pad with a Done bar, and it selects its value on focus so typing replaces it.
+/// The field is a UIKit text field (NumberField): decimal pad, selects its value on focus so typing replaces it, and puts the pad away on a tap
+/// anywhere outside it or a swipe down anywhere — no Done bar (on iOS 26 it rendered as a floating green pill; Sid rejected it).
 struct InsetField: View {
     @Binding var text: String; var unit: String; var width: CGFloat = 120; var placeholder = "0"
     var body: some View {
@@ -263,34 +264,40 @@ struct NumberField: UIViewRepresentable {
         tf.font = UIFont(name: "Nunito-ExtraBold", size: 17).map { UIFont(descriptor: $0.fontDescriptor.addingAttributes([.featureSettings: [[UIFontDescriptor.FeatureKey.type: kNumberSpacingType, UIFontDescriptor.FeatureKey.selector: kMonospacedNumbersSelector]]]), size: 17) } ?? .monospacedDigitSystemFont(ofSize: 17, weight: .heavy)
         tf.textColor = UIColor(Color.yumo.ink); tf.tintColor = UIColor(Color.yumo.accent)
         tf.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor(Color.yumo.inkMuted)])
-        tf.inputAccessoryView = KeyboardDoneBar.make(target: context.coordinator, action: #selector(Coordinator.done))
         tf.delegate = context.coordinator; context.coordinator.field = tf
         tf.addTarget(context.coordinator, action: #selector(Coordinator.changed(_:)), for: .editingChanged)
         tf.setContentHuggingPriority(.defaultLow, for: .horizontal); tf.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return tf
     }
     func updateUIView(_ tf: UITextField, context: Context) { context.coordinator.parent = self; if tf.text != text { tf.text = text } }
-    final class Coordinator: NSObject, UITextFieldDelegate {
+    static func dismantleUIView(_ tf: UITextField, coordinator: Coordinator) { coordinator.removeDismissers() }
+    /// While editing, two window-level recognisers put the pad away: a tap outside the field, or a swipe down anywhere. They never cancel
+    /// touches and recognise alongside everything else, so the tap still reaches what it lands on — tapping Log logs, tapping + steps.
+    final class Coordinator: NSObject, UITextFieldDelegate, UIGestureRecognizerDelegate {
         var parent: NumberField; weak var field: UITextField?
+        private var dismissers: [UIGestureRecognizer] = []
         init(_ p: NumberField) { parent = p }
         @objc func changed(_ tf: UITextField) { parent.text = tf.text ?? "" }
-        @objc func done() { field?.resignFirstResponder() }
-        func textFieldDidBeginEditing(_ tf: UITextField) { tf.selectAll(nil) }   // typing replaces the value ("250", not "250100")
+        func textFieldDidBeginEditing(_ tf: UITextField) {
+            // typing replaces the value ("250", not "250100") — selected after the tap has placed the caret, or the caret wins
+            DispatchQueue.main.async { tf.selectedTextRange = tf.textRange(from: tf.beginningOfDocument, to: tf.endOfDocument) }
+            guard dismissers.isEmpty, let window = tf.window else { return }
+            let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(_:)))
+            let swipe = UISwipeGestureRecognizer(target: self, action: #selector(swiped)); swipe.direction = .down
+            for g in [tap, swipe] as [UIGestureRecognizer] { g.cancelsTouchesInView = false; g.delaysTouchesEnded = false; g.delegate = self; window.addGestureRecognizer(g) }
+            dismissers = [tap, swipe]
+        }
+        func textFieldDidEndEditing(_ tf: UITextField) { removeDismissers() }
         func textFieldShouldReturn(_ tf: UITextField) -> Bool { tf.resignFirstResponder(); return true }
-    }
-}
-
-/// "Done" above the decimal pad: surface bar, hairline top, accent 17/800 label right. Tapping it resigns the field.
-enum KeyboardDoneBar {
-    /// `target` / `action`: the field's coordinator — a nil-target bar button is not routed to the first responder on iOS 26.
-    static func make(target: AnyObject? = nil, action: Selector = #selector(UIResponder.resignFirstResponder)) -> UIView {
-        let bar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
-        bar.barTintColor = UIColor(Color.yumo.surface); bar.isTranslucent = false
-        let done = UIBarButtonItem(title: "Done", style: .done, target: target, action: action)
-        done.tintColor = UIColor(Color.yumo.accent)
-        done.setTitleTextAttributes([.font: UIFont(name: "Nunito-ExtraBold", size: 17) ?? .boldSystemFont(ofSize: 17)], for: .normal)
-        bar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), done]
-        bar.sizeToFit(); return bar
+        func removeDismissers() { dismissers.forEach { $0.view?.removeGestureRecognizer($0) }; dismissers = [] }
+        @objc func tapped(_ g: UITapGestureRecognizer) {
+            guard let tf = field, !tf.bounds.contains(g.location(in: tf)) else { return }
+            // a tap on another text field hands focus over by itself — resigning here first would drop the keyboard and raise it again
+            if let w = g.view { var v = w.hitTest(g.location(in: w), with: nil); while let x = v { if x is UITextField || x is UITextView { return }; v = x.superview } }
+            tf.resignFirstResponder()
+        }
+        @objc func swiped() { field?.resignFirstResponder() }
+        func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
     }
 }
 

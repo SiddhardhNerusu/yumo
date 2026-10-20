@@ -27,6 +27,11 @@ struct FoodDetailScreen: View {
         let (sv, q) = grams == nil ? food.quickAmount : (Self.plain, grams! / 100)
         _serving = State(initialValue: sv); _quantity = State(initialValue: q); _meal = State(initialValue: meal)
     }
+    /// "Switch to cooked?" on a logged entry: the same entry in the other state, on the grams you had. Save swaps it in place.
+    init(entry: FoodEntry, switchingTo food: Food, dayKey: String, grams: Double, onDone: @escaping () -> Void) {
+        self.entry = entry; _food = State(initialValue: food); self.dayKey = dayKey; self.onLogged = onDone
+        _serving = State(initialValue: Self.plain); _quantity = State(initialValue: grams / 100); _meal = State(initialValue: entry.meal)
+    }
     var grams: Double { serving.grams * quantity }
     static let plain = Serving(label: "100 g", grams: 100)
     /// The one other state worth offering: raw → the most everyday cooked method; cooked → raw.
@@ -82,16 +87,19 @@ struct FoodDetailScreen: View {
                         }.foregroundStyle(Color.yumo.ink)
                     }.buttonStyle(PlainPressStyle()).padding(.leading, Space.cardPad).listCard()
                     PrimaryButton(label: entry == nil ? "Log" : "Save", action: save).padding(.top, 8)
-                    if let e = entry { HStack { Spacer(); TextAction(label: "Remove from \(e.meal.rawValue)", danger: true) { Store(ctx).remove(e); toaster.show("Removed \(e.foodName)"); session.changed(); dismiss() }; Spacer() }.padding(.top, 4) }
+                    if let e = entry { HStack { Spacer(); TextAction(label: "Remove from \(e.meal.rawValue)", danger: true) { let name = e.foodName; Store(ctx).remove(e); toaster.show("Removed \(name)"); session.changed(); dismiss(); onLogged?() }; Spacer() }.padding(.top, 4) }
                 }.padding(.horizontal, Space.gutter).padding(.bottom, 40)
             }
         }
         .background(Color.yumo.bg.ignoresSafeArea())
         .confirmationDialog("Serving", isPresented: $showServings, titleVisibility: .visible) { ForEach(servingOptions, id: \.self) { s in Button(s.label) { serving = s; setQuantity(quantity) } } }
-        .pushCover(item: $sibling) { g in FoodDetailScreen(food: g, meal: meal, dayKey: dayKey, grams: grams, onLogged: { dismiss(); onLogged?() }) }
+        .pushCover(item: $sibling) { g in
+            if let e = entry { FoodDetailScreen(entry: e, switchingTo: g, dayKey: dayKey, grams: grams, onDone: { dismiss(); onLogged?() }) }
+            else { FoodDetailScreen(food: g, meal: meal, dayKey: dayKey, grams: grams, onLogged: { dismiss(); onLogged?() }) }
+        }
         .onAppear { gramsText = Fmt.g(grams); targets = Store(ctx).targets(); siblings = Store(ctx).siblings(of: food) }
         .onChange(of: gramsText) { if let g = Double(gramsText), g > 0, abs(g - grams) > 0.01 { quantity = g / serving.grams } }
-        .scrollDismissesKeyboard(.interactively)
+        .scrollDismissesKeyboard(.interactively).scrollBounceBehavior(.always)
     }
     var unit: String { serving.label.hasSuffix(" ml") ? "ml" : "g" }
     func setQuantity(_ q: Double) { quantity = q; gramsText = Fmt.g(serving.grams * q) }
@@ -101,7 +109,10 @@ struct FoodDetailScreen: View {
     func save() {
         let s = Store(ctx)
         if let e = entry {
-            e.food = food; e.foodName = food.name; e.servingLabel = serving.label; e.servingGrams = serving.grams; e.quantity = quantity; s.save()
+            if let old = e.food, old.id != food.id { s.switchFood(of: e, from: old, to: food) }   // switched raw ↔ cooked: the entry changes food, the use moves with it
+            e.food = food; e.foodName = food.name; e.servingLabel = serving.label; e.servingGrams = serving.grams; e.quantity = quantity
+            food.lastServingLabel = serving.label; food.lastServingGrams = serving.grams; food.lastQuantity = quantity   // an edited amount is the one you want next time
+            s.save()
             toaster.show("Saved \(food.name)")
         } else {
             _ = s.log(food: food, meal: meal, dayKey: dayKey, quantity: quantity, serving: serving); toaster.show("\(food.name) → \(meal.rawValue)")
