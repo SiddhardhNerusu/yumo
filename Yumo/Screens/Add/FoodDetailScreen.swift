@@ -61,7 +61,7 @@ struct FoodDetailScreen: View {
                         SettingsRow(label: "Servings", sub: "steps of ½") {
                             HStack(spacing: 8) {
                                 // the unit picker: a control chip so it reads as tappable — "100 g ▾" / "1 medium · 118 g ▾"
-                                Button { showServings = true } label: { HStack(spacing: 4) { Text(serving.label).font(.yumo.segment).tabular().lineLimit(1); Text("▾").font(.nunito(12, .extrabold)).foregroundStyle(Color.yumo.accent) }.foregroundStyle(Color.yumo.ink).padding(.horizontal, 10).frame(height: 36).background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle())
+                                Button { showServings = true } label: { HStack(spacing: 4) { Text(serving.label).font(.yumo.segment).tabular().lineLimit(1).fixedSize(); Text("▾").font(.nunito(12, .extrabold)).foregroundStyle(Color.yumo.accent) }.foregroundStyle(Color.yumo.ink).padding(.horizontal, 10).frame(height: 36).background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()).layoutPriority(1)   // the unit never collapses; the row's label truncates instead
                                 ValueStepper(value: quantity.formatted(.number.precision(.fractionLength(0...2))), onMinus: { setQuantity((max(0.5, quantity - 0.5) * 2).rounded() / 2) }, onPlus: { setQuantity(((quantity + 0.5) * 2).rounded() / 2) })
                             }
                         }
