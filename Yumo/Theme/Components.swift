@@ -240,23 +240,42 @@ struct AddChipStyle: ButtonStyle {
 }
 
 /// Numeric entry: 40 pt, radius 12, track fill, inner edge inset 0 2 0, value 17/800 right-aligned, unit 17/700 muted.
+/// The field is a UIKit text field (NumberField): decimal pad with a Done bar, and it selects its value on focus so typing replaces it.
 struct InsetField: View {
     @Binding var text: String; var unit: String; var width: CGFloat = 120; var placeholder = "0"
     var body: some View {
         HStack(spacing: 6) {
-            TextField(placeholder, text: $text).keyboardType(.decimalPad).font(.nunito(17, .extrabold)).tabular().multilineTextAlignment(.trailing).frame(minWidth: 40)
-                // a number field selects its value on focus so typing replaces it ("250", not "250100"), and carries a Done bar —
-                // the decimal pad has no Return key, so without it nothing below the keypad (Log) is reachable. Every InsetField is numeric.
-                .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { n in
-                    guard let tf = n.object as? UITextField, tf.keyboardType == .decimalPad else { return }
-                    if tf.inputAccessoryView == nil { tf.inputAccessoryView = KeyboardDoneBar.make(); tf.reloadInputViews() }
-                    DispatchQueue.main.async { tf.selectAll(nil) }
-                }
+            NumberField(text: $text, placeholder: placeholder).frame(minWidth: 40, maxWidth: .infinity, maxHeight: 40)
             Text(unit).font(.nunito(17, .bold)).foregroundStyle(Color.yumo.inkMuted)
         }
         .padding(.horizontal, 12).frame(width: width, height: 40)
         .background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.track))
         .overlay(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).stroke(Color.yumo.insetEdge, lineWidth: 2).mask(Rectangle().padding(.bottom, 36)))
+    }
+}
+/// UIKit number field: decimal pad, right-aligned 17/800 tabular, Done bar above the pad (the pad has no Return key), select-all on focus.
+struct NumberField: UIViewRepresentable {
+    @Binding var text: String; var placeholder: String
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+    func makeUIView(context: Context) -> UITextField {
+        let tf = UITextField()
+        tf.keyboardType = .decimalPad; tf.textAlignment = .right; tf.borderStyle = .none; tf.backgroundColor = .clear
+        tf.font = UIFont(name: "Nunito-ExtraBold", size: 17).map { UIFont($0.fontDescriptor.addingAttributes([.featureSettings: [[UIFontDescriptor.FeatureKey.type: kNumberSpacingType, UIFontDescriptor.FeatureKey.selector: kMonospacedNumbersSelector]]]), size: 17) } ?? .monospacedDigitSystemFont(ofSize: 17, weight: .heavy)
+        tf.textColor = UIColor(Color.yumo.ink); tf.tintColor = UIColor(Color.yumo.accent)
+        tf.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor(Color.yumo.inkMuted)])
+        tf.inputAccessoryView = KeyboardDoneBar.make()
+        tf.delegate = context.coordinator
+        tf.addTarget(context.coordinator, action: #selector(Coordinator.changed(_:)), for: .editingChanged)
+        tf.setContentHuggingPriority(.defaultLow, for: .horizontal); tf.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        return tf
+    }
+    func updateUIView(_ tf: UITextField, context: Context) { context.coordinator.parent = self; if tf.text != text { tf.text = text } }
+    final class Coordinator: NSObject, UITextFieldDelegate {
+        var parent: NumberField
+        init(_ p: NumberField) { parent = p }
+        @objc func changed(_ tf: UITextField) { parent.text = tf.text ?? "" }
+        func textFieldDidBeginEditing(_ tf: UITextField) { tf.selectAll(nil) }   // typing replaces the value ("250", not "250100")
+        func textFieldShouldReturn(_ tf: UITextField) -> Bool { tf.resignFirstResponder(); return true }
     }
 }
 
