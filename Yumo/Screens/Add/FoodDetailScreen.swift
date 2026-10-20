@@ -49,11 +49,9 @@ struct FoodDetailScreen: View {
                     if let other = switchTarget {
                         // one sentence, one link: "Switch to cooked?" — the everyday method when the catalogue has several (grilled before braised)
                         let toRaw = other.stateLabel == "Raw" || other.stateLabel == "Dry"
-                        HStack(spacing: 4) {
-                            Text("Switch to").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
-                            TextAction(label: toRaw ? "raw" : "cooked") { sibling = other }
-                            Text("?").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
-                        }
+                        Button { sibling = other } label: {
+                            (Text("Switch to ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(toRaw ? "raw" : "cooked").font(.yumo.action).foregroundColor(.yumo.accent) + Text("?").font(.yumo.caption).foregroundColor(.yumo.inkMuted))
+                        }.buttonStyle(PlainPressStyle())
                     }
                     if food.macrosUnknown { Text("This chain publishes calories only. Protein, carbs and fat are not counted for this item.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
                     VStack(alignment: .leading, spacing: 14) {
