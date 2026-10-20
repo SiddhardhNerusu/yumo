@@ -245,6 +245,8 @@ struct InsetField: View {
     var body: some View {
         HStack(spacing: 6) {
             TextField(placeholder, text: $text).keyboardType(.decimalPad).font(.nunito(17, .extrabold)).tabular().multilineTextAlignment(.trailing).frame(minWidth: 40)
+                // a number field selects its value on focus so typing replaces it ("250", not "250100") — every InsetField is numeric
+                .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { n in if let tf = n.object as? UITextField, tf.keyboardType == .decimalPad { DispatchQueue.main.async { tf.selectAll(nil) } } }
             Text(unit).font(.nunito(17, .bold)).foregroundStyle(Color.yumo.inkMuted)
         }
         .padding(.horizontal, 12).frame(width: width, height: 40)
