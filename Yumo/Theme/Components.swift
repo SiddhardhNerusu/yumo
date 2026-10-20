@@ -263,17 +263,18 @@ struct NumberField: UIViewRepresentable {
         tf.font = UIFont(name: "Nunito-ExtraBold", size: 17).map { UIFont(descriptor: $0.fontDescriptor.addingAttributes([.featureSettings: [[UIFontDescriptor.FeatureKey.type: kNumberSpacingType, UIFontDescriptor.FeatureKey.selector: kMonospacedNumbersSelector]]]), size: 17) } ?? .monospacedDigitSystemFont(ofSize: 17, weight: .heavy)
         tf.textColor = UIColor(Color.yumo.ink); tf.tintColor = UIColor(Color.yumo.accent)
         tf.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor(Color.yumo.inkMuted)])
-        tf.inputAccessoryView = KeyboardDoneBar.make()
-        tf.delegate = context.coordinator
+        tf.inputAccessoryView = KeyboardDoneBar.make(target: context.coordinator, action: #selector(Coordinator.done))
+        tf.delegate = context.coordinator; context.coordinator.field = tf
         tf.addTarget(context.coordinator, action: #selector(Coordinator.changed(_:)), for: .editingChanged)
         tf.setContentHuggingPriority(.defaultLow, for: .horizontal); tf.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return tf
     }
     func updateUIView(_ tf: UITextField, context: Context) { context.coordinator.parent = self; if tf.text != text { tf.text = text } }
     final class Coordinator: NSObject, UITextFieldDelegate {
-        var parent: NumberField
+        var parent: NumberField; weak var field: UITextField?
         init(_ p: NumberField) { parent = p }
         @objc func changed(_ tf: UITextField) { parent.text = tf.text ?? "" }
+        @objc func done() { field?.resignFirstResponder() }
         func textFieldDidBeginEditing(_ tf: UITextField) { tf.selectAll(nil) }   // typing replaces the value ("250", not "250100")
         func textFieldShouldReturn(_ tf: UITextField) -> Bool { tf.resignFirstResponder(); return true }
     }
@@ -281,10 +282,11 @@ struct NumberField: UIViewRepresentable {
 
 /// "Done" above the decimal pad: surface bar, hairline top, accent 17/800 label right. Tapping it resigns the field.
 enum KeyboardDoneBar {
-    static func make() -> UIView {
+    /// `target` / `action`: the field's coordinator — a nil-target bar button is not routed to the first responder on iOS 26.
+    static func make(target: AnyObject? = nil, action: Selector = #selector(UIResponder.resignFirstResponder)) -> UIView {
         let bar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
         bar.barTintColor = UIColor(Color.yumo.surface); bar.isTranslucent = false
-        let done = UIBarButtonItem(title: "Done", style: .done, target: nil, action: #selector(UIResponder.resignFirstResponder))
+        let done = UIBarButtonItem(title: "Done", style: .done, target: target, action: action)
         done.tintColor = UIColor(Color.yumo.accent)
         done.setTitleTextAttributes([.font: UIFont(name: "Nunito-ExtraBold", size: 17) ?? .boldSystemFont(ofSize: 17)], for: .normal)
         bar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), done]
