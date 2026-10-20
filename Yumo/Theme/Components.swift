@@ -260,7 +260,7 @@ struct NumberField: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextField {
         let tf = UITextField()
         tf.keyboardType = .decimalPad; tf.textAlignment = .right; tf.borderStyle = .none; tf.backgroundColor = .clear
-        tf.font = UIFont(name: "Nunito-ExtraBold", size: 17).map { UIFont($0.fontDescriptor.addingAttributes([.featureSettings: [[UIFontDescriptor.FeatureKey.type: kNumberSpacingType, UIFontDescriptor.FeatureKey.selector: kMonospacedNumbersSelector]]]), size: 17) } ?? .monospacedDigitSystemFont(ofSize: 17, weight: .heavy)
+        tf.font = UIFont(name: "Nunito-ExtraBold", size: 17).map { UIFont(descriptor: $0.fontDescriptor.addingAttributes([.featureSettings: [[UIFontDescriptor.FeatureKey.type: kNumberSpacingType, UIFontDescriptor.FeatureKey.selector: kMonospacedNumbersSelector]]]), size: 17) } ?? .monospacedDigitSystemFont(ofSize: 17, weight: .heavy)
         tf.textColor = UIColor(Color.yumo.ink); tf.tintColor = UIColor(Color.yumo.accent)
         tf.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor(Color.yumo.inkMuted)])
         tf.inputAccessoryView = KeyboardDoneBar.make()
