@@ -63,7 +63,7 @@ struct FoodDetailScreen: View {
                         SettingsRow(label: "Servings", sub: "steps of ½") {
                             HStack(spacing: 8) {
                                 // the unit picker: plain muted text + accent ▾ (a box reads like a field you can type into)
-                                Button { showServings = true } label: { HStack(spacing: 3) { Text(serving.label).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1).fixedSize(); Text("▾").font(.nunito(12, .extrabold)).foregroundStyle(Color.yumo.accent) }.frame(height: 36).contentShape(Rectangle()) }.buttonStyle(PlainPressStyle()).layoutPriority(1)   // the unit never collapses; the row's label truncates instead
+                                Button { showServings = true } label: { HStack(spacing: 3) { Text(serving.label).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1).fixedSize(); Text("▾").font(.nunito(12, .extrabold)).foregroundStyle(Color.yumo.accent).fixedSize() }.frame(height: 36).contentShape(Rectangle()) }.buttonStyle(PlainPressStyle()).layoutPriority(1)   // the unit never collapses; the row's label truncates instead
                                 ValueStepper(value: quantity.formatted(.number.precision(.fractionLength(0...2))), onMinus: { setQuantity((max(0.5, quantity - 0.5) * 2).rounded() / 2) }, onPlus: { setQuantity(((quantity + 0.5) * 2).rounded() / 2) })
                             }
                         }
