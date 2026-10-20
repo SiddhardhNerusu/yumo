@@ -43,7 +43,7 @@ struct FoodDetailScreen: View {
                         SettingsRow(label: "Servings", sub: "steps of ½") {
                             HStack(spacing: 8) {
                                 Button { showServings = true } label: { Text(serving.label).font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }.buttonStyle(PlainPressStyle())
-                                ValueStepper(value: quantity.formatted(), onMinus: { setQuantity((max(0.5, quantity - 0.5) * 2).rounded() / 2) }, onPlus: { setQuantity(((quantity + 0.5) * 2).rounded() / 2) })
+                                ValueStepper(value: quantity.formatted(.number.precision(.fractionLength(0...2))), onMinus: { setQuantity((max(0.5, quantity - 0.5) * 2).rounded() / 2) }, onPlus: { setQuantity(((quantity + 0.5) * 2).rounded() / 2) })
                             }
                         }
                     }
