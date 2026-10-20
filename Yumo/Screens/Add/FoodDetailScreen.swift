@@ -24,16 +24,15 @@ struct FoodDetailScreen: View {
     /// `grams`: a "did you mean" page opens on the grams you had typed on the other state's page.
     init(food: Food, meal: Meal, dayKey: String, grams: Double? = nil, onLogged: @escaping () -> Void) {
         self.entry = nil; _food = State(initialValue: food); self.dayKey = dayKey; self.onLogged = onLogged
-        let (sv, q) = grams == nil ? food.quickAmount : (Self.plain, grams! / 100)
+        let (sv, q) = grams == nil ? food.quickAmount : (food.plainServing, grams! / food.plainServing.grams)
         _serving = State(initialValue: sv); _quantity = State(initialValue: q); _meal = State(initialValue: meal)
     }
     /// "Switch to cooked?" on a logged entry: the same entry in the other state, on the grams you had. Save swaps it in place.
     init(entry: FoodEntry, switchingTo food: Food, dayKey: String, grams: Double, onDone: @escaping () -> Void) {
         self.entry = entry; _food = State(initialValue: food); self.dayKey = dayKey; self.onLogged = onDone
-        _serving = State(initialValue: Self.plain); _quantity = State(initialValue: grams / 100); _meal = State(initialValue: entry.meal)
+        _serving = State(initialValue: food.plainServing); _quantity = State(initialValue: grams / food.plainServing.grams); _meal = State(initialValue: entry.meal)
     }
     var grams: Double { serving.grams * quantity }
-    static let plain = Serving(label: "100 g", grams: 100)
     /// The one other state worth offering: raw → the most everyday cooked method; cooked → raw.
     static let methodOrder = ["Grilled", "Roasted", "Baked", "Boiled", "Cooked", "Fried", "Steamed", "Poached", "Braised", "Stewed", "Microwaved", "Barbecued"]
     var switchTarget: Food? {
@@ -42,7 +41,7 @@ struct FoodDetailScreen: View {
         return siblings.first { $0.stateLabel == "Raw" || $0.stateLabel == "Dry" }
     }
     /// 100 g first, then the row's named units ("1 medium · 118 g", "1 breast · 174 g") — the Servings picker.
-    var servingOptions: [Serving] { var s = [Self.plain]; for sv in food.servings where !(sv.grams == 100 && sv.label.hasSuffix(" g")) { s.append(sv) }; return s }
+    var servingOptions: [Serving] { let plain = food.plainServing; var s = [plain]; for sv in food.servings where sv.label != plain.label && !(sv.grams == 100 && sv.label.hasSuffix(" g")) { s.append(sv) }; return s }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,7 +49,7 @@ struct FoodDetailScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     (Text(food.name).font(.yumo.pageTitle) + Text(food.state.map { ", " + $0 } ?? "").font(.yumo.pageTitle).foregroundColor(.yumo.inkMuted)).lineLimit(3)
-                    SourceLine(text: food.sourceLine, explainer: food.tier == .generic ? "Canonical entry from USDA FoodData Central (Foundation Foods / SR Legacy), public domain. Values per 100 g; raw and cooked are separate entries, never a multiplier." : food.tier == .branded ? "Branded product from \(food.source == .off ? "Open Food Facts (ODbL, crowd-sourced; values can be sparse)" : "USDA Branded Foods") keyed by its barcode. Cached on this phone; refreshed after 30 days." : "You created this food. Edit it from Settings › My foods.")
+                    SourceLine(text: food.sourceLine, explainer: sourceExplainer)
                     if let other = switchTarget {
                         // one sentence, one link: "Switch to cooked?" — the everyday method when the catalogue has several (grilled before braised)
                         let toRaw = other.stateLabel == "Raw" || other.stateLabel == "Dry"
@@ -64,7 +63,7 @@ struct FoodDetailScreen: View {
                         HStack(spacing: Space.gridGap) { macro("Protein", food.p100); macro("Carbs", food.c100); macro("Fat", food.f100) }
                     }.frame(maxWidth: .infinity, alignment: .leading).card().padding(.top, 8)
                     ListCard {
-                        SettingsRow(label: "Amount", sub: "type what you weighed") { InsetField(text: $gramsText, unit: unit) }.hairline()
+                        SettingsRow(label: "Amount", sub: unit == "ml" ? "type what you poured" : "type what you weighed") { InsetField(text: $gramsText, unit: unit) }.hairline()
                         SettingsRow(label: "Servings", sub: "steps of ½") {
                             HStack(spacing: 8) {
                                 // the unit picker: plain muted text + accent ▾ (a box reads like a field you can type into)
@@ -97,12 +96,29 @@ struct FoodDetailScreen: View {
             if let e = entry { FoodDetailScreen(entry: e, switchingTo: g, dayKey: dayKey, grams: grams, onDone: { dismiss(); onLogged?() }) }
             else { FoodDetailScreen(food: g, meal: meal, dayKey: dayKey, grams: grams, onLogged: { dismiss(); onLogged?() }) }
         }
-        .onAppear { gramsText = Fmt.g(grams); targets = Store(ctx).targets(); siblings = Store(ctx).siblings(of: food) }
-        .onChange(of: gramsText) { if let g = Double(gramsText), g > 0, abs(g - grams) > 0.01 { quantity = g / serving.grams } }
+        .onAppear { gramsText = Fmt.g(amount); targets = Store(ctx).targets(); siblings = Store(ctx).siblings(of: food) }
+        .onChange(of: gramsText) { if let v = Double(gramsText), v > 0, abs(v - amount) > 0.01 { quantity = v / perServing } }
         .scrollDismissesKeyboard(.interactively).scrollBounceBehavior(.always)
     }
-    var unit: String { serving.label.hasSuffix(" ml") ? "ml" : "g" }
-    func setQuantity(_ q: Double) { quantity = q; gramsText = Fmt.g(serving.grams * q) }
+    var sourceExplainer: String {
+        switch food.tier {
+        case .generic:
+            let from = food.source == .cofid ? "the UK's CoFID tables (McCance and Widdowson's, Open Government Licence)" : "USDA FoodData Central (Foundation Foods / SR Legacy), public domain"
+            let drink = food.mlDensity.map { " Logged in ml: 100 ml of it weighs \(String(format: "%.1f", 100 * $0)) g, worked out from its water, protein, fat and sugar." } ?? ""
+            return "Canonical entry from \(from). Values per 100 g; raw and cooked are separate entries, never a multiplier." + drink
+        case .branded:
+            return "Branded product from \(food.source == .off ? "Open Food Facts (ODbL, crowd-sourced; values can be sparse)" : "USDA Branded Foods") keyed by its barcode." + (food.mlDensity != nil ? " Values per 100 ml, as on the label." : "") + " Cached on this phone; refreshed after 30 days."
+        case .chain:
+            return "From \(food.brand ?? "the chain")'s own published nutrition information; the line above names the document and its date."
+        case .user:
+            return "You created this food. Edit it from Settings › My foods."
+        }
+    }
+    var unit: String { serving.ml != nil ? "ml" : "g" }
+    /// One serving in the unit the field shows: ml for a drink (its grams are what that volume weighs), else grams.
+    var perServing: Double { serving.ml ?? serving.grams }
+    var amount: Double { perServing * quantity }
+    func setQuantity(_ q: Double) { quantity = q; gramsText = Fmt.g(perServing * q) }
     func macro(_ l: String, _ per100: Double) -> some View {
         VStack(alignment: .leading, spacing: 2) { Text(l).font(.yumo.captionLight).foregroundStyle(Color.yumo.inkMuted); Text(food.macrosUnknown ? "—" : "\(Fmt.g(per100 * grams / 100)) g").font(.yumo.stat).tabular() }.frame(maxWidth: .infinity, alignment: .leading)
     }

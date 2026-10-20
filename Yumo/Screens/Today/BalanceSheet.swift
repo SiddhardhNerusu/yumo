@@ -153,7 +153,7 @@ struct BalanceSheet: View {
                     HStack(spacing: 12) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(p.name).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
-                            Text((["100 g · \(Fmt.k(p.kcal100)) kcal · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · ")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                            Text((["\(p.per100) · \(Fmt.k(p.kcal100)) kcal · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · ")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
                         }.frame(maxWidth: .infinity, alignment: .leading)
                         AddCircleButton { keep(store.upsert(p.makeFood())) }
                     }.padding(.vertical, 11).padding(.trailing, 16).hairline()

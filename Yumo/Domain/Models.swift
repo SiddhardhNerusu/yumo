@@ -16,7 +16,14 @@ enum Activity: Double, Codable, CaseIterable, Identifiable { case sedentary = 1.
 enum FoodSource: String, Codable { case off, usda, user, usdaBranded = "usda_branded", cofid }
 enum FoodTier: String, Codable { case generic, chain, branded, user }
 
-struct Serving: Codable, Hashable { var label: String; var grams: Double }
+struct Serving: Codable, Hashable { var label: String; var grams: Double
+    /// Millilitres in one serving when the label is a volume ("100 ml", "1 × 250ml", "1 can (330 ml)") — drinks are logged in ml (20 Oct).
+    /// `grams` stays the weight that volume has, so every macro is still per gram.
+    var ml: Double? {
+        guard let r = label.range(of: #"(\d+(?:\.\d+)?)\s*ml\b"#, options: [.regularExpression, .caseInsensitive]) else { return nil }
+        return Double(label[r].lowercased().replacingOccurrences(of: "ml", with: "").trimmingCharacters(in: .whitespaces))
+    }
+}
 
 @Model final class UserProfile {
     var username: String = ""
@@ -103,6 +110,7 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     var lastServingLabel: String? = nil   // the amount you logged last time (20 Oct): Recent rows and the Food page open on it
     var lastServingGrams: Double? = nil
     var lastQuantity: Double? = nil
+    var mlDensity: Double? = nil          // g per ml for drinks (20 Oct): amounts are in ml, macros stay per 100 g. nil = weighed in grams
     init(name: String, brand: String? = nil, barcode: String? = nil, source: FoodSource, servings: [Serving], kcal100: Double, p100: Double, c100: Double, f100: Double) {
         self.name = name; self.brand = brand; self.barcode = barcode; self.sourceRaw = source.rawValue; self.servings = servings
         self.kcal100 = kcal100; self.p100 = p100; self.c100 = c100; self.f100 = f100
@@ -152,10 +160,12 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double }
     /// "80 g", "1 medium · 118 g", "150 g × 2"
     /// Rev 2: the real amount — "120 g", "1.5 scoop · 45 g".
     var amountLabel: String {
-        let plain = servingLabel.hasSuffix(" g") || servingLabel.hasSuffix(" ml")
-        if plain || quantity == 1 && servingLabel.hasPrefix("1 ") == false { return "\(Fmt.g(grams)) \(servingLabel.hasSuffix(" ml") ? "ml" : "g")" }
+        let sv = Serving(label: servingLabel, grams: servingGrams)
+        let total = sv.ml.map { "\(Fmt.g($0 * quantity)) ml" } ?? "\(Fmt.g(grams)) g"   // a drink reads in ml: 2.5 × "100 ml" is "250 ml", not its 257 g
+        let plain = servingLabel.hasSuffix(" g") || sv.ml != nil   // weighed foods unchanged: "1 medium · 118 g" × 2 reads "236 g"
+        if plain || quantity == 1 && servingLabel.hasPrefix("1 ") == false { return total }
         let unit = servingLabel.replacingOccurrences(of: #"^1 ×? ?"#, with: "", options: .regularExpression).components(separatedBy: " · ").first ?? servingLabel
-        return "\(quantity.formatted()) \(unit) · \(Fmt.g(grams)) g"
+        return "\(quantity.formatted()) \(unit) · \(total)"
     }
     func micro(_ key: String) -> Double? { food?.micros[key].map { $0 * grams / 100 } }
 }
@@ -227,8 +237,9 @@ extension Food {
     var detail: String { Food.split(name, state: state).detail }
 
     /// Units people count (20 Oct): a serving whose label starts "1 <word>" where the word is a piece, not a cut you weigh.
-    /// "1 medium · 118 g" and "1 scoop · 30 g" are portions; "1 breast · 174 g" is not — you weigh chicken.
-    static let countedUnits: Set<String> = ["small", "medium", "large", "extra", "egg", "slice", "item", "bar", "biscuit", "cookie", "cracker", "roll", "bun", "wrap", "pot", "can", "bottle", "sachet", "scoop", "tbsp", "tsp", "cup", "portion", "serving", "pack", "packet", "bag", "tin", "tub", "stick", "square", "cube", "sprig", "clove", "leaf", "head", "ear", "pod", "fruit", "nut", "date", "fig", "wedge", "sheet", "rasher", "sausage", "burger", "patty"]
+    /// "1 medium · 118 g" and "1 scoop · 30 g" are portions; "1 breast · 174 g" is not — you weigh chicken. Nor is a US cup:
+    /// "1 cup whole kernels · 157 g" opened almonds on 953 kcal; it stays in the unit picker, the default is 100 g.
+    static let countedUnits: Set<String> = ["small", "medium", "large", "extra", "egg", "slice", "item", "bar", "biscuit", "cookie", "cracker", "roll", "bun", "wrap", "pot", "can", "bottle", "sachet", "scoop", "tbsp", "tsp", "portion", "serving", "pack", "packet", "bag", "tin", "tub", "stick", "square", "cube", "sprig", "clove", "leaf", "head", "ear", "pod", "fruit", "nut", "date", "fig", "wedge", "sheet", "rasher", "sausage", "burger", "patty"]
     var portions: [Serving] {
         servings.filter { sv in
             guard !(sv.label.hasSuffix(" g") || sv.label.hasSuffix(" ml")) || sv.label.hasPrefix("1 ") else { return false }
@@ -237,10 +248,12 @@ extension Food {
             return tier != .generic || !words.isDisjoint(with: Food.countedUnits)
         }
     }
-    /// What the page opens on and + logs: 100 g for anything you weigh; the real unit for things you count and for chain / packaged portions.
+    /// The bare amount a food is measured in: 100 ml of a drink (weighing what 100 ml of it weighs), else 100 g.
+    var plainServing: Serving { mlDensity.map { Serving(label: "100 ml", grams: 100 * $0) } ?? Serving(label: "100 g", grams: 100) }
+    /// What the page opens on and + logs: 100 g for anything you weigh, 100 ml for a drink; the real unit for things you count and for chain / packaged portions.
     var quickServing: Serving {
         if tier == .chain || tier == .branded { return defaultServing }
-        return portions.first ?? Serving(label: "100 g", grams: 100)
+        return portions.first ?? plainServing
     }
     /// The amount you logged last time, else quickServing × 1. "250 g" of chicken stays 250 g in Recent and on the page.
     var quickAmount: (serving: Serving, quantity: Double) {
@@ -250,7 +263,8 @@ extension Food {
     var quickGrams: Double { quickAmount.serving.grams * quickAmount.quantity }
     var quickAmountLabel: String {
         let (sv, q) = quickAmount
-        if sv.label.hasSuffix(" g") || sv.label.hasSuffix(" ml") || q != 1 { return "\(Fmt.g(sv.grams * q)) \(sv.label.hasSuffix(" ml") ? "ml" : "g")" }
+        if let ml = sv.ml { return "\(Fmt.g(ml * q)) ml" }   // 2.5 × "100 ml" reads "250 ml", never its grams
+        if sv.label.hasSuffix(" g") || q != 1 { return "\(Fmt.g(sv.grams * q)) g" }
         return sv.label
     }
     /// "Raw" · "Grilled" · "Boiled" · "Dry" — the one word for the state switch on the Food page.

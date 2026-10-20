@@ -155,7 +155,7 @@ struct StapleScanScreen: View {
                         Overline(text: food != nil ? "Found" : missing ? "Not found" : "Looking up…")
                         if let f = food {
                             Text(f.name).font(.yumo.title).foregroundStyle(Color.yumo.ink)
-                            Text([f.brand, "\(Fmt.k(f.kcal100)) kcal · P \(Fmt.g(f.p100)) · C \(Fmt.g(f.c100)) · F \(Fmt.g(f.f100)) per 100 g"].compactMap { $0 }.joined(separator: " · ")).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
+                            Text([f.brand, "\(Fmt.k(f.kcal100)) kcal · P \(Fmt.g(f.p100)) · C \(Fmt.g(f.c100)) · F \(Fmt.g(f.f100)) per \(f.mlDensity != nil ? "100 ml" : "100 g")"].compactMap { $0 }.joined(separator: " · ")).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
                             HStack(spacing: 10) { PrimaryButton(label: "Add as a staple", size: .compact) { onAdd(f) }; SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
                         } else if missing {
                             Text("Barcode \(code) isn't in Open Food Facts or USDA yet. Type the label's numbers once and it's yours for good.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)

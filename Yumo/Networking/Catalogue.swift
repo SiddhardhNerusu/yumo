@@ -4,7 +4,7 @@ import SwiftData
 /// Tier 1 generic catalogue: canonical foods bundled as Resources/Catalogue/generic.json (USDA FDC Foundation Foods, public domain).
 /// One row per generic food; raw and cooked are separate entries; no user edits. Re-synced when the bundled version changes.
 enum Catalogue {
-    struct Row: Codable { var id: String; var name: String; var state: String?; var aliases: String?; var source: String; var source_ref: String; var kcal: Double; var p: Double; var c: Double; var f: Double; var servings: [Serving]?; var micros: [String: Double] }
+    struct Row: Codable { var id: String; var name: String; var state: String?; var aliases: String?; var source: String; var source_ref: String; var kcal: Double; var p: Double; var c: Double; var f: Double; var servings: [Serving]?; var micros: [String: Double]; var ml_density: Double? }
     struct ChainRow: Codable { var id: String; var chain: String; var category: String?; var name: String; var serving_label: String; var serving_grams: Double?; var kcal: Double; var p: Double?; var c: Double?; var f: Double?; var micros: [String: Double]?; var source_ref: String }
     struct ChainFile: Codable { var version: String; var items: [ChainRow] }
     struct File: Codable { var version: String; var foods: [Row] }
@@ -18,13 +18,13 @@ enum Catalogue {
         for r in file.foods {
             kept.insert(r.id)
             var servings = r.servings ?? []; if servings.isEmpty { servings = defaultServings(for: r.name) }
-            if !servings.contains(where: { $0.grams == 100 }) { servings.append(Serving(label: "100 g", grams: 100)) }
+            if r.ml_density == nil, !servings.contains(where: { $0.grams == 100 }) { servings.append(Serving(label: "100 g", grams: 100)) }   // a drink is measured in ml
             let src: FoodSource = r.source == "cofid" ? .cofid : .usda
             if let f = existing[r.id] {
-                f.name = r.name; f.state = r.state; f.aliases = r.aliases ?? ""; f.sourceRef = r.source_ref; f.source = src; f.kcal100 = r.kcal; f.p100 = r.p; f.c100 = r.c; f.f100 = r.f; f.micros = r.micros; f.servings = servings
+                f.name = r.name; f.state = r.state; f.aliases = r.aliases ?? ""; f.sourceRef = r.source_ref; f.source = src; f.kcal100 = r.kcal; f.p100 = r.p; f.c100 = r.c; f.f100 = r.f; f.micros = r.micros; f.servings = servings; f.mlDensity = r.ml_density
             } else {
                 let f = Food(name: r.name, brand: nil, barcode: nil, source: src, servings: servings, kcal100: r.kcal, p100: r.p, c100: r.c, f100: r.f)
-                f.tier = .generic; f.canonicalId = r.id; f.state = r.state; f.aliases = r.aliases ?? ""; f.sourceRef = r.source_ref; f.micros = r.micros
+                f.tier = .generic; f.canonicalId = r.id; f.state = r.state; f.aliases = r.aliases ?? ""; f.sourceRef = r.source_ref; f.micros = r.micros; f.mlDensity = r.ml_density
                 store.ctx.insert(f)
             }
         }
@@ -63,7 +63,6 @@ enum Catalogue {
         else if n.contains("banana") { s.insert(Serving(label: "1 medium · 118 g", grams: 118), at: 0) }
         else if n.contains("chicken, breast") || n.contains("breast, skinless") { s.append(Serving(label: "1 breast · 174 g", grams: 174)) }
         else if n.contains("oats") { s.insert(Serving(label: "80 g", grams: 80), at: 0) }
-        else if n.contains("milk") && !n.contains("cheese") { s = [Serving(label: "250 ml", grams: 250), Serving(label: "100 ml", grams: 100)] }
         else if n.hasPrefix("oil") || n.contains(", oil") { s.insert(Serving(label: "1 tbsp · 14 g", grams: 14), at: 0) }
         else if n.contains("apple") && !n.contains("juice") { s.insert(Serving(label: "1 medium · 182 g", grams: 182), at: 0) }
         return s

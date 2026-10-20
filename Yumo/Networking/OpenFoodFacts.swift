@@ -6,12 +6,16 @@ enum OpenFoodFacts {
         var fibre: Double?; var sugar: Double?; var salt: Double?; var satFat: Double?
         var sourceRef: String? = nil; var micros: [String: Double] = [:]
         var quantity: String? = nil      // pack size as printed ("2kg", "300 g") — what tells two bags of the same name apart
+        /// Sold by volume ("1 L", "6 x 330 ml"): the label's values are per 100 ml, so amounts are in ml (20 Oct).
+        var isDrink: Bool { quantity?.range(of: #"\d\s*(ml|cl|L)\b"#, options: .regularExpression) != nil }
+        var per100: String { isDrink ? "100 ml" : "100 g" }
         /// Atwater check: 4P + 4C + 9F within 30 % of the stated kcal (alcohol-free foods). A potato at "79 kcal, C 1" fails and is not shown.
         var plausible: Bool { let a = 4 * p100 + 4 * c100 + 9 * f100; return abs(a - kcal100) <= max(25, kcal100 * 0.30) }
         func makeFood() -> Food {
             let f = Food(name: name, brand: brand, barcode: barcode, source: sourceRef?.hasPrefix("USDA") == true ? .usdaBranded : .off, servings: servings, kcal100: kcal100, p100: p100, c100: c100, f100: f100)
             f.fibre100 = fibre; f.sugar100 = sugar; f.salt100 = salt; f.satFat100 = satFat; f.tier = .branded; f.micros = micros
             f.state = quantity   // shows as the detail line: "Potatoes · 2 kg"
+            if isDrink { f.mlDensity = 1 }   // values per 100 ml, so 100 ml counts as the "100" every macro is per
             let df = DateFormatter(); df.locale = Locale(identifier: "en_GB"); df.dateFormat = "d MMM"
             f.sourceRef = sourceRef ?? "Open Food Facts · updated \(df.string(from: Date()))"; return f
         }
@@ -75,6 +79,7 @@ enum OpenFoodFacts {
         if let q = (p["quantity"] as? String)?.trimmingCharacters(in: .whitespaces), q.contains(where: \.isNumber), q.contains(where: \.isLetter) {   // "395g" yes, a bare "2" no
             prod.quantity = tidyQuantity(q)
         }
+        if prod.isDrink { prod.servings = prod.servings.map { $0.label == "100 g" ? Serving(label: "100 ml", grams: 100) : $0 } }
         return prod
     }
     /// One way to write a pack size, so two bags compare at a glance: "2kg" → "2 kg", "400 grams" / "400G" → "400 g", "1 litre" → "1 L".

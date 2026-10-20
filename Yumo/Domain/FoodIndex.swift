@@ -53,15 +53,19 @@ final class FoodIndex: @unchecked Sendable {
     nonisolated static func words(_ s: String) -> [String] { s.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map { stem(String($0)) } }
 
     /// Query-independent prior (the "is anyone likely to want this row" half of a search engine, PageRank's job). Until aggregate usage
-    /// exists, it comes from the data: by-products and offal rank down, common cuts and whole foods up, rows USDA / CoFID gave real portions up.
+    /// exists, it comes from the data: by-products and offal rank down, common cuts and whole foods up. (A +0.3 for rows with a counted portion
+    /// was dropped 20 Oct: it lifted almond butter's "1 tbsp" over plain almonds; the common-foods words already do that job.)
     static let byProducts: Set<String> = ["skin", "feet", "foot", "giblets", "giblet", "neck", "back", "gizzard", "heart", "liver", "kidney", "tail", "head", "bone", "fat", "separable", "tip", "tips", "carcass", "blood", "tongue", "tripe", "brain", "lung", "marrow", "trimmings", "rind", "dripping", "drippings", "lard", "tallow", "suet", "stock", "leaves", "stalk", "stalks", "peel", "shell", "husk", "bran", "flour", "powder", "dried", "dehydrated", "freeze", "baby", "food", "infant", "formula", "canned", "tinned", "unenriched", "enriched", "industrial", "restaurant", "fast"]
     static let staples: Set<String> = ["breast", "thigh", "leg", "drumstick", "wing", "mince", "ground", "fillet", "steak", "chop", "loin", "sirloin", "rump", "whole", "egg", "white", "brown", "basmati", "rolled", "porridge", "greek", "natural", "semi", "skimmed", "cheddar", "banana", "apple", "avocado", "broccoli", "spinach", "sweet", "olive", "peanut", "almond"]
-    nonisolated static func prior(name: String, hasPortion: Bool) -> Double {
-        let w = Set(words(name))
+    /// A word straight after "with" / "without" / "no" only says how the food comes ("Apples, gala, with skin"), so neither side counts it
+    /// (20 Oct: the skin penalty sank raw apples). Boosts also skip a word after "and": "Almonds, flaked and ground" isn't ground meat —
+    /// but "Chicken breast, meat and skin" keeps its penalty, it is the skin-on cut.
+    nonisolated static func prior(name: String) -> Double {
+        let all = words(name)
+        func counted(after qualifiers: Set<String>) -> Set<String> { Set(all.indices.filter { $0 == 0 || !qualifiers.contains(all[$0 - 1]) }.map { all[$0] }) }
         var p = 0.0
-        p -= Double(min(2, w.intersection(byProducts).count)) * 1.2
-        p += Double(min(2, w.intersection(staples).count)) * 0.5
-        if hasPortion { p += 0.3 }
+        p -= Double(min(2, counted(after: ["with", "without", "no"]).intersection(byProducts).count)) * 1.2
+        p += Double(min(2, counted(after: ["with", "without", "no", "and", "plus"]).intersection(staples).count)) * 0.5
         return p
     }
 
@@ -107,9 +111,9 @@ final class FoodIndex: @unchecked Sendable {
     nonisolated static func makeSnapshot(_ foods: [Food]) -> Snapshot {
         var df: [String: Int] = [:]
         let built = foods.map { f -> Entry in
-            let w = FoodIndex.words(f.name + " " + (f.state ?? "")), b = FoodIndex.words(f.brand ?? "")
+            let w = FoodIndex.words(f.name + " " + (f.state ?? "") + " " + f.aliases), b = FoodIndex.words(f.brand ?? "")   // aliases: "nuts" still finds Almonds (20 Oct)
             for x in Set(w + b) { df[x, default: 0] += 1 }
-            return Entry(id: f.id, name: f.name, words: w, brand: b, tier: f.tier, raw: f.state?.lowercased() == "raw", useCount: f.useCount, macrosUnknown: f.macrosUnknown, prior: FoodIndex.prior(name: f.name, hasPortion: !f.portions.isEmpty))
+            return Entry(id: f.id, name: f.name, words: w, brand: b, tier: f.tier, raw: f.state?.lowercased() == "raw", useCount: f.useCount, macrosUnknown: f.macrosUnknown, prior: FoodIndex.prior(name: f.name) - Double(f.state.flatMap { $0.lowercased() == "raw" ? nil : $0.count + 3 } ?? 0) * 0.02)   // a cooked / processed state lengthens the description: "Almonds" beats "Almonds · toasted" on a tie; raw is a base state
         }
         return Snapshot(entries: built, df: df, n: built.count)
     }

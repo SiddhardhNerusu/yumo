@@ -7,7 +7,7 @@ Run: python3 tools/build-catalogue.py   → prints a cross-check report (Atwater
 import csv, re, json, os, re, sys, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "Yumo", "Resources", "Catalogue", "generic.json")
-VERSION = "2026-10-16.1"
+VERSION = "2026-10-20.1"
 
 # nutrient number -> Yumo key
 NUT = {"208":"kcal","203":"p","205":"c","204":"f","291":"fibre","269":"sugars","606":"sat_fat","645":"mono","646":"poly","605":"trans",
@@ -20,30 +20,84 @@ KEEP_CATEGORIES = {"Dairy and Egg Products","Spices and Herbs","Fats and Oils","
 BRANDY = re.compile(r"\b[A-Z][A-Z'&-]{3,}\b|®|™|USDA Commodity|[Bb]abyfood|[Ss]chool lunch|\bNFS\b|[Ii]mitation|NS as to")
 BRAND_WORDS = re.compile(r"\b(PILLSBURY|KRAFT|KELLOGG|GENERAL MILLS|QUAKER|POST|NABISCO|HORMEL|OSCAR MAYER|TYSON|MCDONALD|BURGER KING|KFC|SUBWAY|WENDY|TACO BELL|DOMINO|PIZZA HUT|CAMPBELL|HEINZ|NESTLE|MARS|HERSHEY|KEEBLER|MISSION|ARCHWAY|MARTHA WHITE|BETTY CROCKER|DUNCAN HINES|JIMMY DEAN|LOUIS RICH|BALLPARK|HEBREW NATIONAL|SILK|SO DELICIOUS|CHOBANI|YOPLAIT|DANNON|LAND O|SMART BALANCE|BENECOL|CRISCO|WESSON|MAZOLA|PAM|UNCLE BEN|MINUTE|RICE-A-RONI|LIPTON|ORTEGA|OLD EL PASO|GOYA|GREEN GIANT|BIRDS EYE|ORE-IDA|MORNINGSTAR|GARDENBURGER|BOCA|WORTHINGTON|LOMA LINDA|HOUSE FOODS|MORI-NU|NASOYA|VITASOY|FRANKLIN|GLUTINO|UDI|KING ARTHUR|GOLD MEDAL|PEPPERIDGE|ARNOLD|SARA LEE|WONDER|NATURE'S OWN|THOMAS|ENTENMANN|LITTLE DEBBIE|HOSTESS|DOLLY MADISON|TASTYKAKE|KASHI|NATURE VALLEY|CLIF|POWERBAR|SLIM-FAST|ENSURE|BOOST|CARNATION|OVALTINE|NESQUIK|SWISS MISS|HOT COCOA|GATORADE|POWERADE|RED BULL|MONSTER|ROCKSTAR|SNAPPLE|ARIZONA|TROPICANA|MINUTE MAID|OCEAN SPRAY|V8|CAPRI SUN|KOOL-AID|CRYSTAL LIGHT|TANG|HI-C|SUNNY D|COCA|PEPSI|SPRITE|DR PEPPER|MOUNTAIN DEW|SCHWEPPES|CANADA DRY|A&W|BARQ|FANTA|7UP|SIERRA MIST|STARBUCKS|DUNKIN|PANERA|CHICK-FIL-A|POPEYES|ARBY|SONIC|JACK IN THE BOX|CARL|HARDEE|WHATABURGER|IN-N-OUT|FIVE GUYS|SHAKE SHACK|CHIPOTLE|QDOBA|PANDA EXPRESS|P\.F\. CHANG|OLIVE GARDEN|RED LOBSTER|APPLEBEE|CHILI|TGI|OUTBACK|TEXAS ROADHOUSE|LONGHORN|CRACKER BARREL|DENNY|IHOP|WAFFLE HOUSE|BOB EVANS|PERKINS|GOLDEN CORRAL|CICI|LITTLE CAESARS|PAPA JOHN|PAPA MURPHY|ROUND TABLE|SBARRO|DIGIORNO|TOMBSTONE|RED BARON|TOTINO|CELESTE|STOUFFER|LEAN CUISINE|HEALTHY CHOICE|MARIE CALLENDER|BANQUET|HUNGRY-MAN|SWANSON|BIRDS|EGGO|AUNT JEMIMA|HUNGRY JACK|KRUSTEAZ|BISQUICK|JIFFY)\b", re.I)
 DROP_PARTS = {"broilers or fryers","broiler or fryers","all classes","composite of trimmed retail cuts","all grades","choice","select","prime","usda","commercial","domestic","enhanced","raised in","year round","average of all","commodity","unprepared","prepared","home-prepared","home prepared","regular","plain","original","grade a","large","extra large","jumbo","medium"}
-SHORTEN = [("separable lean and fat","lean and fat"),("separable lean only","lean only"),("separable fat","fat only"),("trimmed to 0\" fat","trimmed 0\" fat"),("trimmed to 1/8\" fat","trimmed 1/8\" fat"),("trimmed to 1/4\" fat","trimmed 1/4\" fat"),("meat and skin","meat and skin"),("meat only","meat only"),("without salt",""),("with salt","salted"),("boneless","boneless"),("skinless","skinless")]
+SHORTEN = [("separable lean and fat","lean and fat"),("separable lean only","lean only"),("separable fat","fat only"),("trimmed to 0\" fat","trimmed 0\" fat"),("trimmed to 1/8\" fat","trimmed 1/8\" fat"),("trimmed to 1/4\" fat","trimmed 1/4\" fat"),("meat and skin","meat and skin"),("meat only","meat only"),("without salt added",""),("with salt added","salted"),("without salt",""),("with salt","salted"),("boneless","boneless"),("skinless","skinless")]
+# USDA files nuts and seeds under a category word first ("Nuts, almonds"); the name starts at the food and the category word stays
+# searchable as an alias (20 Oct: "just say almonds"). Not fish: "Fish, salmon, chum" losing its prefix outranks the UK salmon rows.
+USDA_PREFIXES = {"nuts", "seeds"}
+# Nuts and seeds: the plain form is the bare name ("Almonds", "Walnuts"). These parts only restate it.
+NUT_PLAIN_PARTS = {"kernel only", "kernels", "whole kernels", "whole", "halves", "plain", "unblanched", "unsalted", "shelled", "all types"}
+SALT_PARTS = ("lightly salted", "salted")
 STATE_WORDS = ("boiled in unsalted water","boiled in salted water","boiled","grilled","fried in corn oil","fried in sunflower oil","fried in rapeseed oil","fried in olive oil","fried","roast","roasted","baked","poached","steamed","stewed","microwaved","casseroled","barbecued","dried, raw","raw","cooked","roasted","grilled","boiled","baked","fried","braised","steamed","broiled","dry heat","moist heat","canned","dried","frozen","pasteurized","unenriched","enriched","drained","microwaved","stewed","simmered","pan-fried","pan-broiled","smoked","cured","toasted","uncooked","heated","unheated","prepared","drained solids","solids and liquids","unsweetened","sweetened")
 JOIN_SECOND = {"breast","thigh","wing","drumstick","ground","loin","chuck","flank","round","rib","sirloin","tenderloin","fillet","white","whole","yolk","brown","black","wild","red","gold","russet","greek","plain","cottage","cheddar","mozzarella","feta","ricotta","atlantic","sockeye","navy","kidney","pinto","green","sweet","oat","wheat","rice","corn","shoulder","leg","top","bottom","eye","brisket","short","back","neck","liver","heart","skirt","hanger","porterhouse","t-bone","strip","filet","chops","belly","ham","bacon","spareribs","roast","steak","mince","breasts","thighs","wings","legs","heads","hearts","florets","tops","leaves","kernels","seeds","nuts","butter","milk","cream","cheese","yogurt","yoghurt"}
 
-def clean(desc):
+def clean(desc, usda=False, nut=False, seed=False):
+    """→ (name, state, alias). `usda`: the row may lead with a category word. `nut` / `seed`: nuts and seeds, whose plain form is the bare name."""
     parts = [x.strip() for x in desc.split(",") if x.strip()]
+    alias = ""
+    if usda and len(parts) > 1 and parts[0].lower() in USDA_PREFIXES: alias = parts.pop(0).lower()
     parts = [p for p in parts if p.lower() not in DROP_PARTS]
     for a, b in SHORTEN: parts = [re.sub(re.escape(a), b, p, flags=re.I) for p in parts]
+    parts = [p.strip() for p in parts]
     parts = [p for p in parts if p]
+    if nut or seed:
+        parts = [re.sub(r"\bseed kernels\b", "seeds", p, flags=re.I) for p in parts]
+        # "whole" on a seed means the hull is on (whole pumpkin seeds vs kernels), so it stays; on a nut it means not flaked
+        plain = NUT_PLAIN_PARTS - ({"whole"} if seed else set())
+        parts = parts[:1] + [p for p in parts[1:] if p.lower() not in plain]
+    # salt describes the food, not how it was cooked: set it aside so "dry roasted" is still read as the state
+    salt = [p for p in parts[1:] if p.lower() in SALT_PARTS]
+    parts = parts[:1] + [p for p in parts[1:] if p.lower() not in SALT_PARTS]
     state = []
     while len(parts) > 1 and any(w == parts[-1].lower() or parts[-1].lower().startswith(w + " ") or parts[-1].lower().endswith(" " + w) for w in STATE_WORDS): state.insert(0, parts.pop())
     # a bare state word in the middle ("Avocados, raw, all commercial varieties") is still the state
     for i, p in enumerate(parts[1:], 1):
         if p.lower() in ("raw", "cooked", "dry", "dried", "frozen", "canned") and len(parts) > 1:
             state.insert(0, parts.pop(i)); break
-    if len(parts) > 1 and len(parts[1]) <= 16 and not any(ch.isdigit() for ch in parts[1]) and parts[1].split()[0].lower() in JOIN_SECOND:
+    if not (nut or seed) and len(parts) > 1 and len(parts[1]) <= 16 and not any(ch.isdigit() for ch in parts[1]) and parts[1].split()[0].lower() in JOIN_SECOND:   # "Walnuts, black", not "Walnuts black"
         parts = [parts[0] + " " + parts[1]] + parts[2:]
-    name = ", ".join(parts)
+    name = ", ".join(parts + salt)
     name = name[0].upper() + name[1:] if name else name
     st = ", ".join(state).lower() or None
     if st:
         st = st.replace("cooked, ", "cooked (").replace("cooked,", "cooked (")
         if "(" in st and ")" not in st: st += ")"
-    return name, st
+    return name, st, alias
+
+def load_renames():
+    """tools/renames.csv (from, to): UK names for foods the sources spell differently ("Brazilnuts" → "Brazil nuts"), so the same food
+    from two sources lands on one row. Applied to the start of the cleaned name, before a comma or the end."""
+    p = os.path.join(HERE, "renames.csv")
+    return [(r["from"], r["to"]) for r in csv.DictReader(open(p))] if os.path.exists(p) else []
+
+def rename(name, renames):
+    for a, b in renames:
+        if name.lower() == a.lower() or name.lower().startswith(a.lower() + ","): return b + name[len(a):]
+    return name
+
+# Drinks are measured in ml (20 Oct). A row is a drink when the food itself is one — the part of the name before the first comma —
+# and it isn't a powder or a dried form (a powder "made up with" milk or water is a drink).
+DRINK = re.compile(r"milks?\b|\b(juice|drink|nectar|lassi|kefir|smoothie|shake)s?\b|coconut water", re.I)
+NOT_DRINK = re.compile(r"\b(powder|dry|dried|cheese|milk chocolate|weighed as)\b", re.I)   # "weighed as whole fruit": per 100 g of fruit, not of juice
+def is_drink(name, state):
+    head = name.split(",")[0]
+    if not DRINK.search(head): return False
+    if re.search(r"yogh?urt", head, re.I) and not re.search(r"drink", head, re.I): return False   # "Yogurt whole milk" is a yogurt
+    full = name + " " + (state or "")
+    return not NOT_DRINK.search(full) or re.search(r"\bmade up\b", full, re.I) is not None
+
+# g per ml, estimated from the row's own composition with the component densities of Choi & Okos (1986, 20 °C): semi-skimmed milk 1.03,
+# orange juice 1.04, sweetened condensed milk 1.28. USDA's cup / fl oz weights are only the fallback — many are rounded label figures
+# (a cup of juice as 236 g reads 1.00 when it is 1.04).
+VOLUME_ML = {"fl oz": 29.5735, "cup": 236.588, "quart": 946.353, "tbsp": 14.787, "tablespoon": 14.787}
+def composition_density(nut, src):
+    w = nut.get("water_g")
+    if w is None: return None
+    p, f, c, alc = nut.get("p", 0), nut.get("f", 0), nut.get("c", 0), nut.get("alcohol_g", 0)
+    fib = nut.get("fibre", 0) if src == "cofid" else 0   # USDA carbohydrate is by difference and already includes fibre
+    w = min(w, 100 - p - f - c - fib - alc)   # water and solids measured on different samples can add up past 100 g
+    ash = max(0.0, 100 - w - p - f - c - fib - alc)
+    vol = w / 0.9982 + p / 1.3199 + f / 0.9175 + c / 1.5991 + fib / 1.3115 + ash / 2.4238 + alc / 0.7893
+    return 100 / vol if vol > 0 else None
 
 def load_curation():
     p = os.path.join(HERE, "curation.csv"); cur = {}
@@ -80,6 +134,10 @@ def sr_legacy():
         try: a = float(amt); amt = str(int(a)) if a == int(a) else str(a)
         except: pass
         f["portions"].append((f"{amt} {label} · {int(round(float(r['gram_weight'])))} g", float(r["gram_weight"])))
+        try: vol_amount = float(r["amount"] or 1)
+        except ValueError: vol_amount = 0
+        if label.lower() in VOLUME_ML and vol_amount > 0:   # a weighed volume: "1 cup = 244 g" → 1.031 g/ml
+            f.setdefault("vol", {}).setdefault(label.lower(), float(r["gram_weight"]) / (vol_amount * VOLUME_ML[label.lower()]))
     out = []
     for fid, f in foods.items():
         # Default serving = the first portion. A piece ("1 medium", "1 large", "1 slice", "1 egg") must outrank a measure ("1 cup, mashed",
@@ -91,7 +149,8 @@ def sr_legacy():
                 return 0 if "medium" in l else (0.2 if "large" in l and "extra" not in l else (0.4 if "small" in l and "extra" not in l else 0.6))   # medium is the everyday piece
             return 1
         portions = sorted(f["portions"], key=piece_rank)
-        out.append({"src": "sr", "id": f"fdc:{fid}", "desc": f["desc"], "cat": f["cat"], "nut": f["nut"], "portions": portions[:3], "source_ref": f"USDA SR Legacy {fid}"})
+        vol = f.get("vol", {}); density = next((vol[u] for u in VOLUME_ML if u in vol), None)
+        out.append({"src": "sr", "id": f"fdc:{fid}", "desc": f["desc"], "cat": f["cat"], "nut": f["nut"], "portions": portions[:3], "density": density, "source_ref": f"USDA SR Legacy {fid}"})
     return out
 
 def foundation():
@@ -117,7 +176,6 @@ def default_servings(name):
     elif "banana" in n: s.append(("1 medium · 118 g", 118))
     elif "chicken breast" in n: s.append(("1 breast · 174 g", 174))
     elif n.startswith("oats"): s.append(("80 g", 80))
-    elif "milk" in n and "cheese" not in n and "chocolate" not in n: s = [("250 ml", 250), ("100 ml", 100)]
     elif n.startswith("oil") or ", oil" in n or "olive oil" in n: s.append(("1 tbsp · 14 g", 14))
     elif "apple" in n and "juice" not in n: s.append(("1 medium · 182 g", 182))
     elif "bread" in n: s.append(("1 slice · 36 g", 36))
@@ -144,33 +202,68 @@ def cofid():
     return out
 
 rows = sr_legacy() + foundation() + cofid()
-cur = load_curation()
-out, seen, report = [], {}, collections.Counter()
+cur = load_curation(); renames = load_renames()
+RANK = {"foundation": 3, "sr": 2, "cofid": 1}   # same food + state in two sources: USDA Foundation (newer panels), then SR Legacy, then CoFID (unchanged since 16 Oct)
+SOURCE = {"foundation": "usda_fdc_foundation", "sr": "usda_sr_legacy", "cofid": "cofid"}
+
+def kind(r):
+    """"nut" / "seed" / "" — nuts and seeds, whose plain form is just the name."""
+    d = r["desc"]; head = d.split(",")[0].strip().lower()
+    if r["src"] in ("sr", "foundation"):
+        if head == "seeds": return "seed"
+        if head in ("nuts", "peanuts") or r["cat"] == "Nut and Seed Products": return "nut"
+        return ""
+    if r["cat"].startswith("G"): return "seed" if "seed" in head else "nut"   # CoFID group G: nuts and seeds
+    return ""
+
+# pass 1 — names
+report = collections.Counter(); named = []
 for r in rows:
     nut = r["nut"]
     if "kcal" not in nut or "p" not in nut: report["no kcal/protein"] += 1; continue
     c = cur.get(r["id"])
     if c and c.get("approved", "").lower() in ("no", "0", "false", "drop"): report["dropped by curation"] += 1; continue
-    name, state = clean(r["desc"])
-    aliases = ""
-    if c:
-        name = c.get("display_name") or name; state = c.get("state") or state; aliases = c.get("aliases", "")
+    k = kind(r)
+    desc = re.sub(r"(\w)-roasted\b", r"\1 roasted", r["desc"]) if k else r["desc"]   # "dry-roasted" (legumes) = "dry roasted" (nuts)
+    name, state, alias = clean(desc, usda=r["src"] != "cofid", nut=k == "nut", seed=k == "seed")
+    name = rename(name, renames); aliases = alias
+    if c: name = c.get("display_name") or name; state = c.get("state") or state; aliases = " ".join(x for x in (c.get("aliases", ""), alias) if x)
+    named.append((r, k, name, state, aliases))
+
+# a nut that a source lists both raw and dried (chestnuts, acorns, lotus seeds) keeps the state; otherwise raw / dried is the plain nut
+raw_dried = collections.defaultdict(set)
+for r, k, name, state, _ in named:
+    if k and state in ("raw", "dried"): raw_dried[(r["src"], name.lower())].add(state)
+
+# pass 2 — one row per food + state
+out, seen = [], {}
+for r, k, name, state, aliases in named:
+    nut = r["nut"]
+    plain_ok = k and (r["src"] != "cofid" or re.search(r"nut|seed", name.split(",")[0], re.I))   # CoFID files quinoa with the nuts; it keeps "raw"
+    if plain_ok and state in ("raw", "dried") and raw_dried[(r["src"], name.lower())] != {"raw", "dried"}: state = None
     key = (name + "|" + (state or "")).lower()
     if key in seen:
-        # Foundation (newer, better panels) wins over SR Legacy for the same food+state
-        if r["src"] == "foundation" and seen[key]["source"] != "usda_fdc_foundation": out.remove(seen[key])
-        else: report["duplicate name+state"] += 1; continue   # USDA wins over CoFID for the same food+state; CoFID fills UK gaps
+        prev_row, prev_src = seen[key]
+        if RANK[r["src"]] > RANK[prev_src]: out.remove(prev_row); report["replaced by " + r["src"]] += 1
+        else: report["duplicate name+state"] += 1; continue
     atw = 4 * nut.get("p", 0) + 4 * nut.get("c", 0) + 9 * nut.get("f", 0)
     flags = []
     if nut["kcal"] > 20 and abs(atw - nut["kcal"]) / max(1, nut["kcal"]) > 0.15 and nut.get("alcohol_g", 0) == 0 and nut.get("fibre", 0) < 10: flags.append("atwater")
-    servings = [{"label": l, "grams": g} for l, g in r["portions"]] + [{"label": l, "grams": g} for l, g in default_servings(name)]
+    density = (composition_density(nut, r["src"]) or r.get("density")) if is_drink(name, state) else None
+    if density and not 0.9 <= density <= 1.35: density = None   # outside any drink's range: the row's numbers aren't per volume
+    if density:   # drinks: amounts in ml, each weighing what that drink weighs (250 ml of semi-skimmed milk = 258 g)
+        servings = [{"label": "100 ml", "grams": round(100 * density, 1)}, {"label": "250 ml", "grams": round(250 * density, 1)}]
+        report["drinks in ml"] += 1
+    else:
+        servings = [{"label": l, "grams": g} for l, g in r["portions"]] + [{"label": l, "grams": g} for l, g in default_servings(name)]
     labels = set(); dedup = []
     for s in servings:
         if s["label"] not in labels and 0 < s["grams"] <= 2000: labels.add(s["label"]); dedup.append(s)
-    micros = {k: round(v, 4) for k, v in nut.items() if k not in ("kcal", "p", "c", "f")}
-    row = {"id": r["id"], "name": name, "state": state, "aliases": aliases, "source": {"foundation": "usda_fdc_foundation", "sr": "usda_sr_legacy", "cofid": "cofid"}[r["src"]], "source_ref": r["source_ref"],
+    micros = {k2: round(v, 4) for k2, v in nut.items() if k2 not in ("kcal", "p", "c", "f")}
+    row = {"id": r["id"], "name": name, "state": state, "aliases": aliases, "source": SOURCE[r["src"]], "source_ref": r["source_ref"],
            "kcal": round(nut["kcal"], 1), "p": round(nut.get("p", 0), 2), "c": round(nut.get("c", 0), 2), "f": round(nut.get("f", 0), 2), "servings": dedup[:4], "micros": micros, "flags": flags}
-    seen[key] = row; out.append(row)
+    if density: row["ml_density"] = round(density, 4)
+    seen[key] = (row, r["src"]); out.append(row)
     for fl in flags: report["flag:" + fl] += 1
 out.sort(key=lambda x: (x["name"].lower(), x["state"] or ""))
 import hashlib

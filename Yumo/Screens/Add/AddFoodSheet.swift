@@ -145,7 +145,7 @@ struct AddFoodSheet: View {
                         if brandedOpen {
                             Overline(text: "Branded · Open Food Facts").padding(.top, 4)
                             if remote.isEmpty && !searching { Text("No branded match. Scan the barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
-                            else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: (["100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
+                            else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: (["\(p.per100) · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
                             if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
                         } else {
                             // Generic words keep branded noise out; one quiet line brings it in when wanted.
@@ -163,7 +163,7 @@ struct AddFoodSheet: View {
     @ViewBuilder var remoteGroup: some View {
         Overline(text: "Branded · Open Food Facts").padding(.top, 4)
         if remote.isEmpty && !searching { Text(OpenFoodFacts.lastFailure.map { Date().timeIntervalSince($0) < 60 } == true ? "Open Food Facts didn't answer — try again in a moment, or scan the barcode." : "No packaged product by that name on Open Food Facts — scan its barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
-        else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: (["100 g · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
+        else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: (["\(p.per100) · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
         if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
     }
     func group(_ title: String, _ foods: [Food]) -> some View {
