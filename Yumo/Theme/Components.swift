@@ -245,13 +245,31 @@ struct InsetField: View {
     var body: some View {
         HStack(spacing: 6) {
             TextField(placeholder, text: $text).keyboardType(.decimalPad).font(.nunito(17, .extrabold)).tabular().multilineTextAlignment(.trailing).frame(minWidth: 40)
-                // a number field selects its value on focus so typing replaces it ("250", not "250100") — every InsetField is numeric
-                .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { n in if let tf = n.object as? UITextField, tf.keyboardType == .decimalPad { DispatchQueue.main.async { tf.selectAll(nil) } } }
+                // a number field selects its value on focus so typing replaces it ("250", not "250100"), and carries a Done bar —
+                // the decimal pad has no Return key, so without it nothing below the keypad (Log) is reachable. Every InsetField is numeric.
+                .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { n in
+                    guard let tf = n.object as? UITextField, tf.keyboardType == .decimalPad else { return }
+                    if tf.inputAccessoryView == nil { tf.inputAccessoryView = KeyboardDoneBar.make(); tf.reloadInputViews() }
+                    DispatchQueue.main.async { tf.selectAll(nil) }
+                }
             Text(unit).font(.nunito(17, .bold)).foregroundStyle(Color.yumo.inkMuted)
         }
         .padding(.horizontal, 12).frame(width: width, height: 40)
         .background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.track))
         .overlay(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).stroke(Color.yumo.insetEdge, lineWidth: 2).mask(Rectangle().padding(.bottom, 36)))
+    }
+}
+
+/// "Done" above the decimal pad: surface bar, hairline top, accent 17/800 label right. Tapping it resigns the field.
+enum KeyboardDoneBar {
+    static func make() -> UIView {
+        let bar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+        bar.barTintColor = UIColor(Color.yumo.surface); bar.isTranslucent = false
+        let done = UIBarButtonItem(title: "Done", style: .done, target: nil, action: #selector(UIResponder.resignFirstResponder))
+        done.tintColor = UIColor(Color.yumo.accent)
+        done.setTitleTextAttributes([.font: UIFont(name: "Nunito-ExtraBold", size: 17) ?? .boldSystemFont(ofSize: 17)], for: .normal)
+        bar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), done]
+        bar.sizeToFit(); return bar
     }
 }
 

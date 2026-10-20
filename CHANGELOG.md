@@ -1,7 +1,7 @@
 # Yumo — changelog
 
 ## 1.0 build 2026-10-20
-- Number fields (Amount, Max, dose…) select their value on focus, so typing replaces it instead of inserting before it ("250", not "250100").
+- Number fields (Amount, Max, dose…) select their value on focus, so typing replaces it instead of inserting before it ("250", not "250100"), and carry a **Done** bar above the decimal pad — it has no Return key, so on a page that fits the screen there was no way to put the keypad away and reach Log.
 - **Foods remember the grams you logged.** Log 250 g of chicken breast once and the Recent row reads "250 g · P 56…", + logs 250 g and the Food page opens on it (`Food.lastServingLabel/Grams/Quantity`, set on every log).
 - **Typos no longer demote the catalogue**: "chcieken breast" fuzzy-matches chicken, so it counts as a known word and the generic rows stay on top (before, the typo looked like a brand and the packaged group led).
 - **Search rows**: the shop / brand now leads the meta line ("Waitrose · 100 g · P 27 · C 1 · F 4") instead of trailing the name where it truncated; the pack photos are gone (Sid: no images) — shop and pack size tell products apart.
