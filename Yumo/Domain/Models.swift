@@ -222,6 +222,32 @@ extension Food {
     }
     var shortName: String { Food.split(name, state: state).name }
     var detail: String { Food.split(name, state: state).detail }
+
+    /// Units people count (20 Oct): a serving whose label starts "1 <word>" where the word is a piece, not a cut you weigh.
+    /// "1 medium · 118 g" and "1 scoop · 30 g" are portions; "1 breast · 174 g" is not — you weigh chicken.
+    static let countedUnits: Set<String> = ["small", "medium", "large", "extra", "egg", "slice", "piece", "item", "bar", "biscuit", "cookie", "cracker", "roll", "bun", "wrap", "pot", "can", "bottle", "sachet", "scoop", "tbsp", "tsp", "cup", "portion", "serving", "pack", "packet", "bag", "tin", "tub", "stick", "square", "cube", "sprig", "clove", "leaf", "head", "ear", "pod", "fruit", "nut", "date", "fig", "wedge", "sheet", "rasher", "sausage", "burger", "patty", "fillet", "drumstick", "wing", "thigh"]
+    var portions: [Serving] {
+        servings.filter { sv in
+            guard !(sv.label.hasSuffix(" g") || sv.label.hasSuffix(" ml")) || sv.label.hasPrefix("1 ") else { return false }
+            let unit = sv.label.replacingOccurrences(of: #"^1 ×? ?"#, with: "", options: .regularExpression).components(separatedBy: " · ").first?.lowercased() ?? ""
+            let words = Set(unit.split(separator: " ").map(String.init))
+            return tier != .generic || !words.isDisjoint(with: Food.countedUnits)
+        }
+    }
+    /// What the page opens on and + logs: 100 g for anything you weigh; the real unit for things you count and for chain / packaged portions.
+    var quickServing: Serving {
+        if tier == .chain || tier == .branded { return defaultServing }
+        return portions.first ?? Serving(label: "100 g", grams: 100)
+    }
+    /// "Raw" · "Grilled" · "Boiled" · "Dry" — the one word for the state switch on the Food page.
+    /// Words that describe how a food was cooked rather than what it is — ignored when matching a food to its other states.
+    static let cookingWords: Set<String> = ["raw", "uncooked", "dry", "dried", "cooked", "boiled", "baked", "roasted", "roast", "grilled", "fried", "braised", "steamed", "poached", "stewed", "microwaved", "barbecued", "smoked", "in", "unsalted", "salted", "water", "oil", "corn", "sunflower", "rapeseed", "lard", "dripping", "blended", "vegetable", "with", "without", "skin", "drained", "frozen", "canned", "heated", "oven", "reheated"]
+    var stateLabel: String? {
+        let s = (state ?? name).lowercased()   // CoFID sometimes puts the method in the name with no state
+        if s.isEmpty { return nil }
+        for (k, v) in [("raw", "Raw"), ("uncooked", "Dry"), ("dry", "Dry"), ("grilled", "Grilled"), ("roasted", "Roasted"), ("roast", "Roasted"), ("baked", "Baked"), ("boiled", "Boiled"), ("fried", "Fried"), ("braised", "Braised"), ("steamed", "Steamed"), ("poached", "Poached"), ("stewed", "Stewed"), ("microwaved", "Microwaved"), ("barbecued", "Barbecued"), ("smoked", "Smoked"), ("canned", "Canned"), ("frozen", "Frozen"), ("cooked", "Cooked")] where s.contains(k) { return v }
+        return nil
+    }
 }
 @Model final class PrepDay {
     @Attribute(.unique) var dayKey: String = ""

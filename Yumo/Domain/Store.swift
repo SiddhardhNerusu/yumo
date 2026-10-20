@@ -123,6 +123,23 @@ struct Store {
         let all = all.filter(matches)
         return (all.filter { $0.tier == .user }.sorted(by: rank), all.filter { $0.tier == .generic }.sorted(by: rank) /* every variant shows — no cap */, all.filter { $0.tier == .chain }.sorted(by: rank), all.filter { $0.tier == .branded }.sorted(by: rank))
     }
+    /// The same food in its other states (20 Oct): generic rows whose name words are the same set — or a subset differing only by
+    /// "meat only" / "flesh" / "whole" / "fresh" — and whose state differs. Raw first, then one per state label. Used by the Food page's Raw · Grilled · Braised switch.
+    func siblings(of f: Food) -> [Food] {
+        guard f.tier == .generic, let first = FoodIndex.words(f.name).first else { return [] }
+        let cooking = Set(Food.cookingWords.map(FoodIndex.stem))
+        let base = Set(FoodIndex.words(f.name)).subtracting(cooking)
+        let noise: Set<String> = ["meat", "only", "flesh", "whole", "fresh", "and"]
+        let ids = FoodIndex.shared.snapshot(self).entries.filter { e in
+            guard e.tier == .generic, e.id != f.id, FoodIndex.words(e.name).first == first else { return false }
+            let w = Set(FoodIndex.words(e.name)).subtracting(cooking)
+            if w == base { return true }
+            let diff = w.symmetricDifference(base)
+            return (w.isSubset(of: base) || base.isSubset(of: w)) && diff.count <= 3 && diff.isSubset(of: noise)
+        }.map(\.id)
+        var seen: Set<String> = [f.stateLabel ?? ""]
+        return foods(ids: ids).filter { g in g.stateLabel != nil && seen.insert(g.stateLabel!).inserted }.sorted { ($0.stateLabel == "Raw" ? 0 : 1, $0.name.count) < ($1.stateLabel == "Raw" ? 0 : 1, $1.name.count) }
+    }
     // MARK: Trend (EMA α 0.1) — recomputed on every weight save/delete
     func recomputeTrend() {
         let asc = weights().reversed()

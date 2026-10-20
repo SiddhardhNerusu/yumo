@@ -169,9 +169,9 @@ struct AddFoodSheet: View {
         VStack(alignment: .leading, spacing: 8) { HStack { Overline(text: title); Spacer(); if foods.count > 12 { Text("\(foods.count)").font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).padding(.trailing, 4) } }.padding(.top, 4); LazyVStack(spacing: 0) { ForEach(foods, id: \.id) { f in row(f) } }.padding(.leading, Space.cardPad).listCard() }
     }
     func row(_ f: Food) -> some View {
-        let g = f.tier == .chain ? f.defaultServing.grams : 100
+        let g = f.quickServing.grams
         let macros = f.macrosUnknown ? "macros not published" : "P \(Fmt.g(f.p100 * g / 100)) · C \(Fmt.g(f.c100 * g / 100)) · F \(Fmt.g(f.f100 * g / 100))"
-        return ResultRow(name: f.name, brand: f.tier == .user ? nil : (f.tier == .chain ? f.brand : (f.state ?? f.brand)), meta: "\(f.tier == .chain ? f.defaultServing.label : "100 g") · \(macros)", kcal: f.kcal(for: f.defaultServing.grams), onAdd: { log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = f })
+        return ResultRow(name: f.name, brand: f.tier == .user ? nil : (f.tier == .chain ? f.brand : (f.state ?? f.brand)), meta: "\(f.quickServing.label) · \(macros)", kcal: f.kcal(for: f.quickServing.grams), onAdd: { log(f, serving: f.quickServing, qty: 1) }, onOpen: { detailFood = f })
     }
     func runSearch() {
         searchTask?.cancel(); brandedOpen = false; brandedFirst = false; remote = []
