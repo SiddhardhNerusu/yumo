@@ -7,7 +7,7 @@ Run: python3 tools/build-catalogue.py   → prints a cross-check report (Atwater
 import csv, re, json, os, re, sys, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "Yumo", "Resources", "Catalogue", "generic.json")
-VERSION = "2026-10-20.1"
+VERSION = "2026-10-21.1"
 
 # nutrient number -> Yumo key
 NUT = {"208":"kcal","203":"p","205":"c","204":"f","291":"fibre","269":"sugars","606":"sat_fat","645":"mono","646":"poly","605":"trans",
@@ -192,18 +192,25 @@ def cofid():
         g = r["group"] or ""
         if not g or g[0] not in keep_first or g in drop_groups: continue
         name = r["name"]
-        if re.search(r"homemade|takeaway|retail, |recipe|dish|pie|pasty|sausage roll|sandwich|burger|kebab|curry|casserole|stew|soup|sauce|dressing|pudding|cake|biscuit|pastry|crisps|chocolate|confectionery|dessert|mousse|trifle|crumble|flan|quiche|pizza|lasagne|bolognese|chilli|risotto|paella|nuggets|fingers|coated|battered|in batter|in breadcrumbs|weighed with|flesh and skin|flesh only, weighed|bones|shells|skin and seeds", name, re.I): continue
+        if re.search(r"homemade|takeaway|retail, |recipe|dish|pie|pasty|sausage roll|sandwich|burger|kebab|curry|casserole|stew|soup|sauce|dressing|pudding|cake|biscuit|pastry|crisps|chocolate|confectionery|dessert|mousse|trifle|crumble|flan|quiche|pizza|lasagne|bolognese|chilli|risotto|paella|nuggets|fingers|coated|battered|in batter|in breadcrumbs|weighed with|flesh only, weighed|bones|shells|skin and seeds", name, re.I): continue
         try: kcal = float(r["kcal"]); prot = float(r["p"])
         except: continue
         nut = {}
         for k in ("kcal","p","c","f","fibre","sugars","sat_fat","mono","poly","trans","alcohol_g","water_g","sodium_mg","potassium_mg","calcium_mg","magnesium_mg","phosphorus_mg","iron_mg","zinc_mg","selenium_ug","vit_a_ug","vit_d_ug","vit_e_mg","vit_k_ug","b1_mg","b2_mg","b3_mg","b6_mg","b12_ug","folate_ug","vit_c_mg","cholesterol_mg"):
             if r.get(k): nut[k] = float(r[k])
-        out.append({"src": "cofid", "id": f"cofid:{r['code']}", "desc": name, "cat": g, "nut": nut, "portions": [], "source_ref": f"UK CoFID {r['code']} (McCance & Widdowson 2021)"})
+        # "flesh and skin" is how an apple or a pear is eaten — the plain row ("Apples, eating · raw"); "flesh only" marks the peeled one
+        name = re.sub(r",\s*flesh and skin\b", "", name, flags=re.I)
+        out.append({"src": "cofid", "id": f"cofid:{r['code']}", "desc": name, "cat": g, "nut": nut, "portions": [], "source_ref": f"UK CoFID {r['code']} (McCance & Widdowson 2021)",
+                    "literature_only": bool(re.search(r"literature", r.get("description") or "", re.I)) and not re.search(r"sample|analys|calculat|manufacturer", r.get("description") or "", re.I)})
     return out
 
 rows = sr_legacy() + foundation() + cofid()
 cur = load_curation(); renames = load_renames()
-RANK = {"foundation": 3, "sr": 2, "cofid": 1}   # same food + state in two sources: USDA Foundation (newer panels), then SR Legacy, then CoFID (unchanged since 16 Oct)
+RANK = {"cofid": 3, "foundation": 2, "sr": 1}   # same food + state in two sources: UK first (Sid, 21 Oct), then USDA Foundation, then SR Legacy
+# ...unless the UK figure is only from literature and its energy is more than 40 % from USDA's analysis (shallots 20 vs 72 kcal,
+# oyster mushrooms 8 vs 33): measured data beats a literature value that far off.
+def uk_figure_doubtful(uk, us):
+    return uk.get("literature_only") and us["nut"].get("kcal", 0) > 0 and abs(uk["nut"]["kcal"] - us["nut"]["kcal"]) / us["nut"]["kcal"] > 0.40
 SOURCE = {"foundation": "usda_fdc_foundation", "sr": "usda_sr_legacy", "cofid": "cofid"}
 
 def kind(r):
@@ -236,7 +243,7 @@ for r, k, name, state, _ in named:
     if k and state in ("raw", "dried"): raw_dried[(r["src"], name.lower())].add(state)
 
 # pass 2 — one row per food + state
-out, seen = [], {}
+out, seen, seen_rows = [], {}, {}
 for r, k, name, state, aliases in named:
     nut = r["nut"]
     plain_ok = k and (r["src"] != "cofid" or re.search(r"nut|seed", name.split(",")[0], re.I))   # CoFID files quinoa with the nuts; it keeps "raw"
@@ -244,6 +251,7 @@ for r, k, name, state, aliases in named:
     key = (name + "|" + (state or "")).lower()
     if key in seen:
         prev_row, prev_src = seen[key]
+        if r["src"] == "cofid" and uk_figure_doubtful(r, seen_rows[key]): report["kept USDA over a doubtful UK literature figure"] += 1; continue
         if RANK[r["src"]] > RANK[prev_src]: out.remove(prev_row); report["replaced by " + r["src"]] += 1
         else: report["duplicate name+state"] += 1; continue
     atw = 4 * nut.get("p", 0) + 4 * nut.get("c", 0) + 9 * nut.get("f", 0)
@@ -263,7 +271,7 @@ for r, k, name, state, aliases in named:
     row = {"id": r["id"], "name": name, "state": state, "aliases": aliases, "source": SOURCE[r["src"]], "source_ref": r["source_ref"],
            "kcal": round(nut["kcal"], 1), "p": round(nut.get("p", 0), 2), "c": round(nut.get("c", 0), 2), "f": round(nut.get("f", 0), 2), "servings": dedup[:4], "micros": micros, "flags": flags}
     if density: row["ml_density"] = round(density, 4)
-    seen[key] = (row, r["src"]); out.append(row)
+    seen[key] = (row, r["src"]); seen_rows[key] = r; out.append(row)
     for fl in flags: report["flag:" + fl] += 1
 out.sort(key=lambda x: (x["name"].lower(), x["state"] or ""))
 import hashlib

@@ -113,7 +113,8 @@ final class FoodIndex: @unchecked Sendable {
         let built = foods.map { f -> Entry in
             let w = FoodIndex.words(f.name + " " + (f.state ?? "") + " " + f.aliases), b = FoodIndex.words(f.brand ?? "")   // aliases: "nuts" still finds Almonds (20 Oct)
             for x in Set(w + b) { df[x, default: 0] += 1 }
-            return Entry(id: f.id, name: f.name, words: w, brand: b, tier: f.tier, raw: f.state?.lowercased() == "raw", useCount: f.useCount, macrosUnknown: f.macrosUnknown, prior: FoodIndex.prior(name: f.name) - Double(f.state.flatMap { $0.lowercased() == "raw" ? nil : $0.count + 3 } ?? 0) * 0.02)   // a cooked / processed state lengthens the description: "Almonds" beats "Almonds · toasted" on a tie; raw is a base state
+            return Entry(id: f.id, name: f.name, words: w, brand: b, tier: f.tier, raw: f.state?.lowercased() == "raw", useCount: f.useCount, macrosUnknown: f.macrosUnknown, prior: FoodIndex.prior(name: f.name) - Double(f.state.flatMap { $0.lowercased() == "raw" ? nil : $0.count + 3 } ?? 0) * 0.02   // a cooked / processed state lengthens the description: "Almonds" beats "Almonds · toasted" on a tie; raw is a base state
+                         + (f.source == .cofid ? 0.2 : 0))   // UK first (Sid, 21 Oct): a UK row wins a tie with a US one. Kept small — the UK tables lack some plain rows (raw chicken breast), and a bigger lift put grilled breast and egg fu yung on top
         }
         return Snapshot(entries: built, df: df, n: built.count)
     }
