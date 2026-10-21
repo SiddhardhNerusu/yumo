@@ -30,7 +30,7 @@ targets:
         CFBundleDisplayName: Yumo
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
-        UILaunchScreen: {}
+        UILaunchScreen: { UIColorName: LaunchBackground }   # sand, not the system black, while the first frame is drawn
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         ITSAppUsesNonExemptEncryption: false
         NSCameraUsageDescription: Yumo uses the camera to scan food barcodes and to attach progress photos to weight entries.

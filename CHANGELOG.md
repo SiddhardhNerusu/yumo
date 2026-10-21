@@ -1,5 +1,9 @@
 # Yumo — changelog
 
+## 1.0 build 2026-10-21 night (black screen on the phone)
+- **The app shows its first screen immediately.** The catalogue sync ran on the main thread before the first frame; after a catalogue change that rewrote 4,158 rows, and on a phone that was long enough for iOS to kill the app at launch — Sid saw only the launch screen, which was the system black. The sync now runs on its own background database context after the UI is up, writes only rows whose values changed, saves every 400 rows, and refreshes the screen when it finishes. Logged as "Yumo catalogue sync: … in N s".
+- **The launch screen is sand, not black**: `LaunchBackground` colour (light #EBE2D2, dark #1A1917) in the asset catalogue, set as `UILaunchScreen › UIColorName`.
+
 ## 1.0 build 2026-10-21 evening (everyday portions)
 - **Foods open on an everyday UK portion where 100 g is a serving nobody eats** (Sid: "30 g almonds, not 100"). `tools/portions.csv` holds the rules — nuts and seeds 30 g, cheese 30 g (cottage 80 g), nut butter 1 tbsp, oil 1 tbsp, butter 10 g, dried fruit 30 g, porridge oats 40 g, breakfast cereal 30 g, dry rice / grains / pasta 75 g and cooked 180 g, honey and jam 15 g, cream 30 g, olives 30 g, dips and dressings 1 tbsp, chocolate 30 g, protein powders 30 g — from the British Nutrition Foundation's Find Your Balance guide. The builder stamps the first matching rule onto rows that have no counted unit of their own (a banana keeps "1 medium"); 409 rows get one. The row reads "Almonds · 30 g · 166", the Food page opens on 30 g, the stepper moves by 15 g, + logs 30 g, the Amount field takes exact grams, and 100 g is second in the unit picker. Drinks stay in ml.
 - **"protein powder" finds the protein powder.** The phrase synonym used to replace the words with "whey", so the cheese-making by-products ("Whey sweet") tied with "Whey protein isolate"; the typed words now stay beside the synonym and the isolate leads, on 1 scoop · 30 g.

@@ -52,14 +52,18 @@ struct RootView: View {
         .task {
             let store = Store(ctx)
             SeedFoods.seed(store)
-            Catalogue.sync(store)
             Expenditure.runIfDue(store)
             session.onboarded = store.profile().onboarded
             Reminders.reschedule(store.profile())
-            ready = true
+            ready = true   // the UI first; the catalogue sync and the search index follow off the main thread (21 Oct: a black launch screen on the phone)
             store.backfillLastAmounts()
-            let container = ctx.container, foodCount = (try? ctx.fetchCount(FetchDescriptor<Food>())) ?? 0
-            Task.detached(priority: .utility) { _ = await FoodIndex.shared.snapshot(for: container, count: foodCount) }   // the search index builds now, off the main thread
+            let container = ctx.container
+            Task.detached(priority: .utility) {
+                let changed = await Catalogue.sync(container)
+                let count = (try? ModelContext(container).fetchCount(FetchDescriptor<Food>())) ?? 0
+                _ = await FoodIndex.shared.snapshot(for: container, count: count)
+                if changed { await MainActor.run { session.changed() } }
+            }
         }
         .onChange(of: phase) { if phase == .active { Task { let n = await PendingLookups.retry(Store(ctx)); if n > 0 { toaster.show(n == 1 ? "1 scanned food found" : "\(n) scanned foods found") } } } }
     }

@@ -9,42 +9,72 @@ enum Catalogue {
     struct ChainFile: Codable { var version: String; var items: [ChainRow] }
     struct File: Codable { var version: String; var foods: [Row] }
     static let versionKey = "yumo.catalogueVersion"
-    @MainActor static func sync(_ store: Store) {
-        syncChains(store)
-        guard let url = Bundle.main.url(forResource: "generic", withExtension: "json"), let data = try? Data(contentsOf: url), let file = try? JSONDecoder().decode(File.self, from: data) else { return }
-        guard UserDefaults.standard.string(forKey: versionKey) != file.version else { return }
-        let existing = Dictionary(store.foods().filter { $0.tier == .generic }.compactMap { f in f.canonicalId.map { ($0, f) } }, uniquingKeysWith: { a, _ in a })
-        var kept = Set<String>()
+    static let chainsVersionKey = "yumo.chainsVersion"
+    /// Off the main thread, on its own ModelContext (21 Oct: on a phone, rewriting 4,158 rows on the main thread before the first frame left
+    /// a black launch screen until the watchdog killed the app). The UI is already up; only rows whose values changed are written, saved in
+    /// batches. Returns true when anything changed, so the caller can refresh what is on screen.
+    nonisolated static func sync(_ container: ModelContainer) async -> Bool {
+        await Task.detached(priority: .utility) { () -> Bool in
+            let ctx = ModelContext(container); ctx.autosaveEnabled = false
+            let t0 = Date()
+            let a = syncChains(ctx); let b = syncGeneric(ctx)
+            NSLog("Yumo catalogue sync: %@ in %.1f s", a || b ? "changes written" : "nothing to write", Date().timeIntervalSince(t0))
+            return a || b
+        }.value
+    }
+    private nonisolated static func foods(_ ctx: ModelContext, tier: FoodTier) -> [Food] {
+        let raw = tier.rawValue
+        return (try? ctx.fetch(FetchDescriptor<Food>(predicate: #Predicate { $0.tierRaw == raw }))) ?? []
+    }
+    private nonisolated static func syncGeneric(_ ctx: ModelContext) -> Bool {
+        guard let url = Bundle.main.url(forResource: "generic", withExtension: "json"), let data = try? Data(contentsOf: url), let file = try? JSONDecoder().decode(File.self, from: data) else { return false }
+        guard UserDefaults.standard.string(forKey: versionKey) != file.version else { return false }
+        NSLog("Yumo catalogue sync: %@ → %@", UserDefaults.standard.string(forKey: versionKey) ?? "none", file.version)
+        let existing = Dictionary(foods(ctx, tier: .generic).compactMap { f in f.canonicalId.map { ($0, f) } }, uniquingKeysWith: { a, _ in a })
+        var kept = Set<String>(), writes = 0
+        func flush() { if writes > 0 && writes % 400 == 0 { try? ctx.save() } }
         for r in file.foods {
             kept.insert(r.id)
             var servings = r.servings ?? []; if servings.isEmpty { servings = defaultServings(for: r.name) }
             if r.ml_density == nil, !servings.contains(where: { $0.grams == 100 }) { servings.append(Serving(label: "100 g", grams: 100)) }   // a drink is measured in ml
             let src: FoodSource = r.source == "cofid" ? .cofid : .usda
             if let f = existing[r.id] {
-                f.name = r.name; f.state = r.state; f.aliases = r.aliases ?? ""; f.sourceRef = r.source_ref; f.source = src; f.kcal100 = r.kcal; f.p100 = r.p; f.c100 = r.c; f.f100 = r.f; f.micros = r.micros; f.servings = servings; f.mlDensity = r.ml_density
+                // write only what changed: an unchanged row costs a comparison, not a dirty object and a JSON encode
+                if f.name != r.name { f.name = r.name }
+                if f.state != r.state { f.state = r.state }
+                if f.aliases != (r.aliases ?? "") { f.aliases = r.aliases ?? "" }
+                if f.sourceRef != r.source_ref { f.sourceRef = r.source_ref }
+                if f.source != src { f.source = src }
+                if f.kcal100 != r.kcal { f.kcal100 = r.kcal }
+                if f.p100 != r.p { f.p100 = r.p }
+                if f.c100 != r.c { f.c100 = r.c }
+                if f.f100 != r.f { f.f100 = r.f }
+                if f.micros != r.micros { f.micros = r.micros }
+                if f.servings != servings { f.servings = servings }
+                if f.mlDensity != r.ml_density { f.mlDensity = r.ml_density }
+                if f.hasChanges { writes += 1; flush() }
             } else {
                 let f = Food(name: r.name, brand: nil, barcode: nil, source: src, servings: servings, kcal100: r.kcal, p100: r.p, c100: r.c, f100: r.f)
                 f.tier = .generic; f.canonicalId = r.id; f.state = r.state; f.aliases = r.aliases ?? ""; f.sourceRef = r.source_ref; f.micros = r.micros; f.mlDensity = r.ml_density
-                store.ctx.insert(f)
+                ctx.insert(f); writes += 1; flush()
             }
         }
         // rows that left the canonical set go too, unless the user logged them
-        for (id, f) in existing where !kept.contains(id) && !id.hasPrefix("seed:") && f.useCount == 0 { store.ctx.delete(f) }
-        syncChains(store)
+        for (id, f) in existing where !kept.contains(id) && !id.hasPrefix("seed:") && f.useCount == 0 { ctx.delete(f); writes += 1 }
         // Seeded staples not covered by Foundation Foods stay as generics too; stale seeds from earlier builds go unless they were logged.
         let keep = Set(SeedFoods.items.map { "seed:" + $0.0.lowercased() })
-        for f in store.foods() where f.tier == .user && f.source == .usda { f.tier = .generic; f.sourceRef = f.sourceRef ?? "USDA SR Legacy"; f.canonicalId = f.canonicalId ?? "seed:\(f.name.lowercased())" }
-        for f in store.foods() where f.tier == .generic && (f.canonicalId ?? "").hasPrefix("seed:") && !keep.contains(f.canonicalId ?? "") && f.useCount == 0 { store.ctx.delete(f) }
-        store.save()
+        for f in foods(ctx, tier: .user) where f.source == .usda { f.tier = .generic; f.sourceRef = f.sourceRef ?? "USDA SR Legacy"; f.canonicalId = f.canonicalId ?? "seed:\(f.name.lowercased())"; writes += 1 }
+        for f in foods(ctx, tier: .generic) where (f.canonicalId ?? "").hasPrefix("seed:") && !keep.contains(f.canonicalId ?? "") && f.useCount == 0 { ctx.delete(f); writes += 1 }
+        try? ctx.save()
         UserDefaults.standard.set(file.version, forKey: versionKey)
+        return writes > 0
     }
-    static let chainsVersionKey = "yumo.chainsVersion"
     /// Tier 2a — chain and restaurant items from each chain's published nutrition data (Resources/Catalogue/chains.json).
-    @MainActor static func syncChains(_ store: Store) {
-        guard let url = Bundle.main.url(forResource: "chains", withExtension: "json"), let data = try? Data(contentsOf: url), let file = try? JSONDecoder().decode(ChainFile.self, from: data) else { return }
-        guard UserDefaults.standard.string(forKey: chainsVersionKey) != file.version else { return }
-        defer { store.save(); UserDefaults.standard.set(file.version, forKey: chainsVersionKey) }
-        let existing = Dictionary(store.foods().filter { $0.tier == .chain }.compactMap { f in f.canonicalId.map { ($0, f) } }, uniquingKeysWith: { a, _ in a })
+    private nonisolated static func syncChains(_ ctx: ModelContext) -> Bool {
+        guard let url = Bundle.main.url(forResource: "chains", withExtension: "json"), let data = try? Data(contentsOf: url), let file = try? JSONDecoder().decode(ChainFile.self, from: data) else { return false }
+        guard UserDefaults.standard.string(forKey: chainsVersionKey) != file.version else { return false }
+        defer { try? ctx.save(); UserDefaults.standard.set(file.version, forKey: chainsVersionKey) }
+        let existing = Dictionary(foods(ctx, tier: .chain).compactMap { f in f.canonicalId.map { ($0, f) } }, uniquingKeysWith: { a, _ in a })
         for r in file.items {
             let grams = r.serving_grams ?? 100
             // chain data is per item; store per 100 g of the item's serving so the rest of the app works unchanged
@@ -53,8 +83,9 @@ enum Catalogue {
             let known = r.p != nil && r.c != nil && r.f != nil
             let aliases = [r.chain.lowercased().replacingOccurrences(of: "'", with: ""), r.chain.lowercased(), r.category?.lowercased() ?? ""].joined(separator: " ")
             if let f = existing[r.id] { f.name = r.name; f.brand = r.chain; f.kcal100 = r.kcal * factor; f.p100 = (r.p ?? 0) * factor; f.c100 = (r.c ?? 0) * factor; f.f100 = (r.f ?? 0) * factor; f.macrosUnknown = !known; f.servings = servings; f.sourceRef = r.source_ref; f.aliases = aliases; f.micros = (r.micros ?? [:]).mapValues { $0 * factor } }
-            else { let f = Food(name: r.name, brand: r.chain, barcode: nil, source: .user, servings: servings, kcal100: r.kcal * factor, p100: (r.p ?? 0) * factor, c100: (r.c ?? 0) * factor, f100: (r.f ?? 0) * factor); f.tier = .chain; f.canonicalId = r.id; f.sourceRef = r.source_ref; f.macrosUnknown = !known; f.aliases = aliases; f.micros = (r.micros ?? [:]).mapValues { $0 * factor }; store.ctx.insert(f) }
+            else { let f = Food(name: r.name, brand: r.chain, barcode: nil, source: .user, servings: servings, kcal100: r.kcal * factor, p100: (r.p ?? 0) * factor, c100: (r.c ?? 0) * factor, f100: (r.f ?? 0) * factor); f.tier = .chain; f.canonicalId = r.id; f.sourceRef = r.source_ref; f.macrosUnknown = !known; f.aliases = aliases; f.micros = (r.micros ?? [:]).mapValues { $0 * factor }; ctx.insert(f) }
         }
+        return true
     }
     static func defaultServings(for name: String) -> [Serving] {
         let n = name.lowercased()
