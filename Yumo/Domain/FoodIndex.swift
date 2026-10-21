@@ -127,7 +127,9 @@ final class FoodIndex: @unchecked Sendable {
     /// a packaged product matches the word itself, and both are scored by the same rule.
     nonisolated static func tokens(_ query: String) -> [String] {
         var q = query.trimmingCharacters(in: .whitespaces).lowercased(); guard !q.isEmpty else { return [] }
-        for (k, v) in Store.synonyms where q == k || q.hasPrefix(k + " ") { q = v + q.dropFirst(k.count) }
+        // the typed phrase stays beside its synonym (21 Oct): "protein powder" → "protein powder whey", so "Whey protein isolate" names three words
+        // and leads; before, the phrase was replaced by "whey" and the cheese-making by-products ("Whey sweet") tied with it
+        for (k, v) in Store.synonyms where q == k || q.hasPrefix(k + " ") { q = k + " " + v + q.dropFirst(k.count) }
         let raws = q.split(separator: " ").map(String.init)
         var words: [String] = []; var i = 0
         while i < raws.count {
