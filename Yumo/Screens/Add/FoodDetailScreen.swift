@@ -105,7 +105,8 @@ struct FoodDetailScreen: View {
         case .generic:
             let from = food.source == .cofid ? "the UK's CoFID tables (McCance and Widdowson's, Open Government Licence)" : "USDA FoodData Central (Foundation Foods / SR Legacy), public domain"
             let drink = food.mlDensity.map { " Logged in ml: 100 ml of it weighs \(String(format: "%.1f", 100 * $0)) g, worked out from its water, protein, fat and sugar." } ?? ""
-            return "Canonical entry from \(from). Values per 100 g; raw and cooked are separate entries, never a multiplier." + drink
+            let convention = food.source == .cofid ? "" : " Carbs exclude fibre and energy is protein × 4, fat × 9, carbs × 3.75 — the UK convention, converted from USDA's figures, which count fibre inside carbs."
+            return "Canonical entry from \(from). Values per 100 g; raw and cooked are separate entries, never a multiplier." + convention + drink
         case .branded:
             return "Branded product from \(food.source == .off ? "Open Food Facts (ODbL, crowd-sourced; values can be sparse)" : "USDA Branded Foods") keyed by its barcode." + (food.mlDensity != nil ? " Values per 100 ml, as on the label." : "") + " Cached on this phone; refreshed after 30 days."
         case .chain:

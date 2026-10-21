@@ -7,7 +7,7 @@ Run: python3 tools/build-catalogue.py   → prints a cross-check report (Atwater
 import csv, re, json, os, re, sys, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "Yumo", "Resources", "Catalogue", "generic.json")
-VERSION = "2026-10-21.1"
+VERSION = "2026-10-21.2"
 
 # nutrient number -> Yumo key
 NUT = {"208":"kcal","203":"p","205":"c","204":"f","291":"fibre","269":"sugars","606":"sat_fat","645":"mono","646":"poly","605":"trans",
@@ -93,7 +93,7 @@ def composition_density(nut, src):
     w = nut.get("water_g")
     if w is None: return None
     p, f, c, alc = nut.get("p", 0), nut.get("f", 0), nut.get("c", 0), nut.get("alcohol_g", 0)
-    fib = nut.get("fibre", 0) if src == "cofid" else 0   # USDA carbohydrate is by difference and already includes fibre
+    fib = nut.get("fibre", 0)   # carbs exclude fibre on every row (converted for USDA)
     w = min(w, 100 - p - f - c - fib - alc)   # water and solids measured on different samples can add up past 100 g
     ash = max(0.0, 100 - w - p - f - c - fib - alc)
     vol = w / 0.9982 + p / 1.3199 + f / 0.9175 + c / 1.5991 + fib / 1.3115 + ash / 2.4238 + alc / 0.7893
@@ -254,9 +254,18 @@ for r, k, name, state, aliases in named:
         if r["src"] == "cofid" and uk_figure_doubtful(r, seen_rows[key]): report["kept USDA over a doubtful UK literature figure"] += 1; continue
         if RANK[r["src"]] > RANK[prev_src]: out.remove(prev_row); report["replaced by " + r["src"]] += 1
         else: report["duplicate name+state"] += 1; continue
-    atw = 4 * nut.get("p", 0) + 4 * nut.get("c", 0) + 9 * nut.get("f", 0)
     flags = []
-    if nut["kcal"] > 20 and abs(atw - nut["kcal"]) / max(1, nut["kcal"]) > 0.15 and nut.get("alcohol_g", 0) == 0 and nut.get("fibre", 0) < 10: flags.append("atwater")
+    # UK convention for every row (Sid, 21 Oct: fibre is not a carb): carbs exclude fibre, energy = 4 P + 9 F + 3.75 C + 7 alcohol, fibre 0 —
+    # which is how CoFID computes its own kcal (99 % of its rows within 3 %). USDA carbohydrate is "by difference" and includes fibre, and its
+    # energy mixes factors; both are converted here. A USDA row with no fibre figure can't be converted and is flagged.
+    if r["src"] != "cofid":
+        if nut.get("fibre") is not None or nut.get("c", 0) < 0.5:   # no carbs (meat, fish, eggs, oils): nothing to subtract
+            nut = dict(nut); nut["c"] = max(0.0, nut.get("c", 0) - nut.get("fibre", 0))
+            nut["kcal"] = 4 * nut.get("p", 0) + 9 * nut.get("f", 0) + 3.75 * nut["c"] + 7 * nut.get("alcohol_g", 0)
+            report["USDA rows converted to the UK convention"] += 1
+        else: flags.append("fibre unknown"); report["USDA rows without a fibre figure (carbs may include fibre)"] += 1
+    atw = 4 * nut.get("p", 0) + 9 * nut.get("f", 0) + 3.75 * nut.get("c", 0) + 7 * nut.get("alcohol_g", 0)
+    if nut["kcal"] > 20 and abs(atw - nut["kcal"]) / max(1, nut["kcal"]) > 0.15 and "fibre unknown" not in flags: flags.append("atwater")
     density = (composition_density(nut, r["src"]) or r.get("density")) if is_drink(name, state) else None
     if density and not 0.9 <= density <= 1.35: density = None   # outside any drink's range: the row's numbers aren't per volume
     if density:   # drinks: amounts in ml, each weighing what that drink weighs (250 ml of semi-skimmed milk = 258 g)
