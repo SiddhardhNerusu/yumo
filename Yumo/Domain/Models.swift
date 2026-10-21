@@ -64,6 +64,7 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double
     var isPlus: Bool = true                 // every feature unlocked in v1
     var typeItHintSeen: Bool = false        // first-time line under the Type it field (Features.typeIt)
     var swipeHintSeen: Bool = false          // the "Yesterday's …" row nudges once (rev 5)
+    var plannerAskedPowder: Bool = false     // the planner asks once whether you use a protein powder (21 Oct) — easy to forget as a staple
     var planEdited: Bool = false             // Your plan macros were dragged in onboarding (rev 5)
     var tourDone: Bool = false               // first-run guided tour (README §15)
     var suppNudgeAnswered: [String] = []     // nutrient keys whose "Taking a supplement?" nudge was answered (rev 9); never asked twice
@@ -295,6 +296,16 @@ extension Food {
 }
 
 /// Staple (rev 5): a food the user eats most weeks. No amounts — the solver sizes it; an optional daily Max caps it.
+/// What the planner learned from you (21 Oct): "never again" removes a food from every plan, "liked" pins it. Explicit taps only, never inferred from a swap.
+@Model final class FoodPreference {
+    @Attribute(.unique) var foodId: String = ""
+    var verdictRaw: String = "never"
+    var updatedAt: Date = Date()
+    init(foodId: String, verdict: Verdict) { self.foodId = foodId; self.verdictRaw = verdict.rawValue }
+    enum Verdict: String { case never, liked }
+    var verdict: Verdict { get { Verdict(rawValue: verdictRaw) ?? .never } set { verdictRaw = newValue.rawValue } }
+}
+
 @Model final class Staple {
     @Attribute(.unique) var foodId: String = ""
     var maxG: Double? = nil

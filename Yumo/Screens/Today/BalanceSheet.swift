@@ -24,12 +24,15 @@ struct BalanceSheet: View {
     @State private var loaded = false
     @State private var staplesOpen = false
     @State private var gen = 0
+    @State private var chosen: [String: String] = [:]      // planner swaps this session: class → food id
+    @State private var swapFor: Balance.PlanItem? = nil    // the suggested row being swapped
+    @State private var askNever: Food? = nil               // after a swap: "Don't suggest X again?"
     var store: Store { Store(ctx) }
 
     var staples: [(Staple, Food)] { store.staples().compactMap { s in store.food(id: s.foodId).map { (s, $0) } } }
     var hasStaples: Bool { !store.staples().isEmpty }
     var weighedCount: Int { items.filter { $0.grams > 0 }.count }
-    var solveKey: String { items.map { ($0.foodId ?? $0.text) + ":" + (gramsText[$0.foodId ?? $0.text] ?? "") }.joined(separator: ",") + "|\(loaded)|\(gen)" }
+    var solveKey: String { items.map { ($0.foodId ?? $0.text) + ":" + (gramsText[$0.foodId ?? $0.text] ?? "") }.joined(separator: ",") + "|\(loaded)|\(gen)|" + chosen.map { $0.key + "=" + $0.value }.sorted().joined(separator: ",") }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -43,6 +46,11 @@ struct BalanceSheet: View {
         .onAppear(perform: load)
         .task(id: solveKey) { guard loaded else { return }; try? await Task.sleep(for: .milliseconds(200)); guard !Task.isCancelled else { return }; syncGrams(); solve() }
         .pushCover(isPresented: $staplesOpen, onDismiss: { gen += 1 }) { StaplesScreen(back: "I prepped…") }
+        .sheet(item: $swapFor) { it in swapSheet(it).presentationDetents([.medium]) }
+        .alert("Don't suggest \(askNever?.shortName ?? "this") again?", isPresented: Binding(get: { askNever != nil }, set: { if !$0 { askNever = nil } })) {
+            Button("Never again", role: .destructive) { if let f = askNever { store.setPreference(f, .never); toaster.show("\(f.shortName) won't come up again") }; askNever = nil }
+            Button("Keep suggesting", role: .cancel) { askNever = nil }
+        } message: { Text("Swapping once doesn't change what the planner suggests. Never again does.") }
     }
 
     // MARK: step 1
@@ -88,6 +96,19 @@ struct BalanceSheet: View {
                         let list = staples.map(\.1).filter { Balance.classify($0) == k && (q.isEmpty || $0.name.lowercased().contains(q)) }
                         if !list.isEmpty { group(label, list, inStaples: true) }
                     }
+                    if q.isEmpty, !store.profile().plannerAskedPowder {
+                        // asked once (21 Oct, Sid): a protein powder is easy to forget as a staple, and it is what the planner reaches for when protein is short
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Do you use a protein powder?").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink)
+                            Text("Add it as a staple and the planner can use it when protein is short. Scoops differ, so it takes the label's serving or the amount you type once.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+                            HStack(spacing: 18) {
+                                TextAction(label: "Scan the tub") { markPowderAsked(); scanOpen = true }
+                                TextAction(label: "Search") { markPowderAsked(); query = "protein powder" }
+                                Spacer()
+                                TextAction(label: "No") { markPowderAsked() }
+                            }
+                        }.frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 14, trailing: 20), radius: 20).padding(.top, 14)
+                    }
                     if q.isEmpty {
                         // shortcuts (21 Oct, Sid): what you logged today and what you log often, without searching — + keeps a food as a staple
                         var seen = Set<String>()
@@ -120,6 +141,7 @@ struct BalanceSheet: View {
         }
     }
     func item(_ f: Food) -> PrepItem? { items.first { $0.foodId == f.id } }
+    func markPowderAsked() { let p = store.profile(); p.plannerAskedPowder = true; store.save(); gen += 1 }
     @ViewBuilder func weighRow(_ f: Food, inStaples: Bool) -> some View {
         let it = item(f); let weighed = (it?.grams ?? 0) > 0; let isOpen = open == f.id
         let staple = store.staples().first { $0.foodId == f.id }
@@ -213,7 +235,11 @@ struct BalanceSheet: View {
                                 }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: 20)
                             }.buttonStyle(PlainPressStyle())
                         }
-                        Text("Weighed foods are fixed · everything else was sized to land the day").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 4)
+                        if r.suggestedCount > 0 {
+                            // the planner filled gaps from its pool: keep them and tomorrow starts from the same foods (Sid: "I like the same foods every day")
+                            HStack { Spacer(); TextAction(label: "Keep these \(r.suggestedCount) as staples") { keepSuggested(r) }; Spacer() }.padding(.top, 2)
+                        }
+                        Text(r.suggestedCount > 0 ? "Weighed foods are fixed · staples were sized · suggested foods fill what you don't have — swap any you'd rather not eat" : "Weighed foods are fixed · everything else was sized to land the day").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.top, 4)
                     } else { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 30) }
                 }.padding(.horizontal, Space.gutter).padding(.top, 14).padding(.bottom, 16)
             }
@@ -226,6 +252,35 @@ struct BalanceSheet: View {
             .background(UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20).fill(Color.yumo.surface).overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 1) }.ignoresSafeArea())
         }
     }
+    /// Swap a suggested food for another from its class; the plan re-solves around the pick, then the planner asks whether to drop the old one for good.
+    func swapSheet(_ it: Balance.PlanItem) -> some View {
+        let inPlan = Set((result?.items ?? []).map(\.food.id))
+        let alts = Planner.alternatives(to: it.food, kind: it.kind, main: it.meal == .lunch || it.meal == .dinner, inPlan: inPlan, dayKey: dayKey, store: store, all: store.foods())
+        return VStack(spacing: 0) {
+            Capsule().fill(Color.yumo.grabber).frame(width: 40, height: 5).padding(.top, 10)
+            Text("Instead of \(it.food.shortName)").font(.yumo.title).padding(.top, 12).padding(.bottom, 4)
+            Text("\(Balance.className(it.kind)) · sized to the same job").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+            VStack(spacing: 0) {
+                ForEach(alts, id: \.food.id) { a in
+                    Button { chosen[Balance.className(it.kind)] = a.food.id; swapFor = nil; askNever = it.food } label: {
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 1) { Text(a.candidate.label).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink); Text([a.food.detail, "\(Fmt.g(a.candidate.portion)) g · \(Fmt.k(a.food.kcal(for: a.candidate.portion))) kcal · P \(Fmt.g(a.food.p100 * a.candidate.portion / 100))"].filter { !$0.isEmpty }.joined(separator: " · ")).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }
+                            Spacer(); Text("›").font(.nunito(22, .extrabold)).foregroundStyle(Color.yumo.accent)
+                        }.padding(.vertical, 11).padding(.trailing, 16).contentShape(Rectangle())
+                    }.buttonStyle(PlainPressStyle()).hairline()
+                }
+                if alts.isEmpty { Text("Nothing else in the pool for this class — add one as a staple instead.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.vertical, 14) }
+            }.padding(.leading, 18).listCard(radius: 20).padding(.horizontal, Space.gutter).padding(.top, 14)
+            HStack { Spacer(); TextAction(label: "Never suggest \(it.food.shortName)", danger: true) { swapFor = nil; store.setPreference(it.food, .never); gen += 1; toaster.show("\(it.food.shortName) won't come up again") }; Spacer() }.padding(.top, 14)
+            Spacer()
+        }.background(Color.yumo.bg.ignoresSafeArea())
+    }
+    /// The planner's picks become staples: every day starts from the same foods.
+    func keepSuggested(_ r: Balance.Result) {
+        var seen = Set<String>()
+        for it in r.items where it.suggested && seen.insert(it.food.id).inserted { store.addStaple(it.food) }
+        toaster.show("\(seen.count) staple\(seen.count == 1 ? "" : "s") added"); chosen = [:]; gen += 1
+    }
     func mealCard(_ m: Meal, _ rows: [Balance.PlanItem]) -> some View {
         let tot = rows.reduce(DayTotals([])) { acc, it in var a = acc; a.kcal += it.food.kcal100 * it.grams / 100; a.p += it.food.p100 * it.grams / 100; a.c += it.food.c100 * it.grams / 100; a.f += it.food.f100 * it.grams / 100; return a }
         return VStack(spacing: 0) {
@@ -237,7 +292,8 @@ struct BalanceSheet: View {
                 HStack(spacing: 8) {
                     VStack(alignment: .leading, spacing: 1) { Text(it.food.shortName).font(.nunito(15, .bold)).lineLimit(1); if !it.food.detail.isEmpty { Text(it.food.detail).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) } }
                     if it.weighed { tag("weighed") }
-                    if it.atMax { tag("at max") }
+                    if it.atMax && !it.suggested { tag("at max") }
+                    if it.suggested { Button { swapFor = it } label: { HStack(spacing: 3) { Text("suggested").font(.nunito(11, .extrabold)); Text("↻").font(.nunito(12, .black)) }.foregroundStyle(Color.yumo.accent).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(Color.yumo.accentTint)) }.buttonStyle(PlainPressStyle()) }
                     Spacer(); Text("\(Fmt.g(it.grams)) g").font(.nunito(15, .extrabold)).tabular()
                 }.padding(.vertical, 9).padding(.trailing, 16).hairline()
             }
@@ -255,7 +311,7 @@ struct BalanceSheet: View {
         for it in items { gramsText[it.foodId ?? it.text] = it.grams > 0 ? Fmt.g(it.grams) : "" }
         loaded = true
     }
-    func solve() { guard loaded else { return }; withAnimation(Motion.snap) { result = Balance.solve(dayKey: dayKey, weighed: items, store: store) } }
+    func solve() { guard loaded else { return }; withAnimation(Motion.snap) { result = Balance.solve(dayKey: dayKey, weighed: items, chosen: chosen, store: store) } }
     func persist() { let p = Balance.prep(dayKey, store: store); p.items = items.filter { $0.grams > 0 }; store.save() }
     func logIt() {
         guard let r = result else { return }

@@ -1,0 +1,83 @@
+import Foundation
+import SwiftData
+
+/// The planner (21 Oct): when the staples don't cover a class — no carb, no fat, protein that can't reach the target — it fills the gap from a
+/// candidate pool and sizes the pick like any staple. The pool is data, not code: Resources/Catalogue/planner.csv, ~36 everyday UK foods by
+/// class with a portion and a meal hint, each resolved to a catalogue row by name. What the user says sticks: "never again" removes a food
+/// for good, "more like this" pins it; logging a plan is a soft like. Days rotate through the pool unless something is pinned.
+enum Planner {
+    struct Candidate { let kind: Balance.Kind; let label: String; let match: String; let state: String; let portion: Double; let meal: String; let dense: Bool }
+    /// A candidate resolved to the catalogue row it names.
+    struct Pick { let food: Food; let candidate: Candidate }
+
+    static let pool: [Candidate] = {
+        guard let url = Bundle.main.url(forResource: "planner", withExtension: "csv"), let text = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+        var out: [Candidate] = []
+        for line in text.split(separator: "\n").dropFirst() {
+            let cols = csvColumns(String(line)); guard cols.count >= 7 else { continue }
+            let kind: Balance.Kind = cols[0] == "protein" ? .protein : cols[0] == "carb" ? .carb : cols[0] == "fat" ? .fat : .veg
+            out.append(Candidate(kind: kind, label: cols[1], match: cols[2], state: cols[3], portion: Double(cols[4]) ?? 100, meal: cols[5], dense: cols[6] == "1"))
+        }
+        return out
+    }()
+    private static func csvColumns(_ line: String) -> [String] {
+        var out: [String] = [], cur = "", q = false
+        for ch in line { if ch == "\"" { q.toggle() } else if ch == "," && !q { out.append(cur); cur = "" } else { cur.append(ch) } }
+        out.append(cur); return out
+    }
+
+    // resolved picks, cached per food count (the catalogue doesn't change while the sheet is open)
+    private static var cache: (count: Int, picks: [Pick])? = nil
+    @MainActor static func picks(all: [Food]) -> [Pick] {
+        if let c = cache, c.count == all.count { return c.picks }
+        let generic = all.filter { $0.tier == .generic && !$0.macrosUnknown }
+        var picks: [Pick] = []
+        for c in pool {
+            let hits = generic.filter { f in
+                f.name.lowercased().range(of: c.match, options: .regularExpression) != nil && (c.state.isEmpty || (f.state ?? "").lowercased().range(of: c.state, options: .regularExpression) != nil)
+            }.sorted { a, b in
+                let ua = a.source == .cofid ? 0 : 1, ub = b.source == .cofid ? 0 : 1   // UK first, then the plainest name
+                return ua != ub ? ua < ub : a.name.count < b.name.count
+            }
+            if let f = hits.first { picks.append(Pick(food: f, candidate: c)) }
+        }
+        cache = (all.count, picks); return picks
+    }
+
+    /// Stable day-to-day rotation: the same food gets the same jitter on the same day on every device, a different one tomorrow.
+    static func jitter(_ dayKey: String, _ id: String) -> Double {
+        var h: UInt32 = 5381; for b in (dayKey + id).utf8 { h = h &* 33 &+ UInt32(b) }
+        return Double(h % 1000) / 1000 * 0.8
+    }
+
+    /// Candidates of a class, best first. `needDense`: protein per calorie matters (the day is short on protein, not on food).
+    /// `exclude`: foods already in the plan (staples, weighed, other picks). `chosen`: a swap the user made this session, which wins outright.
+    @MainActor static func ranked(_ kind: Balance.Kind, needDense: Bool, needEnergy: Bool = false, exclude: Set<String>, chosen: String?, dayKey: String, store: Store, all: [Food]) -> [Pick] {
+        let prefs = store.preferences()
+        let never = Set(prefs.filter { $0.verdict == .never }.map(\.foodId)), liked = Set(prefs.filter { $0.verdict == .liked }.map(\.foodId))
+        let cands = picks(all: all).filter { $0.candidate.kind == kind && !exclude.contains($0.food.id) && !never.contains($0.food.id) }
+        func score(_ p: Pick) -> Double {
+            if p.food.id == chosen { return 100 }
+            var s = jitter(dayKey, p.food.id)
+            if liked.contains(p.food.id) { s += 3 }                    // pinned: liked foods come back every day
+            s += log(1 + Double(p.food.useCount)) * 0.5                 // what you already log is familiar
+            if needDense { s += p.food.p100 / 10 }                      // protein is short: protein per 100 g decides (whey 9, tuna 2.5, cottage cheese 0.9)
+            if needEnergy { s += p.food.kcal100 / 100 + (p.candidate.meal == "main" ? 1 : 0) }   // the day is short on food: a main-meal carb with calories (rice 3.5, apples 0.5)
+            return s
+        }
+        return cands.sorted { score($0) > score($1) }
+    }
+    /// The next-best foods of the same class, for the swap sheet.
+    /// `main`: the row sits in lunch or dinner, so main-meal foods with calories lead (rice before apple).
+    @MainActor static func alternatives(to food: Food, kind: Balance.Kind, main: Bool, inPlan: Set<String>, dayKey: String, store: Store, all: [Food], count: Int = 4) -> [Pick] {
+        Array(ranked(kind, needDense: kind == .protein, needEnergy: main && kind != .veg, exclude: inPlan.union([food.id]), chosen: nil, dayKey: dayKey, store: store, all: all).prefix(count))
+    }
+    /// Which empty meal a candidate goes to: its hint when that meal is empty, else the solver's usual rule.
+    static func meal(for c: Candidate, empty: [Meal], fallback: Meal) -> Meal {
+        switch c.meal {
+        case "breakfast": return empty.contains(.breakfast) ? .breakfast : fallback
+        case "snack": return empty.contains(.snacks) ? .snacks : fallback
+        default: return fallback
+        }
+    }
+}

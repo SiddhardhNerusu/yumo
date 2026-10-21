@@ -105,6 +105,13 @@ struct Store {
     func staples() -> [Staple] { (try? ctx.fetch(FetchDescriptor<Staple>(sortBy: [SortDescriptor(\.order)]))) ?? [] }
     func addStaple(_ f: Food, maxG: Double? = nil) { guard !staples().contains(where: { $0.foodId == f.id }) else { return }; ctx.insert(Staple(foodId: f.id, maxG: maxG, order: (staples().map(\.order).max() ?? -1) + 1)); save() }
     func removeStaple(_ s: Staple) { ctx.delete(s); save() }
+    // MARK: Planner preferences (21 Oct)
+    func preferences() -> [FoodPreference] { (try? ctx.fetch(FetchDescriptor<FoodPreference>())) ?? [] }
+    func setPreference(_ f: Food, _ v: FoodPreference.Verdict) {
+        if let p = preferences().first(where: { $0.foodId == f.id }) { p.verdict = v; p.updatedAt = Date() } else { ctx.insert(FoodPreference(foodId: f.id, verdict: v)) }
+        save()
+    }
+    func clearPreference(_ f: Food) { for p in preferences() where p.foodId == f.id { ctx.delete(p) }; save() }
     /// Any food logged on a day before `dayKey` (first-run rules, README §1).
     func hasHistory(before dayKey: String) -> Bool { ((try? ctx.fetchCount(FetchDescriptor<FoodEntry>(predicate: #Predicate { $0.dayKey < dayKey }))) ?? 0) > 0 }
 
@@ -213,6 +220,7 @@ struct Store {
         for m in savedMeals() { ctx.delete(m) }
         if let p = try? ctx.fetch(FetchDescriptor<UserProfile>()).first { ctx.delete(p) }
         for e in weeklyEstimates() { ctx.delete(e) }
+        for p in preferences() { ctx.delete(p) }
         try? ctx.save(); UserDefaults.standard.removeObject(forKey: Catalogue.versionKey); FoodIndex.shared.invalidate()
     }
     private func entries() -> [FoodEntry] { (try? ctx.fetch(FetchDescriptor<FoodEntry>())) ?? [] }
