@@ -88,6 +88,16 @@ struct BalanceSheet: View {
                         let list = staples.map(\.1).filter { Balance.classify($0) == k && (q.isEmpty || $0.name.lowercased().contains(q)) }
                         if !list.isEmpty { group(label, list, inStaples: true) }
                     }
+                    if q.isEmpty {
+                        // shortcuts (21 Oct, Sid): what you logged today and what you log often, without searching — + keeps a food as a staple
+                        var seen = Set<String>()
+                        let todays = store.entries(dayKey).compactMap(\.food).filter { !stapleIds.contains($0.id) && seen.insert($0.id).inserted }
+                        let recent = store.recentlyLogged().filter { f in !stapleIds.contains(f.id) && !items.contains { $0.foodId == f.id } }
+                        if !todays.isEmpty {
+                            HStack { Spacer(); TextAction(label: "Add today's \(todays.count) food\(todays.count == 1 ? "" : "s") as staples") { for f in todays { store.addStaple(f) }; gen += 1; toaster.show("\(todays.count) staple\(todays.count == 1 ? "" : "s") added") }; Spacer() }.padding(.top, 14)
+                        }
+                        if !recent.isEmpty { group("Recent", recent, inStaples: false) }
+                    }
                     if !hasStaples {
                         // no page to go to: searching or scanning above adds straight to your staples
                         VStack(alignment: .leading, spacing: 2) { Text("Add your staples first").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text("The foods you eat most weeks. Search or scan one above and tap + — Yumo balances from those.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
@@ -194,11 +204,11 @@ struct BalanceSheet: View {
                             let rows = r.items.filter { $0.meal == m && $0.grams > 0 }
                             if !rows.isEmpty { mealCard(m, rows) }
                         }
-                        if r.statusDanger, r.status.contains("add a carb or fat staple") {
+                        if r.needsStaples {
                             // the day can't land from the staples you have: say so and open the editor right here
                             Button { staplesOpen = true } label: {
                                 HStack(spacing: 12) {
-                                    VStack(alignment: .leading, spacing: 2) { Text("Add a carb or fat staple").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text("Yumo only sizes the foods you keep as staples — rice, oats, oil… — so it needs one to fill the rest of the day.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.leading) }
+                                    VStack(alignment: .leading, spacing: 2) { Text("Add a carb or fat staple").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text("Yumo only sizes the foods you keep as staples — rice, oats, oil… — so with only proteins it can log what you weighed but not plan around it.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.leading) }
                                     Spacer(); Text("›").font(.nunito(22, .extrabold)).foregroundStyle(Color.yumo.accent)
                                 }.frame(maxWidth: .infinity).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: 20)
                             }.buttonStyle(PlainPressStyle())
@@ -250,6 +260,7 @@ struct BalanceSheet: View {
     func logIt() {
         guard let r = result else { return }
         for it in r.items where it.grams > 0 { _ = store.log(food: it.food, meal: it.meal, dayKey: dayKey, quantity: it.grams / 100, serving: Serving(label: "100 g", grams: 100)) }
+        let p = Balance.prep(dayKey, store: store); var l = p.logged; for it in r.items where it.grams > 0 { l[it.food.id, default: 0] += it.grams }; p.logged = l   // what to net off if the sheet reopens today
         persist(); UINotificationFeedbackGenerator().notificationOccurred(.success); toaster.show("Logged · day at \(Fmt.k(r.projected.kcal))"); session.changed(); dismiss()
     }
 }

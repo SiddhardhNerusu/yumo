@@ -17,7 +17,7 @@ enum Balance {
     static func macroKey(_ k: Kind) -> KeyPath<Food, Double> { switch k { case .protein: \.p100; case .fat: \.f100; default: \.c100 } }
 
     struct PlanItem: Identifiable { var id: String { food.id + "|" + meal.rawValue }; var food: Food; var meal: Meal; var grams: Double; var weighed: Bool; var atMax: Bool; var note: String? }
-    struct Result { var items: [PlanItem]; var projected: DayTotals; var leftKcal: Double; var emptyMeals: [Meal]; var ok: Bool; var status: String; var statusDanger: Bool; var fromStaples: Bool; var weighedCount: Int }
+    struct Result { var items: [PlanItem]; var projected: DayTotals; var leftKcal: Double; var emptyMeals: [Meal]; var ok: Bool; var status: String; var statusDanger: Bool; var fromStaples: Bool; var weighedCount: Int; var needsStaples: Bool }
     private struct Flex { var food: Food; var kind: Kind; var seed: Double; var meal: Meal; var maxG: Double?; var grams: Double = 0; var split: [Meal]? = nil
         var cap: Double { maxG ?? (seed * 3 + 100) } }
 
@@ -39,12 +39,14 @@ enum Balance {
         let mains = empty.filter { $0 == .lunch || $0 == .dinner }
         let staples = store.staples(); let fromStaples = !staples.isEmpty
         let all = store.foods()
-        // --- resolve the weighed foods (any food), netting off what is already logged today
+        // --- resolve the weighed foods (any food), netting off what this sheet already logged today — not a meal added by hand
+        // (21 Oct: 250 g typed after a 245 g breakfast came out as 5 g)
+        let sheetLogged = (try? store.ctx.fetch(FetchDescriptor<PrepDay>(predicate: #Predicate { $0.dayKey == dayKey })).first)?.logged ?? [:]
         var W: [(Food, Double)] = []
         for it in weighed where it.grams > 0 {
             let f = it.foodId.flatMap { store.food(id: $0) } ?? TypeToLog.candidates(for: it.text, store: store, all: all).first?.food
             guard let f else { continue }
-            let already = logged.filter { $0.food?.id == f.id }.reduce(0) { $0 + $1.grams }
+            let already = sheetLogged[f.id] ?? 0
             let g = max(0, it.grams - already); if g > 0 { W.append((f, g)) }
         }
         let weighedIds = Set(W.map(\.0.id))
@@ -121,9 +123,15 @@ enum Balance {
         let dk = proj.kcal - target.kcal
         let ok = abs(dk) <= 40 && proj.p >= target.p - 5
         var status = ok ? "Lands on target" : (dk > 40 ? "Over by \(Fmt.k(dk)) kcal" : proj.p < target.p - 5 ? "Protein short by \(Fmt.g(target.p - proj.p)) g" : "Short by \(Fmt.k(-dk)) kcal")
-        if !ok, dk < -40, fromStaples, !flex.contains(where: { ($0.kind == .carb || $0.kind == .fat) }) || flex.filter({ $0.kind != .veg }).allSatisfy({ $0.maxG != nil && $0.grams >= $0.maxG! }) { status = "Short by \(Fmt.k(-dk)) kcal · add a carb or fat staple" }
+        let noSizeable = !flex.contains(where: { $0.kind == .carb || $0.kind == .fat })
+        if !ok, dk < -40, fromStaples, noSizeable || flex.filter({ $0.kind != .veg }).allSatisfy({ $0.maxG != nil && $0.grams >= $0.maxG! }) { status = "Short by \(Fmt.k(-dk)) kcal · add a carb or fat staple" }
+        // over: say why, so it doesn't read as the planner failing (21 Oct)
+        if !ok, dk > 40 {
+            if eaten.kcal >= target.kcal - 40 { status = "Over by \(Fmt.k(dk)) kcal · today was already at its target before these" }
+            else if moving.isEmpty || noSizeable { status = "Over by \(Fmt.k(dk)) kcal · the weighed foods alone pass today's target" }
+        }
         let order = Meal.allCases
-        return Result(items: items.sorted { order.firstIndex(of: $0.meal)! < order.firstIndex(of: $1.meal)! }, projected: proj, leftKcal: target.kcal - eaten.kcal, emptyMeals: empty, ok: ok, status: status, statusDanger: !ok, fromStaples: fromStaples, weighedCount: W.count)
+        return Result(items: items.sorted { order.firstIndex(of: $0.meal)! < order.firstIndex(of: $1.meal)! }, projected: proj, leftKcal: target.kcal - eaten.kcal, emptyMeals: empty, ok: ok, status: status, statusDanger: !ok, fromStaples: fromStaples, weighedCount: W.count, needsStaples: !ok && noSizeable)
     }
 
     /// Usual pattern for the empty meals when there are no staples: the most recent day that has entries for them.

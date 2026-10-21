@@ -286,8 +286,10 @@ extension Food {
     var modeRaw: String = "prepped"
     var itemsData: Data = Data()
     var keepData: Data = Data()
+    var loggedData: Data = Data()   // foodId → grams this sheet logged today (21 Oct): only these are netted off a weighed amount, never a meal you added by hand
     var swaps: Int = 0
     init(dayKey: String) { self.dayKey = dayKey }
+    var logged: [String: Double] { get { (try? JSONDecoder().decode([String: Double].self, from: loggedData)) ?? [:] } set { loggedData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var items: [PrepItem] { get { (try? JSONDecoder().decode([PrepItem].self, from: itemsData)) ?? [] } set { itemsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var keep: Set<String> { get { Set((try? JSONDecoder().decode([String].self, from: keepData)) ?? []) } set { keepData = (try? JSONEncoder().encode(Array(newValue))) ?? Data() } }
 }

@@ -1,5 +1,10 @@
 # Yumo — changelog
 
+## 1.0 build 2026-10-21 late (I prepped… on the phone)
+- **A weighed amount is what you weighed.** The sheet used to subtract everything already logged today for that food, so 250 g typed after a 245 g breakfast came out as "5 g · weighed" (Sid, on the phone). It now subtracts only what this sheet itself logged today (`PrepDay.logged`), which is the one case that would double-count: reopen after logging and the weighed foods net to zero; a meal you added by hand is left alone.
+- **The over line says why.** "Over by 346 kcal · today was already at its target before these" when the day was full before the weighed foods, or "· the weighed foods alone pass today's target" when there is nothing sizeable; before, it read like the planner had failed. The "Add a carb or fat staple" card now shows whenever nothing can be sized (only protein staples), not only on a short day, with copy that says what it can and can't do.
+- **Step 1 shortcuts**: a RECENT group (what you log, newest first; + keeps it as a staple and opens the weight field) and an "Add today's N foods as staples" action, so the staples list fills from what you actually eat instead of a search for each.
+
 ## 1.0 build 2026-10-21 night (black screen on the phone)
 - **The app shows its first screen immediately.** The catalogue sync ran on the main thread before the first frame; after a catalogue change that rewrote 4,158 rows, and on a phone that was long enough for iOS to kill the app at launch — Sid saw only the launch screen, which was the system black. The sync now runs on its own background database context after the UI is up, writes only rows whose values changed, saves every 400 rows, and refreshes the screen when it finishes. Logged as "Yumo catalogue sync: … in N s".
 - **The launch screen is sand, not black**: `LaunchBackground` colour (light #EBE2D2, dark #1A1917) in the asset catalogue, set as `UILaunchScreen › UIColorName`.
