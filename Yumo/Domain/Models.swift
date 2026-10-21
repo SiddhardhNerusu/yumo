@@ -253,6 +253,9 @@ extension Food {
     /// What the page opens on and + logs: 100 g for anything you weigh, 100 ml for a drink; the real unit for things you count and for chain / packaged portions.
     var quickServing: Serving {
         if tier == .chain || tier == .branded { return defaultServing }
+        // a catalogue row's first serving may be its everyday UK portion in plain grams ("30 g" of almonds, tools/portions.csv, 21 Oct):
+        // the page opens on it, the stepper moves by half of it, + logs it; 100 g stays in the unit picker
+        if let first = servings.first, first.ml == nil, first.grams != 100, first.label.range(of: #"^\d+(\.\d+)? g$"#, options: .regularExpression) != nil { return first }
         return portions.first ?? plainServing
     }
     /// The amount you logged last time, else quickServing × 1. "250 g" of chicken stays 250 g in Recent and on the page.
@@ -273,7 +276,8 @@ extension Food {
     var stateLabel: String? {
         let s = (state ?? name).lowercased()   // CoFID sometimes puts the method in the name with no state
         if s.isEmpty { return nil }
-        for (k, v) in [("raw", "Raw"), ("uncooked", "Dry"), ("dry", "Dry"), ("grilled", "Grilled"), ("roasted", "Roasted"), ("roast", "Roasted"), ("baked", "Baked"), ("boiled", "Boiled"), ("fried", "Fried"), ("braised", "Braised"), ("steamed", "Steamed"), ("poached", "Poached"), ("stewed", "Stewed"), ("microwaved", "Microwaved"), ("barbecued", "Barbecued"), ("smoked", "Smoked"), ("canned", "Canned"), ("frozen", "Frozen"), ("cooked", "Cooked")] where s.contains(k) { return v }
+        // a cooking method wins over "dry": "dry roasted" almonds are Roasted, not the Dry base state (21 Oct)
+        for (k, v) in [("raw", "Raw"), ("grilled", "Grilled"), ("roasted", "Roasted"), ("roast", "Roasted"), ("baked", "Baked"), ("boiled", "Boiled"), ("fried", "Fried"), ("braised", "Braised"), ("steamed", "Steamed"), ("poached", "Poached"), ("stewed", "Stewed"), ("microwaved", "Microwaved"), ("barbecued", "Barbecued"), ("smoked", "Smoked"), ("toasted", "Toasted"), ("canned", "Canned"), ("frozen", "Frozen"), ("uncooked", "Dry"), ("dry", "Dry"), ("cooked", "Cooked")] where s.contains(k) { return v }
         return nil
     }
 }

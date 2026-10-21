@@ -1,0 +1,21 @@
+kind,match,exclude,state,label,grams,source
+nuts and seeds,"^(almonds|walnuts|brazil nuts|cashew nuts|hazelnuts|pecan nuts|pistachio nuts|macadamia nuts|pine nuts|peanuts|mixed nuts|chestnuts|pumpkin seeds|sunflower seeds|sesame seeds|chia seeds|flaxseed|hemp seed|poppy seed|melon seeds|coconut, desiccated|nuts,|seeds,)","butter|paste|^oil|flour|milk|drink|cream|water|and raisins",,30 g,30,BNF Find Your Balance 2019: nuts and seeds 30 g
+nut butter,"^(peanut butter|almond butter|cashew butter|sesame butter|tahini|hazelnut spread|chocolate spread)",,,1 tbsp · 16 g,16,BNF: nut butter 1 tbsp
+oil,"^oil\b|^oil,",,,1 tbsp · 14 g,14,BNF: oil 1 tbsp
+butter and spreads,"^(butter|fat spread|margarine|ghee|lard|dripping)",,,10 g,10,BNF: butter or spread 1 tsp to 2 tsp
+cheese,"^cheese",cottage|ricotta|quark|fromage frais|cheese spread|processed|sauce,,30 g,30,BNF: cheese 30 g (matchbox)
+soft cheese,"^cheese, (cottage|ricotta|quark)|^fromage frais",,,80 g,80,BNF: cottage cheese 2 tbsp heaped
+dried fruit,"^(raisins|sultanas|currants|dates|prunes|apricots|figs|cranberries|apples, eating|mango|banana chips)",,dried,30 g,30,BNF: dried fruit 30 g
+oats raw,"^(oats|porridge oats|oat bran)",made up|cooked,,40 g,40,BNF: porridge oats 40 g
+breakfast cereal,"^breakfast cereal",made up|cooked|porridge,,30 g,30,BNF: breakfast cereal 30 g
+rice and grains raw,"^(rice|quinoa|couscous|bulgur|bulghur|pearl barley|buckwheat|millet|freekeh|spelt)",flour|milk|cake|pudding|drink|noodle,raw,75 g,75,BNF: rice or grains 75 g dry
+rice and grains cooked,"^(rice|quinoa|couscous|bulgur|bulghur|pearl barley|buckwheat|millet|freekeh|spelt)",flour|milk|cake|pudding|drink|noodle,boiled|cooked|steamed,180 g,180,BNF: cooked rice or grains 180 g
+pasta raw,"^(pasta|spaghetti|macaroni|noodles|tagliatelle|penne|fusilli|lasagne sheets)",sauce|salad|dish|pot,raw|dried|dry,75 g,75,BNF: pasta 75 g dry
+pasta cooked,"^(pasta|spaghetti|macaroni|noodles|tagliatelle|penne|fusilli)",sauce|salad|dish|pot,boiled|cooked,180 g,180,BNF: cooked pasta 180 g
+honey and jam,"^(honey|jam|marmalade|syrup|golden syrup|maple syrup|treacle|lemon curd|nutella)",,,15 g,15,BNF: jam or honey 1 tbsp
+sugar,"^(sugar|sweetener)",free|cane juice,,1 tsp · 4 g,4,1 teaspoon
+protein powder,"whey protein|protein powder|protein supplement|casein|mass gainer|protein isolate",fluid,,30 g,30,typical scoop; the label's serving wins when a scanned tub has one
+olives,"^olives",oil,,30 g,30,BNF: olives 30 g
+mayonnaise and dressings,"^(mayonnaise|salad cream|dressing|salad dressing|ketchup|tomato ketchup|brown sauce|mustard|pesto|hummus|houmous|guacamole|tzatziki)",,,1 tbsp · 15 g,15,BNF: sauces and dips 1 tbsp
+cream,"^cream\b|^cream,","cheese|substitute|crackers|soda|of",,30 g,30,BNF: cream 2 tbsp
+chocolate,"^chocolate\b|^chocolate,",spread|drink|milk|powder|cake|sauce|biscuit,,30 g,30,BNF: chocolate 30 g

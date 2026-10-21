@@ -34,14 +34,14 @@ struct FoodDetailScreen: View {
     }
     var grams: Double { serving.grams * quantity }
     /// The one other state worth offering: raw → the most everyday cooked method; cooked → raw.
-    static let methodOrder = ["Grilled", "Roasted", "Baked", "Boiled", "Cooked", "Fried", "Steamed", "Poached", "Braised", "Stewed", "Microwaved", "Barbecued"]
+    static let methodOrder = ["Grilled", "Roasted", "Toasted", "Baked", "Boiled", "Cooked", "Fried", "Steamed", "Poached", "Braised", "Stewed", "Microwaved", "Barbecued"]
     var switchTarget: Food? {
         let here = food.stateLabel
         if here == "Raw" || here == "Dry" { return siblings.min { (Self.methodOrder.firstIndex(of: $0.stateLabel ?? "") ?? 99) < (Self.methodOrder.firstIndex(of: $1.stateLabel ?? "") ?? 99) } }
         return siblings.first { $0.stateLabel == "Raw" || $0.stateLabel == "Dry" }
     }
     /// 100 g first, then the row's named units ("1 medium · 118 g", "1 breast · 174 g") — the Servings picker.
-    var servingOptions: [Serving] { let plain = food.plainServing; var s = [plain]; for sv in food.servings where sv.label != plain.label && !(sv.grams == 100 && sv.label.hasSuffix(" g")) { s.append(sv) }; return s }
+    var servingOptions: [Serving] { let plain = food.plainServing, quick = food.quickServing; var s = quick.label == plain.label ? [plain] : [quick, plain]; for sv in food.servings where sv.label != plain.label && sv.label != quick.label && !(sv.grams == 100 && sv.label.hasSuffix(" g")) { s.append(sv) }; return s }   // the portion first, then 100 g, then the row's named units
 
     var body: some View {
         VStack(spacing: 0) {

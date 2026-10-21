@@ -7,7 +7,7 @@ Run: python3 tools/build-catalogue.py   → prints a cross-check report (Atwater
 import csv, re, json, os, re, sys, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "Yumo", "Resources", "Catalogue", "generic.json")
-VERSION = "2026-10-21.2"
+VERSION = "2026-10-21.3"
 
 # nutrient number -> Yumo key
 NUT = {"208":"kcal","203":"p","205":"c","204":"f","291":"fibre","269":"sugars","606":"sat_fat","645":"mono","646":"poly","605":"trans",
@@ -170,6 +170,29 @@ def foundation():
             out.append({"src": "foundation", "id": f"fdc:{f['fdcId']}", "desc": f["description"], "cat": "", "nut": nut, "portions": [], "source_ref": f"USDA FDC Foundation {f['fdcId']}"})
     return out
 
+# tools/portions.csv (21 Oct): the everyday UK portion a row opens on when 100 g is not a serving anyone eats — nuts 30 g, cheese 30 g,
+# oil 1 tbsp, dry rice 75 g (British Nutrition Foundation, Find Your Balance 2019). First matching rule wins; a row that already carries a
+# counted unit ("1 medium", "1 slice", "1 scoop") keeps it. Drinks are in ml and never get one.
+COUNTED = {"small","medium","large","extra","egg","slice","item","bar","biscuit","cookie","cracker","roll","bun","wrap","pot","can","bottle","sachet","scoop","tbsp","tsp","portion","serving","pack","packet","bag","tin","tub","stick","square","cube","sprig","clove","leaf","head","ear","pod","fruit","nut","date","fig","wedge","sheet","rasher","sausage","burger","patty"}
+def load_portions():
+    p = os.path.join(HERE, "portions.csv")
+    return [r for r in csv.DictReader(open(p))] if os.path.exists(p) else []
+def has_counted_unit(servings):
+    for l, g in servings:
+        if (l.endswith(" g") or l.endswith(" ml")) and not l.startswith("1 "): continue
+        unit = re.sub(r"^1 ×? ?", "", l).split(" · ")[0].lower()
+        if set(unit.split()) & COUNTED: return True
+    return False
+def portion_for(name, state, rules):
+    n = name.lower(); st = (state or "").lower()
+    for r in rules:
+        if not re.search(r["match"], n): continue
+        if r["exclude"] and re.search(r["exclude"], n + " " + st): continue
+        if r["state"] and not re.search(r["state"], st): continue
+        if not r["state"] and re.search(r"boiled|cooked|steamed|stewed", st) and r["kind"] in ("nuts and seeds", "oats raw"): continue
+        return (r["label"], float(r["grams"]), r["kind"])
+    return None
+
 def default_servings(name):
     n = name.lower(); s = []
     if "egg whole" in n or n.startswith("egg, whole") or n == "egg": s.append(("1 large · 50 g", 50))
@@ -205,7 +228,7 @@ def cofid():
     return out
 
 rows = sr_legacy() + foundation() + cofid()
-cur = load_curation(); renames = load_renames()
+cur = load_curation(); renames = load_renames(); portion_rules = load_portions()
 RANK = {"cofid": 3, "foundation": 2, "sr": 1}   # same food + state in two sources: UK first (Sid, 21 Oct), then USDA Foundation, then SR Legacy
 # ...unless the UK figure is only from literature and its energy is more than 40 % from USDA's analysis (shallots 20 vs 72 kcal,
 # oyster mushrooms 8 vs 33): measured data beats a literature value that far off.
@@ -273,6 +296,9 @@ for r, k, name, state, aliases in named:
         report["drinks in ml"] += 1
     else:
         servings = [{"label": l, "grams": g} for l, g in r["portions"]] + [{"label": l, "grams": g} for l, g in default_servings(name)]
+        if not has_counted_unit([(x["label"], x["grams"]) for x in servings]):
+            if (pt := portion_for(name, state, portion_rules)):
+                servings.insert(0, {"label": pt[0], "grams": pt[1]}); report["portion: " + pt[2]] += 1
     labels = set(); dedup = []
     for s in servings:
         if s["label"] not in labels and 0 < s["grams"] <= 2000: labels.add(s["label"]); dedup.append(s)

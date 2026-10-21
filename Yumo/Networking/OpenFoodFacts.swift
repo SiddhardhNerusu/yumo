@@ -80,6 +80,9 @@ enum OpenFoodFacts {
             prod.quantity = tidyQuantity(q)
         }
         if prod.isDrink { prod.servings = prod.servings.map { $0.label == "100 g" ? Serving(label: "100 ml", grams: 100) : $0 } }
+        // a protein powder with no label serving opens on 30 g, not 100 g; scoops differ by brand, so the number is plain and the first
+        // amount you type is remembered for that tub (21 Oct)
+        else if prod.servings.count == 1, (name + " " + (brand ?? "")).range(of: #"(?i)whey|casein|protein (powder|isolate|blend|shake)|mass gainer"#, options: .regularExpression) != nil { prod.servings.insert(Serving(label: "30 g", grams: 30), at: 0) }
         return prod
     }
     /// One way to write a pack size, so two bags compare at a glance: "2kg" → "2 kg", "400 grams" / "400G" → "400 g", "1 litre" → "1 L".
