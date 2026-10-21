@@ -154,8 +154,24 @@ final class FoodIndex: @unchecked Sendable {
         }
         return best
     }
+    /// Every vocabulary word a typed word matches, with its quality — computed once per query so scoring a row is dictionary lookups,
+    /// not a prefix / edit-distance pass over every word of every row (21 Oct: that pass was 100 ms per keystroke in a Debug build).
+    nonisolated static func qualities(_ t: String, vocab: Dictionary<String, Int>.Keys) -> [String: Double] {
+        var out: [String: Double] = [:]
+        for w in vocab {
+            if w == t { out[w] = 1.0 } else if w.hasPrefix(t) { out[w] = t.count >= 3 ? 0.85 : 0.6 }
+            else if t.count >= 4, w.first == t.first, abs(w.count - t.count) <= 2, Store.lev(t, w) <= (t.count <= 7 ? 1 : 2) { out[w] = 0.5 }
+        }
+        return out
+    }
+    nonisolated static func match(_ t: String, in words: [String], map: [String: Double]) -> (Double, String)? {
+        var best: (Double, String)? = nil
+        for w in words { if let q = map[w], q > (best?.0 ?? 0) { best = (q, w) } }
+        return best
+    }
     /// Score any candidate (a catalogue row or an online product) for a token list. nil = below the coverage bar.
-    nonisolated static func score(name: String, words: [String], brand: [String], raw: Bool, useCount: Int, prior: Double = 0, toks: [String], rarity: (String) -> Double) -> (matched: Double, score: Double)? {
+    /// `maps`: one quality map per token (catalogue rows); nil = match word by word (online products, whose words aren't in the vocabulary).
+    nonisolated static func score(name: String, words: [String], brand: [String], raw: Bool, useCount: Int, prior: Double = 0, toks: [String], maps: [[String: Double]]? = nil, rarity: (String) -> Double) -> (matched: Double, score: Double)? {
         guard !toks.isEmpty else { return nil }
         var matched = 0.0, total = 0.0, weight = 0.0
         for (i, t) in toks.enumerated() {
@@ -163,8 +179,9 @@ final class FoodIndex: @unchecked Sendable {
             // a prefix / fuzzy hit on a rarer word ("egg" → "eggnog") never earns more rarity than the typed word itself has
             let own = rarity(t)
             func r(_ hit: String) -> Double { hit == t ? own : min(own, rarity(hit)) }
-            var best = match(t, in: words).map { ($0.0, r($0.1)) }
-            if let b = match(t, in: brand) { let s = (b.0, r(b.1)); if best == nil || s.0 * s.1 > best!.0 * best!.1 { best = s } }   // a brand word is as good as a name word
+            let m = maps?[i]
+            var best = (m.map { match(t, in: words, map: $0) } ?? match(t, in: words)).map { ($0.0, r($0.1)) }
+            if let b = m.map({ match(t, in: brand, map: $0) }) ?? match(t, in: brand) { let s = (b.0, r(b.1)); if best == nil || s.0 * s.1 > best!.0 * best!.1 { best = s } }   // a brand word is as good as a name word
             guard let (q, r) = best else { continue }
             // a 1–2 letter word is still being typed: it counts half, and never earns a rarity bonus ("ro" must not pick "round")
             let short = t.count < 3
@@ -184,9 +201,10 @@ extension FoodIndex.Snapshot {
     /// Ranked catalogue hits for a typed line.
     func search(_ query: String, tiers: Set<FoodTier> = [.generic, .user], exclude: Set<String> = [], limit: Int = 60) -> [FoodIndex.Hit] {
         let toks = FoodIndex.tokens(query); guard !toks.isEmpty else { return [] }
+        let maps = toks.map { FoodIndex.qualities($0, vocab: df.keys) }
         var hits: [FoodIndex.Hit] = []
         for e in entries where tiers.contains(e.tier) && !e.macrosUnknown && !exclude.contains(e.id) {
-            if let (m, s) = FoodIndex.score(name: e.name, words: e.words, brand: e.brand, raw: e.raw, useCount: e.useCount, prior: e.prior, toks: toks, rarity: rarity) { hits.append(.init(id: e.id, matched: m, score: s)) }
+            if let (m, s) = FoodIndex.score(name: e.name, words: e.words, brand: e.brand, raw: e.raw, useCount: e.useCount, prior: e.prior, toks: toks, maps: maps, rarity: rarity) { hits.append(.init(id: e.id, matched: m, score: s)) }
         }
         hits.sort { $0.matched != $1.matched ? $0.matched > $1.matched : $0.score > $1.score }
         return Array(hits.prefix(limit))
@@ -224,7 +242,7 @@ extension FoodIndex.Snapshot {
             // a variety or brand word: the tables only hold its fallback ("rooster" would otherwise pass as a typo of "roaster")
             if variety.contains(raw) || FoodIndex.tokenSynonyms[raw] != nil { return true }
             // covered by a prefix on any word, or by a fuzzy hit ("chcieken" is a typo of chicken, not a brand)
-            return !entries.contains { e in FoodIndex.match(t, in: e.words) != nil || FoodIndex.match(t, in: e.brand) != nil }
+            return FoodIndex.qualities(t, vocab: df.keys).isEmpty   // the vocabulary holds every name, state, alias and brand word
         }
     }
 }

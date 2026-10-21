@@ -195,7 +195,7 @@ struct AddFoodSheet: View {
         // The whole pipeline is one task for one captured line, so a keystroke cancels every stale lookup — never results for "alber".
         let s = store, container = s.ctx.container, count = (try? s.ctx.fetchCount(FetchDescriptor<Food>())) ?? 0
         searchTask = Task {
-            try? await Task.sleep(for: .milliseconds(120)); guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(80)); guard !Task.isCancelled else { return }   // the search is ~10 ms (21 Oct), so results can follow the keystroke closely
             let snap = await FoodIndex.shared.snapshot(for: container, count: count); guard !Task.isCancelled else { return }
             let (hits, missing) = await Task.detached(priority: .userInitiated) { (snap.search(q, tiers: [.user, .generic, .chain, .branded], limit: 400), snap.uncovered(q)) }.value
             guard !Task.isCancelled else { return }
