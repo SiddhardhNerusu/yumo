@@ -85,7 +85,10 @@ enum Balance {
         }
         func fill(_ k: Kind, needDense: Bool = false, needEnergy: Bool = false, prefer: Meal? = nil) {
             let fb = empty.first ?? .dinner
-            guard let first = Planner.ranked(k, needDense: needDense, needEnergy: needEnergy, exclude: inPlan, chosen: nil, dayKey: dayKey, store: store, all: all).first else { return }
+            let ranked = Planner.ranked(k, needDense: needDense, needEnergy: needEnergy, exclude: inPlan, chosen: nil, dayKey: dayKey, store: store, all: all)
+            // a pick meant for breakfast or snacks is a breakfast or snack food (oats, not rice, when the carb lands at breakfast)
+            let hint = prefer == .breakfast ? "breakfast" : prefer == .snacks ? "snack" : prefer == nil ? nil : "main"
+            guard let first = ranked.first(where: { hint == nil || $0.candidate.meal == hint || $0.candidate.meal == "any" }) ?? ranked.first else { return }
             let pick = resolve(first)
             let m = prefer ?? Planner.meal(for: pick.candidate, empty: empty, fallback: mains.first ?? fb)
             // a suggestion is capped at a few portions (550 g of cottage cheese is not a plan); the carb may stretch further, it lands the day
@@ -160,8 +163,14 @@ enum Balance {
             // what's short decides: protein, then fat, then carb, each by its own remaining grams (fat at 66 / 97 wants a fat, not a
             // third carb) — and the pick goes to the main with the fewest rows
             let k: Kind = remaining(.protein) > 10 ? .protein : remaining(.fat) > 8 ? .fat : .carb
-            let load = { (m: Meal) in flex.filter { $0.meal == m || ($0.split?.contains(m) ?? false) }.count }
-            let prefer = mains.min { load($0) < load($1) }
+            let rows = { (m: Meal) in flex.filter { $0.meal == m || ($0.split?.contains(m) ?? false) } }
+            let load = { (m: Meal) in rows(m).count }
+            var prefer = mains.min { load($0) < load($1) }
+            if k == .carb {
+                // one carb per meal (22 Oct: rice and pasta both landed in lunch): a main without a carb, else breakfast or snacks without one
+                let free = empty.filter { m in !rows(m).contains { $0.kind == .carb } }
+                prefer = free.first(where: { mains.contains($0) }) ?? free.first ?? prefer
+            }
             let before = flex.count; fill(k, needDense: k == .protein, needEnergy: true, prefer: prefer); extra += 1
             if flex.count > before { size() }
         }

@@ -1,37 +1,41 @@
-class,name,match,state,portion,meal,dense,note
-protein,Greek yogurt 0% fat,"^yogurt greek, nonfat$|^yogurt, greek, 0% fat|^yogurt greek style, 0% fat",,170,breakfast,1,
-protein,Greek yogurt,"^yogurt greek style$|^yogurt greek, whole milk$",,170,breakfast,0,
-protein,Eggs,"^eggs, chicken, whole$|^egg whole, fresh$",raw,120,breakfast,0,two eggs
-protein,Cottage cheese,"^cheese, cottage$|^cheese cottage",,150,any,1,
-protein,Tuna in brine,"^tuna$",canned in brine,120,main,1,
-protein,Chicken breast,"^chicken breast, boneless, skinless$",raw,180,main,1,
-protein,Turkey breast,"^turkey breast, (meat only|fillet)",,180,main,1,
-protein,Salmon fillet,"^salmon, farmed, flesh only$|^salmon wild, flesh only$",raw,150,main,0,
-protein,King prawns,"^prawns, king$",^raw$,150,main,1,
-protein,Lean beef mince,"^lean beef mince 5%$|^beef mince, extra lean$",raw,150,main,0,
-protein,Whey protein isolate,"^whey protein isolate$",,30,snack,1,
-carb,Basmati rice,"^rice white, basmati$",raw,75,main,0,
-carb,Potatoes,"^potatoes, old, flesh only$",raw,250,main,0,
-carb,Sweet potato,"^sweet potato, flesh only$",raw,250,main,0,
-carb,Pasta,"^pasta white$",dried,75,main,0,
-carb,Porridge oats,"^porridge oats, unfortified$|^oats whole grain, rolled",,40,breakfast,0,
-carb,Wholemeal bread,"^bread (wholemeal|brown), average$",,80,breakfast,0,two slices
-carb,Couscous,"^couscous$",raw,75,main,0,
-carb,Quinoa,"^quinoa$",raw,75,main,0,
-carb,Banana,"^bananas$|^bananas, flesh only$",raw,118,snack,0,
-carb,Apple,"^apples, eating$",raw,150,snack,0,
-fat,Olive oil,"^oil, olive$",,14,main,0,
-fat,Almonds,"^almonds$",,30,snack,0,
-fat,Peanut butter,"^peanut butter, smooth$",,16,breakfast,0,
-fat,Avocado,"^avocado, hass, flesh only$|^avocados, all commercial varieties$",,70,any,0,half
-fat,Cheddar,"^cheese cheddar, english$|^cheese cheddar$",,30,any,0,
-fat,Walnuts,"^walnuts$",,30,snack,0,
-fat,Butter,"^butter, salted$",,10,breakfast,0,
-veg,Broccoli,"^broccoli green$|^broccoli$",raw,150,main,0,
-veg,Spinach,"^spinach$",raw,80,main,0,
-veg,Carrots,"^carrots, old$|^carrots$",raw,100,main,0,
-veg,Peas,"^peas$",frozen,100,main,0,
-veg,Peppers,"^peppers, capsicum, red$|^peppers sweet, red$",raw,100,main,0,
-veg,Tomatoes,"^tomatoes",raw,120,any,0,
-veg,Cucumber,"^cucumber$",raw,100,any,0,
-veg,Mixed salad leaves,"^lettuce, average$|^lettuce$|^salad",raw,60,any,0,
+class,name,match,state,portion,meal,dense,note,tags
+protein,Greek yogurt 0% fat,"^yogurt greek, nonfat$|^yogurt, greek, 0% fat|^yogurt greek style, 0% fat",,170,breakfast,1,,dairy
+protein,Greek yogurt,"^yogurt greek style$|^yogurt greek, whole milk$",,170,breakfast,0,,dairy
+protein,Eggs,"^eggs, chicken, whole$|^egg whole, fresh$",raw,120,breakfast,0,two eggs,egg
+protein,Cottage cheese,"^cheese, cottage$|^cheese cottage",,150,any,1,,dairy
+protein,Tuna in brine,^tuna$,canned in brine,120,main,1,,fish
+protein,Chicken breast,"^chicken breast, boneless, skinless$",raw,180,main,1,,meat
+protein,Turkey breast,"^turkey breast, (meat only|fillet)",,180,main,1,,meat
+protein,Salmon fillet,"^salmon, farmed, flesh only$|^salmon wild, flesh only$",raw,150,main,0,,fish
+protein,King prawns,"^prawns, king$",^raw$,150,main,1,,fish
+protein,Lean beef mince,"^lean beef mince 5%$|^beef mince, extra lean$",raw,150,main,0,,meat
+protein,Whey protein isolate,^whey protein isolate$,,30,snack,1,,dairy
+protein,Tofu,"^tofu, soya bean$",^steamed$,150,main,0,,
+protein,Tempeh,^tempeh$,,100,main,1,,
+protein,Red lentils,"^lentils red, split$",boiled,150,main,0,cooked weight,
+carb,Basmati rice,"^rice white, basmati$",raw,75,main,0,,
+carb,Potatoes,"^potatoes, old, flesh only$",raw,250,main,0,,
+carb,Sweet potato,"^sweet potato, flesh only$",raw,250,main,0,,
+carb,Pasta,^pasta white$,dried,75,main,0,,gluten
+carb,Porridge oats,"^porridge oats, unfortified$|^oats whole grain, rolled",,40,breakfast,0,,gluten
+carb,Wholemeal bread,"^bread (wholemeal|brown), average$",,80,breakfast,0,two slices,gluten
+carb,Couscous,^couscous$,raw,75,main,0,,gluten
+carb,Quinoa,^quinoa$,raw,75,main,0,,
+carb,Banana,"^bananas$|^bananas, flesh only$",raw,118,snack,0,,
+carb,Apple,"^apples, eating$",raw,150,snack,0,,
+carb,Chickpeas,^chickpeas \(garbanzo,"canned, drained",120,main,0,,
+fat,Olive oil,"^oil, olive$",,14,main,0,,
+fat,Almonds,^almonds$,,30,snack,0,,nuts
+fat,Peanut butter,"^peanut butter, smooth$",,16,breakfast,0,,nuts
+fat,Avocado,"^avocado, hass, flesh only$|^avocados, all commercial varieties$",,70,any,0,half,
+fat,Cheddar,"^cheese cheddar, english$|^cheese cheddar$",,30,any,0,,dairy
+fat,Walnuts,^walnuts$,,30,snack,0,,nuts
+fat,Butter,"^butter, salted$",,10,breakfast,0,,dairy
+veg,Broccoli,^broccoli green$|^broccoli$,raw,150,main,0,,
+veg,Spinach,^spinach$,raw,80,main,0,,
+veg,Carrots,"^carrots, old$|^carrots$",raw,100,main,0,,
+veg,Peas,^peas$,frozen,100,main,0,,
+veg,Peppers,"^peppers, capsicum, red$|^peppers sweet, red$",raw,100,main,0,,
+veg,Tomatoes,^tomatoes,raw,120,any,0,,
+veg,Cucumber,^cucumber$,raw,100,any,0,,
+veg,Mixed salad leaves,"^lettuce, average$|^lettuce$|^salad",raw,60,any,0,,

@@ -181,19 +181,40 @@ struct StapleScanScreen: View {
     }
 }
 
-/// What the planner learned (22 Oct): foods you liked and foods you asked it never to suggest, each with an undo — a "never again" tapped
-/// by mistake must not be permanent.
+/// What the planner knows about you (22 Oct): foods you don't eat (by kind), foods you liked, foods you blocked — each undoable.
 struct PlannerMemory: View {
     @Environment(\.modelContext) private var ctx
     @State private var gen = 0
     var store: Store { Store(ctx) }
     var body: some View {
+        let profile = store.profile()
         let prefs = store.preferences().sorted { $0.updatedAt > $1.updatedAt }
         let rows: [(FoodPreference, Food)] = prefs.compactMap { p in store.food(id: p.foodId).map { (p, $0) } }
-        if !rows.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                Overline(text: "The planner").padding(.top, 24)
-                Text("Liked foods come back every day and pull up foods like them. Blocked foods never come up.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.leading, 4)
+        VStack(alignment: .leading, spacing: 8) {
+            Overline(text: "The planner").padding(.top, 24)
+            Text("When your staples don't cover a carb, a fat, a veg or enough protein, the planner suggests one. It never suggests what you don't eat.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.leading, 4)
+            Text("I don't eat").font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).padding(.leading, 4).padding(.top, 6)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), spacing: 8)], alignment: .leading, spacing: 8) {
+                ForEach(Planner.exclusions, id: \.tag) { ex in
+                    let on = profile.plannerExclude.contains(ex.tag)
+                    Button {
+                        if on { profile.plannerExclude.removeAll { $0 == ex.tag } } else { profile.plannerExclude.append(ex.tag) }
+                        store.save(); gen += 1
+                    } label: {
+                        HStack(spacing: 6) {
+                            if on { Text("✓").font(.nunito(13, .black)) }
+                            Text(ex.label).font(.nunito(14, .extrabold)).lineLimit(1).minimumScaleFactor(0.8)
+                        }
+                        .foregroundStyle(on ? Color.yumo.accent : .yumo.ink)
+                        .frame(maxWidth: .infinity).frame(height: 44)
+                        .background(RoundedRectangle(cornerRadius: Radius.chip, style: .continuous).fill(on ? Color.yumo.accentTint : .yumo.surface))
+                        .overlay(RoundedRectangle(cornerRadius: Radius.chip, style: .continuous).stroke(on ? Color.yumo.accent : .yumo.hairline, lineWidth: on ? 1.5 : 1))
+                        .contentShape(Rectangle())
+                    }.buttonStyle(PlainPressStyle()).accessibilityAddTraits(on ? .isSelected : [])
+                }
+            }
+            if !rows.isEmpty {
+                Text("Liked foods come back every day and pull up foods like them. Blocked foods never come up.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.leading, 4).padding(.top, 10)
                 VStack(spacing: 0) {
                     ForEach(rows, id: \.0.foodId) { p, f in
                         HStack(spacing: 12) {
@@ -206,7 +227,7 @@ struct PlannerMemory: View {
                         }.padding(.vertical, 11).padding(.trailing, 16).frame(minHeight: 44).hairline()
                     }
                 }.padding(.leading, 18).listCard(radius: 20)
-            }.id(gen)
-        }
+            }
+        }.id(gen)
     }
 }

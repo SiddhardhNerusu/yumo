@@ -239,6 +239,7 @@ struct BalanceSheet: View {
                         if r.suggestedCount > 0 {
                             // the planner filled gaps from its pool: keep them and tomorrow starts from the same foods (Sid: "I like the same foods every day")
                             HStack { Spacer(); TextAction(label: "Keep these \(r.suggestedCount) as staples") { keepSuggested(r) }; Spacer() }.padding(.top, 2)
+                            HStack { Spacer(); TextAction(label: "Foods you don't eat ›") { staplesOpen = true }; Spacer() }   // meat, fish, dairy… live with the staples
                         }
                         Text(r.suggestedCount > 0 ? "Weighed foods are fixed · staples were sized · suggested foods fill what you don't have — swap any you'd rather not eat" : "Weighed foods are fixed · everything else was sized to land the day").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.top, 4)
                     } else { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity).padding(.top, 30) }

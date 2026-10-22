@@ -6,7 +6,9 @@ import SwiftData
 /// class with a portion and a meal hint, each resolved to a catalogue row by name. What the user says sticks: "never again" removes a food
 /// for good, "more like this" pins it; logging a plan is a soft like. Days rotate through the pool unless something is pinned.
 enum Planner {
-    struct Candidate { let kind: Balance.Kind; let label: String; let match: String; let state: String; let portion: Double; let meal: String; let dense: Bool }
+    struct Candidate { let kind: Balance.Kind; let label: String; let match: String; let state: String; let portion: Double; let meal: String; let dense: Bool; let tags: Set<String> }
+    /// What a person can say they don't eat (22 Oct): the planner never suggests a food carrying one of these tags (planner.csv › tags).
+    static let exclusions: [(tag: String, label: String)] = [("meat", "Meat"), ("fish", "Fish"), ("dairy", "Dairy"), ("egg", "Eggs"), ("nuts", "Nuts"), ("gluten", "Gluten")]
     /// A candidate resolved to the catalogue row it names.
     struct Pick { let food: Food; let candidate: Candidate }
 
@@ -16,7 +18,8 @@ enum Planner {
         for line in text.split(separator: "\n").dropFirst() {
             let cols = csvColumns(String(line)); guard cols.count >= 7 else { continue }
             let kind: Balance.Kind = cols[0] == "protein" ? .protein : cols[0] == "carb" ? .carb : cols[0] == "fat" ? .fat : .veg
-            out.append(Candidate(kind: kind, label: cols[1], match: cols[2], state: cols[3], portion: Double(cols[4]) ?? 100, meal: cols[5], dense: cols[6] == "1"))
+            let tags = cols.count > 8 ? Set(cols[8].split(whereSeparator: { $0 == " " || $0 == "|" }).map(String.init)) : []
+            out.append(Candidate(kind: kind, label: cols[1], match: cols[2], state: cols[3], portion: Double(cols[4]) ?? 100, meal: cols[5], dense: cols[6] == "1", tags: tags))
         }
         return out
     }()
@@ -55,7 +58,8 @@ enum Planner {
     @MainActor static func ranked(_ kind: Balance.Kind, needDense: Bool, needEnergy: Bool = false, exclude: Set<String>, chosen: String?, dayKey: String, store: Store, all: [Food]) -> [Pick] {
         let prefs = store.preferences()
         let never = Set(prefs.filter { $0.verdict == .never }.map(\.foodId)), liked = Set(prefs.filter { $0.verdict == .liked }.map(\.foodId))
-        let cands = picks(all: all).filter { $0.candidate.kind == kind && !exclude.contains($0.food.id) && !never.contains($0.food.id) }
+        let excluded = Set(store.profile().plannerExclude)
+        let cands = picks(all: all).filter { $0.candidate.kind == kind && !exclude.contains($0.food.id) && !never.contains($0.food.id) && $0.candidate.tags.isDisjoint(with: excluded) }
         // "more like this": liked foods of this class pull up the candidates closest to them in protein / carb / fat balance
         let likedProfiles = all.filter { liked.contains($0.id) && Balance.classify($0) == kind }.map(profile)
         func score(_ p: Pick) -> Double {

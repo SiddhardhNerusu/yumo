@@ -65,6 +65,7 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double
     var typeItHintSeen: Bool = false        // first-time line under the Type it field (Features.typeIt)
     var swipeHintSeen: Bool = false          // the "Yesterday's …" row nudges once (rev 5)
     var plannerAskedPowder: Bool = false     // the planner asks once whether you use a protein powder (21 Oct) — easy to forget as a staple
+    var plannerExclude: [String] = []        // tags the planner never suggests: meat, fish, dairy, egg, nuts, gluten (22 Oct)
     var planEdited: Bool = false             // Your plan macros were dragged in onboarding (rev 5)
     var tourDone: Bool = false               // first-run guided tour (README §15)
     var suppNudgeAnswered: [String] = []     // nutrient keys whose "Taking a supplement?" nudge was answered (rev 9); never asked twice

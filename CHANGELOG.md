@@ -1,5 +1,11 @@
 # Yumo — changelog
 
+## 1.0 build 2026-10-22 evening (the planner: what you don't eat, one carb per meal)
+- **"I don't eat"** — Settings › Staples › The planner (also "Foods you don't eat ›" under a plan): Meat, Fish, Dairy, Eggs, Nuts, Gluten. The planner never suggests a food with that tag; your own staples and weighed foods are yours and are never filtered. Tags live in `planner.csv` (new `tags` column), so the rule is data. Tested with meat and fish off: tempeh, tofu, red lentils and whey fill the protein, the day lands P 243 / 243, C 268 / 276, F 97 / 97.
+- **Vegetarian proteins in the pool**: tofu, tempeh, red lentils (protein) and chickpeas (carb) — 40 foods now.
+- **One carb per meal.** An extra carb goes to a meal that has none — a main first, then breakfast or snacks — and a pick placed at breakfast or snacks is a breakfast or snack food (porridge oats, not a second rice). Before, lunch could get rice and pasta.
+- The planner section is always shown (it holds the "I don't eat" chips); liked and blocked foods list under it when there are any.
+
 ## 1.0 build 2026-10-22 pm (the planner, phase 2)
 - **"Like" — and more like it** (Sid: "or I like it and it'll recommend more foods like that"). The swap sheet opens with "Like Eggs · keeps it in your plans and suggests more like it". A liked food comes back every day and its row reads "♥ liked ↻"; foods with a similar protein / carb / fat balance rank higher in the same class (liking potatoes lifts rice and bananas; liking almonds lifts walnuts and cheddar). Tap again to unlike.
 - **Settings › Staples › The planner** lists every liked and blocked food with Unlike / Allow again, so a "Never again" tapped by mistake isn't permanent.
