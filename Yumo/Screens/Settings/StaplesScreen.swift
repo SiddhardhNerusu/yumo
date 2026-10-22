@@ -123,6 +123,7 @@ struct StaplesScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("The foods you eat most weeks. No amounts — when your prep comes out different, Yumo works out how much of these lands the day.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 4).padding(.bottom, 14)
+                    PowderQuestion()
                     StaplesEditor(mode: .settings, onChange: onChange)
                     PlannerMemory()
                 }.padding(Space.gutter).padding(.bottom, 40)
@@ -236,5 +237,22 @@ struct PlannerMemory: View {
                 }.padding(.leading, 18).listCard(radius: 20)
             }
         }.id(gen)
+    }
+}
+
+/// Asked once (21 Oct, Sid): a protein powder is easy to forget as a staple, and it's what the planner reaches for when protein is short.
+/// Lives with the staples since 22 Oct, so the plan screen stays about today.
+struct PowderQuestion: View {
+    @Environment(\.modelContext) private var ctx
+    @State private var gone = false
+    var body: some View {
+        let p = Store(ctx).profile()
+        if !p.plannerAskedPowder && !gone {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Do you use a protein powder?").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink)
+                Text("Search or scan it below and tap + — the planner uses it when protein is short. Scoops differ, so it takes the label's serving or the amount you type once.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+                HStack { Spacer(); TextAction(label: "Got it") { p.plannerAskedPowder = true; Store(ctx).save(); gone = true } }
+            }.frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 14, leading: 18, bottom: 12, trailing: 18), radius: 20).padding(.bottom, 14)
+        }
     }
 }

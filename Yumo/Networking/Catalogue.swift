@@ -59,8 +59,10 @@ enum Catalogue {
                 ctx.insert(f); writes += 1; flush()
             }
         }
-        // rows that left the canonical set go too, unless the user logged them
-        for (id, f) in existing where !kept.contains(id) && !id.hasPrefix("seed:") && f.useCount == 0 { ctx.delete(f); writes += 1 }
+        // rows that left the canonical set go too, unless the user logged them, keeps them as a staple or told the planner about them
+        // (22 Oct: a dropped duplicate would have taken a staple with it)
+        let held = Set(((try? ctx.fetch(FetchDescriptor<Staple>())) ?? []).map(\.foodId)).union(((try? ctx.fetch(FetchDescriptor<FoodPreference>())) ?? []).map(\.foodId))
+        for (id, f) in existing where !kept.contains(id) && !id.hasPrefix("seed:") && f.useCount == 0 && !held.contains(f.id) { ctx.delete(f); writes += 1 }
         // Seeded staples not covered by Foundation Foods stay as generics too; stale seeds from earlier builds go unless they were logged.
         let keep = Set(SeedFoods.items.map { "seed:" + $0.0.lowercased() })
         for f in foods(ctx, tier: .user) where f.source == .usda { f.tier = .generic; f.sourceRef = f.sourceRef ?? "USDA SR Legacy"; f.canonicalId = f.canonicalId ?? "seed:\(f.name.lowercased())"; writes += 1 }

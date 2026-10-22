@@ -226,7 +226,7 @@ struct SavedItem: Codable, Hashable { var foodId: String; var quantity: Double; 
 }
 
 /// Balance the day — prepped list for a day (PRODUCT_BRIEF §12).
-struct PrepItem: Codable, Hashable, Identifiable { var id = UUID(); var text: String; var grams: Double; var foodId: String? = nil; var carried: Bool? = nil }
+struct PrepItem: Codable, Hashable, Identifiable { var id = UUID(); var text: String; var grams: Double; var foodId: String? = nil; var carried: Bool? = nil; var meal: String? = nil }   // meal: where you set the amount (22 Oct) — the row stays there
 extension Food {
     /// Rev 6: every list renders the part before the first comma as the name and the rest (plus the state) as the detail line. Never a bare name.
     static func split(_ name: String, state: String? = nil) -> (name: String, detail: String) {
@@ -290,7 +290,9 @@ extension Food {
     var keepData: Data = Data()
     var loggedData: Data = Data()   // foodId → grams this sheet logged today (21 Oct): only these are netted off a weighed amount, never a meal you added by hand
     var swaps: Int = 0
+    var chosenData: Data = Data()   // today's swaps, food id → its replacement (22 Oct: a swap undid itself when Your day reopened)
     init(dayKey: String) { self.dayKey = dayKey }
+    var chosen: [String: String] { get { (try? JSONDecoder().decode([String: String].self, from: chosenData)) ?? [:] } set { chosenData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var logged: [String: Double] { get { (try? JSONDecoder().decode([String: Double].self, from: loggedData)) ?? [:] } set { loggedData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var items: [PrepItem] { get { (try? JSONDecoder().decode([PrepItem].self, from: itemsData)) ?? [] } set { itemsData = (try? JSONEncoder().encode(newValue)) ?? Data() } }
     var keep: Set<String> { get { Set((try? JSONDecoder().decode([String].self, from: keepData)) ?? []) } set { keepData = (try? JSONEncoder().encode(Array(newValue))) ?? Data() } }

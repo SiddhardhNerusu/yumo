@@ -1,12 +1,12 @@
 class,name,match,state,portion,meal,dense,note,tags
-protein,Greek yogurt 0% fat,"^yogurt greek, nonfat$|^yogurt, greek, 0% fat|^yogurt greek style, 0% fat",,170,breakfast,1,,dairy
-protein,Greek yogurt,"^yogurt greek style$|^yogurt greek, whole milk$",,170,breakfast,0,,dairy
+protein,Greek yogurt 0% fat,"^greek yogurt, 0% fat$|^yogurt, greek, 0% fat|^greek style yogurt, 0% fat",,170,breakfast,1,,dairy
+protein,Greek yogurt,"^greek style yogurt$|^greek yogurt, whole milk$",,170,breakfast,0,,dairy
 protein,Eggs,"^eggs, chicken, whole$|^egg whole, fresh$",raw,120,breakfast,0,two eggs,egg
 protein,Cottage cheese,"^cheese, cottage$|^cheese cottage",,150,any,1,,dairy
 protein,Tuna in brine,^tuna$,canned in brine,120,main,1,,fish
 protein,Chicken breast,"^chicken breast, boneless, skinless$",raw,180,main,1,,meat
 protein,Turkey breast,"^turkey breast, (meat only|fillet)",,180,main,1,,meat
-protein,Salmon fillet,"^salmon, farmed, flesh only$|^salmon wild, flesh only$",raw,150,main,0,,fish
+protein,Salmon fillet,"^salmon, farmed, flesh only$|^wild salmon, flesh only$",raw,150,main,0,,fish
 protein,King prawns,"^prawns, king$",^raw$,150,main,1,,fish
 protein,Lean beef mince,"^lean beef mince 5%$|^beef mince, extra lean$",raw,150,main,0,,meat
 protein,Whey protein isolate,^whey protein isolate$,,30,snack,1,,dairy

@@ -16,9 +16,9 @@ enum Balance {
     static func className(_ k: Kind) -> String { switch k { case .protein: "Protein"; case .veg: "Veg"; case .fat: "Fat"; case .carb: "Carb" } }
     static func macroKey(_ k: Kind) -> KeyPath<Food, Double> { switch k { case .protein: \.p100; case .fat: \.f100; default: \.c100 } }
 
-    struct PlanItem: Identifiable { var id: String { food.id + "|" + meal.rawValue }; var food: Food; var meal: Meal; var grams: Double; var weighed: Bool; var atMax: Bool; var note: String?; var suggested: Bool = false; var kind: Kind = .carb }
+    struct PlanItem: Identifiable { var id: String { food.id + "|" + meal.rawValue }; var food: Food; var meal: Meal; var grams: Double; var weighed: Bool; var atMax: Bool; var note: String?; var suggested: Bool = false; var kind: Kind = .carb; var usual: Bool = false }
     struct Result { var items: [PlanItem]; var projected: DayTotals; var leftKcal: Double; var emptyMeals: [Meal]; var ok: Bool; var status: String; var statusDanger: Bool; var fromStaples: Bool; var weighedCount: Int; var needsStaples: Bool; var suggestedCount: Int }
-    private struct Flex { var food: Food; var kind: Kind; var seed: Double; var meal: Meal; var maxG: Double?; var grams: Double = 0; var split: [Meal]? = nil; var suggested: Bool = false
+    private struct Flex { var food: Food; var kind: Kind; var seed: Double; var meal: Meal; var maxG: Double?; var grams: Double = 0; var split: [Meal]? = nil; var suggested: Bool = false; var usual: Bool = false
         var cap: Double { maxG ?? (seed * 3 + 100) } }
 
     /// Breakfast / Snacks guesses by name; else nil (then the class alternates across the empty mains).
@@ -45,10 +45,12 @@ enum Balance {
         // (21 Oct: 250 g typed after a 245 g breakfast came out as 5 g)
         let sheetLogged = (try? store.ctx.fetch(FetchDescriptor<PrepDay>(predicate: #Predicate { $0.dayKey == dayKey })).first)?.logged ?? [:]
         var W: [(Food, Double)] = []
+        var wMeal: [String: Meal] = [:]   // a set amount stays in the meal you set it in
         for it in weighed where it.grams > 0 {
             let f = it.foodId.flatMap { store.food(id: $0) } ?? TypeToLog.candidates(for: it.text, store: store, all: all).first?.food
             guard let f else { continue }
             let already = sheetLogged[f.id] ?? 0
+            if let raw = it.meal, let m = Meal(rawValue: raw), empty.contains(m) { wMeal[f.id] = m }
             let g = max(0, it.grams - already); if g > 0 { W.append((f, g)) }
         }
         let weighedIds = Set(W.map(\.0.id))
@@ -62,6 +64,9 @@ enum Balance {
             if mains.isEmpty { return empty.first ?? .dinner }
             let m = mains[(counters[k] ?? 0) % mains.count]; counters[k, default: 0] += 1; return m
         }
+        // every set amount's meal, resolved once (mealFor alternates, so asking it again could move the food)
+        for (f, _) in W where wMeal[f.id] == nil { wMeal[f.id] = mealFor(f) }
+        func wIn(_ k: Kind, _ m: Meal) -> Bool { W.contains { classify($0.0) == k && wMeal[$0.0.id] == m } }
         // --- flexible foods: the staples that were not weighed (else the history pattern when there are no staples)
         var flex: [Flex] = []
         if fromStaples {
@@ -69,11 +74,10 @@ enum Balance {
                 let k = classify(f); let m = mealFor(f)
                 if !weighedIds.contains(f.id) { flex.append(Flex(food: f, kind: k, seed: seed(k), meal: m, maxG: st.maxG)) } }
         } else {
-            var usual = usualPattern(for: empty, today: dayKey, store: store)
-            if usual.isEmpty { usual = defaultPattern(for: empty, store: store) }
-            for (f, m, g) in usual where !weighedIds.contains(f.id) { flex.append(Flex(food: f, kind: classify(f), seed: g, meal: m, maxG: nil)) }
-            if !flex.contains(where: { $0.kind == .carb }), let c = fallback(.carb, store: store) { flex.append(Flex(food: c, kind: .carb, seed: 150, meal: empty.first ?? .dinner, maxG: nil)) }
-            if !flex.contains(where: { $0.kind == .fat }), let o = fallback(.fat, store: store) { flex.append(Flex(food: o, kind: .fat, seed: 10, meal: empty.first ?? .dinner, maxG: nil)) }
+            // no staples: what you usually eat in these meals (your history), and the planner fills the rest. The old fixed fallbacks
+            // (rice and oil, both at the first empty meal — 500 g of rice at breakfast) are gone (22 Oct)
+            let usual = usualPattern(for: empty, today: dayKey, store: store)
+            for (f, m, g) in usual where !weighedIds.contains(f.id) { flex.append(Flex(food: f, kind: classify(f), seed: g, meal: m, maxG: nil, usual: true)) }
         }
         // --- the planner (21 Oct): fill what the staples don't cover from the candidate pool — a carb, a fat, a veg for the mains, and a
         // protein when what you have can't reach the target even at its max
@@ -104,9 +108,16 @@ enum Balance {
             for (f, g) in W { haveP += f.p100 * g / 100 }
             for fx in flex where fx.kind == .protein { if let mx = fx.maxG { haveP += fx.food.p100 * mx / 100 } else { haveP = 1e9 } }
             if haveP < target.p - 5 { fill(.protein, needDense: true) }
+            // every empty main gets a protein when no protein staple lands in the mains (22 Oct: a new user's dinner was pasta and cucumber);
+            // one protein staple is split across both mains below instead
+            if !mains.isEmpty, !flex.contains(where: { $0.kind == .protein && !$0.suggested && mains.contains($0.meal) }) {
+                for m in mains where !flex.contains(where: { $0.kind == .protein && $0.meal == m }) && !wIn(.protein, m) {
+                    fill(.protein, needDense: true, prefer: m)
+                }
+            }
             // an empty breakfast gets a breakfast: one breakfast-type food (protein when protein is short, else a carb) — every other pick
             // is a main or a snack, so without this the planner left breakfast blank on an empty day (22 Oct)
-            if empty.contains(.breakfast), !flex.contains(where: { $0.meal == .breakfast }), !W.contains(where: { mealFor($0.0) == .breakfast }) {
+            if empty.contains(.breakfast), !flex.contains(where: { $0.meal == .breakfast }), !W.contains(where: { wMeal[$0.0.id] == .breakfast }) {
                 for k in (haveP < target.p - 5 ? [Kind.protein, .carb] : [Kind.carb, .protein]) {
                     if let found = Planner.ranked(k, needDense: k == .protein, exclude: inPlan, chosen: nil, dayKey: dayKey, store: store, all: all).first(where: { $0.candidate.meal == "breakfast" }) {
                         let b = resolve(found)
@@ -116,7 +127,15 @@ enum Balance {
             }
         }
         // --- a single carb / fat / veg for two empty mains is solved once and split across both
-        if mains.count == 2 { for k in [Kind.fat, .veg, .carb] { let idx = flex.indices.filter { flex[$0].kind == k && mains.contains(flex[$0].meal) }; if idx.count == 1 { flex[idx[0]].split = mains } } }
+        // protein too (22 Oct): one protein for two mains is half each, not lunch only. A main that already has a set amount of that
+        // kind is left out (22 Oct: 300 g of tuna at dinner still got half the lunch turkey) — the food goes to the other main instead
+        if mains.count == 2 {
+            for k in [Kind.protein, .fat, .veg, .carb] {
+                let idx = flex.indices.filter { flex[$0].kind == k && mains.contains(flex[$0].meal) }; guard idx.count == 1 else { continue }
+                let free = mains.filter { !wIn(k, $0) }
+                if free.count == 2 { flex[idx[0]].split = mains } else if let m = free.first { flex[idx[0]].meal = m }
+            }
+        }
         // --- fixed: weighed + veg at its seed
         var locked = (kcal: 0.0, p: 0.0, c: 0.0, f: 0.0)
         for (f, g) in W { locked.kcal += f.kcal100 * g / 100; locked.p += f.p100 * g / 100; locked.c += f.c100 * g / 100; locked.f += f.f100 * g / 100 }
@@ -174,13 +193,17 @@ enum Balance {
             let before = flex.count; fill(k, needDense: k == .protein, needEnergy: true, prefer: prefer); extra += 1
             if flex.count > before { size() }
         }
+        // a suggestion sized under half its portion is noise, not a plan (22 Oct: 10 g of whey to close a 9 g protein gap) — it goes, and
+        // the rest is sized again; a small gap then shows as the status instead
+        let tiny = flex.indices.filter { flex[$0].suggested && flex[$0].kind != .veg && flex[$0].grams < flex[$0].seed / 2 }
+        if !tiny.isEmpty { for i in tiny.reversed() { flex.remove(at: i) }; size() }
         // --- plan rows
         var items: [PlanItem] = []
-        for (f, g) in W { items.append(PlanItem(food: f, meal: mealFor(f), grams: g, weighed: true, atMax: false, note: nil, suggested: false, kind: classify(f))) }
+        for (f, g) in W { items.append(PlanItem(food: f, meal: wMeal[f.id] ?? empty.first ?? .dinner, grams: g, weighed: true, atMax: false, note: nil, suggested: false, kind: classify(f))) }
         for fx in flex {
             let atMax = fx.maxG.map { fx.grams >= $0 } ?? false
-            if let sm = fx.split, fx.grams >= 10 { let a = (fx.grams / 2 / 5).rounded() * 5; items.append(PlanItem(food: fx.food, meal: sm[0], grams: a, weighed: false, atMax: atMax, note: nil, suggested: fx.suggested, kind: fx.kind)); items.append(PlanItem(food: fx.food, meal: sm[1], grams: fx.grams - a, weighed: false, atMax: atMax, note: nil, suggested: fx.suggested, kind: fx.kind)) }
-            else { items.append(PlanItem(food: fx.food, meal: fx.meal, grams: fx.grams, weighed: false, atMax: atMax, note: nil, suggested: fx.suggested, kind: fx.kind)) }
+            if let sm = fx.split, fx.grams >= 10 { let a = (fx.grams / 2 / 5).rounded() * 5; items.append(PlanItem(food: fx.food, meal: sm[0], grams: a, weighed: false, atMax: atMax, note: nil, suggested: fx.suggested, kind: fx.kind, usual: fx.usual)); items.append(PlanItem(food: fx.food, meal: sm[1], grams: fx.grams - a, weighed: false, atMax: atMax, note: nil, suggested: fx.suggested, kind: fx.kind, usual: fx.usual)) }
+            else { items.append(PlanItem(food: fx.food, meal: fx.meal, grams: fx.grams, weighed: false, atMax: atMax, note: nil, suggested: fx.suggested, kind: fx.kind, usual: fx.usual)) }
         }
         var proj = eaten; for it in items { proj.kcal += it.food.kcal100 * it.grams / 100; proj.p += it.food.p100 * it.grams / 100; proj.c += it.food.c100 * it.grams / 100; proj.f += it.food.f100 * it.grams / 100 }
         let dk = proj.kcal - target.kcal

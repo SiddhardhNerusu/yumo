@@ -136,6 +136,40 @@ struct ToastView: View { var text: String; var actionLabel: String? = nil; var a
     func hide() { task?.cancel(); withAnimation(.easeIn(duration: 0.2)) { text = nil; actionLabel = nil; action = nil } }
 }
 
+/// The toast draws in a window of its own above every sheet and cover (22 Oct: it lived on the root view, so a toast fired inside a sheet —
+/// "Tuna swapped out · Never suggest" in Your day — sat behind the sheet and never showed). The window takes a touch only inside the toast
+/// itself; everywhere else it falls through to the app.
+@MainActor enum ToastLayer {
+    private final class Window: UIWindow {
+        var hot: CGRect = .zero
+        override func hitTest(_ p: CGPoint, with e: UIEvent?) -> UIView? { hot.contains(p) ? super.hitTest(p, with: e) : nil }
+    }
+    private struct Host: View {
+        @Environment(Toaster.self) private var toaster
+        var body: some View {
+            ZStack(alignment: .bottom) {
+                Color.clear
+                if let t = toaster.text {
+                    ToastView(text: t, actionLabel: toaster.actionLabel, action: toaster.action)
+                        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { ToastLayer.window?.hot = $0 }
+                        .onDisappear { ToastLayer.window?.hot = .zero }
+                        .padding(.bottom, Space.toastBottom).transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+        }
+    }
+    private static var window: Window?
+    static func install(_ toaster: Toaster) {
+        guard window == nil, let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
+        let w = Window(windowScene: scene)
+        let host = UIHostingController(rootView: Host().environment(toaster))
+        host.view.backgroundColor = .clear
+        w.rootViewController = host; w.backgroundColor = .clear; w.windowLevel = .alert + 1
+        w.isHidden = false
+        window = w
+    }
+}
+
 // MARK: - Progress bars
 struct Bar: View { var fraction: Double; var height: CGFloat; var fill: Color
     var body: some View {
