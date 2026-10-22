@@ -16,6 +16,8 @@ struct AddFoodSheet: View {
     @State private var query = ""
     @State private var local: [Food] = []
     @State private var remote: [OpenFoodFacts.Product] = []
+    @State private var brandedFor = ""   // the line Open Food Facts actually answered — "No branded match" only after a real lookup (22 Oct audit)
+    @State private var brandedFailedFor = ""   // the line Open Food Facts didn't answer (offline, 503)
     @State private var searching = false
     @State private var found: Found? = nil
     @State private var create: CreateFoodDraft? = nil
@@ -23,12 +25,13 @@ struct AddFoodSheet: View {
     @State private var torch = false
     @State private var searchTask: Task<Void, Never>?
     @State private var scanOpen = false
+    @State private var cameraDenied = false
     @State private var yourFoods: [Food] = []; @State private var generic: [Food] = []; @State private var chains: [Food] = []; @State private var branded: [Food] = []
     @State private var brandedOpen = false      // live Open Food Facts results: automatic when the line names a brand or a word the catalogue can't cover, or on "Show branded"
     @State private var brandedFirst = false     // a word the catalogue can't cover → the packaged group leads
     @State private var searchedFor = ""         // the line the current lists answer; empty-state copy only once this matches the field
     @FocusState private var focused: Bool
-    struct Found: Identifiable { var id = UUID(); var barcode: String; var food: Food? }
+    struct Found: Identifiable { var id = UUID(); var barcode: String; var food: Food?; var looking = false; var unreachable = false }
 
     var store: Store { Store(ctx) }
     var title: String { "Add to \(meal.rawValue)" }
@@ -46,7 +49,7 @@ struct AddFoodSheet: View {
         .background(Color.yumo.bg)
         .presentationDetents(Features.typeIt ? [.height(300), .large] : [.large], selection: $detent)
         .presentationCornerRadius(Radius.sheet).presentationBackground(Color.yumo.bg).presentationDragIndicator(.hidden)
-        .fullScreenCover(isPresented: $scanOpen) { scan }
+        .fullScreenCover(isPresented: $scanOpen, onDismiss: { found = nil }) { scan }   // a closed scanner forgets its card — a lookup still running can't leave it stuck on "Looking it up"
         .sheet(item: $create) { d in CreateFoodScreen(draft: d) { f in log(f, serving: f.defaultServing, qty: 1) } }
         .pushCover(item: $detailFood) { f in FoodDetailScreen(food: f, meal: meal, dayKey: dayKey) { dismiss() } }
         .onAppear {
@@ -82,7 +85,7 @@ struct AddFoodSheet: View {
     // MARK: scan (full screen, rev 2): plain ✕, flashlight icon, corner brackets, no text, brackets go accent on read
     var scan: some View {
         ZStack {
-            BarcodeScannerView(torch: torch) { code in handleBarcode(code) }.ignoresSafeArea()
+            BarcodeScannerView(torch: torch, onDenied: { cameraDenied = true }) { code in handleBarcode(code) }.ignoresSafeArea()
             Color.yumo.scanMask.ignoresSafeArea().mask { Rectangle().overlay { RoundedRectangle(cornerRadius: 22).frame(width: 300, height: 190).offset(y: -40).blendMode(.destinationOut) }.compositingGroup() }
             CornerBrackets(locked: found != nil).frame(width: 300, height: 190).offset(y: -40)
             VStack(spacing: 0) {
@@ -90,11 +93,12 @@ struct AddFoodSheet: View {
                     HStack {
                         Button { scanOpen = false } label: { Text("✕").font(.nunito(22, .extrabold)).foregroundStyle(.white).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle())
                         Spacer()
-                        Button { torch.toggle() } label: { TorchIcon(on: torch).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle())
+                        if !cameraDenied { Button { torch.toggle() } label: { TorchIcon(on: torch).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle()) }
                     }
                     Text(title).font(.yumo.title).foregroundStyle(.white)
                 }.padding(.horizontal, Space.gutter).padding(.top, 12)
                 Spacer()
+                if cameraDenied { CameraDeniedCard(alternative: "Search instead") { scanOpen = false }.padding(.horizontal, 12).padding(.bottom, 12) }
                 if let f = found { FoundCardView(found: f, meal: meal, onRescan: { found = nil }, onLog: { food in log(food, serving: food.defaultServing, qty: 1) }, onCreate: { create = CreateFoodDraft(barcode: f.barcode); found = nil; scanOpen = false }).padding(.horizontal, 12).padding(.bottom, 12).transition(.move(edge: .bottom)) }
                 Button { scanOpen = false; if Features.typeIt { go(.search) } } label: { Text("Type barcode or search instead").font(.yumo.action).underline().foregroundStyle(.white) }.buttonStyle(PlainPressStyle()).padding(.bottom, Features.mealSwitcherInAdd ? 16 : 48)
                 if Features.mealSwitcherInAdd { Segmented(options: Meal.allCases.map { ($0, $0.rawValue) }, selection: $meal).padding(.horizontal, Space.gutter).padding(.bottom, 48) }
@@ -108,11 +112,18 @@ struct AddFoodSheet: View {
         guard found == nil, !autoLogged else { return }
         let s = store
         if let f = s.food(barcode: code) { autoLog(f); return }
-        withAnimation(Motion.snap) { found = Found(barcode: code, food: nil) }
+        // the card says it's looking while it looks, and "not found" only once the lookups have answered (22 Oct audit: it read NOT FOUND
+        // from the first frame, then "Checking…" forever)
+        withAnimation(Motion.snap) { found = Found(barcode: code, food: nil, looking: true) }
         Task {
-            var hit = await OpenFoodFacts.barcode(code); if hit == nil { hit = await USDABranded.barcode(code) }
-            if let p = hit { autoLog(s.upsert(p.makeFood())) }
-            else { lookedUp.insert(code); PendingLookups.add(code) }
+            let off = await OpenFoodFacts.barcodeLookup(code)
+            var hit = off.product; if hit == nil { hit = await USDABranded.barcode(code) }
+            // still on this barcode? Rescan, ✕ or "Create this food" moved on — a late answer is kept as a food, never logged (22 Oct review)
+            let current = scanOpen && found?.barcode == code
+            if let p = hit { let f = s.upsert(p.makeFood()); if current { autoLog(f) }; return }
+            let unreachable = !off.answered
+            PendingLookups.add(code)
+            if current { withAnimation(Motion.snap) { found?.looking = false; found?.unreachable = unreachable } }
         }
     }
     @State private var autoLogged = false
@@ -125,7 +136,6 @@ struct AddFoodSheet: View {
         toaster.show("\(f.shortName) · \(amount) → \(meal.rawValue)", action: "Undo") { s.remove(e); sess.changed() }
         session.changed(); scanOpen = false; dismiss()
     }
-    @State private var lookedUp: Set<String> = []
 
     // MARK: search
     var search: some View {
@@ -156,7 +166,7 @@ struct AddFoodSheet: View {
                     if !query.isEmpty, !brandedFirst, searchedFor == query.trimmingCharacters(in: .whitespaces) {
                         if brandedOpen {
                             Overline(text: "Branded · Open Food Facts").padding(.top, 4)
-                            if remote.isEmpty && !searching { Text("No branded match. Scan the barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
+                            if remote.isEmpty && !searching { Text(brandedEmptyLine).font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
                             else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: (["\(p.per100) · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
                             if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
                         } else {
@@ -171,10 +181,17 @@ struct AddFoodSheet: View {
         }
         .onChange(of: query) { runSearch() }
     }
+    /// What an empty branded group says — only what is true for the line in the field.
+    var brandedEmptyLine: String {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        if brandedFailedFor == q { return "Open Food Facts didn't answer — check your connection, or scan the barcode." }
+        if brandedFor == q { return "No packaged product by that name on Open Food Facts — scan its barcode for an exact product." }
+        return "Finish the word to search packaged foods."
+    }
     /// The Open Food Facts group when it leads (a word the catalogue can't cover).
     @ViewBuilder var remoteGroup: some View {
         Overline(text: "Branded · Open Food Facts").padding(.top, 4)
-        if remote.isEmpty && !searching { Text(OpenFoodFacts.lastFailure.map { Date().timeIntervalSince($0) < 60 } == true ? "Open Food Facts didn't answer — try again in a moment, or scan the barcode." : "No packaged product by that name on Open Food Facts — scan its barcode for an exact product.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
+        if remote.isEmpty && !searching { Text(brandedEmptyLine).font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted) }
         else { VStack(spacing: 0) { ForEach(Array(remote.enumerated()), id: \.offset) { _, p in ResultRow(name: p.name, brand: nil, meta: (["\(p.per100) · P \(Fmt.g(p.p100)) · C \(Fmt.g(p.c100)) · F \(Fmt.g(p.f100))"] + [p.brand, p.quantity].compactMap { $0 }).joined(separator: " · "), kcal: p.kcal100 * p.servings[0].grams / 100, onAdd: { let f = store.upsert(p.makeFood()); log(f, serving: f.defaultServing, qty: 1) }, onOpen: { detailFood = store.upsert(p.makeFood()) }) } }.padding(.leading, Space.cardPad).listCard() }
         if searching { ProgressView().tint(.yumo.inkMuted).frame(maxWidth: .infinity) }
     }
@@ -220,17 +237,19 @@ struct AddFoodSheet: View {
     func showBranded() {
         let q = query.trimmingCharacters(in: .whitespaces); guard !q.isEmpty else { return }
         let snap = FoodIndex.shared.snapshot(store)
-        brandedOpen = true; searchTask?.cancel(); searchTask = Task { await fetchBranded(q, missing: snap.uncovered(q), snap: snap) }
+        brandedOpen = true; searching = (q.split(separator: " ").last?.count ?? 0) >= 3   // no empty frame before the fetch starts
+        searchTask?.cancel(); searchTask = Task { await fetchBranded(q, missing: snap.uncovered(q), snap: snap) }
     }
     /// Live Open Food Facts search for one captured line, ranked by the same scorer; one lookup per uncovered word merged by barcode.
     func fetchBranded(_ q: String, missing: [String], snap: FoodIndex.Snapshot) async {
-        guard (q.split(separator: " ").last?.count ?? 0) >= 3 else { return }   // wait for a complete word
+        guard (q.split(separator: " ").last?.count ?? 0) >= 3 else { searching = false; return }   // wait for a complete word
         searching = true
         try? await Task.sleep(for: .milliseconds(300)); guard !Task.isCancelled else { return }
-        let products = await OpenFoodFacts.searchMerged(q, terms: missing)
+        let (products, answered) = await OpenFoodFacts.searchMerged(q, terms: missing)
         guard !Task.isCancelled else { return }
         let have = Set(branded.compactMap(\.barcode))
         remote = snap.rank(products.filter { $0.barcode.map { !have.contains($0) } ?? true }, query: q); searching = false
+        if answered { brandedFor = q; brandedFailedFor = "" } else { brandedFailedFor = q; brandedFor = "" }
     }
     func log(_ f: Food, serving: Serving, qty: Double) {
         _ = store.log(food: f, meal: meal, dayKey: dayKey, quantity: qty, serving: serving)
@@ -266,10 +285,18 @@ struct FoundCardView: View {
                 }.padding(.top, 6)
                 HStack(spacing: 10) { SecondaryButton(label: "Rescan", action: onRescan).frame(maxWidth: 110); PrimaryButton(label: "Log to \(meal.rawValue)", size: .compact) { onLog(f) } }.padding(.top, 16)
             } else {
-                Text("NOT FOUND").font(.yumo.overline).kerning(0.7).foregroundStyle(Color.yumo.inkMuted)
-                Text("No match for \(found.barcode)").font(.nunito(19, .extrabold)).padding(.top, 6)
-                Text("Checking Open Food Facts…").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 2)
-                HStack(spacing: 10) { SecondaryButton(label: "Rescan", action: onRescan).frame(maxWidth: 110); PrimaryButton(label: "Create this food", size: .compact, action: onCreate) }.padding(.top, 16)
+                Text(found.looking ? "LOOKING IT UP" : found.unreachable ? "COULDN'T CHECK" : "NOT FOUND").font(.yumo.overline).kerning(0.7).foregroundStyle(Color.yumo.inkMuted)
+                if found.looking {
+                    HStack(spacing: 10) { ProgressView().tint(.yumo.inkMuted); Text(found.barcode).font(.nunito(19, .extrabold)).tabular() }.padding(.top, 6)
+                    Text("Checking Open Food Facts…").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 2)
+                } else if found.unreachable {
+                    Text("Open Food Facts didn't answer").font(.nunito(19, .extrabold)).padding(.top, 6)
+                    Text("Check your connection. Yumo looks \(found.barcode) up again when you're back online.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 2)
+                } else {
+                    Text("No match for \(found.barcode)").font(.nunito(19, .extrabold)).padding(.top, 6)
+                    Text("Create it now, or Yumo tells you if it turns up later.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted).padding(.top, 2)
+                }
+                HStack(spacing: 10) { SecondaryButton(label: "Rescan", action: onRescan).frame(maxWidth: 110); if !found.looking { PrimaryButton(label: "Create this food", size: .compact, action: onCreate) } }.padding(.top, 16)
             }
         }
         .padding(20).background(RoundedRectangle(cornerRadius: Radius.found, style: .continuous).fill(Color.yumo.surface)).lifted(.yumo.accentEdge, lift: Lift.primary, radius: Radius.found)

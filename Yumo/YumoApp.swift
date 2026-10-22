@@ -14,8 +14,18 @@ struct YumoApp: App {
     @AppStorage("yumo.appearance") private var appearance = "system"
     var body: some Scene {
         WindowGroup {
-            RootView().environment(toaster).environment(session).environment(swipes).tint(.yumo.accent).preferredColorScheme(appearance == "light" ? .light : appearance == "dark" ? .dark : nil)
+            RootView().environment(toaster).environment(session).environment(swipes).tint(.yumo.accent)
+                .onChange(of: appearance, initial: true) { Appearance.apply() }
         }.modelContainer(container)
+    }
+}
+
+/// Settings › About › Appearance, set on every window (22 Oct audit: going back to System from Dark didn't take until a relaunch —
+/// SwiftUI's preferredColorScheme(nil) leaves the window's override in place). New windows (toasts, the tour) take `style` when made.
+enum Appearance {
+    static var style: UIUserInterfaceStyle { switch UserDefaults.standard.string(forKey: "yumo.appearance") { case "light": .light; case "dark": .dark; default: .unspecified } }
+    @MainActor static func apply() {
+        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) { for w in scene.windows { w.overrideUserInterfaceStyle = style } }
     }
 }
 
@@ -50,6 +60,8 @@ struct RootView: View {
         .background(Color.yumo.bg.ignoresSafeArea())
         .task {
             ToastLayer.install(toaster)   // above every sheet and cover, not under them
+            KeyboardDismiss.shared.install()   // tap outside / swipe down puts any keyboard away
+            Appearance.apply()
             let store = Store(ctx)
             SeedFoods.seed(store)
             Expenditure.runIfDue(store)

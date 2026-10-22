@@ -50,6 +50,8 @@ struct ProgressScreen: View {
             }.padding(.horizontal, Space.gutter).padding(.bottom, Space.bottomClear)
         }
         .scrollBounceBehavior(.always)
+        // the status bar gets the page colour behind it — cards used to scroll under the clock with nothing there (22 Oct audit)
+        .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: 0).background(Color.yumo.bg) }
         .onChange(of: session.scrollTopTick[.progress]) { withAnimation(Motion.push) { proxy.scrollTo("top", anchor: .top) } }
         .onChange(of: Tour.shared.step) { scrollForTour(proxy) }
         .onChange(of: Tour.shared.active) { if Tour.shared.active { scrollForTour(proxy) } }
@@ -229,7 +231,7 @@ struct LineChart: View {
                         Path { p in p.move(to: CGPoint(x: x(s), y: -6)); p.addLine(to: CGPoint(x: x(s), y: H)) }.stroke(Color.yumo.ink, style: StrokeStyle(lineWidth: 1.5, dash: [3, 3]))
                         Circle().fill(Color.yumo.accent).stroke(Color.yumo.surface, lineWidth: 3).frame(width: 12, height: 12).position(x: x(s), y: y(points[s].1))
                         Text("\(Fmt.kg(points[s].1)) \(unit) · \(Fmt.dayFormatter.string(from: points[s].0))").font(.yumo.footnote).tabular().foregroundStyle(.white).padding(.horizontal, 10).padding(.vertical, 6)
-                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.yumo.ink)).fixedSize()
+                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.yumo.panel)).fixedSize()
                             .position(x: min(max(70, x(s)), W - 70), y: -14)
                     }
                 }

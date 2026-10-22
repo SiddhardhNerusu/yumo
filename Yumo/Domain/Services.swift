@@ -5,10 +5,17 @@ import SwiftData
 
 /// Local notifications only. Two reminders: Log weight, Log dinner.
 enum Reminders {
+    /// Switching a reminder on asks for notifications; `allowed` false means iOS refused (now or earlier), so the switch goes back off
+    /// and the screen says how to change it (22 Oct audit: the switch stayed on and nothing ever arrived).
+    static func enable(_ p: UserProfile, allowed: @escaping @MainActor (Bool) -> Void) {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { ok, _ in
+            Task { @MainActor in allowed(ok); if ok { reschedule(p) } }
+        }
+    }
     static func reschedule(_ p: UserProfile) {
         let c = UNUserNotificationCenter.current()
         c.removePendingNotificationRequests(withIdentifiers: ["weight", "dinner"])
-        guard p.reminderWeightOn || p.reminderDinnerOn else { return }
+        guard p.onboarded, p.reminderWeightOn || p.reminderDinnerOn else { return }   // signed out: none
         c.requestAuthorization(options: [.alert, .sound]) { ok, _ in
             guard ok else { return }
             func add(_ id: String, _ minutes: Int, _ body: String) {
@@ -20,6 +27,10 @@ enum Reminders {
             if p.reminderDinnerOn { add("dinner", p.reminderDinnerMinutes, "Log dinner.") }
         }
     }
+    /// iOS refused or turned off notifications for Yumo.
+    static func denied() async -> Bool { await UNUserNotificationCenter.current().notificationSettings().authorizationStatus == .denied }
+    /// Signing out or deleting the account stops every reminder (22 Oct audit: they kept firing).
+    static func cancelAll() { let c = UNUserNotificationCenter.current(); c.removeAllPendingNotificationRequests(); c.removeAllDeliveredNotifications() }
     static func time(_ minutes: Int) -> String { String(format: "%d:%02d", minutes / 60, minutes % 60) }
 }
 
@@ -36,6 +47,22 @@ enum HealthSync {
         guard available else { return false }
         let (w, r) = types()
         return (try? await store.requestAuthorization(toShare: w, read: r)) != nil
+    }
+    /// What the user allowed Yumo to write (reads are private by design — iOS never says). The request finishing is not the same as
+    /// access (22 Oct audit: "Apple Health connected" showed when everything was refused).
+    static func canWrite(_ id: HKQuantityTypeIdentifier) -> Bool { available && store.authorizationStatus(for: HKQuantityType(id)) == .sharingAuthorized }
+    /// The toast after the Health sheet: what goes to Health now, and where to change it (22 Oct review: it said "weight and food" when
+    /// only one was allowed, and pointed at the Health app's Sharing tab, which is for sharing with people).
+    static var anyWriteAllowed: Bool { [HKQuantityTypeIdentifier.bodyMass, .dietaryEnergyConsumed, .dietaryProtein, .dietaryCarbohydrates, .dietaryFatTotal].contains { canWrite($0) } }
+    static var grantedSummary: String {
+        let weight = canWrite(.bodyMass)
+        let food = [HKQuantityTypeIdentifier.dietaryEnergyConsumed, .dietaryProtein, .dietaryCarbohydrates, .dietaryFatTotal].contains { canWrite($0) }
+        switch (weight, food) {
+        case (true, true): return "Apple Health: weight and food go there now"
+        case (true, false): return "Apple Health: weight goes there now · food is off"
+        case (false, true): return "Apple Health: food goes there now · weight is off"
+        case (false, false): return "Apple Health is off for Yumo"
+        }
     }
     static func writeWeight(kg: Double, date: Date) async {
         guard available, store.authorizationStatus(for: HKQuantityType(.bodyMass)) == .sharingAuthorized else { return }

@@ -47,7 +47,12 @@ struct CalorieTargetScreen: View {
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading).card()
                     VStack(alignment: .leading, spacing: 12) {
-                        Segmented(options: GoalMode.allCases.map { ($0, $0.rawValue) }, selection: $mode)
+                        // a goal change resets pace and override only when you tap it — onAppear loading the saved goal used to fire the reset (22 Oct audit:
+                        // opening the screen with a Bulk or Maintain goal overwrote its pace and cleared a manual target)
+                        Segmented(options: GoalMode.allCases.map { ($0, $0.rawValue) }, selection: Binding(get: { mode }, set: { new in
+                            guard new != mode else { return }
+                            mode = new; pace = new == .cut ? -0.5 : new == .bulk ? 0.25 : 0; override = nil
+                        }))
                         if mode != .maintain {
                             Text(mode == .cut ? "Lose per week" : "Gain per week").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
                             Segmented(options: [0.25, 0.5, 0.75, 1.0].map { v in (mode == .cut ? -v : v, "\(mode == .cut ? "−" : "+")\(v.formatted()) kg") }, selection: $pace)
@@ -76,7 +81,6 @@ struct CalorieTargetScreen: View {
         .onAppear {
             mode = p.goalMode; pace = p.paceKgPerWeek; override = p.overrideKcal; adaptive = p.adaptiveOn
         }
-        .onChange(of: mode) { pace = mode == .cut ? -0.5 : mode == .bulk ? 0.25 : 0; override = nil }
         .pushCover(isPresented: $showAbout, onDismiss: { tick += 1 }) { AboutYouScreen(back: "Target") }
     }
 }

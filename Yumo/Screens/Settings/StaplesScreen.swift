@@ -139,6 +139,8 @@ struct StapleScanScreen: View {
     @Environment(\.dismiss) private var dismiss
     var onAdd: (Food) -> Void
     @State private var torch = false
+    @State private var cameraDenied = false
+    @State private var unreachable = false
     @State private var code: String? = nil
     @State private var food: Food? = nil
     @State private var missing = false
@@ -146,7 +148,7 @@ struct StapleScanScreen: View {
     var store: Store { Store(ctx) }
     var body: some View {
         ZStack {
-            BarcodeScannerView(torch: torch) { c in handle(c) }.ignoresSafeArea()
+            BarcodeScannerView(torch: torch, onDenied: { cameraDenied = true }) { c in handle(c) }.ignoresSafeArea()
             Color.yumo.scanMask.ignoresSafeArea().mask { Rectangle().overlay { RoundedRectangle(cornerRadius: 22).frame(width: 300, height: 190).offset(y: -40).blendMode(.destinationOut) }.compositingGroup() }
             CornerBrackets(locked: code != nil).frame(width: 300, height: 190).offset(y: -40)
             VStack(spacing: 0) {
@@ -154,20 +156,21 @@ struct StapleScanScreen: View {
                     HStack {
                         Button { dismiss() } label: { Text("✕").font(.nunito(22, .extrabold)).foregroundStyle(.white).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle())
                         Spacer()
-                        Button { torch.toggle() } label: { TorchIcon(on: torch).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle())
+                        if !cameraDenied { Button { torch.toggle() } label: { TorchIcon(on: torch).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle()) }
                     }
                     Text("Scan a staple").font(.yumo.title).foregroundStyle(.white)
                 }.padding(.horizontal, Space.gutter).padding(.top, 12)
                 Spacer()
+                if cameraDenied { CameraDeniedCard(alternative: "Search instead") { dismiss() }.padding(.horizontal, 12).padding(.bottom, 12) }
                 if let code {
                     VStack(alignment: .leading, spacing: 10) {
-                        Overline(text: food != nil ? "Found" : missing ? "Not found" : "Looking up…")
+                        Overline(text: food != nil ? "Found" : missing ? (unreachable ? "Couldn't check" : "Not found") : "Looking up…")
                         if let f = food {
                             Text(f.name).font(.yumo.title).foregroundStyle(Color.yumo.ink)
                             Text([f.brand, "\(Fmt.k(f.kcal100)) kcal · P \(Fmt.g(f.p100)) · C \(Fmt.g(f.c100)) · F \(Fmt.g(f.f100)) per \(f.mlDensity != nil ? "100 ml" : "100 g")"].compactMap { $0 }.joined(separator: " · ")).font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted)
                             HStack(spacing: 10) { PrimaryButton(label: "Add as a staple", size: .compact) { onAdd(f) }; SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
                         } else if missing {
-                            Text("Barcode \(code) isn't in Open Food Facts or USDA yet. Type the label's numbers once and it's yours for good.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
+                            Text(unreachable ? "Open Food Facts didn't answer — check your connection. Yumo looks \(code) up again when you're back online." : "Barcode \(code) isn't in Open Food Facts or USDA yet. Type the label's numbers once and it's yours for good.").font(.yumo.detail).foregroundStyle(Color.yumo.inkMuted)
                             HStack(spacing: 10) { PrimaryButton(label: "Add it from the label", size: .compact) { create = CreateFoodDraft(barcode: code) }; SecondaryButton(label: "Rescan") { reset() } }.padding(.top, 4)
                         } else { ProgressView().tint(.yumo.inkMuted) }
                     }.frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: Radius.found).padding(.horizontal, Space.gutter).padding(.bottom, 40)
@@ -176,15 +179,18 @@ struct StapleScanScreen: View {
         }.background(Color.black.ignoresSafeArea())
         .sheet(item: $create) { d in CreateFoodScreen(draft: d) { f in create = nil; onAdd(f) } }
     }
-    func reset() { withAnimation(Motion.snap) { code = nil; food = nil; missing = false } }
+    func reset() { withAnimation(Motion.snap) { code = nil; food = nil; missing = false; unreachable = false } }
     func handle(_ c: String) {
         guard code == nil else { return }
         withAnimation(Motion.snap) { code = c }
         let s = store
         if let f = s.food(barcode: c) { food = f; return }
         Task {
-            var hit = await OpenFoodFacts.barcode(c); if hit == nil { hit = await USDABranded.barcode(c) }
-            if let p = hit { withAnimation(Motion.snap) { food = s.upsert(p.makeFood()) } } else { withAnimation(Motion.snap) { missing = true } }
+            let off = await OpenFoodFacts.barcodeLookup(c)
+            var hit = off.product; if hit == nil { hit = await USDABranded.barcode(c) }
+            guard code == c else { if let p = hit { _ = s.upsert(p.makeFood()) }; return }   // Rescan moved on
+            if let p = hit { withAnimation(Motion.snap) { food = s.upsert(p.makeFood()) } }
+            else { unreachable = !off.answered; if unreachable { PendingLookups.add(c) }; withAnimation(Motion.snap) { missing = true } }
         }
     }
 }

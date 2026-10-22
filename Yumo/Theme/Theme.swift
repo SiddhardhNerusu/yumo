@@ -28,6 +28,9 @@ extension Color {
         static let inkMuted    = Color(light: 0x8C8578, dark: 0xA39D92)
         static let onAccent    = Color(light: 0xFFFFFF, dark: 0xFFFFFF)   // labels on accent fills
         static let toastEdge   = Color(light: 0x0E0D0B, dark: 0x0E0D0B)
+        /// The dark panels — toast, tour bubble, chart tooltip — stay dark in both appearances (22 Oct audit: they were filled with `ink`,
+        /// which turns near-white in dark mode, so their white text read at 1.17:1). Dark value = the raised grey: white 11.8:1, accent 5.2:1.
+        static let panel       = Color(light: 0x1F1C17, dark: 0x3A3733)
         static let torchOn     = Color(light: 0xFFD84D, dark: 0xFFD84D)
         static let liftHighlight = Color(hex: 0xFFFBF3).opacity(0.07)    // 1 pt top highlight on lifted elements in dark mode
         static let floatingShadow = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor.black.withAlphaComponent(0.5) : UIColor(red: 31/255, green: 28/255, blue: 23/255, alpha: 0.18) })   // the one blurred shadow (CalendarPopover)

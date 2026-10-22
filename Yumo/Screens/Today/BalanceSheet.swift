@@ -180,6 +180,7 @@ struct BalanceSheet: View {
         chosen = p?.chosen ?? [:]
         for it in items { gramsText[it.foodId!] = Fmt.g(it.grams) }
         loaded = true
+        solve()   // the plan is there on the first frame; the 200 ms debounce is for typing (22 Oct audit: a spinner flashed on every open)
     }
     func ensureItem(_ it: Balance.PlanItem) {
         if !items.contains(where: { $0.foodId == it.food.id }) { items.append(PrepItem(text: it.food.name, grams: 0, foodId: it.food.id, carried: false, meal: it.meal.rawValue)) }

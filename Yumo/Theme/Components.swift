@@ -120,7 +120,7 @@ struct ToastView: View { var text: String; var actionLabel: String? = nil; var a
             }
         }
         .padding(.leading, 18).padding(.trailing, actionLabel == nil ? 18 : 8).padding(.vertical, actionLabel == nil ? 12 : 0)
-        .background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.ink)).lifted(.yumo.toastEdge, lift: 3, radius: Radius.field)
+        .background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.panel)).lifted(.yumo.toastEdge, lift: 3, radius: Radius.field)
     }
 }
 @Observable final class Toaster {
@@ -164,7 +164,7 @@ struct ToastView: View { var text: String; var actionLabel: String? = nil; var a
         let w = Window(windowScene: scene)
         let host = UIHostingController(rootView: Host().environment(toaster))
         host.view.backgroundColor = .clear
-        w.rootViewController = host; w.backgroundColor = .clear; w.windowLevel = .alert + 1
+        w.rootViewController = host; w.backgroundColor = .clear; w.windowLevel = .alert + 1; w.overrideUserInterfaceStyle = Appearance.style
         w.isHidden = false
         window = w
     }
@@ -315,7 +315,7 @@ struct InsetField: View {
         .overlay(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).stroke(Color.yumo.insetEdge, lineWidth: 2).mask(Rectangle().padding(.bottom, 36)))
     }
 }
-/// UIKit number field: decimal pad, right-aligned 17/800 tabular, Done bar above the pad (the pad has no Return key), select-all on focus.
+/// UIKit number field: decimal pad, right-aligned 17/800 tabular, select-all on focus; no Done bar (see KeyboardDismiss).
 struct NumberField: UIViewRepresentable {
     @Binding var text: String; var placeholder: String
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -331,35 +331,57 @@ struct NumberField: UIViewRepresentable {
         return tf
     }
     func updateUIView(_ tf: UITextField, context: Context) { context.coordinator.parent = self; if tf.text != text { tf.text = text } }
-    static func dismantleUIView(_ tf: UITextField, coordinator: Coordinator) { coordinator.removeDismissers() }
-    /// While editing, two window-level recognisers put the pad away: a tap outside the field, or a swipe down anywhere. They never cancel
-    /// touches and recognise alongside everything else, so the tap still reaches what it lands on — tapping Log logs, tapping + steps.
-    final class Coordinator: NSObject, UITextFieldDelegate, UIGestureRecognizerDelegate {
+    /// Putting the pad away (a tap outside, a swipe down) is KeyboardDismiss's job, for every text field in the app.
+    final class Coordinator: NSObject, UITextFieldDelegate {
         var parent: NumberField; weak var field: UITextField?
-        private var dismissers: [UIGestureRecognizer] = []
         init(_ p: NumberField) { parent = p }
         @objc func changed(_ tf: UITextField) { parent.text = tf.text ?? "" }
         func textFieldDidBeginEditing(_ tf: UITextField) {
             // typing replaces the value ("250", not "250100") — selected after the tap has placed the caret, or the caret wins
             DispatchQueue.main.async { tf.selectedTextRange = tf.textRange(from: tf.beginningOfDocument, to: tf.endOfDocument) }
-            guard dismissers.isEmpty, let window = tf.window else { return }
-            let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(_:)))
-            let swipe = UISwipeGestureRecognizer(target: self, action: #selector(swiped)); swipe.direction = .down
-            for g in [tap, swipe] as [UIGestureRecognizer] { g.cancelsTouchesInView = false; g.delaysTouchesEnded = false; g.delegate = self; window.addGestureRecognizer(g) }
-            dismissers = [tap, swipe]
         }
-        func textFieldDidEndEditing(_ tf: UITextField) { removeDismissers() }
         func textFieldShouldReturn(_ tf: UITextField) -> Bool { tf.resignFirstResponder(); return true }
-        func removeDismissers() { dismissers.forEach { $0.view?.removeGestureRecognizer($0) }; dismissers = [] }
-        @objc func tapped(_ g: UITapGestureRecognizer) {
-            guard let tf = field, !tf.bounds.contains(g.location(in: tf)) else { return }
-            // a tap on another text field hands focus over by itself — resigning here first would drop the keyboard and raise it again
-            if let w = g.view { var v = w.hitTest(g.location(in: w), with: nil); while let x = v { if x is UITextField || x is UITextView { return }; v = x.superview } }
-            tf.resignFirstResponder()
-        }
-        @objc func swiped() { field?.resignFirstResponder() }
-        func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
     }
+}
+
+/// Every text input in the app puts its keyboard away on a tap outside it or a swipe down — no Done bar (Sid rejected it). This lived
+/// inside NumberField only, so plain SwiftUI fields such as Create food's decimal pads could not be dismissed at all (22 Oct). While
+/// anything is editing, two recognisers sit on its window; they never cancel touches and recognise alongside everything else, so the tap
+/// still reaches what it lands on — tapping Log logs, tapping + steps.
+@MainActor final class KeyboardDismiss: NSObject, UIGestureRecognizerDelegate {
+    static let shared = KeyboardDismiss()
+    private var dismissers: [UIGestureRecognizer] = []
+    private weak var input: UIView?
+    private var installed = false
+    func install() {
+        guard !installed else { return }; installed = true
+        let nc = NotificationCenter.default
+        for n in [UITextField.textDidBeginEditingNotification, UITextView.textDidBeginEditingNotification] { nc.addObserver(self, selector: #selector(began(_:)), name: n, object: nil) }
+        for n in [UITextField.textDidEndEditingNotification, UITextView.textDidEndEditingNotification] { nc.addObserver(self, selector: #selector(ended), name: n, object: nil) }
+    }
+    @objc private func began(_ n: Notification) {
+        guard let v = n.object as? UIView, let window = v.window else { return }
+        input = v
+        if let w = dismissers.first?.view, w === window { return }
+        remove()
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(_:)))
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(swiped)); swipe.direction = .down
+        for g in [tap, swipe] as [UIGestureRecognizer] { g.cancelsTouchesInView = false; g.delaysTouchesEnded = false; g.delegate = self; window.addGestureRecognizer(g) }
+        dismissers = [tap, swipe]
+    }
+    /// Focus moving from one field to the next ends one and begins the other; the recognisers stay unless nothing is editing a moment later.
+    @objc private func ended() { DispatchQueue.main.async { if self.input?.isFirstResponder == true { return }; self.remove() } }
+    private func remove() { dismissers.forEach { $0.view?.removeGestureRecognizer($0) }; dismissers = [] }
+    @objc private func tapped(_ g: UITapGestureRecognizer) {
+        // the visible field is taller and wider than its text view (50 pt search pills with a magnifier): a tap within reach of the text
+        // counts as inside (22 Oct review: tapping the pill above the text closed the keyboard)
+        guard let input, !input.bounds.insetBy(dx: -44, dy: -16).contains(g.location(in: input)) else { return }
+        // a tap on another text field hands focus over by itself — resigning here first would drop the keyboard and raise it again
+        if let w = g.view { var v = w.hitTest(g.location(in: w), with: nil); while let x = v { if x is UITextField || x is UITextView { return }; v = x.superview } }
+        input.resignFirstResponder()
+    }
+    @objc private func swiped() { input?.resignFirstResponder() }
+    nonisolated func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
 }
 
 /// 60 × 24, accent 2 pt line, no dots, no axes. Expenditure card only.
@@ -576,12 +598,22 @@ struct ReviewChip: View { var action: () -> Void
 /// Floating month grid: surface, radius 22, lift 4 + the system's one blurred shadow; 32 pt day circles, 5 pt accent dot on logged days, future muted.
 struct CalendarPopover: View {
     var month: Date; var selected: Date; var logged: Set<String>; var onPick: (Date) -> Void; var onToday: () -> Void
+    @State private var shift = 0   // months back from `month` (22 Oct audit: only the current month could be opened — older days were unreachable)
+    static let monthsBack = 12     // how far ‹ goes; Today loads logged-day dots for exactly this window
     var body: some View {
         let cal = Calendar.current, today = Date().startOfDay
-        let first = cal.date(from: cal.dateComponents([.year, .month], from: month))!
+        let first = cal.date(from: cal.dateComponents([.year, .month], from: cal.date(byAdding: .month, value: shift, to: month)!))!
+        let thisMonth = cal.date(from: cal.dateComponents([.year, .month], from: today))!
+        let atLatest = first >= thisMonth   // no future months
+        let atEarliest = first <= cal.date(byAdding: .month, value: -Self.monthsBack, to: thisMonth)!
         let n = cal.range(of: .day, in: .month, for: first)!.count, lead = (cal.component(.weekday, from: first) + 5) % 7
         VStack(spacing: 0) {
-            HStack { Text(Fmt.monthTitle(first)).font(.yumo.title); Spacer(); Button(action: onToday) { Text("Today").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }.buttonStyle(PlainPressStyle()) }.padding(.horizontal, 4)
+            HStack(spacing: 0) {
+                Text(Fmt.monthTitle(first)).font(.yumo.title).accessibilityAddTraits(.isHeader); Spacer()
+                Button { withAnimation(Motion.snap) { shift -= 1 } } label: { Text("‹").font(.nunito(24, .extrabold)).foregroundStyle(atEarliest ? Color.yumo.grabber : .yumo.ink).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle()).disabled(atEarliest).accessibilityLabel("Previous month")
+                Button { withAnimation(Motion.snap) { shift += 1 } } label: { Text("›").font(.nunito(24, .extrabold)).foregroundStyle(atLatest ? Color.yumo.grabber : .yumo.ink).frame(width: 44, height: 44) }.buttonStyle(PlainPressStyle()).disabled(atLatest).accessibilityLabel("Next month")
+                Button { shift = 0; onToday() } label: { Text("Today").font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent).frame(minWidth: 44, minHeight: 44) }.buttonStyle(PlainPressStyle())
+            }.padding(.leading, 4)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 4) {
                 ForEach(["M", "T", "W", "T", "F", "S", "S"].indices, id: \.self) { i in Text(["M", "T", "W", "T", "F", "S", "S"][i]).font(.nunito(11, .extrabold)).kerning(0.4).foregroundStyle(Color.yumo.inkMuted).frame(height: 16) }
                 ForEach(0..<(lead + n), id: \.self) { i in
@@ -594,6 +626,8 @@ struct CalendarPopover: View {
                                 Circle().fill(!future && logged.contains(d.dayKey) && !sel ? Color.yumo.accent : .clear).frame(width: 5, height: 5)
                             }.frame(height: 40)
                         }.buttonStyle(PlainPressStyle()).disabled(future)
+                        .accessibilityLabel(d.formatted(.dateTime.weekday(.wide).day().month(.wide)) + (logged.contains(d.dayKey) ? ", logged" : ""))
+                        .accessibilityAddTraits(sel ? .isSelected : [])
                     }
                 }
             }.padding(.top, 12)

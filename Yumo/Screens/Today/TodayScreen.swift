@@ -138,8 +138,10 @@ struct TodayScreen: View {
         let today = Date().startOfDay
         let wasLoggedToday = loggedWeek.contains(today.dayKey); _ = wasLoggedToday
         loggedWeek = s.loggedDays(from: today.adding(days: -6).dayKey, to: today.dayKey)
-        let cal = Calendar.current, first = cal.date(from: cal.dateComponents([.year, .month], from: session.selectedDate))!
-        loggedMonth = s.loggedDays(from: first.dayKey, to: cal.date(byAdding: .month, value: 1, to: first)!.adding(days: -1).dayKey)
+        // the calendar pages back up to CalendarPopover.monthsBack months from today, so its dots cover exactly that window — anchored on
+        // today, not the selected day (22 Oct review: picking an August day left September and October without dots)
+        let cal = Calendar.current, thisMonth = cal.date(from: cal.dateComponents([.year, .month], from: today))!
+        loggedMonth = s.loggedDays(from: cal.date(byAdding: .month, value: -CalendarPopover.monthsBack, to: thisMonth)!.dayKey, to: today.dayKey)
         let wasLogged = wasLoggedToday
         streak = s.streak(today: today.dayKey)
         if !wasLogged, !entries.isEmpty, isToday, hadLoaded { UINotificationFeedbackGenerator().notificationOccurred(.success) }   // motion.tickStamp: the week circle fills and the tick draws on (WeekStrip animates), haptic .success
@@ -225,7 +227,7 @@ struct MealCardView: View {
                 HStack { Text(meal.rawValue).font(.nunito(18, .extrabold)); Spacer(); chip.padding(.trailing, -5) }
                     .padding(.vertical, Space.rowHeader).padding(.trailing, 14)
                 if !recent.isEmpty {
-                    SwipeToAddRow(id: "repeat-\(meal.rawValue)", foods: recent.map { Food.split($0.foodName, state: $0.food?.state).name }, kcal: DayTotals(recent).kcal, nudge: nudge, onCommit: onAddYesterday)
+                    SwipeToAddRow(id: "repeat-\(meal.rawValue)", foods: recent.map { Food.split($0.foodName, state: $0.state).name }, kcal: DayTotals(recent).kcal, nudge: nudge, onCommit: onAddYesterday)
                         .overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5).padding(.leading, Space.cardPad) }.padding(.leading, -Space.cardPad)
                 }
             } else {
@@ -251,11 +253,11 @@ struct FoodRowView: View {
         SwipeActionRow(id: entry.id, edge: .trailing, onTap: onOpen, onCommit: onRemove) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
-                    let nd = Food.split(entry.foodName, state: entry.food?.state)
+                    let nd = Food.split(entry.foodName, state: entry.state)
                     (Text(nd.name).font(.yumo.body) + Text("  " + entry.amountLabel).font(.yumo.detail).foregroundColor(.yumo.inkMuted)).lineLimit(1)
-                    Text((nd.detail.isEmpty ? "" : nd.detail + " · ") + (entry.food?.macrosUnknown == true ? "P — · C — · F —" : "P \(Fmt.g(entry.p)) · C \(Fmt.g(entry.c)) · F \(Fmt.g(entry.f))")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                    Text((nd.detail.isEmpty ? "" : nd.detail + " · ") + (entry.macrosUnknown ? "P — · C — · F —" : "P \(Fmt.g(entry.p)) · C \(Fmt.g(entry.c)) · F \(Fmt.g(entry.f))")).font(.yumo.footnote).tabular().foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
                 }
-                Spacer(); Text(Fmt.k(entry.kcal)).font(.yumo.body).tabular()
+                Spacer(); Text(entry.lost ? "—" : Fmt.k(entry.kcal)).font(.yumo.body).tabular()
             }
             .foregroundStyle(Color.yumo.ink)
             .padding(.vertical, Space.rowFood).padding(.horizontal, Space.cardPad)

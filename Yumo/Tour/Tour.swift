@@ -149,7 +149,7 @@ import UIKit
     @MainActor private func showWindow() {
         guard window == nil, let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first(where: { $0.activationState == .foregroundActive }) ?? UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
         let w = TourWindow(windowScene: scene)
-        w.windowLevel = .alert + 1
+        w.windowLevel = .alert + 1; w.overrideUserInterfaceStyle = Appearance.style
         let host = UIHostingController(rootView: TourOverlay())
         host.view.backgroundColor = .clear
         w.rootViewController = host; w.backgroundColor = .clear; w.isHidden = false

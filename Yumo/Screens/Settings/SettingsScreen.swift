@@ -13,6 +13,8 @@ struct SettingsScreen: View {
     @State private var tick = 0
     @AppStorage("yumo.appearance") private var appearance = "system"   // Settings › About › Appearance (rev 9): per device, applies immediately
     @State private var timeEdit: TimeEdit? = nil
+    @State private var notificationsOff = false   // iOS has notifications off for Yumo — said under the switches, which keep your choice
+    @Environment(\.scenePhase) private var phase
     struct TimeEdit: Identifiable { var id: String; var minutes: Int }
     enum Page: String, Identifiable { case target, macros, nutrients, staples, supplements, savedMeals, myFoods, password, designSystem; var id: String { rawValue } }
     var store: Store { Store(ctx) }
@@ -35,15 +37,23 @@ struct SettingsScreen: View {
                         row("Staples", store.staples().isEmpty ? "None yet" : "\(store.staples().count) food\(store.staples().count == 1 ? "" : "s")") { page = .staples }.hairline()
                         row("Supplements", store.supplements().isEmpty ? "None" : "\(store.supplements().count)") { page = .supplements }.hairline()
                         row("Saved meals", "\(store.savedMeals().count)") { page = .savedMeals }.hairline()
-                        row("My foods", "\(store.foods().filter { $0.useCount > 0 || $0.source == .user }.count)") { page = .myFoods }
+                        row("My foods", "\(store.foods().filter { $0.useCount > 0 || $0.tier == .user }.count)") { page = .myFoods }
                     }
                     section("Reminders") {
-                        SettingsRow(label: "Log weight · \(Reminders.time(p.reminderWeightMinutes))") { Toggle("", isOn: Binding(get: { p.reminderWeightOn }, set: { p.reminderWeightOn = $0; store.save(); Reminders.reschedule(p); tick += 1 })).labelsHidden().tint(.yumo.accent) }.contentShape(Rectangle()).onTapGesture { timeEdit = TimeEdit(id: "weight", minutes: p.reminderWeightMinutes) }.hairline()
-                        SettingsRow(label: "Log dinner · \(Reminders.time(p.reminderDinnerMinutes))") { Toggle("", isOn: Binding(get: { p.reminderDinnerOn }, set: { p.reminderDinnerOn = $0; store.save(); Reminders.reschedule(p); tick += 1 })).labelsHidden().tint(.yumo.accent) }.contentShape(Rectangle()).onTapGesture { timeEdit = TimeEdit(id: "dinner", minutes: p.reminderDinnerMinutes) }
+                        SettingsRow(label: "Log weight · \(Reminders.time(p.reminderWeightMinutes))") { Toggle("", isOn: Binding(get: { p.reminderWeightOn }, set: { on in p.reminderWeightOn = on; store.save(); tick += 1; if on { remindersAllowed(p, which: "weight") } else { Reminders.reschedule(p) } })).labelsHidden().tint(.yumo.accent) }.contentShape(Rectangle()).onTapGesture { timeEdit = TimeEdit(id: "weight", minutes: p.reminderWeightMinutes) }.hairline()
+                        SettingsRow(label: "Log dinner · \(Reminders.time(p.reminderDinnerMinutes))") { Toggle("", isOn: Binding(get: { p.reminderDinnerOn }, set: { on in p.reminderDinnerOn = on; store.save(); tick += 1; if on { remindersAllowed(p, which: "dinner") } else { Reminders.reschedule(p) } })).labelsHidden().tint(.yumo.accent) }.contentShape(Rectangle()).onTapGesture { timeEdit = TimeEdit(id: "dinner", minutes: p.reminderDinnerMinutes) }
+                    }
+                    if notificationsOff && (p.reminderWeightOn || p.reminderDinnerOn) {
+                        HStack(spacing: 6) { Text("Notifications are off for Yumo, so reminders can't arrive.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted); TextAction(label: "Settings") { if let u = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(u) } } }.padding(.horizontal, 4)
                     }
                     section("Data") {
                         row("Export as CSV", "All days") { share = CSVExport.files(store) }.hairline()
-                        row("Apple Health", "Weight & energy") { Task { if await HealthSync.request() { toaster.show("Apple Health connected") } else { toaster.show("Health not available") } } }
+                        row("Apple Health", "Weight & energy") { Task {
+                            guard await HealthSync.request() else { toaster.show("Apple Health isn't available on this iPhone"); return }
+                            let s = HealthSync.grantedSummary
+                            if HealthSync.anyWriteAllowed { toaster.show(s) }
+                            else { toaster.show(s, action: "Settings") { if let u = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(u) } } }
+                        } }
                     }
                     section("Account") {
                         SettingsRow(label: "Username") { Text(p.username).font(.yumo.body).foregroundStyle(Color.yumo.inkMuted) }.hairline()
@@ -78,15 +88,30 @@ struct SettingsScreen: View {
             }
         }
         .onChange(of: page) { if page == nil { tick += 1 } }
+        .task(id: tick) { notificationsOff = await Reminders.denied() }
+        .onChange(of: phase) { if phase == .active { let p = store.profile(); Reminders.reschedule(p); Task { notificationsOff = await Reminders.denied() } } }   // back from iOS Settings
         .sheet(item: $timeEdit) { t in
             TimeSheet(title: t.id == "weight" ? "Log weight reminder" : "Log dinner reminder", minutes: t.minutes) { m in
                 if t.id == "weight" { p.reminderWeightMinutes = m; p.reminderWeightOn = true } else { p.reminderDinnerMinutes = m; p.reminderDinnerOn = true }
-                store.save(); Reminders.reschedule(p); tick += 1
+                store.save(); tick += 1; remindersAllowed(p, which: t.id)
             }.yumoSheet().presentationDetents([.height(380)])
         }
         .sheet(item: Binding(get: { share.map { ShareItems(urls: $0) } }, set: { _ in share = nil })) { ShareSheet(items: $0.urls) }
         .alert("Delete account?", isPresented: $confirmDelete) { Button("Delete", role: .destructive) { store.deleteEverything(); session.onboarded = false; dismiss() }; Button("Cancel", role: .cancel) {} } message: { Text("All your data is deleted. This cannot be undone.") }
-        .alert("Sign out?", isPresented: $confirmSignOut) { Button("Sign out", role: .destructive) { p.onboarded = false; store.save(); session.onboarded = false; dismiss() }; Button("Cancel", role: .cancel) {} } message: { Text("Your data stays on this phone. Sign back in with your username and password.") }
+        .alert("Sign out?", isPresented: $confirmSignOut) { Button("Sign out", role: .destructive) { p.onboarded = false; store.save(); Reminders.cancelAll(); session.onboarded = false; dismiss() }; Button("Cancel", role: .cancel) {} } message: { Text("Your data stays on this phone. Sign back in with your username and password.") }
+    }
+    /// A reminder switched on: if iOS refuses notifications, the switch goes back off and the toast says where to change it.
+    /// Only the reminder just switched on goes back off — the other keeps your choice, and the note under the switches says why
+    /// nothing arrives (22 Oct review: both were switched off).
+    func remindersAllowed(_ p: UserProfile, which: String) {
+        let s = store, t = toaster
+        Reminders.enable(p) { ok in
+            notificationsOff = !ok
+            guard !ok else { return }
+            if which == "weight" { p.reminderWeightOn = false } else { p.reminderDinnerOn = false }
+            s.save(); Reminders.reschedule(p); tick += 1
+            t.show("Notifications are off for Yumo", action: "Settings") { if let u = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(u) } }
+        }
     }
     func section<C: View>(_ title: String, @ViewBuilder _ c: @escaping () -> C) -> some View { VStack(alignment: .leading, spacing: 8) { Overline(text: title).padding(.top, 10); ListCard(content: c) } }
     func row(_ label: String, _ value: String, action: @escaping () -> Void) -> some View { SettingsRow(label: label) { ChevronValue(value: value) }.contentShape(Rectangle()).onTapGesture(perform: action) }

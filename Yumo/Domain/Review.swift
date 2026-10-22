@@ -72,7 +72,7 @@ enum Review {
         func foods(for macro: Macro) -> [FoodShare] {
             var acc: [String: (grams: Double, macro: Double, days: Set<String>)] = [:]
             for e in entries {
-                let name = Food.split(e.foodName, state: e.food?.state).name
+                let name = Food.split(e.foodName, state: e.state).name
                 let m: Double = macro == .protein ? e.p : macro == .carbs ? e.c : e.f
                 var cur = acc[name] ?? (0, 0, [])
                 cur.grams += e.quantity * e.servingGrams; cur.macro += m; cur.days.insert(e.dayKey); acc[name] = cur

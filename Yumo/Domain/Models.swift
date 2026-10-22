@@ -150,15 +150,26 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double
     var servingLabel: String = ""
     var servingGrams: Double = 100
     var loggedAt: Date = Date()
+    /// The food's values per 100 g, copied onto the entry just before the food itself is deleted (22 Oct audit: deleting one of My foods
+    /// blanked every past entry of it — the day totals, the weekly review and measured maintenance changed after the fact). While the food
+    /// exists it wins, so a catalogue correction still reaches history.
+    var keptData: Data? = nil
+    struct Kept: Codable { var kcal: Double; var p: Double; var c: Double; var f: Double; var micros: [String: Double]; var macrosUnknown: Bool; var state: String? }
     init(dayKey: String, meal: Meal, food: Food, quantity: Double, serving: Serving) {
         self.dayKey = dayKey; self.mealRaw = meal.rawValue; self.food = food; self.foodName = food.name; self.quantity = quantity; self.servingLabel = serving.label; self.servingGrams = serving.grams
     }
+    var kept: Kept? { get { keptData.flatMap { try? JSONDecoder().decode(Kept.self, from: $0) } } set { keptData = newValue.flatMap { try? JSONEncoder().encode($0) } } }
+    func keep(_ f: Food) { kept = Kept(kcal: f.kcal100, p: f.p100, c: f.c100, f: f.f100, micros: f.micros, macrosUnknown: f.macrosUnknown, state: f.state) }
     var meal: Meal { get { Meal(rawValue: mealRaw) ?? .breakfast } set { mealRaw = newValue.rawValue } }
     var grams: Double { get { servingGrams * quantity } set { quantity = servingGrams > 0 ? newValue / servingGrams : 1 } }
-    var kcal: Double { (food?.kcal100 ?? 0) * grams / 100 }
-    var p: Double { (food?.p100 ?? 0) * grams / 100 }
-    var c: Double { (food?.c100 ?? 0) * grams / 100 }
-    var f: Double { (food?.f100 ?? 0) * grams / 100 }
+    var kcal: Double { (food?.kcal100 ?? kept?.kcal ?? 0) * grams / 100 }
+    var p: Double { (food?.p100 ?? kept?.p ?? 0) * grams / 100 }
+    var c: Double { (food?.c100 ?? kept?.c ?? 0) * grams / 100 }
+    var f: Double { (food?.f100 ?? kept?.f ?? 0) * grams / 100 }
+    /// The food was deleted before entries kept its values (builds before 22 Oct): its numbers are unknown, shown as "—" — never 0.
+    var lost: Bool { food == nil && kept == nil }
+    var macrosUnknown: Bool { food?.macrosUnknown ?? kept?.macrosUnknown ?? true }
+    var state: String? { food.map { $0.state } ?? kept?.state }
     /// "80 g", "1 medium · 118 g", "150 g × 2"
     /// Rev 2: the real amount — "120 g", "1.5 scoop · 45 g".
     var amountLabel: String {
@@ -169,7 +180,7 @@ struct Serving: Codable, Hashable { var label: String; var grams: Double
         let unit = servingLabel.replacingOccurrences(of: #"^1 ×? ?"#, with: "", options: .regularExpression).components(separatedBy: " · ").first ?? servingLabel
         return "\(quantity.formatted()) \(unit) · \(total)"
     }
-    func micro(_ key: String) -> Double? { food?.micros[key].map { $0 * grams / 100 } }
+    func micro(_ key: String) -> Double? { (food?.micros ?? kept?.micros)?[key].map { $0 * grams / 100 } }
 }
 
 @Model final class WeightEntry {

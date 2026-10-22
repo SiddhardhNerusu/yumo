@@ -121,11 +121,11 @@ struct SummaryScreen: View {
 struct DiaryRow: View {
     var entry: FoodEntry; var onOpen: () -> Void
     var body: some View {
-        let nd = Food.split(entry.foodName, state: entry.food?.state)
+        let nd = Food.split(entry.foodName, state: entry.state)
         Button(action: onOpen) {
             VStack(spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 14) { Text(nd.name).font(.yumo.subtitle).lineLimit(1); Spacer(minLength: 0); Text(Fmt.k(entry.kcal)).font(.nunito(15, .extrabold)).tabular() }
-                HStack(alignment: .firstTextBaseline, spacing: 14) { Text(entry.amountLabel).font(.yumo.footnote).lineLimit(1); Spacer(minLength: 0); Text(entry.food?.macrosUnknown == true ? "— P · — C · — F" : "\(Fmt.g(entry.p)) P · \(Fmt.g(entry.c)) C · \(Fmt.g(entry.f)) F").font(.yumo.footnote).tabular().lineLimit(1) }.foregroundStyle(Color.yumo.inkMuted)
+                HStack(alignment: .firstTextBaseline, spacing: 14) { Text(nd.name).font(.yumo.subtitle).lineLimit(1); Spacer(minLength: 0); Text(entry.lost ? "—" : Fmt.k(entry.kcal)).font(.nunito(15, .extrabold)).tabular() }
+                HStack(alignment: .firstTextBaseline, spacing: 14) { Text(entry.amountLabel).font(.yumo.footnote).lineLimit(1); Spacer(minLength: 0); Text(entry.macrosUnknown ? "— P · — C · — F" : "\(Fmt.g(entry.p)) P · \(Fmt.g(entry.c)) C · \(Fmt.g(entry.f)) F").font(.yumo.footnote).tabular().lineLimit(1) }.foregroundStyle(Color.yumo.inkMuted)
             }.foregroundStyle(Color.yumo.ink).padding(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
         }.buttonStyle(RowPressStyle())
         .overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 0.5) }

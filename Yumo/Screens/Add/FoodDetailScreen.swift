@@ -16,9 +16,12 @@ struct FoodDetailScreen: View {
     @State private var gramsText = ""
     @State private var nutrientsOpen = false
     @State private var targets: Targets? = nil
+    private var orphan = false   // the entry's food was deleted: the page shows its kept values, and Save never brings the food back
+    private var lost = false     // deleted before entries kept values: the numbers are unknown — "—", never 0
 
     init(entry: FoodEntry, dayKey: String) {
-        self.entry = entry; _food = State(initialValue: entry.food ?? Food(name: entry.foodName, source: .user, servings: [], kcal100: 0, p100: 0, c100: 0, f100: 0)); self.dayKey = dayKey
+        orphan = entry.food == nil; lost = entry.lost
+        self.entry = entry; _food = State(initialValue: entry.food ?? { let k = entry.kept; let f = Food(name: entry.foodName, source: .user, servings: [], kcal100: k?.kcal ?? 0, p100: k?.p ?? 0, c100: k?.c ?? 0, f100: k?.f ?? 0); f.micros = k?.micros ?? [:]; f.macrosUnknown = k?.macrosUnknown ?? false; f.state = k?.state; return f }()); self.dayKey = dayKey
         _serving = State(initialValue: Serving(label: entry.servingLabel, grams: entry.servingGrams)); _quantity = State(initialValue: entry.quantity); _meal = State(initialValue: entry.meal)
     }
     /// `grams`: a "did you mean" page opens on the grams you had typed on the other state's page.
@@ -49,7 +52,7 @@ struct FoodDetailScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.cardGapDense) {
                     (Text(food.name).font(.yumo.pageTitle) + Text(food.state.map { ", " + $0 } ?? "").font(.yumo.pageTitle).foregroundColor(.yumo.inkMuted)).lineLimit(3)
-                    SourceLine(text: food.sourceLine, explainer: sourceExplainer)
+                    SourceLine(text: orphan ? "Your food · deleted" : food.sourceLine, explainer: sourceExplainer)
                     if let other = switchTarget {
                         // one sentence, one link: "Switch to cooked?" — the everyday method when the catalogue has several (grilled before braised)
                         let toRaw = other.stateLabel == "Raw" || other.stateLabel == "Dry"
@@ -57,9 +60,9 @@ struct FoodDetailScreen: View {
                             (Text("Switch to ").font(.yumo.caption).foregroundColor(.yumo.inkMuted) + Text(toRaw ? "raw" : "cooked").font(.yumo.action).foregroundColor(.yumo.accent) + Text("?").font(.yumo.caption).foregroundColor(.yumo.inkMuted))
                         }.buttonStyle(PlainPressStyle())
                     }
-                    if food.macrosUnknown { Text("This chain publishes calories only. Protein, carbs and fat are not counted for this item.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
+                    if food.macrosUnknown && !lost { Text("This chain publishes calories only. Protein, carbs and fat are not counted for this item.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
                     VStack(alignment: .leading, spacing: 14) {
-                        HStack(alignment: .firstTextBaseline, spacing: 6) { Text(Fmt.k(food.kcal(for: grams))).font(.nunito(56, .extrabold)).kerning(-1.5).tabular(); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
+                        HStack(alignment: .firstTextBaseline, spacing: 6) { Text(lost ? "—" : Fmt.k(food.kcal(for: grams))).font(.nunito(56, .extrabold)).kerning(-1.5).tabular(); Text("kcal").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }
                         HStack(spacing: Space.gridGap) { macro("Protein", food.p100); macro("Carbs", food.c100); macro("Fat", food.f100) }
                     }.frame(maxWidth: .infinity, alignment: .leading).card().padding(.top, 8)
                     ListCard {
@@ -112,7 +115,7 @@ struct FoodDetailScreen: View {
         case .chain:
             return "From \(food.brand ?? "the chain")'s own published nutrition information; the line above names the document and its date."
         case .user:
-            return "You created this food. Edit it from Settings › My foods."
+            return lost ? "You deleted this food before Yumo kept its values, so this entry's numbers are unknown." : orphan ? "You deleted this food. This entry keeps the values it had." : "You created this food. Edit it from Settings › My foods."
         }
     }
     var unit: String { serving.ml != nil ? "ml" : "g" }
@@ -121,14 +124,17 @@ struct FoodDetailScreen: View {
     var amount: Double { perServing * quantity }
     func setQuantity(_ q: Double) { quantity = q; gramsText = Fmt.g(perServing * q) }
     func macro(_ l: String, _ per100: Double) -> some View {
-        VStack(alignment: .leading, spacing: 2) { Text(l).font(.yumo.captionLight).foregroundStyle(Color.yumo.inkMuted); Text(food.macrosUnknown ? "—" : "\(Fmt.g(per100 * grams / 100)) g").font(.yumo.stat).tabular() }.frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 2) { Text(l).font(.yumo.captionLight).foregroundStyle(Color.yumo.inkMuted); Text(food.macrosUnknown || lost ? "—" : "\(Fmt.g(per100 * grams / 100)) g").font(.yumo.stat).tabular() }.frame(maxWidth: .infinity, alignment: .leading)
     }
     func save() {
         let s = Store(ctx)
         if let e = entry {
-            if let old = e.food, old.id != food.id { s.switchFood(of: e, from: old, to: food) }   // switched raw ↔ cooked: the entry changes food, the use moves with it
-            e.food = food; e.foodName = food.name; e.servingLabel = serving.label; e.servingGrams = serving.grams; e.quantity = quantity
-            food.lastServingLabel = serving.label; food.lastServingGrams = serving.grams; food.lastQuantity = quantity   // an edited amount is the one you want next time
+            if !orphan {   // a deleted food's stand-in is never attached — saving would insert it again (22 Oct review)
+                if let old = e.food, old.id != food.id { s.switchFood(of: e, from: old, to: food) }   // switched raw ↔ cooked: the entry changes food, the use moves with it
+                e.food = food; e.foodName = food.name
+                food.lastServingLabel = serving.label; food.lastServingGrams = serving.grams; food.lastQuantity = quantity   // an edited amount is the one you want next time
+            }
+            e.servingLabel = serving.label; e.servingGrams = serving.grams; e.quantity = quantity
             s.save()
             toaster.show("Saved \(food.name)")
         } else {

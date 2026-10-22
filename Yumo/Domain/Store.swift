@@ -36,6 +36,21 @@ struct Store {
         FoodIndex.shared.noteUse(id: food.id, useCount: food.useCount)
         ctx.insert(e); try? ctx.save(); return e
     }
+    /// Deleting a food never changes a day already logged: each entry of it keeps the food's values first. Its staple and planner memory go
+    /// with it (22 Oct audit).
+    func deleteFood(_ f: Food) {
+        let fid = f.id
+        // FoodEntry.food has no inverse, so the reference is cleared by hand: an entry must never point at a deleted Food (22 Oct review)
+        for e in (try? ctx.fetch(FetchDescriptor<FoodEntry>(predicate: #Predicate { $0.food?.id == fid }))) ?? [] { e.keep(f); e.food = nil }
+        for s in staples() where s.foodId == fid { ctx.delete(s) }
+        for p in preferences() where p.foodId == fid { ctx.delete(p) }
+        // a saved meal loses that food; a meal left with nothing is removed (logging it silently skipped the missing food)
+        for m in savedMeals() where m.items.contains(where: { $0.foodId == fid }) {
+            let rest = m.items.filter { $0.foodId != fid }
+            if rest.isEmpty { ctx.delete(m) } else { m.items = rest }
+        }
+        ctx.delete(f); try? ctx.save(); FoodIndex.shared.invalidate()
+    }
     /// Removing an entry takes back what logging it gave the food, so a mistake never lingers in Recent.
     func remove(_ e: FoodEntry) {
         if let f = e.food { takeBack(e, from: f) }
@@ -98,7 +113,8 @@ struct Store {
     /// The most recent logged instance of a meal within the last 14 days before `dayKey` (rev 6 swipe row).
     func recentMeal(_ meal: Meal, before dayKey: String) -> (entries: [FoodEntry], daysAgo: Int)? {
         var d = Date.fromKey(dayKey)
-        for i in 1...14 { d = d.adding(days: -1); let es = entries(d.dayKey).filter { $0.meal == meal }; if !es.isEmpty { return (es, i) } }
+        // only entries that can be logged again: a deleted food's entry would be counted in the row's kcal but skipped when repeated
+        for i in 1...14 { d = d.adding(days: -1); let es = entries(d.dayKey).filter { $0.meal == meal && $0.food != nil }; if !es.isEmpty { return (es, i) } }
         return nil
     }
     // MARK: Staples (rev 5)
@@ -216,12 +232,28 @@ struct Store {
     func deleteEverything() {
         for e in entries() { ctx.delete(e) }
         for w in weights() { ctx.delete(w) }
-        for f in foods() { ctx.delete(f) }
+        // the bundled catalogue stays (22 Oct review: deleting it left search empty until a relaunch, and chain foods never came back);
+        // what this person did with it goes. Foods they made and products they scanned are their data and go.
+        for f in foods() {
+            switch f.tier {
+            case .generic, .chain: f.useCount = 0; f.lastUsedAt = nil; f.lastServingLabel = nil; f.lastServingGrams = nil; f.lastQuantity = nil
+            case .user, .branded: ctx.delete(f)
+            }
+        }
         for m in savedMeals() { ctx.delete(m) }
         if let p = try? ctx.fetch(FetchDescriptor<UserProfile>()).first { ctx.delete(p) }
         for e in weeklyEstimates() { ctx.delete(e) }
         for p in preferences() { ctx.delete(p) }
-        try? ctx.save(); UserDefaults.standard.removeObject(forKey: Catalogue.versionKey); FoodIndex.shared.invalidate()
+        // every other model too (22 Oct audit: staples, supplements, prep days, learned patterns and aliases survived "All your data is deleted")
+        for s in staples() { ctx.delete(s) }
+        for s in (try? ctx.fetch(FetchDescriptor<Supplement>())) ?? [] { ctx.delete(s) }
+        for d in (try? ctx.fetch(FetchDescriptor<PrepDay>())) ?? [] { ctx.delete(d) }
+        for l in (try? ctx.fetch(FetchDescriptor<LearnedPattern>())) ?? [] { ctx.delete(l) }
+        for a in (try? ctx.fetch(FetchDescriptor<UserAlias>())) ?? [] { ctx.delete(a) }
+        try? ctx.save(); FoodIndex.shared.invalidate()
+        UserDefaults.standard.removeObject(forKey: Catalogue.versionKey)   // next launch re-checks the catalogue: rows only this account held are pruned
+        PendingLookups.all = []   // barcodes waiting to be looked up were this account's scans
+        Reminders.cancelAll()
     }
     private func entries() -> [FoodEntry] { (try? ctx.fetch(FetchDescriptor<FoodEntry>())) ?? [] }
 }

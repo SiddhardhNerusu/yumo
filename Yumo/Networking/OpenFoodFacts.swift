@@ -21,47 +21,61 @@ enum OpenFoodFacts {
         }
     }
     private static let ua = "Yumo/1.0 (iOS; siddhardhnerusu@gmail.com)"
-    /// Last time a lookup came back as something other than JSON (rate limit, 503) — the UI says "didn't answer" instead of "no match".
+    /// Last time a lookup got no answer — offline, a timeout, a rate limit or a 503. The UI then says "didn't answer" instead of "no match"
+    /// (22 Oct review: transport errors weren't counted, so offline in a shop read as "No match for 5000…").
     nonisolated(unsafe) static var lastFailure: Date? = nil
+
     nonisolated(unsafe) private static var cache: [String: (Date, [Product])] = [:]
     private static let cacheLock = NSLock()
     private static func get(_ url: URL) async throws -> [String: Any] {
         var r = URLRequest(url: url); r.setValue(ua, forHTTPHeaderField: "User-Agent"); r.timeoutInterval = 12
-        let (data, resp) = try await URLSession.shared.data(for: r)
-        if let http = resp as? HTTPURLResponse, http.statusCode != 200 { lastFailure = Date(); throw URLError(.badServerResponse) }
+        let data: Data, resp: URLResponse
+        do { (data, resp) = try await URLSession.shared.data(for: r) }
+        catch {   // every keystroke cancels the last search — a cancellation is not a failure
+            if !(error is CancellationError), (error as? URLError)?.code != .cancelled { lastFailure = Date() }
+            throw error
+        }
+        // an unknown barcode answers 404 with status 0: that is an answer ("not found"), not a failure
+        if let http = resp as? HTTPURLResponse, http.statusCode != 200, http.statusCode != 404 { lastFailure = Date(); throw URLError(.badServerResponse) }
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { lastFailure = Date(); throw URLError(.cannotParseResponse) }
         return json
     }
-    static func barcode(_ ean: String) async -> Product? {
-        guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(ean).json?fields=product_name,brands,nutriments,serving_size,serving_quantity,code,quantity") else { return nil }
-        guard let json = try? await get(url), (json["status"] as? Int) == 1, let p = json["product"] as? [String: Any] else { return nil }
-        return parse(p)
+    static func barcode(_ ean: String) async -> Product? { await barcodeLookup(ean).product }
+    /// `answered` false: Open Food Facts didn't answer (offline, timeout, 5xx) — "couldn't check", never "not found" (22 Oct review).
+    static func barcodeLookup(_ ean: String) async -> (product: Product?, answered: Bool) {
+        guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(ean).json?fields=product_name,brands,nutriments,serving_size,serving_quantity,code,quantity") else { return (nil, true) }
+        guard let json = try? await get(url) else { return (nil, false) }
+        guard (json["status"] as? Int) == 1, let p = json["product"] as? [String: Any] else { return (nil, true) }
+        return (parse(p), true)
     }
     /// Name search on search.openfoodfacts.org (search-a-licious). The legacy cgi/search.pl endpoint answers 503 most of the time, so it is not used.
-    static func search(_ q: String, limit: Int = 20) async -> [Product] {
+    static func search(_ q: String, limit: Int = 20) async -> [Product] { await searchLookup(q, limit: limit).products }
+    static func searchLookup(_ q: String, limit: Int = 20) async -> (products: [Product], answered: Bool) {
         var c = URLComponents(string: "https://search.openfoodfacts.org/search")!
         // UK first (the product rule): products sold in the UK, English names. Barcode lookups are not filtered.
         c.queryItems = [.init(name: "q", value: q + " countries_tags:\"en:united-kingdom\""), .init(name: "langs", value: "en"), .init(name: "page_size", value: String(limit)), .init(name: "fields", value: "product_name,brands,code,nutriments,serving_size,serving_quantity,quantity")]
         let key = q.lowercased() + "|\(limit)"
         cacheLock.lock(); let hit = cache[key]; cacheLock.unlock()
-        if let hit, Date().timeIntervalSince(hit.0) < 600 { return hit.1 }   // retyping the same word within 10 min costs no request (search is rate-limited)
-        guard let url = c.url, let json = try? await get(url), let items = json["hits"] as? [[String: Any]] else { return [] }
+        if let hit, Date().timeIntervalSince(hit.0) < 600 { return (hit.1, true) }   // retyping the same word within 10 min costs no request (search is rate-limited)
+        guard let url = c.url, let json = try? await get(url) else { return ([], false) }
+        guard let items = json["hits"] as? [[String: Any]] else { return ([], true) }
         let out = items.compactMap(parse).filter(\.plausible)   // crowd-sourced rows whose macros can't add up to their calories are left out (never a wrong macro)
         cacheLock.lock(); cache[key] = (Date(), out); cacheLock.unlock()
-        return out
+        return (out, true)
     }
     /// The full line plus one lookup per word the catalogue can't cover ("albert", "rooster"), concurrently, merged by barcode. Open Food Facts'
     /// own ranking of a long or paired query buries the bag you mean ("rooster albert" → Roosters chicken); each word alone surfaces it.
-    static func searchMerged(_ q: String, terms: [String], limit: Int = 12) async -> [Product] {
+    /// `answered` false only when none of the lookups got an answer.
+    static func searchMerged(_ q: String, terms: [String], limit: Int = 12) async -> (products: [Product], answered: Bool) {
         let extra = terms.filter { $0.lowercased() != q.lowercased() }.prefix(3)
-        return await withTaskGroup(of: (Int, [Product]).self) { group in
-            group.addTask { (0, await search(q, limit: limit)) }
-            for (i, t) in extra.enumerated() { group.addTask { (i + 1, await search(t, limit: limit)) } }
-            var parts: [(Int, [Product])] = []
+        return await withTaskGroup(of: (Int, [Product], Bool).self) { group in
+            group.addTask { let r = await searchLookup(q, limit: limit); return (0, r.products, r.answered) }
+            for (i, t) in extra.enumerated() { group.addTask { let r = await searchLookup(t, limit: limit); return (i + 1, r.products, r.answered) } }
+            var parts: [(Int, [Product], Bool)] = []
             for await part in group { parts.append(part) }
             var seen = Set<String>(), out: [Product] = []
-            for (_, list) in parts.sorted(by: { $0.0 < $1.0 }) { for p in list { if let b = p.barcode { guard seen.insert(b).inserted else { continue } }; out.append(p) } }
-            return out
+            for (_, list, _) in parts.sorted(by: { $0.0 < $1.0 }) { for p in list { if let b = p.barcode { guard seen.insert(b).inserted else { continue } }; out.append(p) } }
+            return (out, parts.contains { $0.2 })
         }
     }
     private static func parse(_ p: [String: Any]) -> Product? {
@@ -124,7 +138,9 @@ enum PendingLookups {
         var done = 0
         for code in all {
             if store.food(barcode: code) != nil { all.removeAll { $0 == code }; continue }
-            if let p = await OpenFoodFacts.barcode(code) { _ = store.upsert(p.makeFood()); all.removeAll { $0 == code }; done += 1 }
+            let p = await OpenFoodFacts.barcode(code)
+            guard all.contains(code) else { continue }   // cleared while looking (Delete account): drop the answer
+            if let p { _ = store.upsert(p.makeFood()); all.removeAll { $0 == code }; done += 1 }
         }
         return done
     }

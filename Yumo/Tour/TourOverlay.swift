@@ -58,10 +58,10 @@ struct TourBubble: View {
     var onSkip: () -> Void; var onNext: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) { Text(stop.title).font(.nunito(15, .extrabold)).foregroundStyle(.white); Spacer(); Text("\(step) of \(total)").font(.nunito(12, .extrabold)).foregroundStyle(.white.opacity(0.55)) }
+            HStack(alignment: .firstTextBaseline) { Text(stop.title).font(.nunito(15, .extrabold)).foregroundStyle(.white); Spacer(); Text("\(step) of \(total)").font(.nunito(12, .extrabold)).foregroundStyle(.white.opacity(0.7)) }
             Text(body_).font(.nunito(14, .semibold)).foregroundStyle(.white.opacity(0.85)).lineSpacing(14 * 0.45).fixedSize(horizontal: false, vertical: true)
             HStack {
-                Button(action: onSkip) { Text("Skip tour").font(.nunito(13, .extrabold)).foregroundStyle(.white.opacity(0.55)).padding(.vertical, 6) }.buttonStyle(PlainPressStyle())
+                Button(action: onSkip) { Text("Skip tour").font(.nunito(13, .extrabold)).foregroundStyle(.white.opacity(0.7)).padding(.vertical, 6) }.buttonStyle(PlainPressStyle())
                 Spacer()
                 if stop.act, let cue { Text(cue).font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.accent) }
                 else { Button(action: onNext) { Text(stop.button).font(.nunito(14, .black)).foregroundStyle(.white).padding(.vertical, 10).padding(.horizontal, 18) }
@@ -70,10 +70,10 @@ struct TourBubble: View {
             HStack(spacing: 5) { ForEach(1...total, id: \.self) { i in Circle().fill(i == step ? Color.yumo.accent : .white.opacity(0.25)).frame(width: 6, height: 6) } }
         }
         .padding(.vertical, 14).padding(.horizontal, 16)
-        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color.yumo.ink))
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color.yumo.panel))
         .lifted(.yumo.toastEdge, lift: 4, radius: 18)
         .overlay(alignment: arrowUp ? .topLeading : .bottomLeading) {
-            if showArrow { Rectangle().fill(Color.yumo.ink).frame(width: 14, height: 14).rotationEffect(.degrees(45)).offset(x: arrowX - 7, y: arrowUp ? -6 : 6) }
+            if showArrow { Rectangle().fill(Color.yumo.panel).frame(width: 14, height: 14).rotationEffect(.degrees(45)).offset(x: arrowX - 7, y: arrowUp ? -6 : 6) }
         }
     }
 }

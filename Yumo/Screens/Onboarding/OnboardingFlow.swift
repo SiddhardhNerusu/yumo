@@ -10,8 +10,11 @@ struct OnboardingFlow: View {
     @State private var step: Step = .welcome
     @State private var signIn = false
     // draft
-    @State private var mode: GoalMode = .cut
-    @State private var sex: Sex = .male; @State private var age = 28; @State private var height = 180
+    // goal and sex are chosen, never defaulted (22 Oct audit: Continue saved Cut and Male for anyone who didn't tap — 166 kcal of BMR)
+    @State private var goalPick: GoalMode? = nil
+    @State private var sexPick: Sex? = nil; @State private var age = 28; @State private var height = 180
+    var mode: GoalMode { goalPick ?? .cut }
+    var sex: Sex { sexPick ?? .male }
     @State private var kg = 80.0
     @State private var bodyFat: Double? = nil; @State private var bfDraft = 15.0
     @State private var activity: Activity = .moderate
@@ -92,18 +95,18 @@ struct OnboardingFlow: View {
     }
     var goal: some View {
         VStack(spacing: Space.cardGap) {
-            ForEach([(GoalMode.cut, "Lose fat, keep muscle"), (.maintain, "Hold your weight, eat well"), (.bulk, "Build muscle, controlled gain")], id: \.0) { m, s in SelectableCard(title: m.rawValue, subtitle: s, selected: mode == m) { mode = m; pace = m == .cut ? -0.5 : m == .bulk ? 0.25 : 0 } }
-            Spacer(); cta()
+            ForEach([(GoalMode.cut, "Lose fat, keep muscle"), (.maintain, "Hold your weight, eat well"), (.bulk, "Build muscle, controlled gain")], id: \.0) { m, s in SelectableCard(title: m.rawValue, subtitle: s, selected: goalPick == m) { goalPick = m; pace = m == .cut ? -0.5 : m == .bulk ? 0.25 : 0 } }
+            Spacer(); cta(disabled: goalPick == nil)
         }.padding(.horizontal, -Space.gutter).padding(.horizontal, Space.gutter)
     }
     var about: some View {
         VStack(spacing: 0) {
             ListCard {
-                SettingsRow(label: "Sex") { Segmented(options: Sex.allCases.map { ($0, $0.rawValue) }, selection: $sex).frame(width: 160) }.hairline()
+                SettingsRow(label: "Sex") { Segmented(options: Sex.allCases.map { (Optional($0), $0.rawValue) }, selection: $sexPick).frame(width: 160) }.hairline()
                 SettingsRow(label: "Age") { ValueStepper(value: "\(age)", onMinus: { age = max(14, age - 1) }, onPlus: { age = min(90, age + 1) }) }.hairline()
                 SettingsRow(label: "Height") { ValueStepper(value: "\(height) cm", onMinus: { height = max(120, height - 1) }, onPlus: { height = min(230, height + 1) }) }
             }
-            Spacer(); cta()
+            Spacer(); cta(disabled: sexPick == nil)
         }.padding(.horizontal, -Space.gutter).padding(.horizontal, Space.gutter)
     }
     var weight: some View {
@@ -119,17 +122,21 @@ struct OnboardingFlow: View {
         VStack(spacing: 0) {
             VStack(spacing: 12) {
                 HStack(spacing: 20) {
-                    StepperButton(glyph: "−", big: true) { bfDraft = max(4, bfDraft - 1); bodyFat = bfDraft }
-                    HStack(alignment: .firstTextBaseline, spacing: 4) { Text("\(Int(bfDraft))").font(.yumo.rulerValue).kerning(-2).tabular(); Text("%").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }.frame(minWidth: 130)
-                    StepperButton(glyph: "+", big: true) { bfDraft = min(50, bfDraft + 1); bodyFat = bfDraft }
+                    // the first tap sets the starting guess (15 %); only then does it move (22 Oct audit: Continue saved an untouched 15 %, which
+                    // switched the formula to Katch-McArdle — about +350 kcal a day for a 70 kg woman)
+                    StepperButton(glyph: "−", big: true) { if bodyFat != nil { bfDraft = max(4, bfDraft - 1) }; bodyFat = bfDraft }
+                    HStack(alignment: .firstTextBaseline, spacing: 4) { Text(bodyFat == nil ? "—" : "\(Int(bfDraft))").font(.yumo.rulerValue).kerning(-2).tabular(); Text("%").font(.yumo.displayMuted).foregroundStyle(Color.yumo.inkMuted) }.frame(minWidth: 130)
+                    StepperButton(glyph: "+", big: true) { if bodyFat != nil { bfDraft = min(50, bfDraft + 1) }; bodyFat = bfDraft }
                 }
-                Text(Calc.bodyFatDescription(bfDraft)).font(.yumo.subtitle).foregroundStyle(Color.yumo.inkMuted)
+                Text(bodyFat == nil ? "Tap − or + to set yours" : Calc.bodyFatDescription(bfDraft)).font(.yumo.subtitle).foregroundStyle(Color.yumo.inkMuted)
                 if bodyFat != nil { Text("Lean mass about \(Fmt.kg(Calc.leanMass(kg: kg, bodyFat: bfDraft))) kg").font(.yumo.caption).tabular().foregroundStyle(Color.yumo.inkMuted) }
             }.frame(maxWidth: .infinity).card()
             Text("A guess is fine. Mirror, not maths: pick the line that sounds most like you.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.top, 12).padding(.horizontal, 4)
             Spacer()
-            PrimaryButton(label: "Continue") { if bodyFat == nil { bodyFat = bfDraft }; next() }
-            TextAction(label: "Skip for now") { bodyFat = nil; next() }.padding(.top, 14).padding(.bottom, 8)
+            PrimaryButton(label: bodyFat == nil ? "Continue without it" : "Continue") { next() }
+            // always laid out, so the first tap doesn't move Continue up under your thumb
+            TextAction(label: "Clear — I don't know mine") { bodyFat = nil; bfDraft = 15 }.padding(.top, 14).padding(.bottom, 8)
+                .opacity(bodyFat == nil ? 0 : 1).disabled(bodyFat == nil).accessibilityHidden(bodyFat == nil)
         }
     }
     var activityStep: some View {
@@ -223,7 +230,9 @@ struct OnboardingFlow: View {
         // Your plan (rev 5): dragged macros are saved as the custom split; untouched = the formula defaults
         if planEdited { p.macrosCustomised = true; p.proteinG = protein; p.fatG = fat; p.carbsG = planCarbs; p.planEdited = true } else { p.macrosCustomised = false; p.carbsG = nil; p.planEdited = false }
         store.saveWeight(dayKey: Date().dayKey, kg: kg, photo: nil)
-        p.onboarded = true; store.save(); step = .done
+        // a new account starts with reminders off — after a sign out the profile still held the last account's switches (22 Oct review)
+        p.reminderWeightOn = false; p.reminderDinnerOn = false
+        p.onboarded = true; store.save(); Reminders.reschedule(p); step = .done
     }
     var doneStep: some View {
         VStack(spacing: 0) {
@@ -272,7 +281,7 @@ struct SignInScreen: View {
                 if let e = error { Text(e).font(.nunito(13, .extrabold)).foregroundStyle(Color.yumo.danger).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4) }
                 PrimaryButton(label: "Sign in", disabled: u.isEmpty || pw.isEmpty) {
                     let p = Store(ctx).profile()
-                    if p.username == u.lowercased().trimmingCharacters(in: .whitespaces), p.passwordHash == Store.hash(pw, salt: p.username) { p.onboarded = true; Store(ctx).save(); session.onboarded = true; dismiss() }
+                    if p.username == u.lowercased().trimmingCharacters(in: .whitespaces), p.passwordHash == Store.hash(pw, salt: p.username) { p.onboarded = true; Store(ctx).save(); Reminders.reschedule(p); session.onboarded = true; dismiss() }
                     else { error = p.username.isEmpty ? "No account on this phone yet. Create one first." : "Wrong username or password." }
                 }.padding(.top, 8)
             }.padding(Space.gutter)

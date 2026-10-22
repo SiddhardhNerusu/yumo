@@ -44,8 +44,10 @@ struct MyFoodsScreen: View {
     @Environment(Toaster.self) private var toaster
     @State private var foods: [Food] = []
     @State private var q = ""
+    @State private var deleting: Food? = nil   // a food you made: tap it to delete (22 Oct audit: delete was a hidden long-press only)
     var store: Store { Store(ctx) }
-    var shown: [Food] { let base = foods.filter { $0.useCount > 0 || $0.source == .user }; return q.isEmpty ? base : base.filter { $0.name.lowercased().contains(q.lowercased()) } }
+    // tier, not source: chain rows are stored with source .user
+    var shown: [Food] { let base = foods.filter { $0.useCount > 0 || $0.tier == .user }; return q.isEmpty ? base : base.filter { $0.name.lowercased().contains(q.lowercased()) } }
     var body: some View {
         VStack(spacing: 0) {
             PageHeader(back: "Settings", title: "My foods", onBack: { dismiss() }).padding(.horizontal, Space.gutter)
@@ -59,13 +61,18 @@ struct MyFoodsScreen: View {
                                 SettingsRow(label: f.name, sub: [f.sourceLine, f.barcode, f.useCount > 0 ? "logged \(f.useCount)×" : nil].compactMap { $0 }.joined(separator: " · ")) {
                                     HStack(spacing: 10) { Text("\(Fmt.k(f.kcal100))").font(.yumo.title).tabular(); Text("/100 g").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
                                 }.hairline()
-                                .contextMenu { if f.source == .user { Button("Delete", role: .destructive) { ctx.delete(f); store.save(); reload(); toaster.show("Deleted \(f.name)") } } }
+                                .contentShape(Rectangle()).onTapGesture { if f.source == .user && f.tier == .user { deleting = f } }
+                                .contextMenu { if f.source == .user && f.tier == .user { Button("Delete \(f.name)", role: .destructive) { delete(f) } } }
                             }
                         }
                     }
                 }.padding(Space.gutter).padding(.bottom, 40)
             }.scrollDismissesKeyboard(.interactively)
         }.background(Color.yumo.bg.ignoresSafeArea()).onAppear(perform: reload)
+        .confirmationDialog(deleting.map { "Delete \($0.name)?" } ?? "", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
+            if let f = deleting { Button("Delete food", role: .destructive) { delete(f) }; Button("Keep it", role: .cancel) { deleting = nil } }
+        } message: { Text("Days you logged it keep their numbers.") }
     }
     func reload() { foods = store.foods() }
+    func delete(_ f: Food) { let name = f.name; store.deleteFood(f); deleting = nil; reload(); toaster.show("Deleted \(name)") }
 }
