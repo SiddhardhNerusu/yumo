@@ -31,7 +31,8 @@ enum Balance {
         return nil
     }
 
-    /// `chosen`: swaps made in this session, class name → food id; the planner's pick for that class is that food.
+    /// `chosen`: swaps made in this session, the swapped food's id → its replacement's id. Keyed by food, not class: swapping the
+    /// breakfast eggs must replace the eggs, not the lunch turkey (22 Oct).
     @MainActor static func solve(dayKey: String, weighed: [PrepItem], chosen: [String: String] = [:], store: Store) -> Result {
         let p = store.profile(); let t = store.targets()
         let target = (kcal: Double(t.kcal), p: Double(t.protein), c: Double(t.carbs), f: Double(t.fat))
@@ -77,16 +78,22 @@ enum Balance {
         // --- the planner (21 Oct): fill what the staples don't cover from the candidate pool — a carb, a fat, a veg for the mains, and a
         // protein when what you have can't reach the target even at its max
         var inPlan = Set(flex.map(\.food.id)).union(weighedIds)
+        func resolve(_ p: Planner.Pick) -> Planner.Pick {
+            var cur = p, hops = 0
+            while hops < 5, let next = chosen[cur.food.id], let np = Planner.picks(all: all).first(where: { $0.food.id == next }), !inPlan.contains(np.food.id) { cur = np; hops += 1 }
+            return cur
+        }
         func fill(_ k: Kind, needDense: Bool = false, needEnergy: Bool = false, prefer: Meal? = nil) {
             let fb = empty.first ?? .dinner
-            guard let pick = Planner.ranked(k, needDense: needDense, needEnergy: needEnergy, exclude: inPlan, chosen: needEnergy ? nil : chosen[className(k)], dayKey: dayKey, store: store, all: all).first else { return }
+            guard let first = Planner.ranked(k, needDense: needDense, needEnergy: needEnergy, exclude: inPlan, chosen: nil, dayKey: dayKey, store: store, all: all).first else { return }
+            let pick = resolve(first)
             let m = prefer ?? Planner.meal(for: pick.candidate, empty: empty, fallback: mains.first ?? fb)
             // a suggestion is capped at a few portions (550 g of cottage cheese is not a plan); the carb may stretch further, it lands the day
             flex.append(Flex(food: pick.food, kind: k, seed: pick.candidate.portion, meal: m, maxG: pick.candidate.portion * (k == .carb ? 3 : 2), suggested: true)); inPlan.insert(pick.food.id)
         }
         let kinds = Set(flex.map(\.kind)).union(W.map { classify($0.0) })
         if !empty.isEmpty {
-            if !kinds.contains(.carb) { fill(.carb) }
+            if !kinds.contains(.carb) { fill(.carb, needEnergy: !mains.isEmpty) }   // the carb lands the day's calories: rice or potatoes for a main, not a banana
             if !kinds.contains(.fat) { fill(.fat) }
             if !kinds.contains(.veg), !mains.isEmpty { fill(.veg) }
             // protein you have, at most: weighed + every protein staple at its max (an uncapped staple covers anything)
@@ -94,6 +101,16 @@ enum Balance {
             for (f, g) in W { haveP += f.p100 * g / 100 }
             for fx in flex where fx.kind == .protein { if let mx = fx.maxG { haveP += fx.food.p100 * mx / 100 } else { haveP = 1e9 } }
             if haveP < target.p - 5 { fill(.protein, needDense: true) }
+            // an empty breakfast gets a breakfast: one breakfast-type food (protein when protein is short, else a carb) — every other pick
+            // is a main or a snack, so without this the planner left breakfast blank on an empty day (22 Oct)
+            if empty.contains(.breakfast), !flex.contains(where: { $0.meal == .breakfast }), !W.contains(where: { mealFor($0.0) == .breakfast }) {
+                for k in (haveP < target.p - 5 ? [Kind.protein, .carb] : [Kind.carb, .protein]) {
+                    if let found = Planner.ranked(k, needDense: k == .protein, exclude: inPlan, chosen: nil, dayKey: dayKey, store: store, all: all).first(where: { $0.candidate.meal == "breakfast" }) {
+                        let b = resolve(found)
+                        flex.append(Flex(food: b.food, kind: k, seed: b.candidate.portion, meal: .breakfast, maxG: b.candidate.portion * 2, suggested: true)); inPlan.insert(b.food.id); break
+                    }
+                }
+            }
         }
         // --- a single carb / fat / veg for two empty mains is solved once and split across both
         if mains.count == 2 { for k in [Kind.fat, .veg, .carb] { let idx = flex.indices.filter { flex[$0].kind == k && mains.contains(flex[$0].meal) }; if idx.count == 1 { flex[idx[0]].split = mains } } }
@@ -139,10 +156,10 @@ enum Balance {
         // the planner again (21 Oct): when its picks sit at their caps and the day is still short, a second carb, then a second fat — potatoes at
         // lunch and rice at dinner beats 800 g of potatoes
         var extra = 0
-        while remKcal() > 150, extra < 3, flex.contains(where: { $0.suggested }) {
-            // what's short decides: protein first, then a carb, then a fat — and the pick goes to the main with the fewest rows, never a
-            // third carb in the same meal
-            let k: Kind = remaining(.protein) > 10 ? .protein : (extra == 1 ? .fat : .carb)
+        while remKcal() > 150, extra < 6, flex.contains(where: { $0.suggested }) {   // each pick is capped, so a big day needs a few
+            // what's short decides: protein, then fat, then carb, each by its own remaining grams (fat at 66 / 97 wants a fat, not a
+            // third carb) — and the pick goes to the main with the fewest rows
+            let k: Kind = remaining(.protein) > 10 ? .protein : remaining(.fat) > 8 ? .fat : .carb
             let load = { (m: Meal) in flex.filter { $0.meal == m || ($0.split?.contains(m) ?? false) }.count }
             let prefer = mains.min { load($0) < load($1) }
             let before = flex.count; fill(k, needDense: k == .protein, needEnergy: true, prefer: prefer); extra += 1

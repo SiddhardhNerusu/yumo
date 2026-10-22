@@ -117,6 +117,7 @@ struct StaplesScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("The foods you eat most weeks. No amounts — when your prep comes out different, Yumo works out how much of these lands the day.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.horizontal, 4).padding(.bottom, 14)
                     StaplesEditor(mode: .settings, onChange: onChange)
+                    PlannerMemory()
                 }.padding(Space.gutter).padding(.bottom, 40)
             }.scrollDismissesKeyboard(.interactively)
         }.background(Color.yumo.bg.ignoresSafeArea())
@@ -176,6 +177,36 @@ struct StapleScanScreen: View {
         Task {
             var hit = await OpenFoodFacts.barcode(c); if hit == nil { hit = await USDABranded.barcode(c) }
             if let p = hit { withAnimation(Motion.snap) { food = s.upsert(p.makeFood()) } } else { withAnimation(Motion.snap) { missing = true } }
+        }
+    }
+}
+
+/// What the planner learned (22 Oct): foods you liked and foods you asked it never to suggest, each with an undo — a "never again" tapped
+/// by mistake must not be permanent.
+struct PlannerMemory: View {
+    @Environment(\.modelContext) private var ctx
+    @State private var gen = 0
+    var store: Store { Store(ctx) }
+    var body: some View {
+        let prefs = store.preferences().sorted { $0.updatedAt > $1.updatedAt }
+        let rows: [(FoodPreference, Food)] = prefs.compactMap { p in store.food(id: p.foodId).map { (p, $0) } }
+        if !rows.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Overline(text: "The planner").padding(.top, 24)
+                Text("Liked foods come back every day and pull up foods like them. Blocked foods never come up.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.leading, 4)
+                VStack(spacing: 0) {
+                    ForEach(rows, id: \.0.foodId) { p, f in
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(f.shortName).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
+                                Text(p.verdict == .liked ? "♥\u{FE0E} liked" : "never suggested").font(.yumo.footnote).foregroundStyle(p.verdict == .liked ? Color.yumo.accent : .yumo.inkMuted)
+                            }
+                            Spacer()
+                            TextAction(label: p.verdict == .liked ? "Unlike" : "Allow again") { store.clearPreference(f); gen += 1 }
+                        }.padding(.vertical, 11).padding(.trailing, 16).frame(minHeight: 44).hairline()
+                    }
+                }.padding(.leading, 18).listCard(radius: 20)
+            }.id(gen)
         }
     }
 }

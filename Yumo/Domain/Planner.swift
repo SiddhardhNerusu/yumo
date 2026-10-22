@@ -56,10 +56,13 @@ enum Planner {
         let prefs = store.preferences()
         let never = Set(prefs.filter { $0.verdict == .never }.map(\.foodId)), liked = Set(prefs.filter { $0.verdict == .liked }.map(\.foodId))
         let cands = picks(all: all).filter { $0.candidate.kind == kind && !exclude.contains($0.food.id) && !never.contains($0.food.id) }
+        // "more like this": liked foods of this class pull up the candidates closest to them in protein / carb / fat balance
+        let likedProfiles = all.filter { liked.contains($0.id) && Balance.classify($0) == kind }.map(profile)
         func score(_ p: Pick) -> Double {
             if p.food.id == chosen { return 100 }
             var s = jitter(dayKey, p.food.id)
             if liked.contains(p.food.id) { s += 3 }                    // pinned: liked foods come back every day
+            else if let near = likedProfiles.map({ similarity($0, profile(p.food)) }).max() { s += near * 1.2 }
             s += log(1 + Double(p.food.useCount)) * 0.5                 // what you already log is familiar
             if needDense { s += p.food.p100 / 10 }                      // protein is short: protein per 100 g decides (whey 9, tuna 2.5, cottage cheese 0.9)
             if needEnergy { s += p.food.kcal100 / 100 + (p.candidate.meal == "main" ? 1 : 0) }   // the day is short on food: a main-meal carb with calories (rice 3.5, apples 0.5)
@@ -67,10 +70,25 @@ enum Planner {
         }
         return cands.sorted { score($0) > score($1) }
     }
+    /// Where a food's calories come from: (protein, carb, fat) shares, summing to ~1.
+    static func profile(_ f: Food) -> (Double, Double, Double) {
+        let p = f.p100 * 4, c = f.c100 * 3.75, fat = f.f100 * 9, t = max(1, p + c + fat)
+        return (p / t, c / t, fat / t)
+    }
+    /// 1 for the same balance, 0 at a distance of 0.5 or more (Greek yogurt 0 % ~ cottage cheese 0.9; ~ rice 0).
+    static func similarity(_ a: (Double, Double, Double), _ b: (Double, Double, Double)) -> Double {
+        let d = ((a.0 - b.0) * (a.0 - b.0) + (a.1 - b.1) * (a.1 - b.1) + (a.2 - b.2) * (a.2 - b.2)).squareRoot()
+        return max(0, 1 - d / 0.5)
+    }
     /// The next-best foods of the same class, for the swap sheet.
-    /// `main`: the row sits in lunch or dinner, so main-meal foods with calories lead (rice before apple).
-    @MainActor static func alternatives(to food: Food, kind: Balance.Kind, main: Bool, inPlan: Set<String>, dayKey: String, store: Store, all: [Food], count: Int = 4) -> [Pick] {
-        Array(ranked(kind, needDense: kind == .protein, needEnergy: main && kind != .veg, exclude: inPlan.union([food.id]), chosen: nil, dayKey: dayKey, store: store, all: all).prefix(count))
+    /// Alternatives that fit the meal the row sits in: a breakfast egg swaps for yogurt or cottage cheese before tuna; a main-meal carb
+    /// for rice or pasta before an apple. Foods for other meals follow, so the list is never empty.
+    @MainActor static func alternatives(to food: Food, kind: Balance.Kind, meal: Meal, inPlan: Set<String>, dayKey: String, store: Store, all: [Food], count: Int = 4) -> [Pick] {
+        let main = meal == .lunch || meal == .dinner
+        let hint = meal == .breakfast ? "breakfast" : meal == .snacks ? "snack" : "main"
+        let ranked = ranked(kind, needDense: kind == .protein, needEnergy: main && kind != .veg, exclude: inPlan.union([food.id]), chosen: nil, dayKey: dayKey, store: store, all: all)
+        let fits = ranked.filter { $0.candidate.meal == hint || $0.candidate.meal == "any" }
+        return Array((fits + ranked.filter { p in !fits.contains { $0.food.id == p.food.id } }).prefix(count))
     }
     /// Which empty meal a candidate goes to: its hint when that meal is empty, else the solver's usual rule.
     static func meal(for c: Candidate, empty: [Meal], fallback: Meal) -> Meal {

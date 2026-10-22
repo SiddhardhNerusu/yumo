@@ -24,10 +24,11 @@ struct BalanceSheet: View {
     @State private var loaded = false
     @State private var staplesOpen = false
     @State private var gen = 0
-    @State private var chosen: [String: String] = [:]      // planner swaps this session: class → food id
+    @State private var chosen: [String: String] = [:]      // planner swaps this session: swapped food id → replacement food id
     @State private var swapFor: Balance.PlanItem? = nil    // the suggested row being swapped
     @State private var askNever: Food? = nil               // after a swap: "Don't suggest X again?"
     var store: Store { Store(ctx) }
+    var likedIds: Set<String> { Set(store.preferences().filter { $0.verdict == .liked }.map(\.foodId)) }
 
     var staples: [(Staple, Food)] { store.staples().compactMap { s in store.food(id: s.foodId).map { (s, $0) } } }
     var hasStaples: Bool { !store.staples().isEmpty }
@@ -46,7 +47,7 @@ struct BalanceSheet: View {
         .onAppear(perform: load)
         .task(id: solveKey) { guard loaded else { return }; try? await Task.sleep(for: .milliseconds(200)); guard !Task.isCancelled else { return }; syncGrams(); solve() }
         .pushCover(isPresented: $staplesOpen, onDismiss: { gen += 1 }) { StaplesScreen(back: "I prepped…") }
-        .sheet(item: $swapFor) { it in swapSheet(it).presentationDetents([.medium]) }
+        .sheet(item: $swapFor) { it in swapSheet(it).presentationDetents([.large]) }
         .alert("Don't suggest \(askNever?.shortName ?? "this") again?", isPresented: Binding(get: { askNever != nil }, set: { if !$0 { askNever = nil } })) {
             Button("Never again", role: .destructive) { if let f = askNever { store.setPreference(f, .never); toaster.show("\(f.shortName) won't come up again") }; askNever = nil }
             Button("Keep suggesting", role: .cancel) { askNever = nil }
@@ -255,14 +256,31 @@ struct BalanceSheet: View {
     /// Swap a suggested food for another from its class; the plan re-solves around the pick, then the planner asks whether to drop the old one for good.
     func swapSheet(_ it: Balance.PlanItem) -> some View {
         let inPlan = Set((result?.items ?? []).map(\.food.id))
-        let alts = Planner.alternatives(to: it.food, kind: it.kind, main: it.meal == .lunch || it.meal == .dinner, inPlan: inPlan, dayKey: dayKey, store: store, all: store.foods())
+        let alts = Planner.alternatives(to: it.food, kind: it.kind, meal: it.meal, inPlan: inPlan, dayKey: dayKey, store: store, all: store.foods())
         return VStack(spacing: 0) {
             Capsule().fill(Color.yumo.grabber).frame(width: 40, height: 5).padding(.top, 10)
             Text("Instead of \(it.food.shortName)").font(.yumo.title).padding(.top, 12).padding(.bottom, 4)
             Text("\(Balance.className(it.kind)) · sized to the same job").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted)
+            // the other half of the planner's memory (Sid): like it → it comes back, and foods like it rank higher
+            let liked = likedIds.contains(it.food.id)
+            Button {
+                if liked { store.clearPreference(it.food); toaster.show("\(it.food.shortName) unliked") }
+                else { store.setPreference(it.food, .liked); toaster.show("Liked · more like \(it.food.shortName) from now on") }
+                swapFor = nil; gen += 1
+            } label: {
+                HStack(spacing: 10) {
+                    Text(liked ? "♥\u{FE0E}" : "♡").font(.nunito(20, .black)).foregroundStyle(Color.yumo.accent)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(liked ? "You like \(it.food.shortName)" : "Like \(it.food.shortName)").font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink)
+                        Text(liked ? "It comes back every day · tap to unlike" : "Keeps it in your plans and suggests more like it").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted)
+                    }
+                    Spacer()
+                }.padding(.vertical, 12).padding(.horizontal, 16).frame(maxWidth: .infinity).contentShape(Rectangle())
+            }.buttonStyle(PlainPressStyle()).listCard(radius: 20).padding(.horizontal, Space.gutter).padding(.top, 14)
+            Overline(text: "Or swap for").frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.gutter + 4).padding(.top, 14)
             VStack(spacing: 0) {
                 ForEach(alts, id: \.food.id) { a in
-                    Button { chosen[Balance.className(it.kind)] = a.food.id; swapFor = nil; askNever = it.food } label: {
+                    Button { chosen[it.food.id] = a.food.id; swapFor = nil; askNever = it.food } label: {
                         HStack(spacing: 12) {
                             VStack(alignment: .leading, spacing: 1) { Text(a.candidate.label).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink); Text([a.food.detail, "\(Fmt.g(a.candidate.portion)) g · \(Fmt.k(a.food.kcal(for: a.candidate.portion))) kcal · P \(Fmt.g(a.food.p100 * a.candidate.portion / 100))"].filter { !$0.isEmpty }.joined(separator: " · ")).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) }
                             Spacer(); Text("›").font(.nunito(22, .extrabold)).foregroundStyle(Color.yumo.accent)
@@ -270,7 +288,7 @@ struct BalanceSheet: View {
                     }.buttonStyle(PlainPressStyle()).hairline()
                 }
                 if alts.isEmpty { Text("Nothing else in the pool for this class — add one as a staple instead.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).padding(.vertical, 14) }
-            }.padding(.leading, 18).listCard(radius: 20).padding(.horizontal, Space.gutter).padding(.top, 14)
+            }.padding(.leading, 18).listCard(radius: 20).padding(.horizontal, Space.gutter).padding(.top, 6)
             HStack { Spacer(); TextAction(label: "Never suggest \(it.food.shortName)", danger: true) { swapFor = nil; store.setPreference(it.food, .never); gen += 1; toaster.show("\(it.food.shortName) won't come up again") }; Spacer() }.padding(.top, 14)
             Spacer()
         }.background(Color.yumo.bg.ignoresSafeArea())
@@ -293,7 +311,7 @@ struct BalanceSheet: View {
                     VStack(alignment: .leading, spacing: 1) { Text(it.food.shortName).font(.nunito(15, .bold)).lineLimit(1); if !it.food.detail.isEmpty { Text(it.food.detail).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1) } }
                     if it.weighed { tag("weighed") }
                     if it.atMax && !it.suggested { tag("at max") }
-                    if it.suggested { Button { swapFor = it } label: { HStack(spacing: 3) { Text("suggested").font(.nunito(11, .extrabold)); Text("↻").font(.nunito(12, .black)) }.foregroundStyle(Color.yumo.accent).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(Color.yumo.accentTint)) }.buttonStyle(PlainPressStyle()) }
+                    if it.suggested { Button { swapFor = it } label: { HStack(spacing: 3) { Text(likedIds.contains(it.food.id) ? "♥\u{FE0E} liked" : "suggested").font(.nunito(11, .extrabold)); Text("↻").font(.nunito(12, .black)) }.foregroundStyle(Color.yumo.accent).padding(.horizontal, 7).padding(.vertical, 2).background(RoundedRectangle(cornerRadius: Radius.tag).fill(Color.yumo.accentTint)) }.buttonStyle(PlainPressStyle()) }
                     Spacer(); Text("\(Fmt.g(it.grams)) g").font(.nunito(15, .extrabold)).tabular()
                 }.padding(.vertical, 9).padding(.trailing, 16).hairline()
             }
