@@ -18,10 +18,10 @@ struct StaplesEditor: View {
     @State private var results: [Food] = []
     @State private var searchedLine = ""        // the line `results` answers; "No match" only once it equals the field
     @State private var scanOpen = false
-    var suggestions: [Food] {
-        guard mode == .settings, store.hasHistory(before: Date().adding(days: -6).dayKey) else { return [] }
+    /// What you've logged lately and haven't kept yet (22 Oct, Sid: "a way to add recent foods to staples") — newest first.
+    var recent: [Food] {
         let have = Set(store.staples().map(\.foodId))
-        return Array(store.foods().filter { $0.useCount >= 5 && !have.contains($0.id) && $0.tier != .branded && !$0.macrosUnknown }.prefix(4))
+        return Array(store.recentlyLogged(limit: 30).filter { !have.contains($0.id) && !$0.macrosUnknown }.prefix(8))
     }
     func tag(_ f: Food) -> String { Balance.className(Balance.classify(f)) }
 
@@ -29,7 +29,7 @@ struct StaplesEditor: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 10) {
                 TextField("Type here…", text: $line).font(.yumo.bodyStrong).focused($focused).autocorrectionDisabled().submitLabel(.done)
-                Button { scanOpen = true } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 36, height: 36).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()).accessibilityLabel("Scan a barcode")
+                ScanButton { scanOpen = true }
             }.padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
             .task(id: line) {   // debounced, off the main thread: the index is a value snapshot
                 let q = line.trimmingCharacters(in: .whitespaces); guard q.count >= 2 else { results = []; searchedLine = ""; return }
@@ -61,12 +61,19 @@ struct StaplesEditor: View {
                 Overline(text: "Your staples").padding(.top, 18)
                 VStack(spacing: 0) { ForEach(list, id: \.0.foodId) { s, f in stapleRow(s, f) } }.padding(.leading, Space.cardPad).listCard().padding(.top, 8)
             }
-            let sugg = suggestions
-            if !sugg.isEmpty && line.isEmpty {
-                Overline(text: "From your log").padding(.top, 18)
-                VStack(spacing: 0) { ForEach(sugg, id: \.id) { f in
+            let rec = recent
+            if !rec.isEmpty && line.isEmpty {
+                HStack(alignment: .firstTextBaseline) {
+                    Overline(text: "Recent")
+                    Spacer()
+                    if rec.count > 1 { TextAction(label: "Add all \(rec.count)") { for f in rec { store.addStaple(f) }; tick += 1; onChange() } }
+                }.padding(.top, 18)
+                VStack(spacing: 0) { ForEach(rec, id: \.id) { f in
                     HStack(spacing: 10) {
-                        VStack(alignment: .leading, spacing: 1) { Text(f.name).font(.yumo.bodyStrong).lineLimit(1); Text("\(f.useCount) times logged").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted) }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(f.shortName).font(.yumo.bodyStrong).foregroundStyle(Color.yumo.ink).lineLimit(1)
+                            Text([tag(f), f.useCount > 1 ? "logged \(f.useCount)×" : "logged once", f.detail].filter { !$0.isEmpty }.joined(separator: " · ")).font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).lineLimit(1)
+                        }
                         Spacer(); AddCircleButton { store.addStaple(f); tick += 1; onChange() }
                     }.padding(.vertical, 10).padding(.trailing, 14).hairline()
                 } }.padding(.leading, Space.cardPad).listCard().padding(.top, 8)

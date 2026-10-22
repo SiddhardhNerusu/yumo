@@ -59,7 +59,7 @@ struct BalanceSheet: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 TextField("Search your staples or the catalogue", text: $query).font(.yumo.bodyStrong).autocorrectionDisabled().submitLabel(.done)
-                Button { scanOpen = true } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 36, height: 36).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()).accessibilityLabel("Scan a barcode")
+                ScanButton { scanOpen = true }
             }
                 .padding(.horizontal, 16).frame(height: 50).background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.surface)).lifted(radius: Radius.field)
                 .padding(.horizontal, Space.gutter).padding(.top, 14)

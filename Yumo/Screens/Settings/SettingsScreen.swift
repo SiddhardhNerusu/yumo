@@ -52,6 +52,7 @@ struct SettingsScreen: View {
                     }
                     section("Help") {
                         #if DEBUG
+                        SettingsRow(label: "Fill with test data") { ChevronValue(value: "3 days · staples") }.contentShape(Rectangle()).onTapGesture { let r = TestData.fill(store); session.changed(); tick += 1; toaster.show("\(r.logged) foods over 3 days · \(r.staples) staples") }.hairline()
                         SettingsRow(label: "Preview weekly review") { ChevronValue(value: "last week") }.contentShape(Rectangle()).onTapGesture { dismiss(); session.tab = .today; Task { try? await Task.sleep(for: .milliseconds(500)); session.showReview = true } }.hairline()
                         #endif
                         SettingsRow(label: "Show me around") { ChevronValue(value: "Replay the tour") }.contentShape(Rectangle()).onTapGesture { let s = store; dismiss(); session.tab = .today; Task { try? await Task.sleep(for: .milliseconds(600)); Tour.shared.start(store: s, session: session) } }

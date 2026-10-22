@@ -102,23 +102,35 @@ struct AddFoodSheet: View {
         }
         .background(Color.black.ignoresSafeArea())
     }
+    /// A recognised barcode logs straight away (22 Oct, Sid: "as soon as it recognises it, it should just log it") — at the amount you
+    /// logged last time, else the label's serving — and the toast offers Undo for a misread. Not found keeps the card (create the food).
     func handleBarcode(_ code: String) {
-        guard found == nil else { return }
+        guard found == nil, !autoLogged else { return }
         let s = store
-        if let f = s.food(barcode: code) { withAnimation(Motion.snap) { found = Found(barcode: code, food: f) }; return }
+        if let f = s.food(barcode: code) { autoLog(f); return }
         withAnimation(Motion.snap) { found = Found(barcode: code, food: nil) }
         Task {
             var hit = await OpenFoodFacts.barcode(code); if hit == nil { hit = await USDABranded.barcode(code) }
-            if let p = hit { let f = s.upsert(p.makeFood()); withAnimation(Motion.snap) { found = Found(barcode: code, food: f) } }
+            if let p = hit { autoLog(s.upsert(p.makeFood())) }
             else { lookedUp.insert(code); PendingLookups.add(code) }
         }
+    }
+    @State private var autoLogged = false
+    func autoLog(_ f: Food) {
+        guard !autoLogged else { return }; autoLogged = true
+        let (sv, q) = f.quickAmount, s = store, sess = session
+        let e = s.log(food: f, meal: meal, dayKey: dayKey, quantity: q, serving: sv)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        let amount = f.quickAmountLabel
+        toaster.show("\(f.shortName) · \(amount) → \(meal.rawValue)", action: "Undo") { s.remove(e); sess.changed() }
+        session.changed(); scanOpen = false; dismiss()
     }
     @State private var lookedUp: Set<String> = []
 
     // MARK: search
     var search: some View {
         VStack(spacing: 0) {
-            SheetHeader(title: title, onClose: { Tour.shared.didAct(.sheetClose); dismiss() }, closeAnchor: Tour.shared.active) { Button { scanOpen = true } label: { BarcodeGlyph(color: .yumo.ink).scaleEffect(0.5).frame(width: 44, height: 44).background(Circle().fill(Color.yumo.control)) }.buttonStyle(PlainPressStyle()) }
+            SheetHeader(title: title, onClose: { Tour.shared.didAct(.sheetClose); dismiss() }, closeAnchor: Tour.shared.active) { ScanButton(size: 40) { scanOpen = true } }
             HStack(spacing: 10) {
                 MagnifierGlyph(color: .yumo.inkMuted, size: 18)
                 TextField(Features.typeIt ? "chicken 180 rice 150 — or a name" : "Search foods", text: $query).font(.yumo.body).focused($focused).submitLabel(.search).autocorrectionDisabled()

@@ -46,7 +46,7 @@ struct RootView: View {
             if ready {
                 if session.onboarded { MainTabs() } else { OnboardingFlow() }
             }
-            if let t = toaster.text { ToastView(text: t).padding(.bottom, Space.toastBottom).transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(99) }
+            if let t = toaster.text { ToastView(text: t, actionLabel: toaster.actionLabel, action: toaster.action).padding(.bottom, Space.toastBottom).transition(.move(edge: .bottom).combined(with: .opacity)).zIndex(99) }
         }
         .background(Color.yumo.bg.ignoresSafeArea())
         .task {

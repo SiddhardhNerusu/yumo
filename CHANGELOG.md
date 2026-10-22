@@ -1,5 +1,11 @@
 # Yumo — changelog
 
+## 1.0 build 2026-10-22 night (scan logs itself, Recent → staples, green scan button)
+- **A scan logs as soon as the barcode is recognised** (Sid). The product is logged to the meal at the amount you logged it last time, else the label's serving; a success haptic, the sheet closes, and the toast reads "Protein Bar · 60 g → Snacks · Undo" for 4 s — Undo removes the entry (and takes the use back). A barcode that isn't found keeps the card with "Create this food". The toast gained one optional action button (accent on the ink pill, 44 pt).
+- **Add recent foods to your staples.** Settings › Staples has a RECENT group — what you've logged lately and haven't kept, newest first, with its class and how often you logged it — each with +, and "Add all N". It replaces "From your log", which only appeared after a week of history and 5 logs of a food. I prepped… already had Recent in step 1; it was empty on the simulator because the only logged food was already a staple.
+- **The scan button is green** everywhere (Add food, I prepped…, Staples): the accent barcode on the accent tint, lifted like the + (`ScanButton`), so it reads as an action rather than a grey decoration.
+- **Debug builds: Settings › Help › Fill with test data** logs three days of meals and adds a staple of each kind the planner sizes, all taken from `planner.csv` (no food list in code); today is left empty for "Plan it all for me". Not in TestFlight builds.
+
 ## 1.0 build 2026-10-22 evening (the planner: what you don't eat, one carb per meal)
 - **"I don't eat"** — Settings › Staples › The planner (also "Foods you don't eat ›" under a plan): Meat, Fish, Dairy, Eggs, Nuts, Gluten. The planner never suggests a food with that tag; your own staples and weighed foods are yours and are never filtered. Tags live in `planner.csv` (new `tags` column), so the rule is data. Tested with meat and fish off: tempeh, tofu, red lentils and whey fill the protein, the day lands P 243 / 243, C 268 / 276, F 97 / 97.
 - **Vegetarian proteins in the pool**: tofu, tempeh, red lentils (protein) and chickpeas (carb) — 40 foods now.

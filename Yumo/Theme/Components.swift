@@ -32,6 +32,18 @@ struct TextAction: View {
     var label: String; var danger = false; var action: () -> Void
     var body: some View { Button(action: action) { Text(label).font(.yumo.action).foregroundStyle(danger ? Color.yumo.danger : .yumo.accent) }.buttonStyle(PlainPressStyle()) }
 }
+/// The barcode scanner's button (22 Oct, Sid: "make the barcode green so it's clear it's an option"): the accent glyph on the accent tint,
+/// lifted like the + — the same green as every other thing you can tap to add food.
+struct ScanButton: View {
+    var size: CGFloat = 36
+    var action: () -> Void
+    var body: some View {
+        Button(action: action) { BarcodeGlyph(color: .yumo.accent).scaleEffect(size / 72).frame(width: size, height: size) }
+            .buttonStyle(LiftButtonStyle(fill: .yumo.accentTint, edge: .yumo.accentTintEdge, lift: Lift.small, radius: size / 2))
+            .frame(minWidth: 44, minHeight: 44).accessibilityLabel("Scan a barcode")
+    }
+}
+
 struct AddCircleButton: View {
     var action: () -> Void
     var body: some View {
@@ -98,15 +110,30 @@ struct Tag: View { var label: String
 struct Overline: View { var text: String
     var body: some View { Text(text.uppercased()).font(.yumo.overline).kerning(0.7).foregroundStyle(Color.yumo.inkMuted).padding(.leading, 4) }
 }
-struct ToastView: View { var text: String
+struct ToastView: View { var text: String; var actionLabel: String? = nil; var action: (() -> Void)? = nil
     var body: some View {
-        Text(text).font(.yumo.action).foregroundStyle(Color.yumo.onAccent).tabular().padding(.horizontal, 18).padding(.vertical, 12)
-            .background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.ink)).lifted(.yumo.toastEdge, lift: 3, radius: Radius.field)
+        HStack(spacing: 14) {
+            Text(text).font(.yumo.action).foregroundStyle(Color.yumo.onAccent).tabular().lineLimit(2)
+            if let actionLabel, let action {
+                // one action (Undo): accent on the ink pill, a 44 pt target
+                Button(action: action) { Text(actionLabel).font(.yumo.action).foregroundStyle(Color.yumo.accent).frame(minWidth: 44, minHeight: 44) }.buttonStyle(PlainPressStyle())
+            }
+        }
+        .padding(.leading, 18).padding(.trailing, actionLabel == nil ? 18 : 8).padding(.vertical, actionLabel == nil ? 12 : 0)
+        .background(RoundedRectangle(cornerRadius: Radius.field, style: .continuous).fill(Color.yumo.ink)).lifted(.yumo.toastEdge, lift: 3, radius: Radius.field)
     }
 }
 @Observable final class Toaster {
-    var text: String? ; private var task: Task<Void, Never>?
-    func show(_ t: String) { task?.cancel(); withAnimation(Motion.toastIn) { text = t }; task = Task { try? await Task.sleep(for: .seconds(Motion.toastHold)); if !Task.isCancelled { withAnimation(.easeIn(duration: 0.2)) { self.text = nil } } } }
+    var text: String?; var actionLabel: String?; var action: (() -> Void)?
+    private var task: Task<Void, Never>?
+    /// `action`: one button on the toast (an Undo); the toast then stays 4 s, long enough to reach it.
+    func show(_ t: String, action label: String? = nil, perform: (() -> Void)? = nil) {
+        task?.cancel()
+        withAnimation(Motion.toastIn) { text = t; actionLabel = label; action = perform.map { run in { [weak self] in run(); self?.hide() } } }
+        let hold = label == nil ? Motion.toastHold : 4
+        task = Task { try? await Task.sleep(for: .seconds(hold)); if !Task.isCancelled { hide() } }
+    }
+    func hide() { task?.cancel(); withAnimation(.easeIn(duration: 0.2)) { text = nil; actionLabel = nil; action = nil } }
 }
 
 // MARK: - Progress bars
