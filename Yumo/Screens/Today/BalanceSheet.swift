@@ -85,18 +85,10 @@ struct BalanceSheet: View {
                 .fullScreenCover(isPresented: $scanOpen) { StapleScanScreen { f in keep(f); scanOpen = false } }
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+                    // Two sections, two meanings (22 Oct, Sid: "not clear what is staples and what's not"): YOUR STAPLES — tap Weigh for what you
+                    // prepped; ADD A STAPLE — + keeps a food. The + never means "weigh", and Weigh never adds anything.
                     let q = query.trimmingCharacters(in: .whitespaces).lowercased()
                     let stapleIds = Set(store.staples().map(\.foodId))
-                    // FROM THE CATALOGUE: search hits that are not staples, or the weighed extras when there is no query
-                    let extras: [Food] = q.isEmpty ? items.compactMap { $0.foodId }.filter { !stapleIds.contains($0) }.compactMap { store.food(id: $0) } : hits
-                    if !q.isEmpty, onlineFirst, !online.isEmpty { onlineGroup }
-                    if !extras.isEmpty { group(q.isEmpty ? "Also weighed" : "From the catalogue", extras, inStaples: false) }
-                    if !q.isEmpty, !onlineFirst, !online.isEmpty { onlineGroup }
-                    if !q.isEmpty, online.isEmpty { Text(onlineBusy ? "Looking for packaged products…" : q.count >= 3 ? "No packaged product by that name on Open Food Facts — scan its barcode to add it." : "").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).padding(.top, 12).padding(.horizontal, 4) }
-                    ForEach([(Balance.Kind.protein, "Proteins"), (.carb, "Carbs"), (.fat, "Fats"), (.veg, "Veg")], id: \.1) { k, label in
-                        let list = staples.map(\.1).filter { Balance.classify($0) == k && (q.isEmpty || $0.name.lowercased().contains(q)) }
-                        if !list.isEmpty { group(label, list, inStaples: true) }
-                    }
                     if q.isEmpty, !store.profile().plannerAskedPowder {
                         // asked once (21 Oct, Sid): a protein powder is easy to forget as a staple, and it is what the planner reaches for when protein is short
                         VStack(alignment: .leading, spacing: 10) {
@@ -110,20 +102,36 @@ struct BalanceSheet: View {
                             }
                         }.frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 14, trailing: 20), radius: 20).padding(.top, 14)
                     }
+                    // ── YOUR STAPLES ──
+                    let stapleGroups: [(String, [Food])] = [(Balance.Kind.protein, "Proteins"), (.carb, "Carbs"), (.fat, "Fats"), (.veg, "Veg")].map { k, label in
+                        (label, staples.map(\.1).filter { Balance.classify($0) == k && (q.isEmpty || $0.name.lowercased().contains(q)) })
+                    }.filter { !$0.1.isEmpty }
+                    let weighedExtras: [Food] = items.filter { $0.grams > 0 }.compactMap { $0.foodId }.filter { !stapleIds.contains($0) }.compactMap { store.food(id: $0) }
+                    if hasStaples && (q.isEmpty || !stapleGroups.isEmpty) {
+                        sectionHeader("Your staples", "Weigh what you prepped today — Yumo sizes everything else to land the day.")
+                        ForEach(stapleGroups, id: \.0) { label, list in group(label, list, inStaples: true) }
+                        if q.isEmpty, !weighedExtras.isEmpty { group("Also weighed", weighedExtras, inStaples: false) }
+                    } else if !hasStaples, q.isEmpty {
+                        sectionHeader("Your staples", "None yet. Staples are the foods you eat most weeks — keep a few below and Yumo plans the day around them.")
+                    }
+                    // ── ADD A STAPLE ──
                     if q.isEmpty {
-                        // shortcuts (21 Oct, Sid): what you logged today and what you log often, without searching — + keeps a food as a staple
                         var seen = Set<String>()
                         let todays = store.entries(dayKey).compactMap(\.food).filter { !stapleIds.contains($0.id) && seen.insert($0.id).inserted }
-                        let recent = store.recentlyLogged().filter { f in !stapleIds.contains(f.id) && !items.contains { $0.foodId == f.id } }
-                        if !todays.isEmpty {
-                            HStack { Spacer(); TextAction(label: "Add today's \(todays.count) food\(todays.count == 1 ? "" : "s") as staples") { for f in todays { store.addStaple(f) }; gen += 1; toaster.show("\(todays.count) staple\(todays.count == 1 ? "" : "s") added") }; Spacer() }.padding(.top, 14)
+                        let recent = Array(store.recentlyLogged(limit: 30).filter { f in !stapleIds.contains(f.id) && !items.contains { $0.foodId == f.id } }.prefix(8))   // eight is a glance; search finds the rest
+                        if !todays.isEmpty || !recent.isEmpty {
+                            sectionHeader("Add a staple", "Foods you've logged. + keeps one — it moves up to your staples.")
+                            if !todays.isEmpty {
+                                HStack { TextAction(label: "Add today's \(todays.count) food\(todays.count == 1 ? "" : "s")") { for f in todays { store.addStaple(f) }; gen += 1; toaster.show("\(todays.count) staple\(todays.count == 1 ? "" : "s") added") }; Spacer() }.padding(.top, 8).padding(.leading, 4)
+                            }
+                            if !recent.isEmpty { group("Recent", recent, inStaples: false) }
                         }
-                        if !recent.isEmpty { group("Recent", recent, inStaples: false) }
-                    }
-                    if !hasStaples {
-                        // no page to go to: searching or scanning above adds straight to your staples
-                        VStack(alignment: .leading, spacing: 2) { Text("Add your staples first").font(.nunito(15, .extrabold)).foregroundStyle(Color.yumo.ink); Text("The foods you eat most weeks. Search or scan one above and tap + — Yumo balances from those.").font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted) }
-                            .frame(maxWidth: .infinity, alignment: .leading).card(padding: EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20), radius: 20).padding(.top, 16)
+                    } else {
+                        sectionHeader("Add a staple", "+ keeps it as a staple; then tap Weigh if you prepped some today.")
+                        if onlineFirst, !online.isEmpty { onlineGroup }
+                        if !hits.isEmpty { group("From the catalogue", hits, inStaples: false) }
+                        if !onlineFirst, !online.isEmpty { onlineGroup }
+                        if online.isEmpty { Text(onlineBusy ? "Looking for packaged products…" : q.count >= 3 ? "No packaged product by that name on Open Food Facts — scan its barcode to add it." : "").font(.yumo.footnote).foregroundStyle(Color.yumo.inkMuted).padding(.top, 12).padding(.horizontal, 4) }
                     }
                 }.padding(.horizontal, Space.gutter).padding(.bottom, 16)
             }.scrollDismissesKeyboard(.interactively)
@@ -134,6 +142,12 @@ struct BalanceSheet: View {
             }.padding(EdgeInsets(top: 12, leading: 20, bottom: 24, trailing: 20)).frame(maxWidth: .infinity)
             .background(UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20).fill(Color.yumo.surface).overlay(alignment: .top) { Rectangle().fill(Color.yumo.hairline).frame(height: 1) }.ignoresSafeArea())
         }
+    }
+    func sectionHeader(_ title: String, _ caption: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title).font(.nunito(19, .extrabold)).foregroundStyle(Color.yumo.ink)
+            Text(caption).font(.yumo.caption).foregroundStyle(Color.yumo.inkMuted).fixedSize(horizontal: false, vertical: true)
+        }.padding(.top, 22).padding(.leading, 4)
     }
     func group(_ label: String, _ foods: [Food], inStaples: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -146,7 +160,7 @@ struct BalanceSheet: View {
     @ViewBuilder func weighRow(_ f: Food, inStaples: Bool) -> some View {
         let it = item(f); let weighed = (it?.grams ?? 0) > 0; let isOpen = open == f.id
         let staple = store.staples().first { $0.foodId == f.id }
-        let sub: String = weighed ? ((it?.carried ?? false) ? "same as yesterday" : "weighed today") : inStaples ? [f.detail, staple?.maxG.map { "max \(Fmt.g($0)) g" } ?? ""].filter { !$0.isEmpty }.joined(separator: " · ").ifEmpty(Balance.className(Balance.classify(f))) : [f.detail, "+ keeps it as a staple"].filter { !$0.isEmpty }.joined(separator: " · ")
+        let sub: String = weighed ? ((it?.carried ?? false) ? "same as yesterday" : "weighed today") : inStaples ? [f.detail, staple?.maxG.map { "max \(Fmt.g($0)) g" } ?? ""].filter { !$0.isEmpty }.joined(separator: " · ").ifEmpty(Balance.className(Balance.classify(f))) : [Balance.className(Balance.classify(f)), f.detail].filter { !$0.isEmpty }.joined(separator: " · ")
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 Button { toggle(f) } label: {
@@ -155,7 +169,11 @@ struct BalanceSheet: View {
                 }.buttonStyle(PlainPressStyle())
                 if weighed {
                     Button { toggle(f) } label: { HStack(spacing: 6) { Text(Fmt.g(it!.grams)).font(.nunito(17, .extrabold)).tabular(); Text("g").font(.nunito(17, .bold)).foregroundStyle(Color.yumo.inkMuted) }.foregroundStyle(Color.yumo.ink).padding(.horizontal, 12).frame(height: 40).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.yumo.accentTint)).overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.yumo.accent, lineWidth: 2)) }.buttonStyle(PlainPressStyle())
-                } else { AddCircleButton { if inStaples { toggle(f) } else { keep(f) } } }
+                } else if inStaples {
+                    // a staple is weighed, not added: its own button, never the green +
+                    Button { toggle(f) } label: { Text("Weigh").font(.nunito(14, .extrabold)).foregroundStyle(Color.yumo.ink).padding(.horizontal, 14).frame(height: 36).background(RoundedRectangle(cornerRadius: Radius.control, style: .continuous).fill(Color.yumo.control)) }
+                        .buttonStyle(PlainPressStyle()).frame(minHeight: 44).accessibilityLabel("Weigh \(f.shortName)")
+                } else { AddCircleButton { keep(f) }.accessibilityLabel("Keep \(f.shortName) as a staple") }
             }.padding(.vertical, 11).padding(.trailing, 16)
             Expandable(open: isOpen) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -172,10 +190,9 @@ struct BalanceSheet: View {
     }
     /// Search / scan → staple: saved for good, shown in its class group, and the weight field unfolds right away.
     func keep(_ f: Food) {
+        // keeping a food only keeps it — it moves up to Your staples; weighing is its own tap (Sid: the auto-opened 0 g field read as part of the + )
         store.addStaple(f); gen += 1; query = ""; hits = []; online = []
-        if item(f) == nil { items.append(PrepItem(text: f.name, grams: 0, foodId: f.id, carried: false)) }
-        withAnimation(Motion.expand) { open = f.id }
-        toaster.show("\(f.shortName) is a staple now")
+        toaster.show("\(f.shortName) is a staple · tap Weigh if you prepped some")
     }
     /// Packaged products found by name on Open Food Facts; + saves the product locally (one row per barcode) and keeps it as a staple.
     var onlineGroup: some View {
