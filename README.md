@@ -2,7 +2,8 @@
 
 Minimal iOS calorie and macro tracker. Native SwiftUI, iOS 17+, SwiftData, no third-party packages.
 
-- Design source of truth: the Yumo Design System artifact (tokens, components, calculations). `Yumo/Theme/Theme.swift` implements it as `Color.yumo.*`, `Font.yumo.*`, `Radius`, `Lift`, `Space`, `Motion`.
+- **Rule book: `docs/RULEBOOK.md`** is the source of truth for every UI change (start with "The card" and the Definition of done). It ranks: Sid's words, then the rule book, then the design handoff, then platform defaults.
+- Design tokens and components: the Yumo Design System artifact (tokens, components, calculations). `Yumo/Theme/Theme.swift` implements it as `Color.yumo.*`, `Font.yumo.*`, `Radius`, `Lift`, `Space`, `Motion`.
 - Project file is generated: edit `project.yml`, then `xcodegen generate` (brew install xcodegen).
 - Build: open `Yumo.xcodeproj` or `xcodebuild -scheme Yumo -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' build`.
 - Release: `Scripts/testflight.sh` (see `docs/TESTFLIGHT.md`).
